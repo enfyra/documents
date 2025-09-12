@@ -44,7 +44,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 - **Born for Clustering**: Designed from day one to run multiple instances - no configuration, no setup, just scale
 - **Automatic Coordination**: Schema changes sync instantly across all instances via Redis
 - **Zero Additional Work**: Deploy 1 instance or 100 instances - the experience is identical
-- **Stateless by Design**: Any instance handles any request seamlessly - [Learn how it works →](./docs/backend/cluster-architecture.md)
+- **Stateless by Design**: Any instance handles any request seamlessly - [Learn how it works →](./backend/cluster-architecture.md)
 
 **🛡️ Enterprise-Grade Security**
 
@@ -108,7 +108,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 ## 📚 Documentation
 
 ```
-docs/
+enfyra-docs/
 ├── 🚀 getting-started/
 │   ├── installation.md          # Setup guide for backend and app
 │   ├── getting-started.md       # First steps after installation, including table creation
@@ -123,6 +123,7 @@ docs/
 │   ├── hooks.md                 # UI guide for creating lightweight request/response hooks
 │   ├── menu-management.md       # UI guide for creating custom navigation menus
 │   ├── extension-system.md      # Create custom pages with Vue.js components (linked to menus)
+│   ├── header-actions.md        # Inject custom actions into header and sub-header areas
 │   ├── permission-builder.md    # Visual interface for creating complex permission rules
 │   ├── permission-components.md # PermissionGate and usePermissions for UI control
 │   └── form-system.md          # Dynamic form generation with validation and relations
@@ -135,38 +136,90 @@ docs/
     └── permission-system.md     # 🔐 Role-based access control with allowedUsers bypass
 ```
 
+## 🗺️ Learning Path
+
+**New to Enfyra?** Choose your journey:
+
+### ⚡ Quick Start (5 mins)
+**Just want to see what Enfyra can do?**
+1. 🌐 **[Try Live Demo](https://demo.enfyra.io/)** - Pre-filled admin credentials, just click login!
+2. 📖 **[Getting Started Guide](./getting-started/getting-started.md)** - See table creation and data management in action
+
+### 📚 Full Learning Path
+**Ready to master Enfyra?** Follow this step-by-step path to become proficient:
+
+### 🚀 Phase 1: Setup & Basics (30 mins)
+1. **[Installation](./getting-started/installation.md)** - Set up Enfyra backend and app
+2. **[Getting Started](./getting-started/getting-started.md)** - Create your first table and understand the interface
+3. **[Data Management](./getting-started/data-management.md)** - Learn to manage records and relationships
+
+### 🎨 Phase 2: Frontend Mastery (2-3 hours)
+4. **[Form System](./frontend/form-system.md)** - Understand how forms work with your data
+5. **[Filter System](./frontend/filter-system.md)** - Master data filtering and searching  
+6. **[Permission Builder](./frontend/permission-builder.md)** - Set up access control rules
+7. **[Menu Management](./frontend/menu-management.md)** - Customize navigation and user interface
+
+### 🔧 Phase 3: Customization (3-4 hours)
+8. **[API Integration](./frontend/api-integration.md)** - Learn to fetch and manipulate data programmatically
+9. **[Extension System](./frontend/extension-system.md)** - Build custom pages and functionality
+10. **[Header Actions](./frontend/header-actions.md)** - Inject custom buttons and widgets into the app interface
+11. **[Custom Handlers](./frontend/custom-handlers.md)** - Override default API behavior with business logic
+
+### ⚙️ Phase 4: Advanced Development (4-5 hours)
+12. **[API Querying](./backend/api-querying.md)** - Master MongoDB-like querying for complex data retrieval
+13. **[Hook Development](./backend/hook-development.md)** - Create sophisticated request/response hooks
+14. **[API Lifecycle](./backend/api-lifecycle.md)** - Understand the complete request processing pipeline
+
+### 🏗️ Phase 5: Production & Scale (2-3 hours)
+15. **[Permission System](./backend/permission-system.md)** - Deep dive into role-based access control
+16. **[Cluster Architecture](./backend/cluster-architecture.md)** - Deploy and scale across multiple instances
+
+### 🎯 Goal-Oriented Paths
+
+**Have a specific goal?** Jump directly to what you need:
+
+- 🚀 **Building an MVP?** → Phases 1-2 (3-4 hours total)
+- 🔧 **Need custom functionality?** → Focus on Phase 3: API Integration + Extensions
+- 📊 **Building a dashboard?** → [Extension System](./frontend/extension-system.md) + [API Integration](./frontend/api-integration.md)
+- 🔒 **Need role-based access?** → [Permission Builder](./frontend/permission-builder.md) + [Permission System](./backend/permission-system.md)
+- ⚙️ **Complex business logic?** → [Custom Handlers](./frontend/custom-handlers.md) + [Hook Development](./backend/hook-development.md)
+- 🏢 **Enterprise deployment?** → [Cluster Architecture](./backend/cluster-architecture.md) + [Permission System](./backend/permission-system.md)
+
+---
+
 ### Quick Navigation
 
 **🚀 Getting Started**
-- **[Installation](./docs/getting-started/installation.md)** - Setup guide for backend and app
-- **[Getting Started](./docs/getting-started/getting-started.md)** - First steps after installation, including table creation
-- **[Data Management](./docs/getting-started/data-management.md)** - Complete guide to managing records in your tables
+- **[Installation](./getting-started/installation.md)** - Setup guide for backend and app
+- **[Getting Started](./getting-started/getting-started.md)** - First steps after installation, including table creation
+- **[Data Management](./getting-started/data-management.md)** - Complete guide to managing records in your tables
 
 **🎨 Frontend (User Interface)**
-- **[API Integration](./docs/frontend/api-integration.md)** - API integration with Enfyra SDK and examples for extensions
-- **[Filter System](./docs/frontend/filter-system.md)** - Interactive UI filtering for data tables and forms
-- **[Relation Picker](./docs/frontend/relation-picker.md)** - Working with related data in forms (powered by Filter System)
-- **[Routing Management](./docs/frontend/routing-management.md)** - UI guide for creating custom API endpoints and route permissions
-- **[Custom Handlers](./docs/frontend/custom-handlers.md)** - UI guide for creating custom business logic handlers
-- **[Hooks](./docs/frontend/hooks.md)** - UI guide for creating lightweight request/response hooks
-- **[Menu Management](./docs/frontend/menu-management.md)** - UI guide for creating custom navigation menus
-- **[Extension System](./docs/frontend/extension-system.md)** - Create custom pages with Vue.js components (linked to menus)
-- **[Permission Builder](./docs/frontend/permission-builder.md)** - Visual interface for creating complex permission rules
-- **[Permission Components](./docs/frontend/permission-components.md)** - PermissionGate and usePermissions for UI control
-- **[Form System](./docs/frontend/form-system.md)** - Dynamic form generation with validation and relations
+- **[API Integration](./frontend/api-integration.md)** - API integration with Enfyra SDK and examples for extensions
+- **[Filter System](./frontend/filter-system.md)** - Interactive UI filtering for data tables and forms
+- **[Relation Picker](./frontend/relation-picker.md)** - Working with related data in forms (powered by Filter System)
+- **[Routing Management](./frontend/routing-management.md)** - UI guide for creating custom API endpoints and route permissions
+- **[Custom Handlers](./frontend/custom-handlers.md)** - UI guide for creating custom business logic handlers
+- **[Hooks](./frontend/hooks.md)** - UI guide for creating lightweight request/response hooks
+- **[Menu Management](./frontend/menu-management.md)** - UI guide for creating custom navigation menus
+- **[Extension System](./frontend/extension-system.md)** - Create custom pages with Vue.js components (linked to menus)
+- **[Header Actions](./frontend/header-actions.md)** - Inject custom actions into header and sub-header areas
+- **[Permission Builder](./frontend/permission-builder.md)** - Visual interface for creating complex permission rules
+- **[Permission Components](./frontend/permission-components.md)** - PermissionGate and usePermissions for UI control
+- **[Form System](./frontend/form-system.md)** - Dynamic form generation with validation and relations
 
 **⚙️ Backend (Developer Integration)**
-- **[API Lifecycle](./docs/backend/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
-- **[API Querying](./docs/backend/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
-- **[Hook Development](./docs/backend/hook-development.md)** - Advanced hook programming with context, examples, and best practices
-- **[Cluster Architecture](./docs/backend/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
-- **[Permission System](./docs/backend/permission-system.md)** - 🔐 **Role-based access control** with allowedUsers bypass
+- **[API Lifecycle](./backend/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
+- **[API Querying](./backend/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
+- **[Hook Development](./backend/hook-development.md)** - Advanced hook programming with context, examples, and best practices
+- **[Cluster Architecture](./backend/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
+- **[Permission System](./backend/permission-system.md)** - 🔐 **Role-based access control** with allowedUsers bypass
 
 ## Installation
 
 Enfyra requires both backend and frontend to work properly. See our complete installation guide:
 
-**[→ Complete Installation Guide](./docs/getting-started/installation.md)**
+**[→ Complete Installation Guide](./getting-started/installation.md)**
 
 Quick overview:
 1. First install Enfyra Backend
@@ -193,7 +246,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 📖 [Documentation](./docs/)
+- 📖 [Documentation](./)
 - 🐛 [Issues](https://github.com/dothinh115/enfyra/issues)
 - 💬 [Discussions](https://github.com/dothinh115/enfyra/discussions)
 

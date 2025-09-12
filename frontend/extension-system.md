@@ -2,6 +2,8 @@
 
 The Extension System allows you to create custom pages and widgets using Vue.js components. Extensions are tightly coupled with the menu system - when you create a menu item, you need an extension to provide the actual content that displays when users click that menu.
 
+**→ [Menu Management Guide](./menu-management.md)** - Learn how to create and configure menus
+
 ## Table of Contents
 
 - [Understanding Extensions and Menus](#understanding-extensions-and-menus)
@@ -15,6 +17,7 @@ The Extension System allows you to create custom pages and widgets using Vue.js 
   - [Vue 3 Composition API](#vue-3-composition-api-global-access)
   - [Browser APIs](#browser-apis-available)
 - [Advanced Extension Features](#advanced-extension-features)
+- [Header Actions Integration](#header-actions-integration)
 - [Widget System](#widget-system)
 - [File Upload Support](#file-upload-support)
 - [Extension Management](#extension-management)
@@ -361,7 +364,7 @@ const handleClick = () => {
 - `useApi()` - Custom API wrapper with error handling (recommended)
 - `useEnfyraApi()` - Direct SDK API calls
 - `useSchema()` - Schema validation and form generation
-- `useFilterQuery()` - Advanced filtering and querying
+- `useFilterQuery()` - Advanced filtering and querying → [Filter System Guide](./filter-system.md)
 - `useDataTableColumns()` - Data table column management
 
 **Authentication & Permissions:**
@@ -514,22 +517,48 @@ Control visibility based on permissions:
 
 ## Advanced Extension Features
 
-### Using Header Actions
-Register buttons in the page header:
+## Header Actions Integration
+
+**🚀 Extensions can inject custom actions directly into the app's header and sub-header areas** - demonstrating the incredible power to intervene in ANY part of the application interface.
+
+### Quick Header Action Example
 
 ```vue
 <script setup>
 onMounted(() => {
-  useHeaderActionRegistry({
+  // Register in main header (top-right)
+  useHeaderActionRegistry().register({
     id: 'save-report',
     label: 'Save Report',
     icon: 'lucide:save',
     color: 'primary',
-    onClick: () => saveReport()
+    onClick: () => saveReport(),
+    permission: {
+      route: '/reports',
+      actions: ['create']
+    }
+  });
+  
+  // Register in sub-header (page level)
+  useSubHeaderActionRegistry().register({
+    id: 'filter-toggle',
+    label: 'Filters',
+    icon: 'lucide:filter',
+    side: 'left',
+    onClick: () => toggleFilters()
   });
 });
 </script>
 ```
+
+### Powerful Features
+- **Permission Integration**: Every action automatically uses PermissionGate
+- **Route Awareness**: Show/hide actions based on current page
+- **Custom Components**: Inject complete custom widgets
+- **Reactive Properties**: Dynamic labels, loading states, conditional visibility
+- **Positioning Control**: Left/right positioning in sub-header
+
+**→ [Complete Header Actions Guide](./header-actions.md)** - Full documentation with advanced examples
 
 ### Fetching Data from API
 ```vue
@@ -599,6 +628,11 @@ onMounted(() => {
 **See [API Integration](./api-integration.md) for complete API usage guide.**
 
 ### Creating Forms
+
+Extensions can use Enfyra's powerful form system to create dynamic, validated forms:
+
+**→ [Complete Form System Guide](./form-system.md)** - Learn about dynamic forms, validation, and field types
+
 ```vue
 <template>
   <UCard>

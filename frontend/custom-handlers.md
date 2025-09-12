@@ -598,3 +598,10 @@ return {
 - **Performance Tracking**: Log execution times for optimization
 
 Custom Handlers provide unlimited flexibility while maintaining security through isolated execution and rich context access.
+
+## Related Documentation
+
+- **[Hooks](./hooks.md)** - Lightweight request/response hooks for simple customizations
+- **[Hook Development](../backend/hook-development.md)** - Advanced hook programming with examples
+- **[API Lifecycle](../backend/api-lifecycle.md)** - Complete request processing pipeline
+- **[Routing Management](./routing-management.md)** - UI guide for creating custom endpoints

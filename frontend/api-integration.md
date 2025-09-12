@@ -196,6 +196,42 @@ const handleLogout = async () => {
 </template>
 ```
 
+## Permission Integration
+
+API calls often need permission checks. Enfyra provides the powerful `PermissionGate` component and `usePermissions` composable for controlling access to API functionality.
+
+**→ [Complete Permission Guide](./permission-components.md)** - Learn about PermissionGate and usePermissions
+**→ [Permission Builder](./permission-builder.md)** - Visual interface for creating permission rules
+
+```vue
+<template>
+  <!-- Only show button if user has permission -->
+  <PermissionGate :condition="{ route: '/user_definition', actions: ['create'] }">
+    <UButton @click="createUser">Create User</UButton>
+  </PermissionGate>
+</template>
+
+<script setup>
+// Check permissions programmatically
+const { hasPermission } = usePermissions();
+
+const deleteUser = async (userId) => {
+  // Check permission before API call
+  if (!hasPermission('/user_definition', 'DELETE')) {
+    toast.add({
+      title: 'Permission denied',
+      color: 'error'
+    });
+    return;
+  }
+  
+  await useApi(`/user_definition/${userId}`, {
+    method: 'DELETE'
+  });
+};
+</script>
+```
+
 ## API Integration in Extensions
 
 ### Dashboard Extension Example
@@ -361,6 +397,7 @@ onMounted(() => {
         <p class="text-gray-500">Manage system users and roles</p>
       </div>
       
+      <!-- Permission-controlled button - see Permission Components guide -->
       <PermissionGate :condition="{ route: '/user_definition', actions: ['create'] }">
         <UButton @click="showCreateModal = true" color="primary">
           <UIcon name="lucide:plus" />
