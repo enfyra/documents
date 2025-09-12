@@ -384,7 +384,7 @@ GET /api/users?deep={"posts":{"fields":["title","views"],"filter":{"views":{"_gt
 
 ## API Usage in Custom Handlers
 
-When using the filter system in [Custom Handlers](../backend/custom-handlers.md), you can access and utilize these same filtering capabilities:
+When using the filter system in [Custom Handlers](../frontend/custom-handlers.md), you can access and utilize these same filtering capabilities:
 
 ```javascript
 // In a custom handler
@@ -403,7 +403,7 @@ const result = await $ctx.$repos.products.find({
 ```
 
 The API filtering system integrates seamlessly with:
-- **Default CRUD operations** on [routes](../backend/routing-management.md)
+- **Default CRUD operations** on [routes](../frontend/routing-management.md)
 - **Custom handlers** with full filter access
 - **Frontend applications** consuming the API
 - **Third-party integrations** and webhooks

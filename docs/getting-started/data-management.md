@@ -1,6 +1,6 @@
 # Data Management
 
-After creating tables, you can manage your records through the Data section. Access it via **Data** in the sidebar, then select your table.
+Data Management is where you create, view, edit, and delete records in your tables. After creating tables, you can access your data through **Data** in the sidebar, then select your table.
 
 ## Navigating to Your Table Data
 

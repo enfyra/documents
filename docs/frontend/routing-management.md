@@ -1,6 +1,6 @@
 # Routing Management
 
-Enfyra automatically generates API endpoints for every table you create (see [Getting Started](../getting-started/getting-started.md#automatic-api-generation)). The Routing Manager allows you to create custom endpoints that override these defaults, giving you full control over your API structure.
+Routing Management lets you create custom API endpoints. By default, Enfyra automatically generates REST API endpoints for every table you create (like `/table_definition`). The Routing Manager allows you to create **custom endpoints** like `/products` or `/users` for any purpose you need.
 
 ## Route Properties
 

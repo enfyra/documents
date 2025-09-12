@@ -1,6 +1,6 @@
 # Custom Handlers
 
-Custom Handlers allow you to replace default CRUD operations with your own business logic. Instead of the standard create/read/update/delete behavior provided by routes (see [Routing Management](./routing-management.md)), you can execute custom JavaScript code that has full access to the request context and database.
+Custom Handlers let you replace default CRUD operations with your own JavaScript code. Instead of basic create/read/update/delete behavior, you can write custom functions that handle complex business logic, external integrations, or specialized data processing.
 
 ## When to Use Custom Handlers
 
@@ -83,17 +83,144 @@ const slug = await $ctx.$helpers.autoSlug(text)
 // Example: const slug = await $ctx.$helpers.autoSlug('My Product Name') → 'my-product-name'
 ```
 
-### Logging
+### Logging System
+Enfyra provides a built-in logging system for handlers that helps with debugging and audit trails:
+
 ```javascript
+// Basic logging
 $ctx.$logs('Debug message', data)
 $ctx.$logs('User created:', user)
-// Logs are collected and can be viewed in the admin interface
+$ctx.$logs('Processing order:', { orderId: 123, total: 99.99 })
+
+// Logs are automatically collected and timestamped
+// Can be viewed in the admin interface for debugging
 ```
 
-### Shared Data
+**Log Types and Usage:**
 ```javascript
-$ctx.$share.$logs  // Array of all logged messages
-// Useful for debugging or returning logs in response
+// Information logging
+$ctx.$logs('Handler started', { method: $ctx.$req.method, url: $ctx.$req.url })
+
+// Data processing logs
+$ctx.$logs('Validating input:', $ctx.$body)
+$ctx.$logs('Database query result:', { count: result.data.length })
+
+// Business logic logs
+$ctx.$logs('User permission check:', { userId: $ctx.$user.id, hasAccess: true })
+$ctx.$logs('External API call:', { endpoint: '/payments', status: 'success' })
+
+// Error context (before throwing)
+$ctx.$logs('Validation failed:', { errors: ['Email required', 'Password too short'] })
+```
+
+### Automatic Log Response
+**Enfyra automatically includes logs in API responses when logs exist** - you don't need to manually return them:
+
+```javascript
+// Your handler code
+$ctx.$logs('Processing user registration')
+$ctx.$logs('Validating email:', $ctx.$body.email)
+
+const user = await $ctx.$repos.users.create({
+  email: $ctx.$body.email,
+  name: $ctx.$body.name
+})
+
+$ctx.$logs('User created successfully:', { id: user.id })
+
+// Just return your data - logs are added automatically
+return {
+  success: true,
+  user: user.data[0]
+}
+```
+
+**Actual API Response (automatic):**
+```json
+{
+  "success": true,
+  "user": {
+    "id": 123,
+    "email": "user@example.com", 
+    "name": "John Doe"
+  },
+  "logs": [
+    "Processing user registration",
+    "Validating email:",
+    "user@example.com",
+    "User created successfully:",
+    { "id": 123 }
+  ]
+}
+```
+
+### Client-Side Debugging Benefits
+The automatic logs inclusion allows for **client-side debugging without server access**:
+
+```javascript
+// Frontend code - no server log access needed
+const response = await fetch('/api/users', {
+  method: 'POST',
+  body: JSON.stringify({ email: 'user@example.com', name: 'John' })
+})
+
+const data = await response.json()
+
+// Debug directly from API response
+if (data.logs) {
+  console.log('Handler execution logs:', data.logs)
+  // See exactly what happened in the handler without checking server logs!
+}
+```
+
+**When logs appear in response:**
+- ✅ **With logs**: `{ result: {...}, logs: [...] }` - when `$ctx.$logs()` was called
+- ✅ **Without logs**: `{ result: {...} }` - when no logging occurred
+
+### Log Structure
+Based on the backend implementation, logs are stored as raw arguments passed to `$ctx.$logs()`:
+
+```javascript
+// When you call:
+$ctx.$logs('User created:', { id: 123, email: 'user@example.com' })
+$ctx.$logs('Processing complete')
+$ctx.$logs('Debug data:', someObject, 'additional info')
+
+// $ctx.$share.$logs contains:
+[
+  'User created:',
+  { id: 123, email: 'user@example.com' },
+  'Processing complete', 
+  'Debug data:',
+  someObject,
+  'additional info'
+]
+
+// All arguments are flattened into a single array
+```
+
+### Best Practices for Logging
+```javascript
+// ✅ Good: Log important operations
+$ctx.$logs('Starting user registration', { email: $ctx.$body.email })
+$ctx.$logs('Email validation passed')
+$ctx.$logs('User created successfully', { userId: newUser.id })
+
+// ✅ Good: Log before database operations
+$ctx.$logs('Creating user record:', { email, name, role })
+const user = await $ctx.$repos.users.create(userData)
+$ctx.$logs('User record created:', { id: user.id })
+
+// ✅ Good: Log external API calls
+$ctx.$logs('Calling payment API:', { amount, currency })
+const payment = await callPaymentAPI(paymentData)
+$ctx.$logs('Payment API response:', { transactionId: payment.id, status: payment.status })
+
+// ❌ Avoid: Logging sensitive data
+$ctx.$logs('User login attempt:', { password: $ctx.$body.password }) // Don't do this!
+
+// ✅ Better: Log without sensitive info
+$ctx.$logs('User login attempt:', { email: $ctx.$body.email, hasPassword: !!$ctx.$body.password })
 ```
 
 ## Database Repository Methods
@@ -168,6 +295,60 @@ const result = await $ctx.$repos.products.find({
 // - ORDER BY createdAt DESC
 // - LIMIT 20 OFFSET 20
 // - Return meta information (totalCount, etc.)
+```
+
+### Default Filter Behavior
+If you **don't provide a `where` parameter**, the repository automatically uses `$ctx.$query.filter`:
+
+```javascript
+// Without custom where - uses query filter automatically
+const result = await $ctx.$repos.products.find({});
+// This automatically applies ?filter={"price":{"_gte":100}} from URL
+
+// Same as explicitly using query filter
+const result = await $ctx.$repos.products.find({
+  where: $ctx.$query.filter || {}
+});
+```
+
+### Modifying Query Filters
+You can **modify the filter before using it** by changing `$ctx.$query.filter`:
+
+```javascript
+// Original query: ?filter={"category":"electronics"}
+// Add additional conditions to user's filter
+
+// Get existing filter or empty object
+const baseFilter = $ctx.$query.filter || {};
+
+// Add your custom conditions
+$ctx.$query.filter = {
+  _and: [
+    baseFilter,                           // Keep user's original filter
+    { isActive: { _eq: true } },         // Add: only active products
+    { stock: { _gt: 0 } }                // Add: only in-stock products
+  ]
+};
+
+// Now find() will use the modified filter
+const result = await $ctx.$repos.products.find({});
+```
+
+### Override vs Extend Filters
+```javascript
+// Option 1: Override completely (ignore user filter)
+const result = await $ctx.$repos.products.find({
+  where: { price: { _gte: 100 } }  // Only this condition
+});
+
+// Option 2: Extend user filter (recommended)
+$ctx.$query.filter = {
+  _and: [
+    $ctx.$query.filter || {},      // User's filter
+    { price: { _gte: 100 } }       // Your additional filter
+  ]
+};
+const result = await $ctx.$repos.products.find({});
 ```
 
 ## Example Handlers
@@ -387,7 +568,7 @@ return {
 - **Check Data Arrays**: Repository methods return `{data: []}`, always check `data.length`
 
 ### API Filtering Integration
-- **Use Full Filter Power**: The `where` parameter in `$ctx.$repos.find()` supports the complete [API Filtering](../api/api-filtering.md) system
+- **Use Full Filter Power**: The `where` parameter in `$ctx.$repos.find()` supports the complete [API Filtering](../backend/api-filtering.md) system
 - **Complex Queries**: Leverage `_and`, `_or`, `_not` for complex logic instead of multiple separate queries
 - **Relation Filtering**: Filter by related table data directly in the `where` clause
 - **Aggregation Queries**: Use `_count`, `_sum`, `_avg`, `_min`, `_max` for statistical filtering

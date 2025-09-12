@@ -1,8 +1,6 @@
 # Filter System
 
-Use filters to narrow down your data by creating search conditions. Look for the **Filter** button - it shows "Filter" normally, and "Filters (N)" when active.
-
-> **Where you'll find filters**: Data tables, [Relation Picker System](./relation-picker.md) when browsing records, and anywhere you need to search through data.
+The Filter System helps you search and filter data in your tables. Instead of scrolling through many records, create search conditions to find exactly what you need. Look for the **Filter** button - it shows "Filter" normally, and "Filters (N)" when active.
 
 ## How to Filter Data
 

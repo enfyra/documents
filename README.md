@@ -98,15 +98,15 @@ docs/
 │   └── data-management.md       # Complete guide to managing records in your tables
 │
 ├── 🎨 frontend/
-│   ├── filter-system.md         # Interactive UI filtering for data tables and forms  
-│   └── relation-picker.md       # Working with related data in forms (powered by Filter System)
+│   ├── filter-system.md         # Interactive UI filtering for data tables and forms
+│   ├── relation-picker.md       # Working with related data in forms (powered by Filter System)  
+│   ├── routing-management.md    # UI guide for creating custom API endpoints and route permissions
+│   ├── custom-handlers.md       # UI guide for creating custom business logic handlers
+│   └── hooks.md                 # UI guide for creating lightweight request/response hooks
 │
-├── ⚙️ backend/
-│   ├── routing-management.md    # Create custom API endpoints and configure route permissions
-│   └── custom-handlers.md       # Replace default CRUD operations with custom business logic
-│
-└── 🔌 api/
-    └── api-filtering.md         # 🔥 MongoDB-like API querying with powerful operators
+└── ⚙️ backend/
+    ├── api-filtering.md         # 🔥 MongoDB-like API querying with powerful operators (for developers)
+    └── hook-development.md      # Advanced hook programming with context, examples, and best practices
 ```
 
 ### Quick Navigation
@@ -119,13 +119,13 @@ docs/
 **🎨 Frontend (User Interface)**
 - **[Filter System](./docs/frontend/filter-system.md)** - Interactive UI filtering for data tables and forms
 - **[Relation Picker](./docs/frontend/relation-picker.md)** - Working with related data in forms (powered by Filter System)
+- **[Routing Management](./docs/frontend/routing-management.md)** - UI guide for creating custom API endpoints and route permissions
+- **[Custom Handlers](./docs/frontend/custom-handlers.md)** - UI guide for creating custom business logic handlers
+- **[Hooks](./docs/frontend/hooks.md)** - UI guide for creating lightweight request/response hooks
 
-**⚙️ Backend (Server-Side)**
-- **[Routing Management](./docs/backend/routing-management.md)** - Create custom API endpoints and configure route permissions
-- **[Custom Handlers](./docs/backend/custom-handlers.md)** - Replace default CRUD operations with custom business logic
-
-**🔌 API (Developer Integration)**
-- **[API Filtering](./docs/api/api-filtering.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
+**⚙️ Backend (Developer Integration)**
+- **[API Filtering](./docs/backend/api-filtering.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
+- **[Hook Development](./docs/backend/hook-development.md)** - Advanced hook programming with context, examples, and best practices
 
 ## Installation
 

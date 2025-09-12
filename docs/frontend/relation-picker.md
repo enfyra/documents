@@ -1,8 +1,6 @@
 # Relation Picker System
 
-Some form fields have a **pencil icon** (🖊️) next to them. These let you select records from related tables.
-
-> **Note**: Relation fields are created when you set up table relationships during table creation - see [Getting Started](../getting-started/getting-started.md) for how to create tables and relations.
+The Relation Picker lets you select related records when working with forms. When you see a **pencil icon** next to a form field, that's a relation field that connects to records in another table. Instead of typing IDs, the Relation Picker provides a user-friendly way to browse and select related data.
 
 ## How to Use Relation Fields
 
