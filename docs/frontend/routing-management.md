@@ -94,33 +94,19 @@ Examples include routes for:
 
 ## Method Publishing and Access Control
 
+The **Published Methods** field controls the authentication requirements for each HTTP method.
+
+**For complete details on permissions, roles, and allowedUsers, see [Permission System Documentation](../backend/permission-system.md).**
+
 ### Published Methods vs Private Methods
-The **Published Methods** field controls the authentication requirements for each HTTP method:
+- **Published Methods**: Public access, no authentication required
+- **Unpublished Methods**: Require authentication and proper permissions
 
-**Published Methods** (Public Access):
-- **GET**: Anyone can read data without authentication
-- **POST**: Guests can create records without login
-- **PATCH**: Public record updates (no auth required)
-- **DELETE**: Public record deletion (no auth required)
-
-**Unpublished Methods** (Private Access):
-- Require proper authentication and role permissions
-- Protected by Enfyra's role-based access control system
-- Checked against Route Permissions configuration
-- Users must have appropriate role OR be listed in allowedUsers
-
-### Permission Hierarchy
-Access to private methods follows this priority order:
-1. **Published Methods**: Public access, no authentication required
-2. **Allowed Users**: Specific users bypass role restrictions for configured methods
-3. **Role Permissions**: Users with assigned roles get access to role-specific methods
-4. **No Access**: Users without proper permissions are denied
-
-### Security Considerations
-- **Typical Setup**: Only GET methods are published for read-only public APIs
-- **Write Operations**: POST, PATCH, DELETE usually remain private for security
-- **Allowed Users**: Use sparingly for exceptions, prefer role-based access
-- **Empty Published Methods**: All methods require authentication and permissions
+### Quick Reference
+1. **Published Methods**: Public access
+2. **Allowed Users**: Bypass role restrictions  
+3. **Role Permissions**: Standard role-based access
+4. **No Access**: Denied
 
 ## Custom Route Behavior
 

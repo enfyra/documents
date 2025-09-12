@@ -97,7 +97,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 ## Features
 
 - **Dynamic Table Management** - Create and modify database tables on the fly
-- **Official SDK** - `useEnfyraApi` and `useEnfyraAuth` from @enfyra/sdk-nuxt package
+- **Official SDK** - `useApi` and `useEnfyraAuth` from @enfyra/sdk-nuxt package with custom error handling
 - **TypeScript Support** - Full type safety throughout the application
 - **Extension System** - Extensible architecture with dynamic extension loading
 - **Authentication System** - Built-in user authentication and roles
@@ -115,17 +115,24 @@ docs/
 │   └── data-management.md       # Complete guide to managing records in your tables
 │
 ├── 🎨 frontend/
+│   ├── api-integration.md        # API integration with Enfyra SDK and examples for extensions
 │   ├── filter-system.md         # Interactive UI filtering for data tables and forms
 │   ├── relation-picker.md       # Working with related data in forms (powered by Filter System)  
 │   ├── routing-management.md    # UI guide for creating custom API endpoints and route permissions
 │   ├── custom-handlers.md       # UI guide for creating custom business logic handlers
-│   └── hooks.md                 # UI guide for creating lightweight request/response hooks
+│   ├── hooks.md                 # UI guide for creating lightweight request/response hooks
+│   ├── menu-management.md       # UI guide for creating custom navigation menus
+│   ├── extension-system.md      # Create custom pages with Vue.js components (linked to menus)
+│   ├── permission-builder.md    # Visual interface for creating complex permission rules
+│   ├── permission-components.md # PermissionGate and usePermissions for UI control
+│   └── form-system.md          # Dynamic form generation with validation and relations
 │
 └── ⚙️ backend/
     ├── api-lifecycle.md         # 🔄 Request lifecycle, hook system, and context sharing
     ├── api-querying.md          # 🔥 MongoDB-like API querying with powerful operators (for developers)
     ├── hook-development.md      # Advanced hook programming with context, examples, and best practices
-    └── cluster-architecture.md  # 🏗️ Multi-instance coordination and distributed synchronization
+    ├── cluster-architecture.md  # 🏗️ Multi-instance coordination and distributed synchronization
+    └── permission-system.md     # 🔐 Role-based access control with allowedUsers bypass
 ```
 
 ### Quick Navigation
@@ -136,28 +143,35 @@ docs/
 - **[Data Management](./docs/getting-started/data-management.md)** - Complete guide to managing records in your tables
 
 **🎨 Frontend (User Interface)**
+- **[API Integration](./docs/frontend/api-integration.md)** - API integration with Enfyra SDK and examples for extensions
 - **[Filter System](./docs/frontend/filter-system.md)** - Interactive UI filtering for data tables and forms
 - **[Relation Picker](./docs/frontend/relation-picker.md)** - Working with related data in forms (powered by Filter System)
 - **[Routing Management](./docs/frontend/routing-management.md)** - UI guide for creating custom API endpoints and route permissions
 - **[Custom Handlers](./docs/frontend/custom-handlers.md)** - UI guide for creating custom business logic handlers
 - **[Hooks](./docs/frontend/hooks.md)** - UI guide for creating lightweight request/response hooks
+- **[Menu Management](./docs/frontend/menu-management.md)** - UI guide for creating custom navigation menus
+- **[Extension System](./docs/frontend/extension-system.md)** - Create custom pages with Vue.js components (linked to menus)
+- **[Permission Builder](./docs/frontend/permission-builder.md)** - Visual interface for creating complex permission rules
+- **[Permission Components](./docs/frontend/permission-components.md)** - PermissionGate and usePermissions for UI control
+- **[Form System](./docs/frontend/form-system.md)** - Dynamic form generation with validation and relations
 
 **⚙️ Backend (Developer Integration)**
 - **[API Lifecycle](./docs/backend/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
 - **[API Querying](./docs/backend/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
 - **[Hook Development](./docs/backend/hook-development.md)** - Advanced hook programming with context, examples, and best practices
 - **[Cluster Architecture](./docs/backend/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
+- **[Permission System](./docs/backend/permission-system.md)** - 🔐 **Role-based access control** with allowedUsers bypass
 
 ## Installation
 
-```bash
-# Create new Enfyra app
-npm create @enfyra/create-enfyra-app@latest my-app
-cd my-app
+Enfyra requires both backend and frontend to work properly. See our complete installation guide:
 
-# Start development server
-npm run dev
-```
+**[→ Complete Installation Guide](./docs/getting-started/installation.md)**
+
+Quick overview:
+1. First install Enfyra Backend
+2. Then install Enfyra App  
+3. Connect them together
 
 ## Contributing
 
