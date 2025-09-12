@@ -2,6 +2,8 @@
 
 Hooks are a powerful feature that allows you to inject custom code at specific points in the API request lifecycle. Instead of creating full [Custom Handlers](./custom-handlers.md), you can use hooks to modify requests and responses with minimal code.
 
+**🔗 For complete lifecycle understanding, see [API Lifecycle](../backend/api-lifecycle.md)**
+
 ## What are Hooks?
 
 Hooks execute JavaScript code at two key moments:
@@ -24,6 +26,45 @@ Hooks execute JavaScript code at two key moments:
 - ❌ **Complex business logic**: Multi-step operations across multiple tables
 - ❌ **Replace entire operation**: Completely different behavior than CRUD
 - ❌ **External API calls**: Third-party integrations requiring complex workflows
+
+## The $ctx Context Object
+
+Hooks have access to a shared context object (`$ctx`) that persists throughout the entire API request lifecycle. This context contains request data, database repositories, helper functions, and user information.
+
+**🔗 For complete $ctx documentation and lifecycle details, see [API Lifecycle](../backend/api-lifecycle.md#context-sharing-ctx)**
+
+### Key Context Properties Available in Hooks
+
+```javascript
+$ctx = {
+  // Request data
+  $body: {},           // Request body (can be modified)
+  $params: {},         // URL parameters (/users/:id)
+  $query: {},          // Query parameters (?limit=10)
+  $user: {},           // Current authenticated user
+  
+  // Database access
+  $repos: {            // Auto-generated repositories
+    main: repository,  // Main table repository
+    users: repository, // Named repositories for target tables
+  },
+  
+  // Utilities  
+  $helpers: {          // Helper functions
+    $jwt: function,    // Create JWT tokens
+    $bcrypt: object,   // Hash/compare passwords
+    autoSlug: function // Generate URL slugs
+  },
+  
+  // Logging & sharing
+  $logs: function,     // Add logs to response
+  $share: {            // Share data between hooks
+    $logs: []
+  }
+};
+```
+
+**Important:** The `$ctx` object is the **same reference** across all hooks and handlers in a request. Changes made in preHooks affect afterHooks and handlers.
 
 ## Creating Hooks
 

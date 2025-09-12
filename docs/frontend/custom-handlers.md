@@ -2,6 +2,8 @@
 
 Custom Handlers let you replace default CRUD operations with your own JavaScript code. Instead of basic create/read/update/delete behavior, you can write custom functions that handle complex business logic, external integrations, or specialized data processing.
 
+**🔗 For complete request lifecycle understanding, see [API Lifecycle](../backend/api-lifecycle.md)**
+
 ## When to Use Custom Handlers
 
 - **Complex Business Logic**: Implement multi-step operations that span multiple tables

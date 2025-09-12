@@ -72,10 +72,20 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 
 ### 🏗️ Built With Modern Technology
 
-**Backend**: NestJS + TypeORM + Redis + GraphQL Yoga
+**Backend**: Express.js + TypeORM + Redis + GraphQL Yoga
 **Frontend**: Nuxt 4 + Vue 3 + TypeScript + TailwindCSS
 **Database**: MySQL, MariaDB, PostgreSQL (your choice)
 **Extensions**: Dynamic Vue SFC compilation via Vite
+
+#### Technology Stack Details
+
+**Express.js** - Web framework for handling HTTP requests with custom high-performance route engine that bypasses Express middleware stack for superior API performance
+
+**TypeORM** - Database ORM with comprehensive support for:
+- **MySQL** - Recommended for production environments
+- **MariaDB** - MySQL-compatible with full feature support
+- **PostgreSQL** - Advanced features and complex data types supported
+- **SQLite** - Planned for future release (development and testing environments)
 
 ## Features
 
@@ -105,7 +115,8 @@ docs/
 │   └── hooks.md                 # UI guide for creating lightweight request/response hooks
 │
 └── ⚙️ backend/
-    ├── api-filtering.md         # 🔥 MongoDB-like API querying with powerful operators (for developers)
+    ├── api-lifecycle.md         # 🔄 Request lifecycle, hook system, and context sharing
+    ├── api-querying.md          # 🔥 MongoDB-like API querying with powerful operators (for developers)
     └── hook-development.md      # Advanced hook programming with context, examples, and best practices
 ```
 
@@ -124,7 +135,8 @@ docs/
 - **[Hooks](./docs/frontend/hooks.md)** - UI guide for creating lightweight request/response hooks
 
 **⚙️ Backend (Developer Integration)**
-- **[API Filtering](./docs/backend/api-filtering.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
+- **[API Lifecycle](./docs/backend/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
+- **[API Querying](./docs/backend/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
 - **[Hook Development](./docs/backend/hook-development.md)** - Advanced hook programming with context, examples, and best practices
 
 ## Installation
