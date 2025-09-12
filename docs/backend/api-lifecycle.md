@@ -388,8 +388,8 @@ app.get('/users/:id', handler); // Goes through entire middleware chain
 ```javascript
 // Bypasses Express middleware stack entirely
 // Direct route matching with custom algorithm
-// 1. Load all routes from cache/database
-// 2. Use optimized matching algorithm 
+// 1. Load all routes from database with SWR (Stale-While-Revalidate) caching
+// 2. Use optimized matching algorithm on cached routes
 // 3. Extract parameters and context in single pass
 // 4. Directly execute matched hooks/handlers
 ```
@@ -398,11 +398,13 @@ app.get('/users/:id', handler); // Goes through entire middleware chain
 - **Many times faster** than Express route tree matching
 - **No middleware overhead** for API routes
 - **Direct execution path** from request to handler
+- **SWR Caching**: Routes loaded from database with Stale-While-Revalidate pattern for extreme performance
 - **Optimized for dynamic routes** generated from database
 
 **Automatic Operation:**
 - Route detection is **100% automatic**
 - No manual route configuration required
+- **SWR Pattern**: Routes cached for instant access, revalidated in background
 - Dynamic routes generated from your route definitions
 - Supports complex patterns: `/users/:id`, `/api/v1/products`, etc.
 - Parameter extraction handled automatically

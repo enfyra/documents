@@ -39,6 +39,13 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 - **Zero-downtime Schema Updates**: Change your data structure while your API stays 100% available
 - **Instant API Generation**: Every table immediately becomes a full REST & GraphQL API with advanced querying
 
+**🏗️ Cluster-Ready Architecture**
+
+- **Born for Clustering**: Designed from day one to run multiple instances - no configuration, no setup, just scale
+- **Automatic Coordination**: Schema changes sync instantly across all instances via Redis
+- **Zero Additional Work**: Deploy 1 instance or 100 instances - the experience is identical
+- **Stateless by Design**: Any instance handles any request seamlessly - [Learn how it works →](./docs/backend/cluster-architecture.md)
+
 **🛡️ Enterprise-Grade Security**
 
 - **Visual Permission Builder**: Create complex permission logic with AND/OR conditions and nested rules
@@ -72,14 +79,14 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 
 ### 🏗️ Built With Modern Technology
 
-**Backend**: Express.js + TypeORM + Redis + GraphQL Yoga
+**Backend**: NestJS + Express.js + TypeORM + Redis + GraphQL Yoga
 **Frontend**: Nuxt 4 + Vue 3 + TypeScript + TailwindCSS
 **Database**: MySQL, MariaDB, PostgreSQL (your choice)
 **Extensions**: Dynamic Vue SFC compilation via Vite
 
 #### Technology Stack Details
 
-**Express.js** - Web framework for handling HTTP requests with custom high-performance route engine that bypasses Express middleware stack for superior API performance
+**NestJS + Express.js** - Enterprise Node.js framework built on Express with custom high-performance route engine that bypasses Express middleware stack for superior API performance
 
 **TypeORM** - Database ORM with comprehensive support for:
 - **MySQL** - Recommended for production environments
@@ -117,7 +124,8 @@ docs/
 └── ⚙️ backend/
     ├── api-lifecycle.md         # 🔄 Request lifecycle, hook system, and context sharing
     ├── api-querying.md          # 🔥 MongoDB-like API querying with powerful operators (for developers)
-    └── hook-development.md      # Advanced hook programming with context, examples, and best practices
+    ├── hook-development.md      # Advanced hook programming with context, examples, and best practices
+    └── cluster-architecture.md  # 🏗️ Multi-instance coordination and distributed synchronization
 ```
 
 ### Quick Navigation
@@ -138,6 +146,7 @@ docs/
 - **[API Lifecycle](./docs/backend/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
 - **[API Querying](./docs/backend/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
 - **[Hook Development](./docs/backend/hook-development.md)** - Advanced hook programming with context, examples, and best practices
+- **[Cluster Architecture](./docs/backend/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
 
 ## Installation
 
