@@ -92,6 +92,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 
 - **[Installation](./docs/installation.md)** - Setup guide for backend and app
 - **[Getting Started](./docs/getting-started.md)** - First steps after installation, including table creation
+- **[Data Management](./docs/data-management.md)** - Complete guide to managing records in your tables
 - **[Relation Picker](./docs/relation-picker.md)** - Working with related data in forms (uses Filter System for searching)
 - **[Filter System](./docs/filter-system.md)** - Advanced data filtering and search capabilities (used in tables and relation pickers)
 

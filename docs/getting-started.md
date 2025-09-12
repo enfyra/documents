@@ -12,7 +12,23 @@ After completing the installation of both Enfyra backend and app, follow these s
 
 ## After Login
 
-Once logged in, you'll see the main interface with a sidebar containing:
+Once logged in, you'll see the main Enfyra interface with several key components:
+
+### Interface Layout
+
+**Left Side:**
+- **Mini Sidebar** - 16px wide icon bar with toggle button and navigation shortcuts
+- **Expandable Sidebar** - Contains full navigation menu (visible on desktop by default, toggle on mobile)
+
+**Main Area:**
+- **Header** - Top section with page title and action buttons
+- **Sub-Header** - Secondary navigation and breadcrumbs ("Home > settings > routings")
+- **Content Area** - Main page content with gradient background and subtle patterns
+
+**Header Actions:**
+- Located in top-right corner of each page
+- Context-specific buttons (Filter, Create, Save, Delete, etc.)
+- Green "Create" buttons for adding new items
 
 ### Sidebar Navigation
 
@@ -22,7 +38,11 @@ Once logged in, you'll see the main interface with a sidebar containing:
 - **Settings** (Gear icon) - System configuration, users, roles, and permissions
 - **Files Management** (Folder icon) - Upload and manage media files and documents
 
-Clicking on sidebar items will expand submenus on the right side with additional options.
+**Sidebar Behavior:**
+- Click items to expand submenus on the right side
+- Desktop: Sidebar visible by default
+- Mobile/Tablet: Collapsed by default, overlay when opened
+- Toggle button in mini sidebar to show/hide full menu
 
 ## Create Your First Table
 
@@ -101,4 +121,24 @@ You'll see the table creation form with these sections:
 
 4. After configuring your table, click the green **"+ Create New Table"** button at the top right to save it
 
-Once saved, Enfyra will automatically generate REST and GraphQL APIs for your new table.
+## What Happens After Creating a Table
+
+Once saved, Enfyra automatically sets up several things for your new table:
+
+**1. API Endpoints Generated:**
+- REST and GraphQL APIs are instantly available for your table
+- You can immediately start creating, reading, updating, and deleting records
+
+**2. Route Automatically Created:**
+- A new route `/[your-table-name]` is automatically generated
+- This route handles API requests for your table
+- **You can view this route**: Go to **Settings** → **Routings** in the sidebar to see all your table routes
+
+**3. Menu Access:**
+- Your new table appears in the **Data** section of the sidebar
+- Click **Data** to see your table listed and start adding records
+
+**Next Steps:**
+- Navigate to **Data** → **[Your Table Name]** to start adding records - see [Data Management](./data-management.md) for complete guide
+- Use the [Relation Picker System](./relation-picker.md) when working with relation fields
+- Use the [Filter System](./filter-system.md) to search and filter your data
