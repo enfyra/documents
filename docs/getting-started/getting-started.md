@@ -117,7 +117,7 @@ You'll see the table creation form with these sections:
        - **isNullable** - Toggle to allow null relations
        - **description** - Relation documentation with rich text editor
      - Relations list shows: property name, type badge, target table badge (→ TargetTable), nullable badge if applicable
-     - **Note**: Once created, these relations will appear as fields with pencil icons in forms - see [Relation Picker System](./relation-picker.md) for how to use them
+     - **Note**: Once created, these relations will appear as fields with pencil icons in forms - see [Relation Picker System](../frontend/relation-picker.md) for how to use them
 
 4. After configuring your table, click the green **"+ Create New Table"** button at the top right to save it
 
@@ -140,5 +140,5 @@ Once saved, Enfyra automatically sets up several things for your new table:
 
 **Next Steps:**
 - Navigate to **Data** → **[Your Table Name]** to start adding records - see [Data Management](./data-management.md) for complete guide
-- Use the [Relation Picker System](./relation-picker.md) when working with relation fields
-- Use the [Filter System](./filter-system.md) to search and filter your data
+- Use the [Relation Picker System](../frontend/relation-picker.md) when working with relation fields
+- Use the [Filter System](../frontend/filter-system.md) to search and filter your data

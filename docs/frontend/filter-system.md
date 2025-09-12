@@ -74,7 +74,7 @@ Use filters to narrow down your data by creating search conditions. Look for the
 **Relation Filtering:**
 - Orders from specific customers: `customer → name contains "John"`
 - Products in certain categories: `category → name = "Electronics"`
-- **Note**: These relation fields come from table relationships you create - see [Getting Started](./getting-started.md) for setting up relations, and [Relation Picker System](./relation-picker.md) for selecting related records
+- **Note**: These relation fields come from table relationships you create - see [Getting Started](../getting-started/getting-started.md) for setting up relations, and [Relation Picker System](./relation-picker.md) for selecting related records
 
 ## Tips for Better Filtering
 

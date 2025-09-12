@@ -2,7 +2,7 @@
 
 Some form fields have a **pencil icon** (🖊️) next to them. These let you select records from related tables.
 
-> **Note**: Relation fields are created when you set up table relationships during table creation - see [Getting Started](./getting-started.md) for how to create tables and relations.
+> **Note**: Relation fields are created when you set up table relationships during table creation - see [Getting Started](../getting-started/getting-started.md) for how to create tables and relations.
 
 ## How to Use Relation Fields
 

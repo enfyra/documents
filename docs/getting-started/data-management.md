@@ -22,7 +22,7 @@ After creating tables, you can manage your records through the Data section. Acc
 ### Filter Button
 - Shows **"Filter"** when no filters are active
 - Changes to **"Filters (N)"** when filters are applied
-- Click to open the filter drawer - see [Filter System](./filter-system.md)
+- Click to open the filter drawer - see [Filter System](../frontend/filter-system.md)
 - Active filters show as a badge above the table with a "Clear" button
 
 ### Create Button
@@ -69,7 +69,7 @@ After creating tables, you can manage your records through the Data section. Acc
 1. Opens the creation form page
 2. Form shows all fields based on your table schema
 3. Required fields are marked with asterisks
-4. Relation fields show with pencil icons - see [Relation Picker](./relation-picker.md)
+4. Relation fields show with pencil icons - see [Relation Picker](../frontend/relation-picker.md)
 
 **Form Behavior:**
 - Fields appear based on column configuration
@@ -130,7 +130,7 @@ After creating tables, you can manage your records through the Data section. Acc
 - Show with a pencil icon
 - Click to open the relation picker
 - Select related records from other tables
-- See [Relation Picker System](./relation-picker.md) for details
+- See [Relation Picker System](../frontend/relation-picker.md) for details
 
 **Viewing Relations:**
 - Related data may show as IDs or names in the table

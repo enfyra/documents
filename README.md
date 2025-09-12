@@ -90,11 +90,42 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 
 ## 📚 Documentation
 
-- **[Installation](./docs/installation.md)** - Setup guide for backend and app
-- **[Getting Started](./docs/getting-started.md)** - First steps after installation, including table creation
-- **[Data Management](./docs/data-management.md)** - Complete guide to managing records in your tables
-- **[Relation Picker](./docs/relation-picker.md)** - Working with related data in forms (uses Filter System for searching)
-- **[Filter System](./docs/filter-system.md)** - Advanced data filtering and search capabilities (used in tables and relation pickers)
+```
+docs/
+├── 🚀 getting-started/
+│   ├── installation.md          # Setup guide for backend and app
+│   ├── getting-started.md       # First steps after installation, including table creation
+│   └── data-management.md       # Complete guide to managing records in your tables
+│
+├── 🎨 frontend/
+│   ├── filter-system.md         # Interactive UI filtering for data tables and forms  
+│   └── relation-picker.md       # Working with related data in forms (powered by Filter System)
+│
+├── ⚙️ backend/
+│   ├── routing-management.md    # Create custom API endpoints and configure route permissions
+│   └── custom-handlers.md       # Replace default CRUD operations with custom business logic
+│
+└── 🔌 api/
+    └── api-filtering.md         # 🔥 MongoDB-like API querying with powerful operators
+```
+
+### Quick Navigation
+
+**🚀 Getting Started**
+- **[Installation](./docs/getting-started/installation.md)** - Setup guide for backend and app
+- **[Getting Started](./docs/getting-started/getting-started.md)** - First steps after installation, including table creation
+- **[Data Management](./docs/getting-started/data-management.md)** - Complete guide to managing records in your tables
+
+**🎨 Frontend (User Interface)**
+- **[Filter System](./docs/frontend/filter-system.md)** - Interactive UI filtering for data tables and forms
+- **[Relation Picker](./docs/frontend/relation-picker.md)** - Working with related data in forms (powered by Filter System)
+
+**⚙️ Backend (Server-Side)**
+- **[Routing Management](./docs/backend/routing-management.md)** - Create custom API endpoints and configure route permissions
+- **[Custom Handlers](./docs/backend/custom-handlers.md)** - Replace default CRUD operations with custom business logic
+
+**🔌 API (Developer Integration)**
+- **[API Filtering](./docs/api/api-filtering.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
 
 ## Installation
 

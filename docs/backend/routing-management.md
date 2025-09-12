@@ -1,6 +1,6 @@
 # Routing Management
 
-Enfyra automatically generates API endpoints for every table you create (see [Getting Started](./getting-started.md#automatic-api-generation)). The Routing Manager allows you to create custom endpoints that override these defaults, giving you full control over your API structure.
+Enfyra automatically generates API endpoints for every table you create (see [Getting Started](../getting-started/getting-started.md#automatic-api-generation)). The Routing Manager allows you to create custom endpoints that override these defaults, giving you full control over your API structure.
 
 ## Route Properties
 
@@ -15,7 +15,7 @@ Enfyra automatically generates API endpoints for every table you create (see [Ge
 - **Main Table**: The primary table this route serves
 - **Target Tables**: Additional tables this route can access (also provides automatic CRUD operations)
 - **Route Permissions**: Access control rules for this endpoint
-- **Handlers**: Custom request processing logic
+- **Handlers**: Custom request processing logic (see [Custom Handlers](./custom-handlers.md))
 - **Hooks**: Lifecycle events and custom processing
 - **Published Methods**: Defines which HTTP methods are public (no authentication required) vs private (role-protected)
 
@@ -47,7 +47,7 @@ The most important step is connecting your route to a data source:
 
 The route inherits all the table's fields, validation rules, and relationships without requiring additional configuration.
 
-See [Relation Picker System](./relation-picker.md) for detailed usage of the relation selection interface.
+See [Relation Picker System](../frontend/relation-picker.md) for detailed usage of the relation selection interface.
 
 ### Step 4: Save and Test
 1. Click **Save** to create the route
@@ -80,7 +80,7 @@ After creating permissions, they appear as a list in the Route Permissions secti
 - **Multiple permissions** can be configured for the same route with different roles/methods
 - **Instant updates**: All permission changes take effect immediately, separate from route modifications
 
-See [Relation Picker System](./relation-picker.md) for details on selecting roles and users through the relation interface.
+See [Relation Picker System](../frontend/relation-picker.md) for details on selecting roles and users through the relation interface.
 
 ## System Routes
 
@@ -121,6 +121,25 @@ Access to private methods follows this priority order:
 - **Write Operations**: POST, PATCH, DELETE usually remain private for security
 - **Allowed Users**: Use sparingly for exceptions, prefer role-based access
 - **Empty Published Methods**: All methods require authentication and permissions
+
+## Custom Route Behavior
+
+### Default CRUD Operations
+When you create a route and link it to targetTables, Enfyra automatically provides standard CRUD operations:
+- `GET /your-route` - List records
+- `GET /your-route/:id` - Get single record  
+- `POST /your-route` - Create record
+- `PATCH /your-route/:id` - Update record
+- `DELETE /your-route/:id` - Delete record
+
+### Custom Handlers Override
+You can replace any of these default operations with custom business logic by creating handlers:
+
+1. **Create the route** with targetTables configured
+2. **Add custom handlers** via **Settings → Handlers** to override specific HTTP methods
+3. **Handler takes precedence** - when a handler exists for a route+method, it executes instead of default CRUD
+
+For detailed handler creation and examples, see [Custom Handlers](./custom-handlers.md).
 
 ### Route Status
 - **Enabled/Disabled**: Controls whether the route is active
