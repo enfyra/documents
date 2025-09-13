@@ -62,11 +62,22 @@ $ctx.$req.headers // Request headers (authorization, user-agent)
 $ctx.$repos       // Access to table repositories
 // Use the table names you configured in targetTables
 $ctx.$repos.products    // If "products" is in targetTables
-$ctx.$repos.categories  // If "categories" is in targetTables  
+$ctx.$repos.categories  // If "categories" is in targetTables
 $ctx.$repos.users       // If "users" is in targetTables
 ```
 
 **Important**: Configure the tables you need in the route's **Target Tables** field (see [Routing Management](./routing-management.md) for route configuration). Each target table becomes available as a repository in `$ctx.$repos`.
+
+### NPM Packages
+```javascript
+$ctx.$pkgs        // Access to installed NPM packages
+// Use packages installed via Package Management
+$ctx.$pkgs.axios     // If axios package is installed
+$ctx.$pkgs.lodash    // If lodash package is installed
+$ctx.$pkgs.moment    // If moment package is installed
+```
+
+**🔗 Learn More**: See [Package Management](./package-management.md) for installing and using NPM packages in your handlers.
 
 ### Utility Functions
 **⚠️ Important: All helper functions require `await`** - They use IPC bridge for execution:

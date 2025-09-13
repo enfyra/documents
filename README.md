@@ -97,6 +97,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 ## Features
 
 - **Dynamic Table Management** - Create and modify database tables on the fly
+- **Package Management** - Install and manage NPM packages directly from the UI for use in handlers and hooks
 - **Official SDK** - `useApi` and `useEnfyraAuth` from @enfyra/sdk-nuxt package with custom error handling
 - **TypeScript Support** - Full type safety throughout the application
 - **Extension System** - Extensible architecture with dynamic extension loading
@@ -117,10 +118,11 @@ enfyra-docs/
 ├── 🎨 frontend/
 │   ├── api-integration.md        # API integration with Enfyra SDK and examples for extensions
 │   ├── filter-system.md         # Interactive UI filtering for data tables and forms
-│   ├── relation-picker.md       # Working with related data in forms (powered by Filter System)  
+│   ├── relation-picker.md       # Working with related data in forms (powered by Filter System)
 │   ├── routing-management.md    # UI guide for creating custom API endpoints and route permissions
 │   ├── custom-handlers.md       # UI guide for creating custom business logic handlers
 │   ├── hooks.md                 # UI guide for creating lightweight request/response hooks
+│   ├── package-management.md    # Install and manage NPM packages for handlers and hooks
 │   ├── menu-management.md       # UI guide for creating custom navigation menus
 │   ├── extension-system.md      # Create custom pages with Vue.js components (linked to menus)
 │   ├── header-actions.md        # Inject custom actions into header and sub-header areas
@@ -161,18 +163,19 @@ enfyra-docs/
 
 ### 🔧 Phase 3: Customization (3-4 hours)
 8. **[API Integration](./frontend/api-integration.md)** - Learn to fetch and manipulate data programmatically
-9. **[Extension System](./frontend/extension-system.md)** - Build custom pages and functionality
-10. **[Header Actions](./frontend/header-actions.md)** - Inject custom buttons and widgets into the app interface
-11. **[Custom Handlers](./frontend/custom-handlers.md)** - Override default API behavior with business logic
+9. **[Package Management](./frontend/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
+10. **[Extension System](./frontend/extension-system.md)** - Build custom pages and functionality
+11. **[Header Actions](./frontend/header-actions.md)** - Inject custom buttons and widgets into the app interface
+12. **[Custom Handlers](./frontend/custom-handlers.md)** - Override default API behavior with business logic
 
 ### ⚙️ Phase 4: Advanced Development (4-5 hours)
-12. **[API Querying](./backend/api-querying.md)** - Master MongoDB-like querying for complex data retrieval
-13. **[Hook Development](./backend/hook-development.md)** - Create sophisticated request/response hooks
-14. **[API Lifecycle](./backend/api-lifecycle.md)** - Understand the complete request processing pipeline
+13. **[API Querying](./backend/api-querying.md)** - Master MongoDB-like querying for complex data retrieval
+14. **[Hook Development](./backend/hook-development.md)** - Create sophisticated request/response hooks
+15. **[API Lifecycle](./backend/api-lifecycle.md)** - Understand the complete request processing pipeline
 
 ### 🏗️ Phase 5: Production & Scale (2-3 hours)
-15. **[Permission System](./backend/permission-system.md)** - Deep dive into role-based access control
-16. **[Cluster Architecture](./backend/cluster-architecture.md)** - Deploy and scale across multiple instances
+16. **[Permission System](./backend/permission-system.md)** - Deep dive into role-based access control
+17. **[Cluster Architecture](./backend/cluster-architecture.md)** - Deploy and scale across multiple instances
 
 ### 🎯 Goal-Oriented Paths
 
@@ -201,6 +204,7 @@ enfyra-docs/
 - **[Routing Management](./frontend/routing-management.md)** - UI guide for creating custom API endpoints and route permissions
 - **[Custom Handlers](./frontend/custom-handlers.md)** - UI guide for creating custom business logic handlers
 - **[Hooks](./frontend/hooks.md)** - UI guide for creating lightweight request/response hooks
+- **[Package Management](./frontend/package-management.md)** - Install and manage NPM packages for handlers and hooks
 - **[Menu Management](./frontend/menu-management.md)** - UI guide for creating custom navigation menus
 - **[Extension System](./frontend/extension-system.md)** - Create custom pages with Vue.js components (linked to menus)
 - **[Header Actions](./frontend/header-actions.md)** - Inject custom actions into header and sub-header areas

@@ -42,11 +42,18 @@ $ctx = {
   $params: {},         // URL parameters (/users/:id)
   $query: {},          // Query parameters (?limit=10)
   $user: {},           // Current authenticated user
-  
+
   // Database access
   $repos: {            // Auto-generated repositories
     main: repository,  // Main table repository
     users: repository, // Named repositories for target tables
+  },
+
+  // NPM packages (installed via Package Management)
+  $pkgs: {             // Access to installed NPM packages
+    axios: axios,      // HTTP client library
+    lodash: lodash,    // Utility functions
+    moment: moment,    // Date manipulation
   },
   
   // Utilities  
@@ -91,13 +98,37 @@ You'll see the hook creation form with these fields:
 
 ## Writing Hook Code
 
+### Using NPM Packages in Hooks
+
+Hooks have full access to NPM packages installed via [Package Management](./package-management.md):
+
+```javascript
+// PreHook example - Using lodash to validate data
+const _ = $ctx.$pkgs.lodash;
+
+if (!_.isObject($ctx.$body) || _.isEmpty($ctx.$body)) {
+  throw new Error('Request body must be a non-empty object');
+}
+
+// AfterHook example - Using moment for timestamps
+const moment = $ctx.$pkgs.moment;
+
+$ctx.$response.data.forEach(record => {
+  record.formatted_date = moment(record.created_at).format('YYYY-MM-DD HH:mm:ss');
+});
+```
+
+**🔗 Complete Package Guide**: See [Package Management](./package-management.md) for installing and using NPM packages.
+
+### Advanced Hook Development
+
 For detailed information about writing JavaScript code within hooks, including the context object (`$ctx`), available functions, and comprehensive examples, see:
 
 **➡️ [Hook Development Guide](../backend/hook-development.md)**
 
 This covers:
 - Hook context and available variables
-- PreHook and AfterHook code examples  
+- PreHook and AfterHook code examples
 - Database access and utility functions
 - Execution flow and priority system
 - Best practices and debugging techniques
