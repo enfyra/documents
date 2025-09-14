@@ -108,11 +108,9 @@ const permissionAction = {
 ```vue
 <script setup>
 // Available globally in extensions
-const { register } = useHeaderActionRegistry();
-
-onMounted(() => {
-  // Register single action
-  register({
+// Pass action directly to the composable
+useHeaderActionRegistry([
+  {
     id: 'save-report',
     label: 'Save Report',
     icon: 'lucide:save',
@@ -127,8 +125,8 @@ onMounted(() => {
       route: '/reports',
       actions: ['create']
     }
-  });
-});
+  }
+]);
 </script>
 ```
 
@@ -137,18 +135,17 @@ onMounted(() => {
 ```vue
 <script setup>
 // Available globally in extensions
-const { register } = useSubHeaderActionRegistry();
-
-onMounted(() => {
-  register({
+// Pass action directly to the composable
+useSubHeaderActionRegistry([
+  {
     id: 'filter-toggle',
     label: 'Filters',
     icon: 'lucide:filter',
     side: 'left', // Position on left side
     variant: 'soft',
     onClick: () => toggleFilters()
-  });
-});
+  }
+]);
 </script>
 ```
 
@@ -159,25 +156,26 @@ All properties can be reactive using refs or computed:
 
 ```vue
 <script setup>
-const { ref, computed } = Vue;
 const isLoading = ref(false);
 const itemCount = ref(0);
 
-const dynamicLabel = computed(() => 
+const dynamicLabel = computed(() =>
   `Export (${itemCount.value} items)`
 );
 
-register({
-  id: 'dynamic-export',
-  label: dynamicLabel,
-  loading: isLoading,
-  disabled: computed(() => itemCount.value === 0),
-  onClick: async () => {
-    isLoading.value = true;
-    await exportItems();
-    isLoading.value = false;
+useHeaderActionRegistry([
+  {
+    id: 'dynamic-export',
+    label: dynamicLabel,
+    loading: isLoading,
+    disabled: computed(() => itemCount.value === 0),
+    onClick: async () => {
+      isLoading.value = true;
+      await exportItems();
+      isLoading.value = false;
+    }
   }
-});
+]);
 </script>
 ```
 
@@ -185,29 +183,27 @@ register({
 
 ```vue
 <script setup>
-onMounted(() => {
-  const actions = [
-    {
-      id: 'refresh',
-      icon: 'lucide:refresh-cw',
-      onClick: () => refresh()
-    },
-    {
-      id: 'export',
-      label: 'Export',
-      icon: 'lucide:download',
-      onClick: () => exportData()
-    },
-    {
-      id: 'settings',
-      icon: 'lucide:settings',
-      onClick: () => openSettings()
-    }
-  ];
+const actions = [
+  {
+    id: 'refresh',
+    icon: 'lucide:refresh-cw',
+    onClick: () => refresh()
+  },
+  {
+    id: 'export',
+    label: 'Export',
+    icon: 'lucide:download',
+    onClick: () => exportData()
+  },
+  {
+    id: 'settings',
+    icon: 'lucide:settings',
+    onClick: () => openSettings()
+  }
+];
 
-  // Register all at once
-  actions.forEach(action => register(action));
-});
+// Register all at once
+useHeaderActionRegistry(actions);
 </script>
 ```
 
@@ -217,25 +213,23 @@ onMounted(() => {
 
 ```vue
 <script setup>
-onMounted(() => {
-  // Left side actions (typically filters, views)
-  register({
+// Left side actions (typically filters, views)
+useSubHeaderActionRegistry([
+  {
     id: 'view-toggle',
     label: 'Grid View',
     icon: 'lucide:grid',
     side: 'left',
     onClick: () => toggleView()
-  });
-
-  // Right side actions (typically actions, exports)
-  register({
+  },
+  {
     id: 'export',
     label: 'Export',
     icon: 'lucide:download',
     side: 'right', // Default
     onClick: () => exportData()
-  });
-});
+  }
+]);
 </script>
 ```
 
@@ -251,16 +245,16 @@ Actions automatically adapt to screen size:
 
 ```vue
 <script setup>
-onMounted(() => {
-  register({
+useHeaderActionRegistry([
+  {
     id: 'route-specific',
     label: 'Data Tools',
     icon: 'lucide:database',
     showOn: ['/data'], // Only show on data routes
     hideOn: ['/settings'], // Hide on settings routes
     onClick: () => openDataTools()
-  });
-});
+  }
+]);
 </script>
 ```
 
@@ -268,22 +262,20 @@ onMounted(() => {
 
 ```vue
 <script setup>
-onMounted(() => {
-  // Persists across all routes
-  register({
+// Register multiple actions
+useHeaderActionRegistry([
+  {
     id: 'global-help',
     icon: 'lucide:help-circle',
-    global: true,
+    global: true, // Persists across all routes
     onClick: () => openHelp()
-  });
-
-  // Cleared when navigating away
-  register({
+  },
+  {
     id: 'page-specific',
-    label: 'Page Action',
+    label: 'Page Action', // Cleared when navigating away
     onClick: () => doPageSpecificAction()
-  });
-});
+  }
+]);
 </script>
 ```
 
@@ -316,13 +308,13 @@ const CustomStatusWidget = {
   }
 };
 
-onMounted(() => {
-  // Register as header action
-  useHeaderActionRegistry().register({
+// Register as header action
+useHeaderActionRegistry([
+  {
     id: 'status-widget',
     component: CustomStatusWidget
-  });
-});
+  }
+]);
 </script>
 ```
 
@@ -341,13 +333,15 @@ const DataCounter = {
 
 const itemCount = ref(150);
 
-register({
-  id: 'data-counter',
-  component: DataCounter,
-  props: {
-    count: itemCount.value
+useHeaderActionRegistry([
+  {
+    id: 'data-counter',
+    component: DataCounter,
+    props: {
+      count: itemCount.value
+    }
   }
-});
+]);
 </script>
 ```
 
@@ -445,14 +439,16 @@ onMounted(() => {
     }
   };
 
-  useHeaderActionRegistry().register({
-    id: 'export-dropdown',
-    component: ExportDropdown,
-    permission: {
-      route: '/data',
-      actions: ['read']
+  useHeaderActionRegistry([
+    {
+      id: 'export-dropdown',
+      component: ExportDropdown,
+      permission: {
+        route: '/data',
+        actions: ['read']
+      }
     }
-  });
+  ]);
 });
 </script>
 ```
@@ -516,16 +512,18 @@ const StatusIndicator = {
   }
 };
 
-onMounted(() => {
-  // Register status in sub-header left
-  useSubHeaderActionRegistry().register({
+// Register status in sub-header left
+useSubHeaderActionRegistry([
+  {
     id: 'connection-status',
     component: StatusIndicator,
     side: 'left'
-  });
+  }
+]);
 
-  // Register controls in sub-header right
-  useSubHeaderActionRegistry().register({
+// Register controls in sub-header right
+useSubHeaderActionRegistry([
+  {
     id: 'auto-refresh-toggle',
     label: computed(() => autoRefresh.value ? 'Auto-refresh ON' : 'Auto-refresh OFF'),
     icon: 'lucide:refresh-cw',
@@ -539,7 +537,10 @@ onMounted(() => {
         color: autoRefresh.value ? 'success' : 'neutral'
       });
     }
-  });
+  }
+]);
+
+onMounted(() => {
 
   // Monitor connection
   watchConnection();
@@ -629,19 +630,19 @@ onMounted(() => {
   ];
 
   // Register actions based on permissions
-  [...adminActions, ...superAdminActions].forEach(action => {
-    useHeaderActionRegistry().register(action);
-  });
+  useHeaderActionRegistry([...adminActions, ...superAdminActions]);
 
   // Dynamic action based on user data
   if (userRole.value === 'manager') {
-    useSubHeaderActionRegistry().register({
-      id: 'team-overview',
-      label: `Team Overview (${me.value.team?.memberCount || 0})`,
-      icon: 'lucide:users',
-      side: 'left',
-      onClick: () => showTeamOverview()
-    });
+    useSubHeaderActionRegistry([
+      {
+        id: 'team-overview',
+        label: `Team Overview (${me.value.team?.memberCount || 0})`,
+        icon: 'lucide:users',
+        side: 'left',
+        onClick: () => showTeamOverview()
+      }
+    ]);
   }
 });
 </script>
@@ -758,24 +759,16 @@ interface HeaderAction {
 ### useHeaderActionRegistry()
 
 ```typescript
-const { register } = useHeaderActionRegistry();
-
-// Register single action
-register(action: HeaderAction): void
-
-// Auto-registration on composable creation
+// Pass actions directly to the composable
+// Accepts single action object or array of actions
 useHeaderActionRegistry(actions: HeaderAction | HeaderAction[])
 ```
 
 ### useSubHeaderActionRegistry()
 
 ```typescript
-const { register } = useSubHeaderActionRegistry();
-
-// Register single action
-register(action: HeaderAction): void
-
-// Auto-registration on composable creation
+// Pass actions directly to the composable
+// Accepts single action object or array of actions
 useSubHeaderActionRegistry(actions: HeaderAction | HeaderAction[])
 ```
 
