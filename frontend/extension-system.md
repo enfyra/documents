@@ -67,78 +67,173 @@ This example shows the complete process from creating a menu to displaying custo
    - **Is Enabled**: Check this box
 
 ### Step 3: Write Your Extension Code
-In the code editor, write your Vue.js Single File Component (SFC):
+In the code editor, write your Vue.js Single File Component (SFC).
+
+**✅ Complete Copy-Paste Ready Example:**
+This example demonstrates all features and can be pasted directly into the extension editor:
 
 ```vue
 <template>
   <div class="p-6 space-y-6">
-    <!-- Header -->
+    <!-- Header Section -->
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-3xl font-bold">Analytics Dashboard</h1>
-        <p class="text-gray-500">Track your key metrics</p>
+        <h1 class="text-3xl font-bold">Dashboard Example</h1>
+        <p class="text-gray-500 dark:text-gray-400">
+          Complete working example - copy and paste this code
+        </p>
       </div>
-      <UBadge color="green">Live Data</UBadge>
+      <UBadge color="green" variant="soft">
+        <Icon name="lucide:activity" class="w-4 h-4 mr-1" />
+        Live Data
+      </UBadge>
     </div>
-    
-    <!-- Stats Cards -->
+
+    <!-- Stats Cards Grid -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <UCard>
-        <div class="text-center">
+        <div class="text-center p-4">
+          <Icon name="lucide:users" class="w-8 h-8 mx-auto mb-2 text-blue-600" />
           <div class="text-2xl font-bold text-blue-600">{{ stats.users }}</div>
           <div class="text-sm text-gray-500">Total Users</div>
         </div>
       </UCard>
-      
+
       <UCard>
-        <div class="text-center">
+        <div class="text-center p-4">
+          <Icon name="lucide:dollar-sign" class="w-8 h-8 mx-auto mb-2 text-green-600" />
           <div class="text-2xl font-bold text-green-600">{{ stats.revenue }}</div>
           <div class="text-sm text-gray-500">Monthly Revenue</div>
         </div>
       </UCard>
-      
+
       <UCard>
-        <div class="text-center">
+        <div class="text-center p-4">
+          <Icon name="lucide:shopping-cart" class="w-8 h-8 mx-auto mb-2 text-purple-600" />
           <div class="text-2xl font-bold text-purple-600">{{ stats.orders }}</div>
           <div class="text-sm text-gray-500">Orders Today</div>
         </div>
       </UCard>
     </div>
-    
-    <!-- Actions -->
-    <div class="flex gap-4">
-      <UButton @click="refreshData" :loading="loading" color="primary">
+
+    <!-- Action Buttons -->
+    <div class="flex flex-wrap gap-4">
+      <UButton
+        @click="refreshData"
+        :loading="loading"
+        color="primary"
+        icon="lucide:refresh-cw"
+      >
         Refresh Data
       </UButton>
-      
-      <PermissionGate :condition="{ route: '/reports', actions: ['create'] }">
-        <UButton @click="generateReport" variant="outline">
-          Generate Report
+
+      <UButton
+        @click="fetchFromAPI"
+        :loading="apiLoading"
+        variant="outline"
+        icon="lucide:download-cloud"
+      >
+        Fetch Real Data
+      </UButton>
+
+      <PermissionGate :condition="{ route: '/admin', actions: ['create'] }">
+        <UButton
+          @click="generateReport"
+          variant="soft"
+          color="green"
+          icon="lucide:file-text"
+        >
+          Generate Report (Admin Only)
         </UButton>
       </PermissionGate>
     </div>
-    
+
     <!-- Data Table -->
     <UCard>
       <template #header>
-        <h3 class="text-lg font-semibold">Recent Activity</h3>
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg font-semibold">Recent Activity</h3>
+          <UBadge variant="soft">{{ recentActivity.length }} items</UBadge>
+        </div>
       </template>
-      
-      <UTable :rows="recentActivity" :columns="columns" />
+
+      <UTable :rows="recentActivity" :columns="columns">
+        <template #action-data="{ row }">
+          <div class="flex items-center gap-2">
+            <Icon :name="getActionIcon(row.action)" class="w-4 h-4" />
+            {{ row.action }}
+          </div>
+        </template>
+
+        <template #time-data="{ row }">
+          <UBadge variant="soft" size="xs">{{ row.time }}</UBadge>
+        </template>
+      </UTable>
+    </UCard>
+
+    <!-- Form Example -->
+    <UCard>
+      <template #header>
+        <h3 class="text-lg font-semibold">Quick Add Form</h3>
+      </template>
+
+      <div class="space-y-4">
+        <UInput
+          v-model="formData.name"
+          placeholder="Enter name"
+          label="Name"
+          icon="lucide:user"
+        />
+
+        <UTextarea
+          v-model="formData.description"
+          placeholder="Enter description"
+          label="Description"
+          :rows="3"
+        />
+
+        <USelect
+          v-model="formData.category"
+          :options="categories"
+          label="Category"
+          placeholder="Select category"
+        />
+
+        <div class="flex items-center gap-4">
+          <USwitch v-model="formData.isActive" label="Active" />
+          <UCheckbox v-model="formData.isPublic" label="Public" />
+        </div>
+
+        <UButton
+          @click="submitForm"
+          color="primary"
+          block
+          :disabled="!isFormValid"
+        >
+          Submit Form
+        </UButton>
+      </div>
     </UCard>
   </div>
 </template>
 
 <script setup>
-// Vue 3 Composition API - available globally
-const { ref, reactive, computed, onMounted } = Vue;
+// ==========================================
+// ALL FUNCTIONS ARE GLOBALLY AVAILABLE
+// No imports needed - just use them directly!
+// ==========================================
 
-// Enfyra composables - available globally
+// Nuxt & Enfyra Composables - Available globally
 const toast = useToast();
 const { me } = useEnfyraAuth();
+const router = useRouter();
+const route = useRoute();
+
+// Vue Composition API - Available globally
+const loading = ref(false);
+const apiLoading = ref(false);
 
 // Reactive state
-const loading = ref(false);
 const stats = reactive({
   users: 1234,
   revenue: '$12,450',
@@ -148,82 +243,215 @@ const stats = reactive({
 const recentActivity = ref([
   { id: 1, action: 'User login', user: 'john@example.com', time: '2 mins ago' },
   { id: 2, action: 'New order', user: 'jane@example.com', time: '5 mins ago' },
-  { id: 3, action: 'Payment received', user: 'bob@example.com', time: '10 mins ago' }
+  { id: 3, action: 'Payment received', user: 'bob@example.com', time: '10 mins ago' },
+  { id: 4, action: 'Profile update', user: 'alice@example.com', time: '15 mins ago' },
+  { id: 5, action: 'Password reset', user: 'david@example.com', time: '20 mins ago' }
 ]);
 
+// Table columns configuration
 const columns = [
-  { key: 'action', label: 'Action' },
-  { key: 'user', label: 'User' },
+  { key: 'action', label: 'Action', sortable: true },
+  { key: 'user', label: 'User', sortable: true },
   { key: 'time', label: 'Time' }
 ];
+
+// Form data
+const formData = reactive({
+  name: '',
+  description: '',
+  category: null,
+  isActive: true,
+  isPublic: false
+});
+
+const categories = [
+  { value: 'product', label: 'Product' },
+  { value: 'service', label: 'Service' },
+  { value: 'other', label: 'Other' }
+];
+
+// Computed properties
+const isFormValid = computed(() => {
+  return formData.name && formData.description && formData.category;
+});
+
+// Helper function for action icons
+const getActionIcon = (action) => {
+  const icons = {
+    'User login': 'lucide:log-in',
+    'New order': 'lucide:shopping-bag',
+    'Payment received': 'lucide:credit-card',
+    'Profile update': 'lucide:user-check',
+    'Password reset': 'lucide:key'
+  };
+  return icons[action] || 'lucide:activity';
+};
 
 // Methods
 const refreshData = async () => {
   loading.value = true;
-  
+
   try {
-    // Simulate API call
+    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Update stats
+
+    // Update stats with random values
     stats.users += Math.floor(Math.random() * 10);
     stats.orders += Math.floor(Math.random() * 5);
-    
+
     toast.add({
-      title: 'Data refreshed',
-      description: 'Analytics data has been updated',
-      color: 'success'
+      title: 'Success',
+      description: 'Data has been refreshed',
+      color: 'green',
+      icon: 'lucide:check-circle'
     });
   } catch (error) {
     toast.add({
       title: 'Error',
       description: 'Failed to refresh data',
-      color: 'error'
+      color: 'red',
+      icon: 'lucide:alert-circle'
     });
   } finally {
     loading.value = false;
   }
 };
 
+// Fetch real data from API
+const fetchFromAPI = async () => {
+  apiLoading.value = true;
+
+  try {
+    // Example API call using useApi composable
+    const { data } = await useApi('/user_definition', {
+      query: {
+        limit: 5,
+        fields: 'id,email,created_at'
+      }
+    });
+
+    if (data?.value?.data) {
+      // Update activity with real data
+      recentActivity.value = data.value.data.map((user, index) => ({
+        id: user.id,
+        action: 'User registered',
+        user: user.email,
+        time: `${index + 1} days ago`
+      }));
+
+      toast.add({
+        title: 'Data Loaded',
+        description: `Fetched ${data.value.data.length} records from API`,
+        color: 'green'
+      });
+    }
+  } catch (error) {
+    toast.add({
+      title: 'API Error',
+      description: error.message || 'Failed to fetch data',
+      color: 'red'
+    });
+  } finally {
+    apiLoading.value = false;
+  }
+};
+
 const generateReport = () => {
   toast.add({
-    title: 'Report generated',
-    description: 'Your analytics report is being prepared',
-    color: 'info'
+    title: 'Report Generated',
+    description: 'Your report is ready for download',
+    color: 'blue',
+    timeout: 5000,
+    actions: [{
+      label: 'Download',
+      color: 'white',
+      click: () => {
+        toast.add({
+          title: 'Downloading...',
+          description: 'Report download started'
+        });
+      }
+    }]
   });
 };
 
-// Register header actions
+const submitForm = async () => {
+  if (!isFormValid.value) return;
+
+  try {
+    // Example: Send data to API
+    // const result = await useApi('/my-endpoint', {
+    //   method: 'POST',
+    //   body: formData
+    // });
+
+    toast.add({
+      title: 'Form Submitted',
+      description: `Created: ${formData.name}`,
+      color: 'green'
+    });
+
+    // Reset form
+    formData.name = '';
+    formData.description = '';
+    formData.category = null;
+    formData.isActive = true;
+    formData.isPublic = false;
+  } catch (error) {
+    toast.add({
+      title: 'Submission Failed',
+      description: error.message,
+      color: 'red'
+    });
+  }
+};
+
+// Register header actions when component mounts
 onMounted(() => {
-  useHeaderActionRegistry([
+  // Add custom actions to app header
+  useHeaderActionRegistry().register([
     {
-      id: 'refresh-analytics',
+      id: 'refresh-dashboard',
       label: 'Refresh',
       icon: 'lucide:refresh-cw',
       onClick: refreshData,
-      permission: {
-        route: '/analytics',
-        actions: ['read']
-      }
+      color: 'primary',
+      variant: 'soft'
     },
     {
-      id: 'export-analytics', 
-      label: 'Export',
-      icon: 'lucide:download',
-      variant: 'outline',
+      id: 'view-settings',
+      label: 'Settings',
+      icon: 'lucide:settings',
+      variant: 'ghost',
       onClick: () => {
-        toast.add({
-          title: 'Exporting...',
-          description: 'Preparing analytics export',
-          color: 'info'
-        });
+        navigateTo('/settings');
       }
     }
   ]);
-  
-  console.log('Analytics Dashboard loaded for user:', me.value?.email);
+
+  // Log current user info
+  if (me.value) {
+    console.log('Extension loaded for user:', me.value.email);
+  }
+
+  // Example: Check permissions
+  const { hasPermission } = usePermissions();
+  if (hasPermission('/admin', 'GET')) {
+    console.log('User has admin read access');
+  }
+});
+
+// Cleanup when component unmounts
+onUnmounted(() => {
+  // Unregister header actions
+  useHeaderActionRegistry().unregister(['refresh-dashboard', 'view-settings']);
 });
 </script>
+
+<style scoped>
+/* Add any custom styles here if needed */
+/* Tailwind classes are recommended */
+</style>
 ```
 
 ### Step 4: Save and Test
@@ -313,16 +541,16 @@ All UI components are automatically injected by the extension system and can be 
     <UTextarea v-model="description" placeholder="Enter description" />
     <USelect v-model="selectedOption" :options="options" />
     <USwitch v-model="enabled" label="Enable feature" />
-    
+
     <!-- Buttons and Actions -->
     <UButton @click="handleClick" color="primary">
       Click Me
     </UButton>
-    
+
     <!-- Data Display -->
     <UTable :rows="data" :columns="columns" />
     <UBadge color="green">Status: Active</UBadge>
-    
+
     <!-- Advanced Components -->
     <PermissionGate :condition="{ route: '/users', actions: ['read'] }">
       <UButton variant="outline">Admin Only Button</UButton>
@@ -331,9 +559,8 @@ All UI components are automatically injected by the extension system and can be 
 </template>
 
 <script setup>
-// Components are automatically available - no need to import or access through props
-// They are injected by the extension system
-const { ref, reactive, computed, onMounted } = Vue;
+// Components are automatically available in template - no need to import
+// All composables and Vue functions are available globally - use directly
 
 const name = ref('');
 const description = ref('');
@@ -460,43 +687,42 @@ const handleClick = () => {
 
 ```vue
 <script setup>
-// API Access - Custom wrapper with error handling
+// All functions and composables are available globally - just use them directly!
+
+// API Access
 const { data } = await useApi('/extension_definition', {
   query: { limit: 10 }
 });
 
-// Direct SDK access also available
-const { data: directData } = await useEnfyraApi('/extension_definition', {
-  query: { limit: 10 }
-});
-
-// Authentication - Full SDK access
+// Authentication
 const { me, isLoggedIn, login, logout } = useEnfyraAuth();
 
-// Permissions - Global composable
+// Permissions
 const { hasPermission } = usePermissions();
 if (hasPermission('/users', 'POST')) {
   // User can create
 }
 
-// Notifications - Global composable
+// Notifications
 const toast = useToast();
-toast.add({ 
-  title: 'Success!', 
-  color: 'success' 
+toast.add({
+  title: 'Success!',
+  color: 'success'
 });
 
-// Navigation - Global Nuxt composables
+// Navigation
 const router = useRouter();
 const route = useRoute();
 
-// Schema & Validation - Global composable
+// Schema & Validation
 const { validate, generateEmptyForm } = useSchema('extension_definition');
 
-// Vue 3 Composition API - Global access
-const { ref, reactive, computed, watch, onMounted } = Vue;
+// Vue 3 Composition API - use directly from global
+const loading = ref(false);
+const state = reactive({ count: 0 });
+const doubled = computed(() => state.count * 2);
 
-// State management - Global Nuxt composables
+// State management
 const globalState = useState('myExtension', () => ({}));
 </script>
 ```
@@ -710,7 +936,7 @@ Widgets are reusable components that can be embedded anywhere:
 </template>
 
 <script setup>
-const { ref, computed, onMounted } = Vue;
+// All functions are available globally - use directly
 const totalSales = ref(0);
 
 // Load data using custom wrapper
@@ -781,8 +1007,7 @@ const handleFileUpload = async (event) => {
 
 <script setup>
 // 1. Imports and composables
-// useApi is available directly - no destructuring needed
-const toast = useToast();
+// All composables are available globally - just call them directly
 const toast = useToast();
 
 // 2. Reactive state
@@ -860,8 +1085,9 @@ const loadData = async () => {
 ### Missing Components
 **Problem**: Components not recognized
 **Solution**:
-- Use `props.components.ComponentName` for dynamic access
-- Or use global components directly (UButton, UCard, etc.)
+- Components are auto-injected and available directly in template
+- No need to import or access through props
+- Just use them directly: `<UButton>`, `<UCard>`, etc.
 
 ### API Calls Failing
 **Problem**: Cannot fetch data
