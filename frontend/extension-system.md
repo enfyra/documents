@@ -291,69 +291,58 @@ const getActionIcon = (action) => {
 const refreshData = async () => {
   loading.value = true;
 
-  try {
-    // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1000));
 
-    // Update stats with random values
-    stats.users += Math.floor(Math.random() * 10);
-    stats.orders += Math.floor(Math.random() * 5);
+  // Update stats with random values
+  stats.users += Math.floor(Math.random() * 10);
+  stats.orders += Math.floor(Math.random() * 5);
 
-    toast.add({
-      title: 'Success',
-      description: 'Data has been refreshed',
-      color: 'green',
-      icon: 'lucide:check-circle'
-    });
-  } catch (error) {
-    toast.add({
-      title: 'Error',
-      description: 'Failed to refresh data',
-      color: 'red',
-      icon: 'lucide:alert-circle'
-    });
-  } finally {
-    loading.value = false;
-  }
+  toast.add({
+    title: 'Success',
+    description: 'Data has been refreshed',
+    color: 'green',
+    icon: 'lucide:check-circle'
+  });
+
+  loading.value = false;
 };
 
 // Fetch real data from API
 const fetchFromAPI = async () => {
   apiLoading.value = true;
 
-  try {
-    // Example API call using useApi composable
-    const { data } = await useApi('/user_definition', {
-      query: {
-        limit: 5,
-        fields: 'id,email,created_at'
-      }
-    });
-
-    if (data?.value?.data) {
-      // Update activity with real data
-      recentActivity.value = data.value.data.map((user, index) => ({
-        id: user.id,
-        action: 'User registered',
-        user: user.email,
-        time: `${index + 1} days ago`
-      }));
-
-      toast.add({
-        title: 'Data Loaded',
-        description: `Fetched ${data.value.data.length} records from API`,
-        color: 'green'
-      });
+  // useApi already handles errors - no try-catch needed
+  const { data, error } = await useApi('/user_definition', {
+    query: {
+      limit: 5,
+      fields: 'id,email,created_at'
     }
-  } catch (error) {
+  });
+
+  if (error.value) {
     toast.add({
       title: 'API Error',
-      description: error.message || 'Failed to fetch data',
+      description: error.value.message || 'Failed to fetch data',
       color: 'red'
     });
-  } finally {
-    apiLoading.value = false;
+  } else if (data.value?.data) {
+    // Update activity with real data
+    recentActivity.value = data.value.data.map((user, index) => ({
+      id: user.id,
+      action: 'User registered',
+      user: user.email,
+      time: `${index + 1} days ago`
+    }));
+
+    toast.add({
+      title: 'Data Loaded',
+      description: `Fetched ${data.value.data.length} records from API`,
+      color: 'green'
+    });
   }
+
+  apiLoading.value = false;
 };
 
 const generateReport = () => {
@@ -378,32 +367,33 @@ const generateReport = () => {
 const submitForm = async () => {
   if (!isFormValid.value) return;
 
-  try {
-    // Example: Send data to API
-    // const result = await useApi('/my-endpoint', {
-    //   method: 'POST',
-    //   body: formData
-    // });
+  // Example: Send data to API with proper error handling
+  // const { data, error } = await useApi('/my-endpoint', {
+  //   method: 'POST',
+  //   body: formData
+  // });
+  //
+  // if (error.value) {
+  //   toast.add({
+  //     title: 'Submission Failed',
+  //     description: error.value.message,
+  //     color: 'red'
+  //   });
+  //   return;
+  // }
 
-    toast.add({
-      title: 'Form Submitted',
-      description: `Created: ${formData.name}`,
-      color: 'green'
-    });
+  toast.add({
+    title: 'Form Submitted',
+    description: `Created: ${formData.name}`,
+    color: 'green'
+  });
 
-    // Reset form
-    formData.name = '';
-    formData.description = '';
-    formData.category = null;
-    formData.isActive = true;
-    formData.isPublic = false;
-  } catch (error) {
-    toast.add({
-      title: 'Submission Failed',
-      description: error.message,
-      color: 'red'
-    });
-  }
+  // Reset form
+  formData.name = '';
+  formData.description = '';
+  formData.category = null;
+  formData.isActive = true;
+  formData.isPublic = false;
 };
 
 // Register header actions when component mounts
@@ -941,8 +931,10 @@ const totalSales = ref(0);
 
 // Load data using custom wrapper
 onMounted(async () => {
-  const { data } = await useApi('/sales_summary');
-  totalSales.value = data.total;
+  const { data, error } = await useApi('/sales_summary');
+  if (!error.value && data.value) {
+    totalSales.value = data.value.total;
+  }
 });
 </script>
 ```
@@ -1043,17 +1035,21 @@ onMounted(() => {
 ```vue
 <script setup>
 const loadData = async () => {
-  try {
-    const response = await useApi('/endpoint');
-    // Handle success
-  } catch (error) {
-    console.error('Extension error:', error);
+  // useApi handles errors internally - no try-catch needed
+  const { data, error } = await useApi('/endpoint');
+
+  if (error.value) {
+    console.error('Extension error:', error.value);
     toast.add({
       title: 'Error',
-      description: error.message,
+      description: error.value.message,
       color: 'red'
     });
+    return;
   }
+
+  // Handle success with data.value
+  console.log('Data loaded:', data.value);
 };
 </script>
 ```
