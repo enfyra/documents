@@ -3,15 +3,15 @@
 Understanding Enfyra's API request lifecycle is crucial for building effective hooks and handlers. This guide explains the complete flow and how context sharing works throughout the request.
 
 
-## 📑 Quick Navigation
+## Quick Navigation
 
-**🚀 Core Concepts:**
+**Core Concepts:**
 - [Request Flow](#request-flow) - Complete lifecycle overview
 - [Context Sharing ($ctx)](#context-sharing-ctx) - How data flows between phases
 - [Hook System](#hook-system) - Global vs route-specific hooks
 - [Execution Order](#execution-order) - Predictable hook sequencing
 
-**🔧 Practical Usage:**
+**Practical Usage:**
 - [Context Modifications](#context-modifications) - Changing data between hooks
 - [Real Examples](#real-examples) - Complete lifecycle scenarios
 - [Best Practices](#best-practices) - Effective lifecycle management
@@ -66,7 +66,7 @@ HTTP Request → Route Detection (High-Performance) → Context Setup → preHoo
 
 The `$ctx` object is the **same reference** throughout the entire request lifecycle. This means:
 
-### 🔗 **Persistent Reference**
+### **Persistent Reference**
 ```javascript
 // preHook #1 modifies context
 $ctx.$share.customField = "hello";
@@ -85,7 +85,7 @@ if ($ctx.$body.processed) {
 $ctx.$share.customField += " world"; // Now "hello world"
 ```
 
-### 🎯 **Available Context Properties**
+### **Available Context Properties**
 
 ```javascript
 $ctx = {

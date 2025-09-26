@@ -2,7 +2,7 @@
 
 Package Management lets you install NPM packages directly from the Enfyra interface and use them in your custom handlers and hooks. Instead of managing dependencies manually, you can search, install, and configure packages through the UI - they're automatically available in your custom code as `$ctx.$pkgs.packagename`.
 
-**🔗 Related Documentation**: [Custom Handlers](./custom-handlers.md) | [Hook Development](../backend/hook-development.md)
+**Related Documentation**: [Custom Handlers](./custom-handlers.md) | [Hook Development](../backend/hook-development.md)
 
 ## Why Use Package Management?
 
@@ -263,20 +263,20 @@ const axios = $ctx.$pkgs.axios; // undefined
 
 ## Package Recommendations
 
-**🚀 Starter Pack** - Essential packages for most projects:
+**Starter Pack** - Essential packages for most projects:
 - `axios` - HTTP requests and API integration
 - `lodash` - Data manipulation and utilities
 - `moment` - Date/time operations
 - `uuid` - Generate unique identifiers
 - `joi` - Input validation
 
-**📊 Data Processing Pack**:
+**Data Processing Pack**:
 - `csv-parser` - Parse CSV files
 - `fast-xml-parser` - XML parsing
 - `jsonwebtoken` - JWT token handling
 - `bcrypt` - Password encryption
 
-**🔗 Integration Pack**:
+**Integration Pack**:
 - `nodemailer` - Send emails
 - `twilio` - SMS and communication
 - `stripe` - Payment processing
