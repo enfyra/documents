@@ -24,7 +24,7 @@ Enfyra provides two types of hooks:
 
 Hooks can perform a wide variety of operations:
 
-### 🔧 Data Transformation
+### Data Transformation
 - **Auto-generate fields**: Create slugs, timestamps, UUIDs
 - **Hash sensitive data**: Encrypt passwords, API keys
 - **Format inputs**: Clean phone numbers, normalize emails
@@ -36,13 +36,13 @@ Hooks can perform a wide variety of operations:
 - **Security checks**: Rate limiting, IP restrictions, role validation
 - **Data sanitization**: Remove HTML tags, escape SQL
 
-### 🔍 Query Modification
+### Query Modification
 - **Auto-filtering**: Hide inactive records, apply tenant isolation
 - **Dynamic conditions**: Add user-specific filters
 - **Permission-based filtering**: Show only accessible data
 - **Search enhancement**: Add full-text search, fuzzy matching
 
-### 📊 Response Enhancement
+### Response Enhancement
 - **Computed fields**: Calculate totals, format names, generate URLs
 - **Metadata addition**: Add request info, processing time, cache status
 - **Data masking**: Hide sensitive info based on user role
@@ -54,7 +54,7 @@ Hooks can perform a wide variety of operations:
 - **Debug information**: Add detailed execution logs
 - **Business analytics**: Track user actions, feature usage
 
-### 🔗 Integration
+### Integration
 - **External APIs**: Send notifications, sync with third-party services
 - **Cache management**: Invalidate cache entries, update search indexes
 - **Event triggering**: Notify other systems of data changes

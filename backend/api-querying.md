@@ -2,16 +2,16 @@
 
 Enfyra provides a powerful MongoDB-like querying system for your API endpoints. This system allows developers to filter, sort, paginate, and load related data using comparison operators, text search, logical operators, relation filtering, and aggregation functions across any table in your database.
 
-## 📑 Quick Navigation
+## Quick Navigation
 
-**🚀 Essential Sections:**
+**Essential Sections:**
 - [API Lifecycle](#api-lifecycle) - Quick overview (see [full docs](./api-lifecycle.md))
 - [Query Parameters](#query-parameters) - Basic params like `fields`, `limit`, `sort`, `filter`
 - [Filter Operators](#filter-operators) - `_eq`, `_gt`, `_contains`, etc.
 - [Logical Operators](#logical-operators) - `_and`, `_or`, `_not` combinations
 - [Deep Relations](#deep-relations) - ⚠️ Load nested data (with N+1 warnings)
 
-**🔧 Advanced Features:**
+**Advanced Features:**
 - [Auto-Join Feature](#auto-join-feature) - Automatic JOIN creation for related data
 - [Relation Filtering](#relation-filtering) - Filter by related table data
 - [Aggregation Filtering](#aggregation-filtering) - `_count`, `_sum`, `_avg` operations
@@ -24,7 +24,7 @@ Enfyra provides a powerful MongoDB-like querying system for your API endpoints. 
 - [Complex Examples](#complex-examples) - Real-world use cases
 - [Custom Handler Integration](#api-usage-in-custom-handlers) - Use in your code
 
-**🛠️ Developer Resources:**
+**Developer Resources:**
 - [Performance Tips](#performance-tips) - Optimization guidelines
 - [Error Handling](#error-handling) - Validation and debugging
 - [TypeScript Support](#typescript-support) - Type definitions
