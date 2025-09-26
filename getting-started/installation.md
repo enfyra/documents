@@ -11,7 +11,7 @@ You must have an Enfyra backend server running before using this app.
 ```bash
 npx @enfyra/create-enfyra-be@latest my-backend
 cd my-backend
-npm run dev
+npm run start
 ```
 
 The backend will run at `http://localhost:1105` by default.
