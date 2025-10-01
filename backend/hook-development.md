@@ -81,66 +81,9 @@ This guide covers writing JavaScript code for hooks - both PreHooks (before oper
 
 ## Hook Context ($ctx)
 
-Hooks use the same context object as handlers, providing full access to request data and system functions:
+Hooks use the same context object as handlers, providing full access to request data and system functions.
 
-### Request Data
-```javascript
-$ctx.$body        // Request body (POST/PATCH data) - modifiable in preHook
-$ctx.$params      // URL parameters (e.g., :id from /products/:id)
-$ctx.$query       // Query string parameters - modifiable in preHook
-$ctx.$user        // Current authenticated user information
-```
-
-### Request Information
-```javascript
-$ctx.$req.method  // HTTP method (GET, POST, PATCH, DELETE)
-$ctx.$req.url     // Full request URL
-$ctx.$req.ip      // Client IP address
-$ctx.$req.headers // Request headers (authorization, user-agent)
-```
-
-### Response Data (AfterHook only)
-```javascript
-$ctx.$data        // Response data from the main operation - modifiable
-$ctx.$statusCode  // HTTP status code - modifiable
-```
-
-### Database Access
-```javascript
-$ctx.$repos       // Access to table repositories (same as in Custom Handlers)
-// Use the table names configured in route's targetTables
-$ctx.$repos.products    // If "products" is in targetTables
-$ctx.$repos.categories  // If "categories" is in targetTables
-```
-
-**Important**: Configure the tables you need in the route's **Target Tables** field. Each target table becomes available as a repository in `$ctx.$repos`.
-
-### Utility Functions
-**⚠️ Important: All helper functions require `await`** - They use IPC bridge for execution:
-
-```javascript
-// JWT token generation (async)
-const token = await $ctx.$helpers.$jwt(payload, expiration)
-// Example: const token = await $ctx.$helpers.$jwt({userId: 123}, '7d')
-
-// Password hashing and verification (async)  
-const hash = await $ctx.$helpers.$bcrypt.hash(plainPassword)
-const isValid = await $ctx.$helpers.$bcrypt.compare(plainPassword, hashedPassword)
-
-// URL-friendly slug generation (async)
-const slug = await $ctx.$helpers.autoSlug(text)
-// Example: const slug = await $ctx.$helpers.autoSlug('My Product Name') → 'my-product-name'
-```
-
-### Logging System
-```javascript
-$ctx.$logs('Debug message', data)
-$ctx.$logs('Hook executed:', { hookName: 'validation-hook' })
-// Logs are automatically included in API response for client-side debugging
-
-$ctx.$share.$logs  // Array of all logged messages from current request
-// Useful for debugging or sharing data between preHook and afterHook
-```
+**📖 For complete context reference, see [Context Reference](./context-reference.md)**
 
 ## PreHook Examples
 
@@ -228,6 +171,70 @@ if ($ctx.$req.method === 'POST' && $ctx.$body.email) {
 }
 ```
 
+### Distributed Locking for Critical Operations
+```javascript
+// Prevent concurrent modifications to the same record
+const lockKey = `record-lock:${$ctx.$params.id}`;
+const lockValue = $ctx.$user.id;
+
+const lockAcquired = await $ctx.$cache.acquire(lockKey, lockValue, 10000); // 10 seconds
+if (!lockAcquired) {
+  throw new Error('Record is currently being modified by another user');
+}
+
+try {
+  // Perform the critical operation
+  $ctx.$logs('Acquired lock for record:', $ctx.$params.id);
+  
+  // Your business logic here...
+  
+} finally {
+  // Always release the lock
+  await $ctx.$cache.release(lockKey, lockValue);
+  $ctx.$logs('Released lock for record:', $ctx.$params.id);
+}
+```
+
+### Cache-Based Rate Limiting
+```javascript
+// Implement rate limiting using cache
+const rateLimitKey = `rate-limit:${$ctx.$user.id}:${$ctx.$req.url}`;
+const currentCount = await $ctx.$cache.get(rateLimitKey) || 0;
+
+if (currentCount >= 10) { // Max 10 requests per minute
+  throw new Error('Rate limit exceeded. Please try again later.');
+}
+
+// Increment counter with 60 second TTL
+await $ctx.$cache.set(rateLimitKey, currentCount + 1, 60000);
+$ctx.$logs('Rate limit check passed for user:', $ctx.$user.id);
+```
+
+### Cache-Enhanced Data Retrieval
+```javascript
+// Check cache first, then fallback to database
+const cacheKey = `user-profile:${$ctx.$params.id}`;
+let userProfile = await $ctx.$cache.get(cacheKey);
+
+if (!userProfile) {
+  // Cache miss - fetch from database
+  const result = await $ctx.$repos.users.find({
+    where: { id: { _eq: $ctx.$params.id } }
+  });
+  
+  if (result.data.length > 0) {
+    userProfile = result.data[0];
+    // Cache for 5 minutes
+    await $ctx.$cache.set(cacheKey, userProfile, 300000);
+    $ctx.$logs('User profile cached:', $ctx.$params.id);
+  }
+} else {
+  $ctx.$logs('User profile served from cache:', $ctx.$params.id);
+}
+
+// Use userProfile in your logic...
+```
+
 ## AfterHook Examples
 
 AfterHooks execute **after** the main database operation, allowing you to transform the response data.
@@ -308,6 +315,74 @@ if ($ctx.$req.method !== 'GET' && $ctx.$data.data) {
 }
 ```
 
+### Cache Invalidation After Data Changes
+```javascript
+// Invalidate related cache entries after data modification
+if ($ctx.$req.method !== 'GET' && $ctx.$data.data) {
+  const recordId = $ctx.$data.data.id;
+  
+  // Invalidate user profile cache
+  await $ctx.$cache.deleteKey(`user-profile:${recordId}`);
+  
+  // Invalidate user list cache
+  await $ctx.$cache.deleteKey('user-list');
+  
+  // Invalidate user count cache
+  await $ctx.$cache.deleteKey('user-count');
+  
+  $ctx.$logs('Invalidated cache for user:', recordId);
+}
+```
+
+### Cache Warm-up for Frequently Accessed Data
+```javascript
+// Pre-populate cache with frequently accessed data
+if ($ctx.$req.method === 'GET' && $ctx.$data.data) {
+  const cacheKey = `user-stats:${$ctx.$user.id}`;
+  
+  // Check if cache exists
+  const cachedStats = await $ctx.$cache.get(cacheKey);
+  
+  if (!cachedStats) {
+    // Calculate and cache user statistics
+    const userStats = {
+      totalRecords: $ctx.$data.meta?.totalCount || 0,
+      lastAccessed: new Date().toISOString(),
+      userRole: $ctx.$user.role
+    };
+    
+    // Cache for 10 minutes
+    await $ctx.$cache.set(cacheKey, userStats, 600000);
+    $ctx.$logs('Warmed up cache for user stats:', $ctx.$user.id);
+  }
+}
+```
+
+### Session Management with Cache
+```javascript
+// Manage user sessions using cache
+if ($ctx.$req.method === 'POST' && $ctx.$body.action === 'login') {
+  const sessionKey = `session:${$ctx.$user.id}`;
+  const sessionData = {
+    userId: $ctx.$user.id,
+    loginTime: new Date().toISOString(),
+    ipAddress: $ctx.$req.ip,
+    userAgent: $ctx.$req.headers['user-agent']
+  };
+  
+  // Store session for 24 hours
+  await $ctx.$cache.set(sessionKey, sessionData, 86400000);
+  $ctx.$logs('Created user session:', $ctx.$user.id);
+}
+
+// Clean up session on logout
+if ($ctx.$req.method === 'POST' && $ctx.$body.action === 'logout') {
+  const sessionKey = `session:${$ctx.$user.id}`;
+  await $ctx.$cache.deleteKey(sessionKey);
+  $ctx.$logs('Cleared user session:', $ctx.$user.id);
+}
+```
+
 ## Hook Execution Flow
 
 ```
@@ -365,50 +440,9 @@ if ($ctx.$share.validationPassed) {
 
 ## Database Repository Methods
 
-Each repository in `$ctx.$repos` uses the same methods as in [Custom Handlers](../frontend/custom-handlers.md):
+Each repository in `$ctx.$repos` uses the same methods as in [Custom Handlers](../frontend/custom-handlers.md).
 
-### Basic Operations
-```javascript
-// Find records (returns {data: [], meta: {totalCount, filterCount}})
-const result = await $ctx.$repos.products.find({
-  where: { category: { _eq: 'electronics' } }
-});
-const products = result.data;
-
-// Create new record (returns query result with created record)
-const result = await $ctx.$repos.products.create({
-  name: $ctx.$body.name,
-  price: $ctx.$body.price
-});
-const newProduct = result.data[0];
-
-// Update record by ID (returns query result with updated record)
-const result = await $ctx.$repos.products.update($ctx.$params.id, {
-  price: $ctx.$body.price
-});
-const updatedProduct = result.data[0];
-
-// Delete record by ID (returns success message)
-const result = await $ctx.$repos.products.delete($ctx.$params.id);
-// Returns: { message: 'Delete successfully!', statusCode: 200 }
-```
-
-### Query Filtering
-The `where` field uses **Enfyra's API Filtering system** - the same MongoDB-like operators available in the API (see [API Filtering](./api-filtering.md)):
-
-```javascript
-// Complex filtering using API Filtering operators
-const result = await $ctx.$repos.products.find({
-  where: {
-    _and: [
-      { price: { _between: [100, 500] } },        // price >= 100 AND <= 500
-      { category: { _in: ['electronics', 'gadgets'] } }, // category IN (...)
-      { name: { _contains: 'phone' } },           // name CONTAINS 'phone'
-      { isActive: { _eq: true } }                 // isActive = true
-    ]
-  }
-});
-```
+**📖 For complete database operations and examples, see [Context Reference](./context-reference.md#database-access)**
 
 ## System Hooks
 
@@ -449,8 +483,8 @@ if ($ctx.$body.name) {
 - **Idempotent Operations**: Ensure hooks can run multiple times safely
 
 ### Code Patterns
-- **Always Await Helpers**: All `$ctx.$helpers` functions require `await` due to IPC bridge
-- **Extract Helper Results**: Store helper results in variables before using them
+- **Always Await**: All `$ctx.$helpers` and `$ctx.$cache` functions require `await` due to IPC bridge
+- **Extract Results**: Store helper results in variables before using them
 - **Check Data Arrays**: Repository methods return `{data: []}`, always check `data.length`
 - **Shared Context**: Use `$ctx.$share` to pass data between preHook and afterHook
 
@@ -458,7 +492,6 @@ if ($ctx.$body.name) {
 - **Lightweight Code**: Keep hook code simple and fast
 - **Avoid Heavy Operations**: Use custom handlers for complex business logic  
 - **Minimal Database Queries**: Only query what you absolutely need
-- **Cache Results**: Store expensive computations in `$ctx.$share`
 
 ### Security
 - **User Context**: Always validate `$ctx.$user` permissions when needed
@@ -478,6 +511,8 @@ if ($ctx.$body.name) {
 - **Descriptive Messages**: Provide clear error messages for debugging
 - **Status Codes**: Errors automatically return appropriate HTTP status codes
 - **Graceful Fallbacks**: Handle cases where expected data might be missing
+
+**📖 For complete best practices including cache operations, see [Context Reference](./context-reference.md#best-practices)**
 
 ### Integration with Other Systems
 - **Filter Modification**: Perfect for modifying [API Filtering](./api-filtering.md) queries
