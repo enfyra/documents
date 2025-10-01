@@ -134,6 +134,7 @@ enfyra-docs/
     ├── api-lifecycle.md         # 🔄 Request lifecycle, hook system, and context sharing
     ├── api-querying.md          # 🔥 MongoDB-like API querying with powerful operators (for developers)
     ├── hook-development.md      # Advanced hook programming with context, examples, and best practices
+    ├── context-reference.md     # 📖 Complete $ctx object reference for hooks and handlers
     ├── cluster-architecture.md  # 🏗️ Multi-instance coordination and distributed synchronization
     └── permission-system.md     # 🔐 Role-based access control with allowedUsers bypass
 ```
@@ -170,12 +171,13 @@ enfyra-docs/
 
 ### ⚙️ Phase 4: Advanced Development (4-5 hours)
 13. **[API Querying](./backend/api-querying.md)** - Master MongoDB-like querying for complex data retrieval
-14. **[Hook Development](./backend/hook-development.md)** - Create sophisticated request/response hooks
-15. **[API Lifecycle](./backend/api-lifecycle.md)** - Understand the complete request processing pipeline
+14. **[Context Reference](./backend/context-reference.md)** - Complete reference for $ctx object in hooks and handlers
+15. **[Hook Development](./backend/hook-development.md)** - Create sophisticated request/response hooks
+16. **[API Lifecycle](./backend/api-lifecycle.md)** - Understand the complete request processing pipeline
 
 ### 🏗️ Phase 5: Production & Scale (2-3 hours)
-16. **[Permission System](./backend/permission-system.md)** - Deep dive into role-based access control
-17. **[Cluster Architecture](./backend/cluster-architecture.md)** - Deploy and scale across multiple instances
+17. **[Permission System](./backend/permission-system.md)** - Deep dive into role-based access control
+18. **[Cluster Architecture](./backend/cluster-architecture.md)** - Deploy and scale across multiple instances
 
 ### 🎯 Goal-Oriented Paths
 
@@ -185,7 +187,7 @@ enfyra-docs/
 - 🔧 **Need custom functionality?** → Focus on Phase 3: API Integration + Extensions
 - 📊 **Building a dashboard?** → [Extension System](./frontend/extension-system.md) + [API Integration](./frontend/api-integration.md)
 - 🔒 **Need role-based access?** → [Permission Builder](./frontend/permission-builder.md) + [Permission System](./backend/permission-system.md)
-- ⚙️ **Complex business logic?** → [Custom Handlers](./frontend/custom-handlers.md) + [Hook Development](./backend/hook-development.md)
+- ⚙️ **Complex business logic?** → [Custom Handlers](./frontend/custom-handlers.md) + [Context Reference](./backend/context-reference.md) + [Hook Development](./backend/hook-development.md)
 - 🏢 **Enterprise deployment?** → [Cluster Architecture](./backend/cluster-architecture.md) + [Permission System](./backend/permission-system.md)
 
 ---
@@ -215,6 +217,7 @@ enfyra-docs/
 **⚙️ Backend (Developer Integration)**
 - **[API Lifecycle](./backend/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
 - **[API Querying](./backend/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
+- **[Context Reference](./backend/context-reference.md)** - 📖 **Complete $ctx object reference** for hooks and handlers with examples
 - **[Hook Development](./backend/hook-development.md)** - Advanced hook programming with context, examples, and best practices
 - **[Cluster Architecture](./backend/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
 - **[Permission System](./backend/permission-system.md)** - 🔐 **Role-based access control** with allowedUsers bypass
