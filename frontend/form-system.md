@@ -222,6 +222,106 @@ useHeaderActionRegistry([
 - **Clear Feedback**: Users know when changes exist
 - **Automatic Reset**: No manual state management needed
 
+## Reset Button Pattern
+
+Enfyra provides a consistent reset button pattern to discard form changes:
+
+### How It Works
+
+1. **Change Detection**: Tracks when form data is modified
+2. **Reset Button**: Appears only when changes exist
+3. **Confirmation**: Asks user to confirm before discarding
+4. **Restore**: Returns form to original state
+
+### Implementation Pattern
+
+```typescript
+// In your page component
+const { confirm } = useConfirm();
+const hasFormChanges = ref(false);
+const formEditorRef = ref();
+
+// Reset function
+async function handleReset() {
+  const ok = await confirm({
+    title: "Discard Changes",
+    content: "Are you sure you want to discard all changes? This action cannot be undone.",
+  });
+  
+  if (ok) {
+    // Reset form to original state
+    form.value = formChanges.discardChanges(form.value);
+    formEditorRef.value?.confirmChanges();
+  }
+}
+
+// Header actions
+useHeaderActionRegistry([
+  {
+    id: "save-user",
+    label: "Save",
+    disabled: computed(() => !hasFormChanges.value),
+    submit: save,
+  },
+  {
+    id: "reset-user",
+    label: "Reset",
+    icon: "lucide:rotate-ccw",
+    variant: "outline",
+    color: "gray",
+    side: "left",
+    show: computed(() => hasFormChanges.value),
+    onClick: handleReset,
+  },
+]);
+```
+
+### Using useSchema Pattern
+
+For forms using `useSchema`, you can leverage the built-in `discardChanges` function:
+
+```typescript
+// Using useSchema composable
+const { formChanges } = useSchema(tableName);
+
+// Initialize form changes tracking
+onMounted(async () => {
+  const data = await fetchData();
+  form.value = data;
+  formChanges.update(data); // Track original state
+});
+
+// Reset function
+async function handleReset() {
+  const ok = await confirm({
+    title: "Discard Changes",
+    content: "Are you sure you want to discard all changes?",
+  });
+  
+  if (ok) {
+    // Use useSchema's discardChanges
+    form.value = formChanges.discardChanges(form.value);
+    formEditorRef.value?.confirmChanges();
+  }
+}
+```
+
+### Key Features
+
+- **Conditional Display**: Reset button only shows when changes exist
+- **Confirmation Dialog**: Prevents accidental data loss
+- **Deep Reset**: Restores all form fields to original values
+- **State Sync**: Updates form change detection state
+- **Consistent UX**: Same pattern across all forms
+
+### Best Practices
+
+1. **Always Confirm**: Use confirmation dialog for destructive actions
+2. **Clear Messaging**: Explain what will be lost
+3. **Positioning**: Place reset button on the left side
+4. **Icon Usage**: Use `lucide:rotate-ccw` for consistency
+5. **State Management**: Always call `confirmChanges()` after reset
+
 ### Disabled Fields
 
 - System fields cannot be edited
