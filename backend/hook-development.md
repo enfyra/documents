@@ -515,7 +515,7 @@ if ($ctx.$body.name) {
 - **Use $throw Methods**: Use `$ctx.$throw['400']()` instead of `throw new Error()` for consistent error handling
 - **HTTP Status Codes**: Use numeric methods like `$ctx.$throw['404']()` for standard HTTP errors
 - **Semantic Errors**: Use descriptive methods like `$ctx.$throw.businessLogic()` for business logic errors
-- **Error Recovery**: Check `$ctx.$error` in afterHook to handle errors gracefully
+- **Error Recovery**: Check `$ctx.$api.error` in afterHook to handle errors gracefully (only available in afterHook)
 - **Descriptive Messages**: Provide clear error messages and details for debugging
 - **Graceful Fallbacks**: Handle cases where expected data might be missing
 

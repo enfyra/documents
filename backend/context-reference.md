@@ -20,26 +20,28 @@ $ctx.$body        // Request body (POST/PATCH data)
 $ctx.$params      // URL parameters (e.g., :id from /products/:id)
 $ctx.$query       // Query string parameters (e.g., ?page=1&limit=10)
 $ctx.$user        // Current authenticated user information
-$ctx.$error       // Error information (available in afterHook when errors occur)
 $ctx.$data        // Response data (null when error, actual data when success)
 $ctx.$statusCode  // HTTP status code (error status when error, success status when success)
+$ctx.$api         // API request/response/error information for logging and audit
 ```
 
-### Context State Logic
+### Context State Logic (AfterHook Only)
 ```javascript
-// ERROR CASE:
-if ($ctx.$error) {
-  // $ctx.$error = error object
+// ERROR CASE (only in afterHook):
+if ($ctx.$api.error) {
+  // $ctx.$api.error = error object
   // $ctx.$data = null
   // $ctx.$statusCode = error status (400, 500, etc.)
 }
 
-// SUCCESS CASE:
-if (!$ctx.$error) {
-  // $ctx.$error = undefined
+// SUCCESS CASE (only in afterHook):
+if (!$ctx.$api.error) {
+  // $ctx.$api.error = undefined
   // $ctx.$data = response data from controller
   // $ctx.$statusCode = success status (200, 201, etc.)
 }
+
+// Note: preHook does NOT have access to $ctx.$api.error
 ```
 
 ### Request Details
@@ -152,43 +154,44 @@ $ctx.$throw.notFound('User', '123')
 $ctx.$throw.unauthorized('Invalid token')
 ```
 
-### Error Information (AfterHook)
+### Error Information (AfterHook Only)
 ```javascript
-// $ctx.$error is set by the dynamic interceptor when errors occur
+// $ctx.$api.error is ONLY available in afterHook when errors occur
 // afterHook runs even when there are errors, allowing error handling
+// preHook does NOT have access to $ctx.$api.error
 
 // In afterHook - check for errors:
-if ($ctx.$error) {
+if ($ctx.$api.error) {
   // ERROR CASE:
-  // - $ctx.$error = error object
+  // - $ctx.$api.error = error object
   // - $ctx.$data = null
   // - $ctx.$statusCode = error status (400, 500, etc.)
   
-  $ctx.$logs(`Error occurred: ${$ctx.$error.message} (${$ctx.$error.statusCode})`);
+  $ctx.$logs(`Error occurred: ${$ctx.$api.error.message} (${$ctx.$api.error.statusCode})`);
   
   // Log error details for debugging
-  $ctx.$logs(`Error stack: ${$ctx.$error.stack}`);
-  $ctx.$logs(`Error timestamp: ${$ctx.$error.timestamp}`);
+  $ctx.$logs(`Error stack: ${$ctx.$api.error.stack}`);
+  $ctx.$logs(`Error timestamp: ${$ctx.$api.error.timestamp}`);
   
   // Log error to audit system
   await $ctx.$repos.audit_logs.create({
     action: 'error_occurred',
     userId: $ctx.$user?.id,
-    errorMessage: $ctx.$error.message,
-    errorCode: $ctx.$error.statusCode,
-    timestamp: $ctx.$error.timestamp
+    errorMessage: $ctx.$api.error.message,
+    errorCode: $ctx.$api.error.statusCode,
+    timestamp: $ctx.$api.error.timestamp
   });
   
   // Return user-friendly error response
   return {
     success: false,
     message: 'An error occurred while processing your request',
-    errorId: $ctx.$error.timestamp,
+    errorId: $ctx.$api.error.timestamp,
     supportContact: 'support@example.com'
   };
 } else {
   // SUCCESS CASE:
-  // - $ctx.$error = undefined
+  // - $ctx.$api.error = undefined
   // - $ctx.$data = response data from controller
   // - $ctx.$statusCode = success status (200, 201, etc.)
   
@@ -216,35 +219,35 @@ if (!$ctx.$body.password || $ctx.$body.password.length < 6) {
 #### AfterHook Error Recovery
 ```javascript
 // afterHook runs even when there are errors
-// Check $ctx.$error to handle error cases
+// Check $ctx.$api.error to handle error cases (ONLY available in afterHook)
 
-if ($ctx.$error) {
+if ($ctx.$api.error) {
   // ERROR CASE:
-  // - $ctx.$error = error object
+  // - $ctx.$api.error = error object
   // - $ctx.$data = null
   // - $ctx.$statusCode = error status (400, 500, etc.)
   
-  $ctx.$logs(`Error occurred in main operation: ${$ctx.$error.message}`);
+  $ctx.$logs(`Error occurred in main operation: ${$ctx.$api.error.message}`);
   
   // Log error to audit system
   await $ctx.$repos.audit_logs.create({
     action: 'error_occurred',
     userId: $ctx.$user?.id,
-    errorMessage: $ctx.$error.message,
-    errorCode: $ctx.$error.statusCode,
-    timestamp: $ctx.$error.timestamp
+    errorMessage: $ctx.$api.error.message,
+    errorCode: $ctx.$api.error.statusCode,
+    timestamp: $ctx.$api.error.timestamp
   });
   
   // Return user-friendly error response
   return {
     success: false,
     message: 'An error occurred while processing your request',
-    errorId: $ctx.$error.timestamp,
+    errorId: $ctx.$api.error.timestamp,
     supportContact: 'support@example.com'
   };
 } else {
   // SUCCESS CASE:
-  // - $ctx.$error = undefined
+  // - $ctx.$api.error = undefined
   // - $ctx.$data = response data from controller
   // - $ctx.$statusCode = success status (200, 201, etc.)
   
@@ -508,6 +511,58 @@ $ctx.$uploadedFile.size          // File size in bytes
 $ctx.$uploadedFile.fieldname     // Form field name
 ```
 
+## API Information
+
+### Request/Response Details
+```javascript
+$ctx.$api.request.method         // HTTP method (GET, POST, PATCH, DELETE)
+$ctx.$api.request.url           // Request URL
+$ctx.$api.request.timestamp     // Request start timestamp
+$ctx.$api.request.correlationId // Unique request identifier
+$ctx.$api.request.userAgent     // Client user agent
+$ctx.$api.request.ip            // Client IP address
+
+$ctx.$api.response.statusCode   // HTTP response status code
+$ctx.$api.response.responseTime // Response time in milliseconds
+$ctx.$api.response.timestamp    // Response completion timestamp
+
+$ctx.$api.error.message         // Error message (AfterHook only)
+$ctx.$api.error.stack           // Error stack trace (AfterHook only)
+$ctx.$api.error.name            // Error class name (AfterHook only)
+$ctx.$api.error.timestamp       // Error occurrence timestamp (AfterHook only)
+$ctx.$api.error.statusCode      // HTTP error status code (AfterHook only)
+$ctx.$api.error.details         // Additional error details (AfterHook only)
+```
+
+### Usage Examples
+```javascript
+// Log API request details
+$ctx.$logs(`API Request: ${$ctx.$api.request.method} ${$ctx.$api.request.url}`);
+
+// Log response performance
+$ctx.$logs(`Response time: ${$ctx.$api.response.responseTime}ms`);
+
+// Use correlation ID for tracking
+$ctx.$logs(`Request ID: ${$ctx.$api.request.correlationId}`);
+
+// Check for errors (AfterHook only)
+if ($ctx.$api.error) {
+  $ctx.$logs(`Error: ${$ctx.$api.error.message} (${$ctx.$api.error.statusCode})`);
+}
+
+// Audit logging with API details
+await $ctx.$repos.audit_logs.create({
+  correlationId: $ctx.$api.request.correlationId,
+  method: $ctx.$api.request.method,
+  url: $ctx.$api.request.url,
+  statusCode: $ctx.$api.response?.statusCode || $ctx.$api.error?.statusCode,
+  responseTime: $ctx.$api.response?.responseTime,
+  error: $ctx.$api.error?.message,
+  userId: $ctx.$user?.id,
+  timestamp: $ctx.$api.response?.timestamp || $ctx.$api.error?.timestamp
+});
+```
+
 ## Best Practices
 
 ### Code Patterns
@@ -518,7 +573,7 @@ $ctx.$uploadedFile.fieldname     // Form field name
 - **Cache Key Patterns**: Use consistent naming patterns like `user:123`, `session:456`, `lock:789`
 - **Lock Management**: Always release locks in `finally` blocks to prevent deadlocks
 - **Error Handling**: Use `$ctx.$throw['400']()` for HTTP status codes, `$ctx.$throw.businessLogic()` for semantic errors
-- **Error Recovery**: Check `$ctx.$error` in afterHook to handle errors gracefully
+- **Error Recovery**: Check `$ctx.$api.error` in afterHook to handle errors gracefully (only available in afterHook)
 - **Context State**: When `$ctx.$error` exists, `$ctx.$data` is `null`; when no error, `$ctx.$data` contains response data
 
 ### Performance
@@ -539,7 +594,7 @@ $ctx.$uploadedFile.fieldname     // Form field name
 - **Use $throw Methods**: Use `$ctx.$throw['400']()` instead of `throw new Error()` for consistent error handling
 - **HTTP Status Codes**: Use numeric methods like `$ctx.$throw['404']()` for standard HTTP errors
 - **Semantic Errors**: Use descriptive methods like `$ctx.$throw.businessLogic()` for business logic errors
-- **Error Recovery**: Check `$ctx.$error` in afterHook to handle errors gracefully
+- **Error Recovery**: Check `$ctx.$api.error` in afterHook to handle errors gracefully (only available in afterHook)
 - **Descriptive Messages**: Provide clear error messages and details for debugging
 - **Graceful Fallbacks**: Handle cases where expected data might be missing
 - **Cache Error Handling**: Handle cache failures gracefully with database fallbacks
