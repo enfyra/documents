@@ -111,7 +111,7 @@ $ctx.$logs('Added active filter to query');
 // Automatically create slug from name field
 if ($ctx.$body.name && !$ctx.$body.slug) {
   $ctx.$body.slug = await $ctx.$helpers.autoSlug($ctx.$body.name);
-  $ctx.$logs('Generated slug:', $ctx.$body.slug);
+  $ctx.$logs(`Generated slug: ${$ctx.$body.slug}`);
 }
 ```
 
@@ -128,7 +128,12 @@ if ($ctx.$body.password) {
 ```javascript
 // Validate email format
 if ($ctx.$body.email && !$ctx.$body.email.includes('@')) {
-  throw new Error('Invalid email format');
+  $ctx.$throw['400']('Invalid email format');
+}
+
+// Validate required fields
+if (!$ctx.$body.name) {
+  $ctx.$throw['422']('Name is required', { field: 'name' });
 }
 
 // Add creation timestamp
@@ -137,7 +142,7 @@ if ($ctx.$req.method === 'POST') {
   $ctx.$body.createdBy = $ctx.$user.id;
 }
 
-$ctx.$logs('Validation passed for:', $ctx.$body.email);
+$ctx.$logs(`Validation passed for: ${$ctx.$body.email}`);
 ```
 
 ### Dynamic Field Population
@@ -152,7 +157,7 @@ if ($ctx.$req.method === 'POST' || $ctx.$req.method === 'PATCH') {
   }
 }
 
-$ctx.$logs('Added audit fields for user:', $ctx.$user.id);
+$ctx.$logs(`Added audit fields for user: ${$ctx.$user.id}`);
 ```
 
 ### Complex Validation with Database Access
@@ -164,10 +169,10 @@ if ($ctx.$req.method === 'POST' && $ctx.$body.email) {
   });
   
   if (existingUser.data.length > 0) {
-    throw new Error('Email already exists');
+    $ctx.$throw['409']('User', 'email', $ctx.$body.email);
   }
   
-  $ctx.$logs('Email validation passed:', $ctx.$body.email);
+  $ctx.$logs(`Email validation passed: ${$ctx.$body.email}`);
 }
 ```
 
@@ -184,14 +189,14 @@ if (!lockAcquired) {
 
 try {
   // Perform the critical operation
-  $ctx.$logs('Acquired lock for record:', $ctx.$params.id);
+  $ctx.$logs(`Acquired lock for record: ${$ctx.$params.id}`);
   
   // Your business logic here...
   
 } finally {
   // Always release the lock
   await $ctx.$cache.release(lockKey, lockValue);
-  $ctx.$logs('Released lock for record:', $ctx.$params.id);
+  $ctx.$logs(`Released lock for record: ${$ctx.$params.id}`);
 }
 ```
 
@@ -207,7 +212,7 @@ if (currentCount >= 10) { // Max 10 requests per minute
 
 // Increment counter with 60 second TTL
 await $ctx.$cache.set(rateLimitKey, currentCount + 1, 60000);
-$ctx.$logs('Rate limit check passed for user:', $ctx.$user.id);
+$ctx.$logs(`Rate limit check passed for user: ${$ctx.$user.id}`);
 ```
 
 ### Cache-Enhanced Data Retrieval
@@ -226,10 +231,10 @@ if (!userProfile) {
     userProfile = result.data[0];
     // Cache for 5 minutes
     await $ctx.$cache.set(cacheKey, userProfile, 300000);
-    $ctx.$logs('User profile cached:', $ctx.$params.id);
+    $ctx.$logs(`User profile cached: ${$ctx.$params.id}`);
   }
 } else {
-  $ctx.$logs('User profile served from cache:', $ctx.$params.id);
+  $ctx.$logs(`User profile served from cache: ${$ctx.$params.id}`);
 }
 
 // Use userProfile in your logic...
@@ -330,7 +335,7 @@ if ($ctx.$req.method !== 'GET' && $ctx.$data.data) {
   // Invalidate user count cache
   await $ctx.$cache.deleteKey('user-count');
   
-  $ctx.$logs('Invalidated cache for user:', recordId);
+  $ctx.$logs(`Invalidated cache for user: ${recordId}`);
 }
 ```
 
@@ -353,7 +358,7 @@ if ($ctx.$req.method === 'GET' && $ctx.$data.data) {
     
     // Cache for 10 minutes
     await $ctx.$cache.set(cacheKey, userStats, 600000);
-    $ctx.$logs('Warmed up cache for user stats:', $ctx.$user.id);
+    $ctx.$logs(`Warmed up cache for user stats: ${$ctx.$user.id}`);
   }
 }
 ```
@@ -372,14 +377,14 @@ if ($ctx.$req.method === 'POST' && $ctx.$body.action === 'login') {
   
   // Store session for 24 hours
   await $ctx.$cache.set(sessionKey, sessionData, 86400000);
-  $ctx.$logs('Created user session:', $ctx.$user.id);
+  $ctx.$logs(`Created user session: ${$ctx.$user.id}`);
 }
 
 // Clean up session on logout
 if ($ctx.$req.method === 'POST' && $ctx.$body.action === 'logout') {
   const sessionKey = `session:${$ctx.$user.id}`;
   await $ctx.$cache.deleteKey(sessionKey);
-  $ctx.$logs('Cleared user session:', $ctx.$user.id);
+  $ctx.$logs(`Cleared user session: ${$ctx.$user.id}`);
 }
 ```
 
@@ -507,9 +512,11 @@ if ($ctx.$body.name) {
 - **Client-Side Debugging**: Logs appear automatically in API responses for easy debugging
 
 ### Error Handling
-- **Throw Errors**: Use `throw new Error('message')` for validation failures
-- **Descriptive Messages**: Provide clear error messages for debugging
-- **Status Codes**: Errors automatically return appropriate HTTP status codes
+- **Use $throw Methods**: Use `$ctx.$throw['400']()` instead of `throw new Error()` for consistent error handling
+- **HTTP Status Codes**: Use numeric methods like `$ctx.$throw['404']()` for standard HTTP errors
+- **Semantic Errors**: Use descriptive methods like `$ctx.$throw.businessLogic()` for business logic errors
+- **Error Recovery**: Check `$ctx.$error` in afterHook to handle errors gracefully
+- **Descriptive Messages**: Provide clear error messages and details for debugging
 - **Graceful Fallbacks**: Handle cases where expected data might be missing
 
 **📖 For complete best practices including cache operations, see [Context Reference](./context-reference.md#best-practices)**
