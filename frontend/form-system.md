@@ -160,6 +160,68 @@ Forms respect user permissions automatically:
 - Save button enables only with changes
 - Confirmation on unsaved changes
 
+## Form Change Detection
+
+Enfyra automatically tracks form changes to provide better user experience:
+
+### How It Works
+
+1. **Initial State**: Form loads with original data
+2. **Change Detection**: Any modification triggers change tracking
+3. **Save Button**: Only enabled when changes are detected
+4. **Reset**: Changes reset after successful save
+
+### Implementation Pattern
+
+```typescript
+// In your page component
+const hasFormChanges = ref(false);
+const formEditorRef = ref();
+
+// Template
+<FormEditorLazy
+  ref="formEditorRef"
+  v-model="form"
+  v-model:errors="errors"
+  @has-changed="(hasChanged) => hasFormChanges = hasChanged"
+  table-name="user_definition"
+  :loading="loading"
+/>
+
+// Save function
+async function save() {
+  // ... save logic
+  await updateUser({ body: form.value });
+  
+  // Reset form changes after successful save
+  formEditorRef.value?.confirmChanges();
+}
+
+// Header action
+useHeaderActionRegistry([
+  {
+    id: "save-user",
+    label: "Save",
+    disabled: computed(() => !hasFormChanges.value),
+    submit: save,
+  },
+]);
+```
+
+### Key Components
+
+- **`hasFormChanges`**: Reactive boolean tracking form state
+- **`formEditorRef`**: Reference to FormEditor component
+- **`@has-changed`**: Event emitted when form state changes
+- **`confirmChanges()`**: Method to reset change detection
+
+### Benefits
+
+- **Better UX**: Save button only appears when needed
+- **Data Safety**: Prevents accidental saves
+- **Clear Feedback**: Users know when changes exist
+- **Automatic Reset**: No manual state management needed
+
 ### Disabled Fields
 
 - System fields cannot be edited
