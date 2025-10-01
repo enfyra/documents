@@ -20,6 +20,26 @@ $ctx.$body        // Request body (POST/PATCH data)
 $ctx.$params      // URL parameters (e.g., :id from /products/:id)
 $ctx.$query       // Query string parameters (e.g., ?page=1&limit=10)
 $ctx.$user        // Current authenticated user information
+$ctx.$error       // Error information (available in afterHook when errors occur)
+$ctx.$data        // Response data (null when error, actual data when success)
+$ctx.$statusCode  // HTTP status code (error status when error, success status when success)
+```
+
+### Context State Logic
+```javascript
+// ERROR CASE:
+if ($ctx.$error) {
+  // $ctx.$error = error object
+  // $ctx.$data = null
+  // $ctx.$statusCode = error status (400, 500, etc.)
+}
+
+// SUCCESS CASE:
+if (!$ctx.$error) {
+  // $ctx.$error = undefined
+  // $ctx.$data = response data from controller
+  // $ctx.$statusCode = success status (200, 201, etc.)
+}
 ```
 
 ### Request Details
@@ -114,6 +134,164 @@ const slug = await $ctx.$helpers.autoSlug(text)
 // Example: const slug = await $ctx.$helpers.autoSlug('My Product Name') → 'my-product-name'
 ```
 
+## Error Handling
+
+### Throwing Exceptions
+```javascript
+// Throw HTTP status code exceptions
+$ctx.$throw['400']('Bad request')
+$ctx.$throw['401']('Unauthorized')
+$ctx.$throw['403']('Forbidden')
+$ctx.$throw['404']('Resource', 'id')
+$ctx.$throw['422']('Validation failed', { errors: [...] })
+
+// Throw semantic exceptions
+$ctx.$throw.businessLogic('Invalid operation')
+$ctx.$throw.validation('Email is required', { field: 'email' })
+$ctx.$throw.notFound('User', '123')
+$ctx.$throw.unauthorized('Invalid token')
+```
+
+### Error Information (AfterHook)
+```javascript
+// $ctx.$error is set by the dynamic interceptor when errors occur
+// afterHook runs even when there are errors, allowing error handling
+
+// In afterHook - check for errors:
+if ($ctx.$error) {
+  // ERROR CASE:
+  // - $ctx.$error = error object
+  // - $ctx.$data = null
+  // - $ctx.$statusCode = error status (400, 500, etc.)
+  
+  $ctx.$logs(`Error occurred: ${$ctx.$error.message} (${$ctx.$error.statusCode})`);
+  
+  // Log error details for debugging
+  $ctx.$logs(`Error stack: ${$ctx.$error.stack}`);
+  $ctx.$logs(`Error timestamp: ${$ctx.$error.timestamp}`);
+  
+  // Log error to audit system
+  await $ctx.$repos.audit_logs.create({
+    action: 'error_occurred',
+    userId: $ctx.$user?.id,
+    errorMessage: $ctx.$error.message,
+    errorCode: $ctx.$error.statusCode,
+    timestamp: $ctx.$error.timestamp
+  });
+  
+  // Return user-friendly error response
+  return {
+    success: false,
+    message: 'An error occurred while processing your request',
+    errorId: $ctx.$error.timestamp,
+    supportContact: 'support@example.com'
+  };
+} else {
+  // SUCCESS CASE:
+  // - $ctx.$error = undefined
+  // - $ctx.$data = response data from controller
+  // - $ctx.$statusCode = success status (200, 201, etc.)
+  
+  $ctx.$logs(`Success: Processing ${$ctx.$data ? 'response data' : 'empty response'}`);
+}
+```
+
+### Error Handling Examples
+
+#### PreHook Error Handling
+```javascript
+// Validate input and throw errors
+if (!$ctx.$body.email) {
+  $ctx.$throw['400']('Email is required');
+}
+
+if (!$ctx.$body.password || $ctx.$body.password.length < 6) {
+  $ctx.$throw['422']('Password must be at least 6 characters', {
+    field: 'password',
+    minLength: 6
+  });
+}
+```
+
+#### AfterHook Error Recovery
+```javascript
+// afterHook runs even when there are errors
+// Check $ctx.$error to handle error cases
+
+if ($ctx.$error) {
+  // ERROR CASE:
+  // - $ctx.$error = error object
+  // - $ctx.$data = null
+  // - $ctx.$statusCode = error status (400, 500, etc.)
+  
+  $ctx.$logs(`Error occurred in main operation: ${$ctx.$error.message}`);
+  
+  // Log error to audit system
+  await $ctx.$repos.audit_logs.create({
+    action: 'error_occurred',
+    userId: $ctx.$user?.id,
+    errorMessage: $ctx.$error.message,
+    errorCode: $ctx.$error.statusCode,
+    timestamp: $ctx.$error.timestamp
+  });
+  
+  // Return user-friendly error response
+  return {
+    success: false,
+    message: 'An error occurred while processing your request',
+    errorId: $ctx.$error.timestamp,
+    supportContact: 'support@example.com'
+  };
+} else {
+  // SUCCESS CASE:
+  // - $ctx.$error = undefined
+  // - $ctx.$data = response data from controller
+  // - $ctx.$statusCode = success status (200, 201, etc.)
+  
+  $ctx.$logs('Operation completed successfully');
+  
+  // Add audit trail for successful operations
+  await $ctx.$repos.audit_logs.create({
+    action: 'operation_completed',
+    userId: $ctx.$user?.id,
+    timestamp: new Date().toISOString(),
+    details: {
+      method: $ctx.$req.method,
+      url: $ctx.$req.url,
+      statusCode: $ctx.$statusCode
+    }
+  });
+  
+  // Add success metadata to response
+  $ctx.$data = {
+    ...$ctx.$data,
+    success: true,
+    timestamp: new Date().toISOString(),
+    processedBy: $ctx.$user?.id
+  };
+}
+```
+
+#### Business Logic Error Handling
+```javascript
+// Check business rules and throw appropriate errors
+const user = await $ctx.$repos.users.find({
+  where: { id: { _eq: $ctx.$params.id } }
+});
+
+if (!user.data.length) {
+  $ctx.$throw['404']('User', $ctx.$params.id);
+}
+
+if (user.data[0].status === 'suspended') {
+  $ctx.$throw['403']('User account is suspended');
+}
+
+if (user.data[0].role !== 'admin' && $ctx.$user.role !== 'admin') {
+  $ctx.$throw['403']('Insufficient permissions to access this resource');
+}
+```
+
 ## Cache Operations
 
 **⚠️ Important: All cache functions require `await`** - They use IPC bridge for execution:
@@ -170,14 +348,14 @@ if (!lockAcquired) {
 
 try {
   // Perform the critical operation
-  $ctx.$logs('Acquired lock for record:', $ctx.$params.id);
+  $ctx.$logs(`Acquired lock for record: ${$ctx.$params.id}`);
   
   // Your business logic here...
   
 } finally {
   // Always release the lock
   await $ctx.$cache.release(lockKey, lockValue);
-  $ctx.$logs('Released lock for record:', $ctx.$params.id);
+  $ctx.$logs(`Released lock for record: ${$ctx.$params.id}`);
 }
 ```
 
@@ -193,7 +371,7 @@ if (currentCount >= 10) { // Max 10 requests per minute
 
 // Increment counter with 60 second TTL
 await $ctx.$cache.set(rateLimitKey, currentCount + 1, 60000);
-$ctx.$logs('Rate limit check passed for user:', $ctx.$user.id);
+$ctx.$logs(`Rate limit check passed for user: ${$ctx.$user.id}`);
 ```
 
 #### Cache-Enhanced Data Retrieval
@@ -212,10 +390,10 @@ if (!userProfile) {
     userProfile = result.data[0];
     // Cache for 5 minutes
     await $ctx.$cache.set(cacheKey, userProfile, 300000);
-    $ctx.$logs('User profile cached:', $ctx.$params.id);
+    $ctx.$logs(`User profile cached: ${$ctx.$params.id}`);
   }
 } else {
-  $ctx.$logs('User profile served from cache:', $ctx.$params.id);
+  $ctx.$logs(`User profile served from cache: ${$ctx.$params.id}`);
 }
 
 // Use userProfile in your logic...
@@ -225,27 +403,27 @@ if (!userProfile) {
 
 ### Basic Logging
 ```javascript
-$ctx.$logs('Debug message', data)
-$ctx.$logs('Hook executed:', { hookName: 'validation-hook' })
-$ctx.$logs('User created:', user)
-$ctx.$logs('Processing order:', { orderId: 123, total: 99.99 })
+$ctx.$logs('Debug message')
+$ctx.$logs('Hook executed: validation-hook')
+$ctx.$logs('User created successfully')
+$ctx.$logs('Processing order: 123')
 ```
 
 ### Log Types and Usage
 ```javascript
 // Information logging
-$ctx.$logs('Handler started', { method: $ctx.$req.method, url: $ctx.$req.url })
+$ctx.$logs(`Handler started: ${$ctx.$req.method} ${$ctx.$req.url}`)
 
 // Data processing logs
-$ctx.$logs('Validating input:', $ctx.$body)
-$ctx.$logs('Database query result:', { count: result.data.length })
+$ctx.$logs('Validating input data')
+$ctx.$logs(`Database query result: ${result.data.length} records`)
 
 // Business logic logs
-$ctx.$logs('User permission check:', { userId: $ctx.$user.id, hasAccess: true })
-$ctx.$logs('External API call:', { endpoint: '/payments', status: 'success' })
+$ctx.$logs(`User permission check: ${$ctx.$user.id}`)
+$ctx.$logs('External API call: /payments success')
 
 // Error context (before throwing)
-$ctx.$logs('Validation failed:', { errors: ['Email required', 'Password too short'] })
+$ctx.$logs('Validation failed: Email required, Password too short')
 ```
 
 ### Automatic Log Response
@@ -254,14 +432,14 @@ $ctx.$logs('Validation failed:', { errors: ['Email required', 'Password too shor
 ```javascript
 // Your handler code
 $ctx.$logs('Processing user registration')
-$ctx.$logs('Validating email:', $ctx.$body.email)
+$ctx.$logs(`Validating email: ${$ctx.$body.email}`)
 
 const user = await $ctx.$repos.users.create({
   email: $ctx.$body.email,
   name: $ctx.$body.name
 })
 
-$ctx.$logs('User created successfully:', { id: user.id })
+$ctx.$logs(`User created successfully: ${user.id}`)
 
 // Just return your data - logs are added automatically
 return {
@@ -339,6 +517,9 @@ $ctx.$uploadedFile.fieldname     // Form field name
 - **Shared Context**: Use `$ctx.$share` to pass data between preHook and afterHook
 - **Cache Key Patterns**: Use consistent naming patterns like `user:123`, `session:456`, `lock:789`
 - **Lock Management**: Always release locks in `finally` blocks to prevent deadlocks
+- **Error Handling**: Use `$ctx.$throw['400']()` for HTTP status codes, `$ctx.$throw.businessLogic()` for semantic errors
+- **Error Recovery**: Check `$ctx.$error` in afterHook to handle errors gracefully
+- **Context State**: When `$ctx.$error` exists, `$ctx.$data` is `null`; when no error, `$ctx.$data` contains response data
 
 ### Performance
 - **Cache-First Strategy**: Check cache before expensive database operations
@@ -355,9 +536,11 @@ $ctx.$uploadedFile.fieldname     // Form field name
 - **Rate Limiting**: Implement rate limiting using cache to prevent abuse
 
 ### Error Handling
-- **Throw Errors**: Use `throw new Error('message')` for validation failures
-- **Descriptive Messages**: Provide clear error messages for debugging
-- **Status Codes**: Errors automatically return appropriate HTTP status codes
+- **Use $throw Methods**: Use `$ctx.$throw['400']()` instead of `throw new Error()` for consistent error handling
+- **HTTP Status Codes**: Use numeric methods like `$ctx.$throw['404']()` for standard HTTP errors
+- **Semantic Errors**: Use descriptive methods like `$ctx.$throw.businessLogic()` for business logic errors
+- **Error Recovery**: Check `$ctx.$error` in afterHook to handle errors gracefully
+- **Descriptive Messages**: Provide clear error messages and details for debugging
 - **Graceful Fallbacks**: Handle cases where expected data might be missing
 - **Cache Error Handling**: Handle cache failures gracefully with database fallbacks
 - **Lock Timeout Handling**: Implement proper timeout handling for distributed locks

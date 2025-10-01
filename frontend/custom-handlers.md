@@ -85,7 +85,7 @@ await $ctx.$repos.audit_logs.create({
   details: JSON.stringify({ productName: newProduct.name })
 });
 
-$ctx.$logs('Product created:', newProduct.name);
+$ctx.$logs(`Product created: ${newProduct.name}`);
 
 return {
   success: true,
@@ -266,8 +266,11 @@ return {
 - **Check Data Arrays**: Repository methods return `{data: []}`, always check `data.length`
 
 ### Error Handling
-- **Throw Errors**: Use `throw new Error('message')` for validation failures
-- **Descriptive Messages**: Provide clear error messages for debugging
+- **Use $throw Methods**: Use `$ctx.$throw['400']()` instead of `throw new Error()` for consistent error handling
+- **HTTP Status Codes**: Use numeric methods like `$ctx.$throw['404']()` for standard HTTP errors
+- **Semantic Errors**: Use descriptive methods like `$ctx.$throw.businessLogic()` for business logic errors
+- **Error Recovery**: Check `$ctx.$error` in afterHook to handle errors gracefully
+- **Descriptive Messages**: Provide clear error messages and details for debugging
 - **Status Codes**: Errors automatically return appropriate HTTP status codes
 
 ### Performance

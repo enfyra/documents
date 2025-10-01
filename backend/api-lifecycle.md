@@ -73,8 +73,8 @@ $ctx.$share.customField = "hello";
 $ctx.$body.processed = true;
 
 // preHook #2 sees the changes
-console.log($ctx.$share.customField); // "hello"
-console.log($ctx.$body.processed); // true
+$ctx.$logs(`Custom field: ${$ctx.$share.customField}`); // "hello"
+$ctx.$logs(`Body processed: ${$ctx.$body.processed}`); // true
 
 // Handler also sees all changes
 if ($ctx.$body.processed) {
@@ -274,7 +274,7 @@ if (!$ctx.$body.email || !$ctx.$body.password) {
 
 // Store validation result in $share
 $ctx.$share.validationPassed = true;
-$ctx.$logs("Validation passed for", $ctx.$body.email);
+$ctx.$logs(`Validation passed for ${$ctx.$body.email}`);
 
 // preHook #2: Hash password (sees validationPassed in $share)
 if ($ctx.$share.validationPassed) {
@@ -306,7 +306,7 @@ $ctx.$share.auditData = {
 
 // Any subsequent preHook sees auditData in $share
 if ($ctx.$share.auditData.userId) {
-  $ctx.$logs("Authenticated request by user", $ctx.$share.auditData.userId);
+  $ctx.$logs(`Authenticated request by user ${$ctx.$share.auditData.userId}`);
 }
 
 // Global afterHook: Save audit log
