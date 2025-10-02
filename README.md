@@ -136,7 +136,8 @@ enfyra-docs/
     ├── hook-development.md      # Advanced hook programming with context, examples, and best practices
     ├── context-reference.md     # 📖 Complete $ctx object reference for hooks and handlers
     ├── cluster-architecture.md  # 🏗️ Multi-instance coordination and distributed synchronization
-    └── permission-system.md     # 🔐 Role-based access control with allowedUsers bypass
+    ├── permission-system.md     # 🔐 Role-based access control with allowedUsers bypass
+    └── bootstrap-scripts.md     # 🚀 Startup script execution system with full context access
 ```
 
 ## 🗺️ Learning Path
@@ -178,6 +179,7 @@ enfyra-docs/
 ### 🏗️ Phase 5: Production & Scale (2-3 hours)
 17. **[Permission System](./backend/permission-system.md)** - Deep dive into role-based access control
 18. **[Cluster Architecture](./backend/cluster-architecture.md)** - Deploy and scale across multiple instances
+19. **[Bootstrap Scripts](./backend/bootstrap-scripts.md)** - Initialize application state and perform startup tasks
 
 ### 🎯 Goal-Oriented Paths
 
@@ -189,6 +191,7 @@ enfyra-docs/
 - 🔒 **Need role-based access?** → [Permission Builder](./frontend/permission-builder.md) + [Permission System](./backend/permission-system.md)
 - ⚙️ **Complex business logic?** → [Custom Handlers](./frontend/custom-handlers.md) + [Context Reference](./backend/context-reference.md) + [Hook Development](./backend/hook-development.md)
 - 🏢 **Enterprise deployment?** → [Cluster Architecture](./backend/cluster-architecture.md) + [Permission System](./backend/permission-system.md)
+- 🚀 **Application initialization?** → [Bootstrap Scripts](./backend/bootstrap-scripts.md) + [API Integration](./frontend/api-integration.md)
 
 ---
 
@@ -221,6 +224,7 @@ enfyra-docs/
 - **[Hook Development](./backend/hook-development.md)** - Advanced hook programming with context, examples, and best practices
 - **[Cluster Architecture](./backend/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
 - **[Permission System](./backend/permission-system.md)** - 🔐 **Role-based access control** with allowedUsers bypass
+- **[Bootstrap Scripts](./backend/bootstrap-scripts.md)** - 🚀 **Startup script execution** with full context access and hot reload
 
 ## Installation
 
