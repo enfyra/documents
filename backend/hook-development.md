@@ -165,7 +165,8 @@ $ctx.$logs(`Added audit fields for user: ${$ctx.$user.id}`);
 // Validate unique email before creating user
 if ($ctx.$req.method === 'POST' && $ctx.$body.email) {
   const existingUser = await $ctx.$repos.users.find({
-    where: { email: { _eq: $ctx.$body.email } }
+    where: { email: { _eq: $ctx.$body.email } },
+    fields: 'id,email' // Only check if user exists, minimal data needed
   });
   
   if (existingUser.data.length > 0) {

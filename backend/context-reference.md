@@ -68,10 +68,13 @@ $ctx.$repos.users       // If "users" is in targetTables
 ### Repository Methods
 Each repository provides full CRUD operations:
 
+**⮑ Fields Parameter Support**: The `find()` method now accepts a `fields` parameter with priority over context fields.
+
 ```javascript
 // Find records (returns {data: [], meta: {totalCount, filterCount}})
 const result = await $ctx.$repos.products.find({
-  where: { category: { _eq: 'electronics' } }
+  where: { category: { _eq: 'electronics' } },
+  fields: 'id,name,price' // Override context fields or specify required fields
 });
 
 // Create new record (returns query result with created record)

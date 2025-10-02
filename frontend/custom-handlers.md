@@ -58,7 +58,8 @@ Each repository in `$ctx.$repos` provides full database access through the Query
 
 // Validate category exists
 const categoryResult = await $ctx.$repos.categories.find({
-  where: { id: { _eq: $ctx.$body.categoryId } }
+  where: { id: { _eq: $ctx.$body.categoryId } },
+  fields: 'id,name' // Only fetch required fields
 });
 
 if (!categoryResult.data.length) {
@@ -103,7 +104,8 @@ const { email, password } = $ctx.$body;
 
 // Find user by email
 const userResult = await $ctx.$repos.users.find({
-  where: { email: { _eq: email } }
+  where: { email: { _eq: email } },
+  fields: 'id,email,password' // Only fetch authentication fields
 });
 
 if (!userResult.data.length) {
@@ -186,7 +188,8 @@ const result = await $ctx.$repos.products.find({
 const categoriesWithCount = await $ctx.$repos.categories.find({
   where: {
     products: { _count: { _gt: 0 } }  // Categories that have products
-  }
+  },
+  fields: 'id,name,description' // Only fetch essential category info
 });
 
 return {

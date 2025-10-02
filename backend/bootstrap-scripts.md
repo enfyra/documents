@@ -101,13 +101,13 @@ $ctx = {
   // Database repositories (all tables)
   $repos: {
     user_definition: { 
-      find: async (options?) => Promise<{data: any[], meta: any}>,
+      find: async (options?: {where?:any, fields?: string|string[]}) => Promise<{data: any[], meta: any}>,
       create: async (data: any) => Promise<any>,
       update: async (id: string|number, data: any) => Promise<any>,
       delete: async (id: string|number) => Promise<boolean>
     },
     table_definition: { 
-      find: async (options?) => Promise<{data: any[], meta: any}>,
+      find: async (options?: {where?:any, fields?: string|string[]}) => Promise<{data: any[], meta: any}>,
       create: async (data: any) => Promise<any>,
       update: async (id: string|number, data: any) => Promise<any>,
       delete: async (id: string|number) => Promise<boolean>
@@ -129,7 +129,8 @@ $ctx = {
 ```javascript
 // Create default admin user if not exists
 const existingAdmin = await $ctx.$repos.user_definition.find({
-  where: { email: { _eq: 'admin@example.com' } }
+  where: { email: { _eq: 'admin@example.com' } },
+  fields: 'id,email,isRootAdmin' // Select only specific fields
 });
 
 if (!existingAdmin.data || existingAdmin.data.length === 0) {
@@ -206,7 +207,8 @@ try {
 ```javascript
 // Clean up orphaned records
 const orphanedResult = await $ctx.$repos.file_definition.find({
-  where: { folder: { _is_null: true } }
+  where: { folder: { _is_null: true } },
+  fields: 'id,name,folder' // Only fetch required fields
 });
 
 if (orphanedResult.data && orphanedResult.data.length > 0) {
@@ -302,8 +304,10 @@ Use `$ctx.$logs()` to debug your scripts:
 
 ```javascript
 $ctx.$logs('Debug: Starting script execution');
-const usersResult = await $ctx.$repos.user_definition.find();
-$ctx.$logs('Debug: Found', usersResult.data.length, 'users');
+const usersResult = await $ctx.$repos.user_definition.find({
+  fields: 'id,name,email' // Limit fields for better performance
+});
+$ctx.$logs('.', usersResult.data.length, 'users');
 $ctx.$logs('Debug: Script completed');
 ```
 
