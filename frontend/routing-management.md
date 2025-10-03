@@ -177,3 +177,13 @@ Changes to routes take effect immediately without requiring application restart.
 - Ensure route permissions align with table permissions
 - Test custom routes with different user roles
 - Consider the security implications of custom paths
+
+## Related Documentation
+
+- **[Custom Handlers](./custom-handlers.md)** - Writing JavaScript logic for custom endpoints
+- **[Hooks System](./hooks.md)** - Adding validation and notifications
+- **[Package Management](./package-management.md)** - Installing NPM packages for external integrations
+
+## Practical Examples
+
+- **[User Registration Example](../examples/user-registration-example.md)** - Complete walkthrough including route creation, custom handler, and nodemailer integration
