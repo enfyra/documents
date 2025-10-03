@@ -237,7 +237,16 @@ curl -X POST http://localhost:1105/register \
 
 ## Step 6: Frontend Integration
 
-### Using useApi() Composable:
+Use the API in your **external frontend application** (not the Enfyra admin app):
+
+**📖 SDK Documentation**: [https://github.com/dothinh115/enfyra-sdk-nuxt](https://github.com/dothinh115/enfyra-sdk-nuxt)
+
+Install the SDK:
+```bash
+npm install @enfyra/sdk-nuxt
+```
+
+### Using useEnfyraApi() Composable:
 ```vue
 <template>
   <div class="p-6">
@@ -285,7 +294,8 @@ const handleRegister = async () => {
   loading.value = true;
   
   try {
-    const { data, error } = await useApi('/register', {
+    // External app consuming Enfyra backend API
+    const { data, error } = await useEnfyraApi('/register', {
       method: 'POST',
       body: form
     });
