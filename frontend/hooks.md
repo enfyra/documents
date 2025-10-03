@@ -133,4 +133,8 @@ This covers:
 - Execution flow and priority system
 - Best practices and debugging techniques
 
+## Practical Examples
+
+**[➡️ User Registration Example](../examples/user-registration-example.md)** - See hooks in action with welcome email AfterHook using nodemailer package.
+
 Hooks provide the perfect balance between simplicity and power, allowing you to customize API behavior without the complexity of full custom handlers.

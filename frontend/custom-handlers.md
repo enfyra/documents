@@ -302,3 +302,7 @@ Custom Handlers provide unlimited flexibility while maintaining security through
 - **[Hook Development](../backend/hook-development.md)** - Advanced hook programming with examples
 - **[API Lifecycle](../backend/api-lifecycle.md)** - Complete request processing pipeline
 - **[Routing Management](./routing-management.md)** - UI guide for creating custom endpoints
+
+## Practical Examples
+
+- **[User Registration Example](../examples/user-registration-example.md)** - Complete walkthrough of creating `/register` endpoint with validation, password hashing, and welcome emails

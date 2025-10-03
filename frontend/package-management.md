@@ -2,7 +2,7 @@
 
 Package Management lets you install NPM packages directly from the Enfyra interface and use them in your custom handlers and hooks. Instead of managing dependencies manually, you can search, install, and configure packages through the UI - they're automatically available in your custom code as `$ctx.$pkgs.packagename`.
 
-**Related Documentation**: [Custom Handlers](./custom-handlers.md) | [Hook Development](../backend/hook-development.md)
+**Related Documentation**: [Custom Handlers](./custom-handlers.md) | [Hook Development](../backend/hook-development.md) | [User Registration Example](../examples/user-registration-example.md)
 
 ## Why Use Package Management?
 
