@@ -243,7 +243,8 @@ Make your scripts idempotent (safe to run multiple times):
 ```javascript
 // Check if data already exists before creating
 const existing = await $ctx.$repos.setting_definition.find({
-  where: { key: { _eq: 'app_version' } }
+  where: { key: { _eq: 'app_version' } },
+  fields: 'id,key' // Only check existence, minimal data
 });
 
 if (!existing.data || existing.data.length === 0) {
@@ -253,6 +254,8 @@ if (!existing.data || existing.data.length === 0) {
   });
 }
 ```
+
+**Note**: Despite distributed locking, always write idempotent scripts for safety.
 
 ### 3. Use Appropriate Timeouts
 
@@ -279,15 +282,55 @@ $ctx.$logs('Starting data migration...');
 $ctx.$logs('Data migration completed successfully');
 ```
 
+## Multi-Instance Support
+
+### 🔒 Distributed Locking
+
+Bootstrap scripts use **distributed locking** to ensure only one instance executes them:
+
+1. **Lock Acquisition**: First instance acquires `bootstrap-script-execution` lock
+2. **Execution**: Only the locked instance runs bootstrap scripts  
+3. **Lock Release**: Lock is automatically released after completion or timeout (30s)
+4. **Skip Mode**: Other instances skip execution and log the skip
+
+### 📋 Instance Behavior
+
+```bash
+# Instance 1 (Got the lock)
+🔒 Bootstrap scripts acquired lock - starting execution (uuid-1)
+📋 Found 3 bootstrap scripts to execute
+🔄 Executing script: setup_default_data (priority: 0)
+✅ Bootstrap scripts execution completed
+🔓 Bootstrap scripts lock released (uuid-1)
+
+# Instance 2 (Same time)
+🔴 Bootstrap scripts skipped - another instance is executing (uuid-2)
+```
+
 ## Hot Reload
 
 When you update a bootstrap script in the database, the system automatically:
 
-1. Clears all Redis cache
-2. Reloads all bootstrap scripts
-3. Executes the updated scripts
+1. **Clears all Redis cache** - Only on single instance  
+2. **Distributed lock** - Only one instance acquires reload lock
+3. **Reloads bootstrap scripts** - Only the locked instance executes
+4. **Other instances skip** - No duplicate execution
 
-This allows you to update bootstrap scripts without restarting the application.
+### 🔒 Reload Lock Mechanism
+
+```bash
+# Instance A (Gets reload lock)
+🔒 Bootstrap reload acquired lock - starting execution (uuid-A)
+🧹 Cleared all Redis data
+🔄 Executing script: updated_script (priority: 0) 
+✅ BootstrapScriptService reload completed successfully
+🔓 Bootstrap reload lock released (uuid-A)
+
+# Instance B (Same reload event)  
+🔴 Bootstrap reload skipped - another instance is executing (uuid-B)
+```
+
+This ensures **single execution** during reload operations, preventing data conflicts and race conditions.
 
 ## Troubleshooting
 
