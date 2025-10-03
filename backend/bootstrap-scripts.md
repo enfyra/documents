@@ -1,5 +1,7 @@
 # Bootstrap Scripts System
 
+> **📝 Template Syntax Note**: All examples use the traditional `$ctx.$property` syntax, but you can also use the shorter template syntax (`@CACHE`, `@REPOS`, `#table_name`). See [Template Syntax Guide](./template-syntax.md) for details. Both work identically and can be mixed freely.
+
 ## Overview
 
 The Bootstrap Scripts system allows you to execute custom JavaScript code during application startup. These scripts run once when the application starts and have access to the full dynamic context, including database repositories, cache, and helper functions.

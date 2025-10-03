@@ -631,8 +631,29 @@ if ($ctx.$share.validationPassed) {
 }
 ```
 
+## Template Syntax (Optional)
+
+You can use either the full `$ctx.$property` syntax or shorter template syntax - **both work exactly the same way**:
+
+```javascript
+// ✅ Full syntax (always works)
+const data = await $ctx.$cache.get('key');
+const users = await $ctx.$repos.users.find({...});
+$ctx.$logs('Operation completed');
+
+// ✅ Template syntax (convenience shortcut)
+const data = await @CACHE.get('key');
+const users = await @REPOS.users.find({...});
+@LOGS('Operation completed');
+```
+
+**💡 Template syntax is just syntactic sugar** - it gets automatically replaced with `$ctx.$property` during execution. Use whichever style you prefer!
+
+**📖 [Template Syntax Guide](./template-syntax.md)** - Complete guide to using `@CACHE`, `@REPOS`, `@HELPERS`, etc.
+
 ## Related Documentation
 
+- **[Template Syntax](./template-syntax.md)** - Clean syntax for context operations
 - **[Hook Development](./hook-development.md)** - Using context in hooks
 - **[Custom Handlers](../frontend/custom-handlers.md)** - Using context in handlers
 - **[API Lifecycle](./api-lifecycle.md)** - Complete request processing pipeline

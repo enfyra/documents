@@ -2,6 +2,8 @@
 
 Enfyra provides a powerful MongoDB-like querying system for your API endpoints. This system allows developers to filter, sort, paginate, and load related data using comparison operators, text search, logical operators, relation filtering, and aggregation functions across any table in your database.
 
+> **📝 Template Syntax Note**: All code examples showing `$ctx.$property` can also use template syntax (`@BODY`, `@REPOS`, `#table_name`) - see [Template Syntax Guide](./template-syntax.md) for details. Both syntaxes work identically and can be mixed together.
+
 ## Quick Navigation
 
 **Essential Sections:**

@@ -1,5 +1,7 @@
 # Hook Development Guide
 
+> **📝 Template Syntax Note**: All examples use the traditional `$ctx.$property` syntax, but you can also use the shorter template syntax (`@BODY`, `@REPOS`, `#table_name`). See [Template Syntax Guide](./template-syntax.md) for details. Both work identically and can be mixed freely.
+
 ## What are Hooks?
 
 Hooks are a powerful middleware system that allows you to inject custom JavaScript code at specific points in the API request lifecycle. Unlike [Custom Handlers](../frontend/custom-handlers.md) which replace the entire operation, hooks **extend** the default behavior with minimal code.
