@@ -36,53 +36,14 @@ This example demonstrates how to create a custom `/api/register` endpoint using 
 ```javascript
 // POST /register Custom Handler
 // Target Tables: user_definition
+// Note: Validation happens in PreHook, this handler only handles business logic
 
 const { email, password, name } = $ctx.$body;
 
-$ctx.$logs(`Registration attempt for email: ${email}`);
-
-// 1. Validate required fields
-if (!email || !password) {
-  $ctx.$logs('Registration failed: Missing required fields');
-  $ctx.$throw['400']('Email and password are required', {
-    fields: {
-      email: !email ? 'Email is required' : null,
-      password: !password ? 'Password is required' : null
-    }
-  });
-}
-
-// 2. Validate email format
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-if (!emailRegex.test(email)) {
-  $ctx.$logs(`Registration failed: Invalid email format: ${email}`);
-  $ctx.$throw['400']('Invalid email format');
-}
-
-// 3. Validate password strength
-if (password.length < 8) {
-  $ctx.$logs('Registration failed: Password too short');
-  $ctx.$throw['400']('Password must be at least 8 characters long');
-}
-
-// 4. Check for duplicate email
-const existingUserResult = await $ctx.$repos.user_definition.find({
-  where: { email: { _eq: email } },
-  fields: 'id,email' // Only check existence, minimal data
-});
-
-if (existingUserResult.data.length > 0) {
-  $ctx.$logs(`Registration failed: Email already exists: ${email}`);
-  $ctx.$throw['409']('User', 'email', email);
-}
-
-$ctx.$logs('Validation passed, proceeding with user creation');
-
-// 5. Hash password
+// 1. Hash password (validation already done in PreHook)
 const hashedPassword = await $ctx.$helpers.$bcrypt.hash(password);
-$ctx.$logs('Password hashed successfully');
 
-// 6. Create user (auto-calls .find() after insert to return full record)
+// 2. Create user (auto-calls .find() after insert to return full record)
 const userResult = await $ctx.$repos.user_definition.create({
   email: email,
   password: hashedPassword, // Store hashed version
@@ -95,9 +56,7 @@ const userResult = await $ctx.$repos.user_definition.create({
 // so userResult.data[0] contains the full record with ID, timestamps, etc.
 const newUser = userResult.data[0];
 
-$ctx.$logs(`User created successfully with ID: ${newUser.id}`);
-
-// 7. Return success response (never return password)
+// 3. Return success response (never return password)
 return {
   success: true,
   message: 'User registered successfully',
@@ -108,8 +67,7 @@ return {
     isActive: newUser.isActive,
     createdAt: newUser.createdAt
     // Password intentionally excluded
-  },
-  logs: $ctx.$share.$logs // Include execution logs for debugging
+  }
 };
 ```
 
@@ -122,25 +80,61 @@ return {
 5. Click on `nodemailer` from dropdown
 6. Click **"Install"** to add the package
 
-## Step 4: Create AfterHook for Welcome Email
+## Step 4: Create Registration Hook (PreHook + AfterHook)
 
 1. Navigate to **Settings → Hooks** → [📖 Hooks System Guide](../frontend/hooks.md)
 2. Click **"Create New Hook"**
 3. Configure:
    - **Route**: Click relation picker → Select `/register` route
    - **Method**: Click relation picker → Select `POST`
-   - **AfterHook**: Enter the welcome email code below
-   - **Priority**: `10` (run after main handler)
-4. Save the hook
+   - **Priority**: `0` (run first, before handler)
+4. Enter both PreHook and AfterHook code below
+5. Save the hook
 
-### AfterHook Code:
+### Complete Hook Code:
+
+**PreHook (Validation):**
 ```javascript
-// Welcome Email AfterHook
+// PreHook: Validation runs before handler
+const { email, password } = $ctx.$body;
+
+// 1. Validate required fields
+if (!email) {
+  $ctx.$throw['400']('Email is required');
+}
+
+if (!password) {
+  $ctx.$throw['400']('Password is required');
+}
+
+// 2. Validate email format
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+if (!emailRegex.test(email)) {
+  $ctx.$throw['400']('Invalid email format');
+}
+
+// 3. Validate password strength
+if (password.length < 8) {
+  $ctx.$throw['400']('Password must be at least 8 characters long');
+}
+
+// 4. Check for duplicate email
+const existingUserResult = await $ctx.$repos.user_definition.find({
+  where: { email: { _eq: email } },
+  fields: 'id,email' // Only check existence, minimal data
+});
+
+if (existingUserResult.data.length > 0) {
+  $ctx.$throw['409']('Email already exists');
+}
+```
+
+**AfterHook (Welcome Email):**
+```javascript
+// AfterHook: Welcome email after successful registration
 // Only runs if registration was successful (no $ctx.$api.error)
 
 if (!$ctx.$api.error && $ctx.$data.success && $ctx.$data.user) {
-  $ctx.$logs('Sending welcome email notification');
-  
   const nodemailer = $ctx.$pkgs.nodemailer;
   
   // Configure transporter (adjust with your SMTP settings)
@@ -179,15 +173,10 @@ if (!$ctx.$api.error && $ctx.$data.success && $ctx.$data.user) {
 
   try {
     // Send email
-    const info = await transporter.sendMail(mailOptions);
-    $ctx.$logs(`Welcome email sent successfully: ${info.messageId}`);
-    
+    await transporter.sendMail(mailOptions);
   } catch (error) {
-    $ctx.$logs(`Failed to send welcome email: ${error.message}`);
     // Don't throw error - email failure shouldn't break registration
   }
-} else {
-  $ctx.$logs('Skipping welcome email - registration failed');
 }
 ```
 
@@ -233,14 +222,7 @@ curl -X POST http://localhost:1105/register \
     "name": "John Doe",
     "isActive": true,
     "createdAt": "2024-01-15T10:30:00.000Z"
-  },
-  "logs": [
-    "Registration attempt for email: john@example.com",
-    "Validation passed, proceeding with user creation",
-    "Password hashed successfully",
-    "User created successfully with ID: 123",
-    "Product created: John Doe"
-  ]
+  }
 }
 ```
 
@@ -249,15 +231,11 @@ curl -X POST http://localhost:1105/register \
 {
   "statusCode": 409,
   "message": "Conflict",
-  "details": "User with email 'john@example.com' already exists",
-  "logs": [
-    "Registration attempt for email: john@example.com",
-    "Registration failed: Email already exists: john@example.com"
-  ]
+  "details": "User with email 'john@example.com' already exists"
 }
 ```
 
-## Step 4: Frontend Integration
+## Step 6: Frontend Integration
 
 ### Using useApi() Composable:
 ```vue
@@ -346,28 +324,17 @@ const handleRegister = async () => {
 
 ## Advanced Features
 
-### Optional: Add PreHook for Additional Validation
+### Optional: Add Domain Validation
 
-If you want to add extra validation (like domain restrictions), you can create an additional PreHook:
-
-1. Navigate to **Settings → Hooks** → [📖 Hooks System Guide](../frontend/hooks.md)
-2. Click **"Create New Hook"**
-3. Configure:
-   - **Route**: Click relation picker → Select `/register` route
-   - **Method**: Click relation picker → Select `POST`
-   - **PreHook**: Enter the validation code below
-   - **Priority**: `0` (run first, before handler)
+If you want to restrict registration to specific email domains, you can add this to the PreHook section above:
 
 ```javascript
-// PreHook validation runs before handler
-
-// Email domain validation example
+// Add this to PreHook validation section
+// Email domain validation
 if ($ctx.$body.email && !$ctx.$body.email.endsWith('@company.com')) {
   $ctx.$logs('Registration blocked: Invalid email domain');
   $ctx.$throw['400']('Only company email addresses are allowed');
 }
-
-$ctx.$logs('PreHook validation passed');
 ```
 
 ## Security Considerations
@@ -383,11 +350,10 @@ $ctx.$logs('PreHook validation passed');
 - ✅ Required field validation
 - ✅ SQL injection prevention (via repository methods)
 
-### Logging:
-- ✅ Registration attempt logging
-- ✅ Error logging with context
-- ✅ Success confirmation logging
-- ✅ Welcome email confirmation logging
+### Error Handling:
+- ✅ Clear error messages for validation failures
+- ✅ Proper HTTP status codes
+- ✅ Graceful email failure handling
 
 ## Troubleshooting
 
