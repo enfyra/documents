@@ -4,6 +4,8 @@ Custom Handlers let you replace default CRUD operations with your own JavaScript
 
 **🔗 For complete request lifecycle understanding, see [API Lifecycle](../backend/api-lifecycle.md)**
 
+> **📝 Template Syntax Note**: All examples use the traditional `$ctx.$property` syntax, but you can also use the shorter template syntax (`@BODY`, `@REPOS`, `#table_name`). See [Template Syntax Guide](../backend/template-syntax.md) for details. Both work identically and can be mixed freely.
+
 ## When to Use Custom Handlers
 
 - **Complex Business Logic**: Implement multi-step operations that span multiple tables

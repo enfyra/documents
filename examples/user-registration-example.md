@@ -33,8 +33,12 @@ This example demonstrates how to create a custom `/api/register` endpoint using 
 4. Save the handler
 
 ### Handler Code:
+
+**📝 Syntax Options**: Both traditional (`$ctx.$property`) and new template syntax (`@TEMPLATE`, `#table_name`) work interchangeably. Choose what feels comfortable!
+
+**Traditional Syntax (Original Way):**
 ```javascript
-// POST /register Custom Handler
+// POST /register Custom Handler - Traditional Syntax
 // Target Tables: user_definition
 // Note: Validation happens in PreHook, this handler only handles business logic
 
@@ -48,6 +52,41 @@ const userResult = await $ctx.$repos.user_definition.create({
   email: email,
   password: hashedPassword, // Store hashed version
   name: name || null, // Optional field
+  isActive: true,
+  createdAt: new Date().toISOString()
+});
+```
+
+**Template Syntax (New Shortened Way):**
+```javascript
+// POST /register Custom Handler - Template Syntax  
+// Target Tables: user_definition
+// Note: Validation happens in PreHook, this handler only handles business logic
+
+const { email, password, name } = @BODY;
+
+// 1. Hash password (validation already done in PreHook)
+const hashedPassword = await @HELPERS.$bcrypt.hash(password);
+
+// 2. Create user (auto-calls .find() after insert to return full record)
+const userResult = await #user_definition.create({
+  email: email,
+  password: hashedPassword, // Store hashed version
+  name: name || null, // Optional field
+  isActive: true,
+  createdAt: new Date().toISOString()
+});
+```
+
+**Mixed Syntax (Use Both Ways):**
+```javascript
+// You can mix both syntaxes in the same handler!
+const { email, password, name } = @BODY;  // Template syntax
+const hashedPassword = await $ctx.$helpers.$bcrypt.hash(password);  // Traditional syntax
+const userResult = await #user_definition.create({  // Direct table access
+  email: email,
+  password: hashedPassword,
+  name: name || null,
   isActive: true,
   createdAt: new Date().toISOString()
 });
@@ -93,9 +132,11 @@ return {
 
 ### Complete Hook Code:
 
-**PreHook (Validation):**
+**📝 Choose Your Syntax Style**: Both traditional and template syntax work perfectly together!
+
+**PreHook (Validation) - Traditional Syntax:**
 ```javascript
-// PreHook: Validation runs before handler
+// PreHook: Validation using traditional syntax
 const { email, password } = $ctx.$body;
 
 // 1. Validate required fields
@@ -129,7 +170,43 @@ if (existingUserResult.data.length > 0) {
 }
 ```
 
-**AfterHook (Welcome Email):**
+**PreHook (Validation) - Template Syntax:**
+```javascript
+// PreHook: Validation using template syntax
+const { email, password } = @BODY;
+
+// 1. Validate required fields
+if (!email) {
+  @THROW['400']('Email is required');
+}
+
+if (!password) {
+  @THROW['400']('Password is required');
+}
+
+// 2. Validate email format
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+/$;
+if (!emailRegex.test(email)) {
+  @THROW['400']('Invalid email format');
+}
+
+// 3. Validate password strength
+if (password.length < 8) {
+  @THROW['400']('Password must be at least 8 characters long');
+}
+
+// 4. Check for duplicate email
+const existingUserResult = await #user_definition.find({
+  where: { email: { _eq: email } },
+  fields: 'id,email' // Only check existence, minimal data
+});
+
+if (existingUserResult.data.length > 0) {
+  @THROW['409']('Email already exists');
+}
+```
+
+**AfterHook (Welcome Email) - Traditional Syntax:**
 ```javascript
 // AfterHook: Welcome email after successful registration
 // Only runs if registration was successful (no $ctx.$api.error)
@@ -162,6 +239,57 @@ if (!$ctx.$api.error && $ctx.$data.success && $ctx.$data.user) {
         <p><strong>Email:</strong> ${$ctx.$data.user.email}</p>
         <p><strong>Account ID:</strong> ${$ctx.$data.user.id}</p>
         <p><strong>Registered:</strong> ${new Date($ctx.$data.user.createdAt).toLocaleDateString()}</p>
+      </div>
+      
+      <p>You can now log in to access all features of our platform.</p>
+      
+      <p>Best regards,<br>
+      The Team</p>
+    `
+  };
+
+  try {
+    // Send email
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    // Don't throw error - email failure shouldn't break registration
+  }
+}
+```
+
+**AfterHook (Welcome Email) - Template Syntax:**
+```javascript
+// AfterHook: Welcome email using template syntax
+// Only runs if registration was successful (no @API.error)
+
+if (!@API.error && @DATA.success && @DATA.user) {
+  const nodemailer = $ctx.$pkgs.nodemailer;  // $pkgs doesn't have template yet
+  
+  // Configure transporter (adjust with your SMTP settings)
+  const transporter = nodemailer.createTransporter({
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+      user: 'your-email@gmail.com',
+      pass: 'your-app-password'
+    }
+  });
+
+  // Email content
+  const mailOptions = {
+    from: '"Your App" <noreply@yourapp.com>',
+    to: @DATA.user.email,
+    subject: '🎉 Welcome to Our Platform!',
+    html: `
+      <h2>Welcome ${@DATA.user.name || 'there'}!</h2>
+      <p>Thank you for registering with our platform.</p>
+      
+      <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3>Your Account Details:</h3>
+        <p><strong>Email:</strong> ${@DATA.user.email}</p>
+        <p><strong>Account ID:</strong> ${@DATA.user.id}</p>
+        <p><strong>Registered:</strong> ${new Date(@DATA.user.createdAt).toLocaleDateString()}</p>
       </div>
       
       <p>You can now log in to access all features of our platform.</p>
