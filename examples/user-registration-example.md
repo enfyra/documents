@@ -263,7 +263,7 @@ if (!$ctx.$api.error && $ctx.$data.success && $ctx.$data.user) {
 // Only runs if registration was successful (no @API.error)
 
 if (!@API.error && @DATA.success && @DATA.user) {
-  const nodemailer = $ctx.$pkgs.nodemailer;  // $pkgs doesn't have template yet
+  const nodemailer = @PKGS.nodemailer;  // Template syntax - shorter!
   
   // Configure transporter (adjust with your SMTP settings)
   const transporter = nodemailer.createTransporter({

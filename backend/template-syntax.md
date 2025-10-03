@@ -50,6 +50,7 @@ const bodyData = @BODY.name;
 | `@SHARE` | `$ctx.$share` | Shared data between hooks |
 | `@API` | `$ctx.$api` | API request/response information |
 | `@UPLOADED` | `$ctx.$uploadedFile` | Uploaded file information |
+| `@PKGS` | `$ctx.$pkgs` | Installed npm packages for use in handlers |
 | `@THROW` | `$ctx.$throw` | Error throwing functions |
 | `@THROW400` | `$ctx.$throw['400']` | HTTP 400 Bad Request (shortcut) |
 | `@THROW401` | `$ctx.$throw['401']` | HTTP 401 Unauthorized (shortcut) |
@@ -57,9 +58,11 @@ const bodyData = @BODY.name;
 | `@THROW404` | `$ctx.$throw['404']` | HTTP 404 Not Found (shortcut) |
 | `@THROW409` | `$ctx.$throw['409']` | HTTP 409 Conflict (shortcut) |
 | `@THROW422` | `$ctx.$throw['422']` | HTTP 422 Validation Error (shortcut) |
+| `@THROW429` | `$ctx.$throw['429']` | HTTP 429 Rate Limit Exceeded (shortcut) |
 | `@THROW500` | `$ctx.$throw['500']` | HTTP 500 Internal Error (shortcut) |
 | `@THROW503` | `$ctx.$throw['503']` | HTTP 503 Service Unavailable (shortcut) |
 | `#table_name` | `$ctx.$repos.table_name` | Direct table access (e.g., `#user_definition`, `#product_definition`) |
+| `%pkg_name` | `$ctx.$pkgs.pkg_name` | Shorthand package access (e.g., `%axios`, `%lodash`, `%moment`) |
 
 ## Usage Examples
 
@@ -168,6 +171,66 @@ const isValid = await @HELPERS.$bcrypt.compare('password123', hashedPassword);
 const slug = @HELPERS.autoSlug('Hello World!'); // "hello-world"
 ```
 
+### Package Usage
+
+**Traditional Syntax:**
+```javascript
+// Access installed npm packages
+const axios = $ctx.$pkgs.axios;
+const lodash = $ctx.$pkgs.lodash;
+const moment = $ctx.$pkgs.moment;
+
+// Use package normally
+const response = await axios.get('https://api.example.com/data');
+
+// Transform data with lodash
+const grouped = lodash.groupBy(response.data, 'category');
+
+// Format dates with moment
+const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+```
+
+**Template Syntax (Shortened):**
+```javascript
+// Access installed npm packages
+const axios = @PKGS.axios;
+const lodash = @PKGS.lodash;
+const moment = @PKGS.moment;
+
+// Use package normally
+const response = await axios.get('https://api.example.com/data');
+
+// Transform data with lodash
+const grouped = lodash.groupBy(response.data, 'category');
+
+// Format dates with moment
+const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+```
+
+**Shorthand Syntax (`%`):**
+```javascript
+// Direct package access - shortest possible
+const axios = %axios;
+const lodash = %lodash;
+const moment = %moment;
+
+const response = await axios.get('https://api.example.com/data');
+const summary = lodash.groupBy(response.data, 'category');
+const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+```
+
+**Mixed Syntax:**
+```javascript
+// You can mix all three ways!
+const axios = %axios;                         // Shorthand syntax
+const lodash = @PKGS.lodash;                 // Template syntax  
+const moment = $ctx.$pkgs.moment;             // Traditional syntax
+
+const response = await axios.get('https://api.example.com/data');
+const summary = lodash.groupBy(response.data, 'category');
+const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
+```
+
 ### Logging
 
 ```javascript
@@ -231,6 +294,9 @@ const slug = @HELPERS.autoSlug('Hello World!'); // "hello-world"
 
 // Throw HTTP 422 Validation Error
 @THROW422('Invalid data format');
+
+// Throw HTTP 429 Rate Limit Exceeded
+@THROW429(100, 'per minute');
 
 // Throw HTTP 500 Internal Server Error
 @THROW500('Database connection failed');

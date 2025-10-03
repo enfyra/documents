@@ -63,6 +63,30 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 - **Meta-Programming Core**: The entire API structure is generated from database metadata in real-time
 - **Multi-Instance Coordination**: Run multiple instances with automatic schema synchronization via Redis
 - **Smart Caching**: SWR (Stale-While-Revalidate) pattern for optimal performance without sacrificing freshness
+- **Flexible Syntax**: Choose between traditional `$ctx.$property` or modern template syntax `@TEMPLATE` & `#table_name`
+- **Built-in Tables**: Leverage system tables like `user_definition` for immediate user management
+
+### ⚡ Modern Template Syntax
+
+Choose your coding style - both work seamlessly together:
+
+**Traditional Syntax:**
+```javascript
+const user = await $ctx.$repos.user_definition.create({
+  email: $ctx.$body.email,
+  password: await $ctx.$helpers.$bcrypt.hash($ctx.$body.password)
+});
+```
+
+**Template Syntax (Shortened):**
+```javascript
+const user = await #user_definition.create({
+  email: @BODY.email,
+  password: await @HELPERS.$bcrypt.hash(@BODY.password)
+});
+```
+
+**See**: [Complete Example](./examples/user-registration-example.md) featuring both syntax styles!
 
 ### 🎯 Core Capabilities
 
@@ -74,6 +98,9 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 | **API Generation**    | Every table instantly becomes a full REST & GraphQL API                 |
 | **Custom Code**       | Execute business logic in isolated processes with full request context  |
 | **Multi-Instance**    | Run multiple servers with automatic synchronization                     |
+| **Flexible Syntax**   | Traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name` patterns |
+| **Package Management**| Install NPM packages directly from UI for use in handlers and hooks     |
+| **Built-in Auth**     | System tables like `user_definition` for immediate user management     |
 
 ### 💡 Perfect For
 
@@ -113,15 +140,26 @@ Database → Backend (API Server) → Frontend (Admin App)
 
 ## Features
 
+### 🏗️ Core Infrastructure
 - **Dynamic Table Management** - Create and modify database tables on the fly
 - **Package Management** - Install and manage NPM packages directly from the UI for use in handlers and hooks
 - **Official SDK** - `useApi` and `useEnfyraAuth` from @enfyra/sdk-nuxt package with custom error handling
 - **TypeScript Support** - Full type safety throughout the application
+
+### 🎨 User Interface  
 - **Extension System** - Extensible architecture with dynamic extension loading
-- **Authentication System** - Built-in user authentication and roles
 - **Permission System** - Comprehensive role-based access control (RBAC)
 - **Menu Registry** - Dynamic sidebar and menu management
 - **Header Actions** - Configurable header button system
+- **Dynamic Forms** - Auto-generated forms with validation and relations
+- **Advanced Filtering** - Interactive UI filtering with MongoDB-like syntax
+
+### ⚙️ Developer Experience
+- **Flexible Code Syntax** - Choose between traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name`
+- **Built-in Authentication** - System tables like `user_definition` for immediate user management
+- **Hook System** - PreHook and AfterHook support for custom business logic
+- **Custom Handlers** - Override default CRUD operations with your own code
+- **Request Context** - Full `$ctx` object with repositories, helpers, packages, and more
 
 ## 📚 Documentation
 
@@ -132,6 +170,9 @@ enfyra-docs/
 │   ├── installation.md          # Setup guide for backend and app
 │   ├── getting-started.md       # First steps after installation, including table creation
 │   └── data-management.md       # Complete guide to managing records in your tables
+│
+├── 📝 examples/
+│   └── user-registration-example.md # Complete end-to-end example with template syntax
 │
 ├── 🎨 frontend/
 │   ├── api-integration.md        # API integration with Enfyra SDK and examples for extensions
@@ -246,6 +287,9 @@ enfyra-docs/
 - **[Cluster Architecture](./backend/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
 - **[Permission System](./backend/permission-system.md)** - 🔐 **Role-based access control** with allowedUsers bypass
 - **[Bootstrap Scripts](./backend/bootstrap-scripts.md)** - 🚀 **Startup script execution** with full context access and hot reload
+
+**📝 Examples & Templates**
+- **[User Registration](./examples/user-registration-example.md)** - Complete end-to-end example featuring template syntax, hooks, handlers, and package management
 
 ## Installation
 
