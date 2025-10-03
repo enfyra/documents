@@ -125,20 +125,23 @@ You'll see the table creation form with these sections:
 
 Once saved, Enfyra automatically sets up several things for your new table:
 
-**1. API Endpoints Generated:**
-- REST and GraphQL APIs are instantly available for your table
-- You can immediately start creating, reading, updating, and deleting records
+**1. API Endpoints Generated on Backend:**
+- REST and GraphQL APIs are instantly available on your **backend server** (port 1105)
+- These APIs handle CRUD operations for your table
+- **Important**: APIs exist on backend, frontend consumes them via HTTP requests
 
 **2. Route Automatically Created:**
-- A new route `/[your-table-name]` is automatically generated
-- This route handles API requests for your table
+- A new route `/[your-table-name]` is automatically generated on the backend
+- This route handles API requests from frontend applications
 - **You can view this route**: Go to **Settings** → **Routings** in the sidebar to see all your table routes
 
-**3. Menu Access:**
+**3. Frontend Integration:**
 - Your new table appears in the **Data** section of the sidebar
+- Frontend makes HTTP requests to backend APIs to interact with data
 - Click **Data** to see your table listed and start adding records
 
 **Next Steps:**
 - Navigate to **Data** → **[Your Table Name]** to start adding records - see [Data Management](./data-management.md) for complete guide
+- **Remember**: All data operations flow through backend APIs, frontend never touches database directly
 - Use the [Relation Picker System](../frontend/relation-picker.md) when working with relation fields
 - Use the [Filter System](../frontend/filter-system.md) to search and filter your data

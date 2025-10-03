@@ -98,12 +98,12 @@ return {
 ### User Authentication
 ```javascript
 // POST /api/auth/login handler  
-// Target Tables: users
+// Target Tables: user_definition
 
 const { email, password } = $ctx.$body;
 
 // Find user by email
-const userResult = await $ctx.$repos.users.find({
+const userResult = await $ctx.$repos.user_definition.find({
   where: { email: { _eq: email } },
   fields: 'id,email,password' // Only fetch authentication fields
 });
@@ -117,7 +117,7 @@ const user = userResult.data[0];
 // Verify password
 const validPassword = await $ctx.$helpers.$bcrypt.compare(
   password, 
-  user.hashedPassword
+  user.password
 );
 
 if (!validPassword) {
@@ -131,7 +131,7 @@ const token = await $ctx.$helpers.$jwt(
 );
 
 // Update last login
-await $ctx.$repos.users.update(user.id, {
+await $ctx.$repos.user_definition.update(user.id, {
   lastLoginAt: new Date()
 });
 

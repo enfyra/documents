@@ -60,7 +60,7 @@ $ctx.$repos       // Access to table repositories
 // Use the table names configured in route's targetTables
 $ctx.$repos.products    // If "products" is in targetTables
 $ctx.$repos.categories  // If "categories" is in targetTables
-$ctx.$repos.users       // If "users" is in targetTables
+$ctx.$repos.user_definition       // If "user_definition" is in targetTables
 ```
 
 **Important**: Configure the tables you need in the route's **Target Tables** field. Each target table becomes available as a repository in `$ctx.$repos`.
@@ -68,7 +68,9 @@ $ctx.$repos.users       // If "users" is in targetTables
 ### Repository Methods
 Each repository provides full CRUD operations:
 
-**⮑ Fields Parameter Support**: The `find()` method now accepts a `fields` parameter with priority over context fields.
+**⚠️ Important: All repository methods return `{data: [...], meta: {...}}` structure**
+
+**📋 Create/Update Behavior**: Both `create()` and `update()` automatically call `.find()` after the operation to return the full record from database, including ID, timestamps, and all computed fields.
 
 ```javascript
 // Find records (returns {data: [], meta: {totalCount, filterCount}})
@@ -76,20 +78,23 @@ const result = await $ctx.$repos.products.find({
   where: { category: { _eq: 'electronics' } },
   fields: 'id,name,price' // Override context fields or specify required fields
 });
+const products = result.data; // Array of products
 
-// Create new record (returns query result with created record)
-const result = await $ctx.$repos.products.create({
+// Create new record (auto-calls .find() after insert to return full record)
+const createResult = await $ctx.$repos.products.create({
   name: $ctx.$body.name,
   price: $ctx.$body.price
 });
+const newProduct = createResult.data[0]; // Full product record with ID, timestamps, etc.
 
-// Update record by ID (returns query result with updated record)
-const result = await $ctx.$repos.products.update($ctx.$params.id, {
+// Update record by ID (auto-calls .find() after update to return full record)
+const updateResult = await $ctx.$repos.products.update($ctx.$params.id, {
   price: $ctx.$body.price
 });
+const updatedProduct = updateResult.data[0]; // Full updated record from database
 
-// Delete record by ID (returns success message)
-const result = await $ctx.$repos.products.delete($ctx.$params.id);
+// Delete record by ID (returns {data: [deleted_record], query_response})
+const deleteResult = await $ctx.$repos.products.delete($ctx.$params.id);
 ```
 
 ### Query Filtering
@@ -281,7 +286,7 @@ if ($ctx.$api.error) {
 #### Business Logic Error Handling
 ```javascript
 // Check business rules and throw appropriate errors
-const user = await $ctx.$repos.users.find({
+const user = await $ctx.$repos.user_definition.find({
   where: { id: { _eq: $ctx.$params.id } }
 });
 
@@ -388,7 +393,7 @@ let userProfile = await $ctx.$cache.get(cacheKey);
 
 if (!userProfile) {
   // Cache miss - fetch from database
-  const result = await $ctx.$repos.users.find({
+  const result = await $ctx.$repos.user_definition.find({
     where: { id: { _eq: $ctx.$params.id } }
   });
   
@@ -440,17 +445,18 @@ $ctx.$logs('Validation failed: Email required, Password too short')
 $ctx.$logs('Processing user registration')
 $ctx.$logs(`Validating email: ${$ctx.$body.email}`)
 
-const user = await $ctx.$repos.users.create({
+const userResult = await $ctx.$repos.user_definition.create({
   email: $ctx.$body.email,
   name: $ctx.$body.name
 })
 
+const user = userResult.data[0];
 $ctx.$logs(`User created successfully: ${user.id}`)
 
 // Just return your data - logs are added automatically
 return {
   success: true,
-  user: user.data[0]
+  user: user
 }
 ```
 

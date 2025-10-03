@@ -4,6 +4,16 @@ Enfyra uses the official **@enfyra/sdk-nuxt** package for all API interactions, 
 
 **📖 Complete SDK Documentation**: [https://github.com/dothinh115/enfyra-sdk-nuxt](https://github.com/dothinh115/enfyra-sdk-nuxt)
 
+## 🔄 Backend Dependency
+
+**CRITICAL**: All API calls in the frontend connect to your **backend server URL** (typically `http://localhost:1105`). The `useApi()` composable internally makes HTTP requests to:
+
+```
+${BACKEND_URL}/api/${endpoint}
+```
+
+**No API exists on the frontend** - it's purely a client consuming backend APIs. When you create tables, APIs are generated on the backend server and consumed by frontend via HTTP requests.
+
 ## SDK Overview
 
 The Enfyra integration provides these main composables:
@@ -20,6 +30,7 @@ The Enfyra integration provides these main composables:
 ```vue
 <script setup>
 // Fetch data with custom error handling and caching
+// This makes HTTP request to: ${BACKEND_URL}/api/user_definition
 const { data, pending, error, refresh } = await useApi('/user_definition', {
   query: {
     limit: 10,
@@ -28,6 +39,7 @@ const { data, pending, error, refresh } = await useApi('/user_definition', {
 });
 
 // Direct SDK access also available for advanced usage
+// Also makes HTTP request to backend server
 const { data: directData } = await useEnfyraApi('/user_definition', {
   query: { limit: 10 }
 });
@@ -101,6 +113,7 @@ const { data, pending, error } = await useApi('/product_definition', {
 const toast = useToast();
 
 // Create new record using custom API wrapper
+// POST request to: ${BACKEND_URL}/api/user_definition
 const createUser = async (userData) => {
   try {
     const { data } = await useApi('/user_definition', {
@@ -126,6 +139,7 @@ const createUser = async (userData) => {
 };
 
 // Update existing record
+// PATCH request to: ${BACKEND_URL}/api/user_definition/${userId}
 const updateUser = async (userId, updates) => {
   const { data } = await useApi(`/user_definition/${userId}`, {
     method: 'PATCH',
@@ -136,6 +150,7 @@ const updateUser = async (userId, updates) => {
 };
 
 // Delete record
+// DELETE request to: ${BACKEND_URL}/api/user_definition/${userId}
 const deleteUser = async (userId) => {
   await useApi(`/user_definition/${userId}`, {
     method: 'DELETE'

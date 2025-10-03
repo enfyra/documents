@@ -164,7 +164,7 @@ $ctx.$logs(`Added audit fields for user: ${$ctx.$user.id}`);
 ```javascript
 // Validate unique email before creating user
 if ($ctx.$req.method === 'POST' && $ctx.$body.email) {
-  const existingUser = await $ctx.$repos.users.find({
+  const existingUser = await $ctx.$repos.user_definition.find({
     where: { email: { _eq: $ctx.$body.email } },
     fields: 'id,email' // Only check if user exists, minimal data needed
   });
@@ -224,7 +224,7 @@ let userProfile = await $ctx.$cache.get(cacheKey);
 
 if (!userProfile) {
   // Cache miss - fetch from database
-  const result = await $ctx.$repos.users.find({
+  const result = await $ctx.$repos.user_definition.find({
     where: { id: { _eq: $ctx.$params.id } }
   });
   

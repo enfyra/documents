@@ -33,6 +33,12 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 
 ### ⚡ Key Differentiators
 
+**🔥 Backend-First Architecture**
+
+- **API Generation**: All REST & GraphQL APIs are automatically generated and served by the backend server (port 1105)
+- **Frontend as Client**: The frontend app (port 3000) is purely a client that consumes APIs from your backend URL
+- **Single Source of Truth**: Backend generates APIs from database schema, frontend consumes them via HTTP requests
+
 **🔥 Real-time Everything**
 
 - **Live Extension System**: Write Vue/JavaScript extensions that compile and load instantly from the database - no server restarts, no deployments
@@ -77,6 +83,17 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 - **Team Collaboration**: Intuitive interface for non-technical users, powerful tools for developers
 - **Custom Solutions**: Build exactly what you need without fighting framework limitations
 
+### 🏗️ Architecture Overview
+
+**Two-Component System:**
+```
+Database → Backend (API Server) → Frontend (Admin App)
+```
+
+- **Backend (Port 1105)**: Generates & serves all REST & GraphQL APIs from your database schema
+- **Frontend (Port 3000)**: Pure client application consuming APIs from backend URL
+- **All API endpoints**: Originate from backend server, frontend makes HTTP requests
+
 ### 🏗️ Built With Modern Technology
 
 **Backend**: NestJS + Express.js + TypeORM + Redis + GraphQL Yoga
@@ -110,6 +127,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 
 ```
 enfyra-docs/
+├── 🏗️ architecture-overview.md  # System architecture diagram and component responsibilities
 ├── 🚀 getting-started/
 │   ├── installation.md          # Setup guide for backend and app
 │   ├── getting-started.md       # First steps after installation, including table creation
@@ -196,6 +214,9 @@ enfyra-docs/
 ---
 
 ### Quick Navigation
+
+**🏗️ Architecture Overview**
+- **[Architecture Overview](./architecture-overview.md)** - System architecture diagram and component responsibilities
 
 **🚀 Getting Started**
 - **[Installation](./getting-started/installation.md)** - Setup guide for backend and app

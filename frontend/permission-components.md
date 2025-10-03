@@ -9,7 +9,7 @@ The `PermissionGate` component wraps UI elements and automatically shows/hides t
 ### Basic Usage
 
 ```vue
-<PermissionGate :condition="{ route: '/users', actions: ['read'] }">
+<PermissionGate :condition="{ route: '/user_definition', actions: ['read'] }">
   <div>This content only shows if user can read users</div>
 </PermissionGate>
 ```
@@ -19,7 +19,7 @@ The `PermissionGate` component wraps UI elements and automatically shows/hides t
 Check if user has ANY of the listed actions:
 
 ```vue
-<PermissionGate :condition="{ route: '/users', actions: ['create', 'update'] }">
+<PermissionGate :condition="{ route: '/user_definition', actions: ['create', 'update'] }">
   <UButton>Edit User</UButton>
 </PermissionGate>
 ```
@@ -32,7 +32,7 @@ User must have ALL permissions:
 ```vue
 <PermissionGate :condition="{
   and: [
-    { route: '/users', actions: ['read'] },
+    { route: '/user_definition', actions: ['read'] },
     { route: '/roles', actions: ['read'] }
   ]
 }">
@@ -46,8 +46,8 @@ User needs ANY of these permissions:
 ```vue
 <PermissionGate :condition="{
   or: [
-    { route: '/users', actions: ['create'] },
-    { route: '/users', actions: ['update'] }
+    { route: '/user_definition', actions: ['create'] },
+    { route: '/user_definition', actions: ['update'] }
   ]
 }">
   <UButton>Modify User</UButton>
@@ -63,8 +63,8 @@ Combine AND/OR for complex logic:
     { route: '/admin', actions: ['read'] },
     {
       and: [
-        { route: '/users', actions: ['read'] },
-        { route: '/users', actions: ['update'] }
+        { route: '/user_definition', actions: ['read'] },
+        { route: '/user_definition', actions: ['update'] }
       ]
     }
   ]
@@ -93,12 +93,12 @@ const { hasPermission } = usePermissions();
 
 // Check single permission
 const canCreateUsers = computed(() => {
-  return hasPermission('/users', 'POST'); // POST = create
+  return hasPermission('/user_definition', 'POST'); // POST = create
 });
 
 // Use in functions
 async function deleteUser(id: string) {
-  if (!hasPermission('/users', 'DELETE')) {
+  if (!hasPermission('/user_definition', 'DELETE')) {
     toast.add({
       title: 'Access Denied',
       description: 'You do not have permission to delete users',
@@ -107,7 +107,7 @@ async function deleteUser(id: string) {
     return;
   }
   
-  await api.delete(`/users/${id}`);
+  await api.delete(`/user_definition/${id}`);
 }
 </script>
 ```
@@ -122,11 +122,11 @@ const { checkPermissionCondition } = usePermissions();
 const canManageUsers = computed(() => {
   return checkPermissionCondition({
     and: [
-      { route: '/users', actions: ['read'] },
+      { route: '/user_definition', actions: ['read'] },
       { 
         or: [
-          { route: '/users', actions: ['create'] },
-          { route: '/users', actions: ['update'] }
+          { route: '/user_definition', actions: ['create'] },
+          { route: '/user_definition', actions: ['update'] }
         ]
       }
     ]
@@ -200,13 +200,13 @@ const visibleItems = miniSidebars.filter(item => {
 ```vue
 <template>
   <div class="flex gap-2">
-    <PermissionGate :condition="{ route: '/users', actions: ['create'] }">
+    <PermissionGate :condition="{ route: '/user_definition', actions: ['create'] }">
       <UButton color="primary" @click="createUser">
         Create User
       </UButton>
     </PermissionGate>
     
-    <PermissionGate :condition="{ route: '/users', actions: ['delete'] }">
+    <PermissionGate :condition="{ route: '/user_definition', actions: ['delete'] }">
       <UButton color="red" @click="deleteSelected">
         Delete Selected
       </UButton>
@@ -221,11 +221,11 @@ const visibleItems = miniSidebars.filter(item => {
 <template>
   <UTable :rows="users">
     <template #actions="{ row }">
-      <PermissionGate :condition="{ route: '/users', actions: ['update'] }">
+      <PermissionGate :condition="{ route: '/user_definition', actions: ['update'] }">
         <UButton size="sm" @click="editUser(row.id)">Edit</UButton>
       </PermissionGate>
       
-      <PermissionGate :condition="{ route: '/users', actions: ['delete'] }">
+      <PermissionGate :condition="{ route: '/user_definition', actions: ['delete'] }">
         <UButton size="sm" color="red" @click="deleteUser(row.id)">Delete</UButton>
       </PermissionGate>
     </template>
@@ -241,7 +241,7 @@ const { hasPermission } = usePermissions();
 
 async function handleSubmit() {
   // Check permission before processing
-  if (!hasPermission('/users', 'POST')) {
+  if (!hasPermission('/user_definition', 'POST')) {
     toast.add({
       title: 'Access Denied', 
       description: 'You cannot create users',
@@ -257,7 +257,7 @@ async function handleSubmit() {
     return;
   }
   
-  await api.post('/users', formData.value);
+  await api.post('/user_definition', formData.value);
 }
 </script>
 ```
@@ -272,7 +272,7 @@ useHeaderActionRegistry({
   label: 'Create User',
   icon: 'lucide:plus',
   permission: {
-    route: '/users',
+    route: '/user_definition',
     actions: ['create']
   },
   onClick: () => navigateTo('/users/create')
