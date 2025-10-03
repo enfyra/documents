@@ -152,13 +152,13 @@ const slug = await $ctx.$helpers.autoSlug(text)
 $ctx.$throw['400']('Bad request')
 $ctx.$throw['401']('Unauthorized')
 $ctx.$throw['403']('Forbidden')
-$ctx.$throw['404']('Resource', 'id')
-$ctx.$throw['422']('Validation failed', { errors: [...] })
+$ctx.$throw['404']('Resource not found')
+$ctx.$throw['409']('Email already exists')
+$ctx.$throw['422']('Validation failed')
 
 // Throw semantic exceptions
 $ctx.$throw.businessLogic('Invalid operation')
-$ctx.$throw.validation('Email is required', { field: 'email' })
-$ctx.$throw.notFound('User', '123')
+$ctx.$throw.notFound('User not found')
 $ctx.$throw.unauthorized('Invalid token')
 ```
 
@@ -217,10 +217,7 @@ if (!$ctx.$body.email) {
 }
 
 if (!$ctx.$body.password || $ctx.$body.password.length < 6) {
-  $ctx.$throw['422']('Password must be at least 6 characters', {
-    field: 'password',
-    minLength: 6
-  });
+  $ctx.$throw['422']('Password must be at least 6 characters');
 }
 ```
 
@@ -291,7 +288,7 @@ const user = await $ctx.$repos.user_definition.find({
 });
 
 if (!user.data.length) {
-  $ctx.$throw['404']('User', $ctx.$params.id);
+  $ctx.$throw['404']('User not found');
 }
 
 if (user.data[0].status === 'suspended') {

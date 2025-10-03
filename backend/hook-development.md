@@ -133,7 +133,7 @@ if ($ctx.$body.email && !$ctx.$body.email.includes('@')) {
 
 // Validate required fields
 if (!$ctx.$body.name) {
-  $ctx.$throw['422']('Name is required', { field: 'name' });
+  $ctx.$throw['422']('Name is required');
 }
 
 // Add creation timestamp
@@ -170,7 +170,7 @@ if ($ctx.$req.method === 'POST' && $ctx.$body.email) {
   });
   
   if (existingUser.data.length > 0) {
-    $ctx.$throw['409']('User', 'email', $ctx.$body.email);
+    $ctx.$throw['409']('Email already exists');
   }
   
   $ctx.$logs(`Email validation passed: ${$ctx.$body.email}`);
