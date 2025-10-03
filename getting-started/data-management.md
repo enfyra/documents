@@ -2,6 +2,15 @@
 
 Data Management is where you create, view, edit, and delete records in your tables. After creating tables, you can access your data through **Data** in the sidebar, then select your table.
 
+## 🔄 How Data Operations Work
+
+**Important**: All data operations happen through backend APIs:
+- When you create/edit/delete records, the frontend sends HTTP requests to the backend server
+- Backend processes the request and updates the database
+- Frontend receives the response and updates the UI
+
+**No API exists on the frontend** - it's purely a client interface consuming backend-produced APIs.
+
 ## Navigating to Your Table Data
 
 **How to Access:**

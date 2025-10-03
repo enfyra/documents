@@ -18,17 +18,33 @@ npx @enfyra/create-enfyra-be@latest <project-name>
 cd <project-name>
 npm run start
 ```
-By default, the backend will run at http://localhost:1105
+**Backend runs at http://localhost:1105** - This server generates and serves ALL API endpoints
 
 - For detailed instructions: [@enfyra/create-enfyra-be](https://www.npmjs.com/package/@enfyra/create-enfyra-be)
 
-### 2. Install and run the app
+### 2. Install and run the frontend app
 ```bash
 npx @enfyra/create-enfyra-app@latest <project-name>
 cd <project-name>
 npm run dev
 ```
+**Frontend runs at http://localhost:3000** - This app consumes APIs from your backend URL
+
 - For detailed instructions: [@enfyra/create-enfyra-app](https://www.npmjs.com/package/@enfyra/create-enfyra-app)
+
+## 🔄 Connection Flow
+
+**Important**: The frontend app is a client that connects to your backend server:
+
+```
+Database → Backend APIs (1105) ← Frontend App (3000)
+```
+
+1. **Backend** generates REST & GraphQL APIs from your database schema
+2. **Frontend** connects to backend URL (`BACKEND_URL`) and makes HTTP requests
+3. **All data operations** flow through: Frontend → Backend → Database
+
+**No API exists on the frontend** - it's purely a client consuming backend APIs.
 
 ## Configuration Prompts
 
@@ -89,10 +105,10 @@ the CLI will ask you a series of configuration questions for the frontend applic
 | Prompt                                | Description                                                         |
 | ------------------------------------- | ------------------------------------------------------------------- |
 | **Package manager**                   | Select the package manager you want to use (`npm`, `yarn`, `pnpm`, `bun`) |
-| **API base URL**                      | Base URL of your backend API (must include `http://` or `https://`) |
+| **API base URL**                      | **CRITICAL**: Base URL of your backend API server that generates all APIs (must include `http://` or `https://`) |
 | **App port**                          | Port where the Enfyra frontend will run (default `3000`)           |
 
-> 💡 The API base URL must be a valid HTTP/HTTPS URL pointing to your Enfyra backend instance.
+> 💡 **Important**: The API base URL must point to your **backend server** (usually `http://localhost:1105`). The frontend app will make HTTP requests to this URL to consume APIs. All REST & GraphQL endpoints are served by your backend, not the frontend.
 
 After you finish answering the prompts, the CLI will:
 

@@ -2,6 +2,16 @@
 
 Understanding Enfyra's API request lifecycle is crucial for building effective hooks and handlers. This guide explains the complete flow and how context sharing works throughout the request.
 
+## 🔥 API Source Context
+
+**CRITICAL**: All API endpoints are generated and served by the **backend server** (port 1105). When you create tables through the admin interface, APIs are automatically generated on the backend. The frontend app consumes these APIs by making HTTP requests to your backend URL.
+
+```
+Frontend App → HTTP Request → Backend API Server → Database
+```
+
+**No API logic exists on the frontend** - it's purely a client consuming backend-produced APIs.
+
 
 ## Quick Navigation
 
@@ -23,10 +33,12 @@ Understanding Enfyra's API request lifecycle is crucial for building effective h
 Every API request in Enfyra follows this lifecycle:
 
 ```
-HTTP Request → Route Detection (High-Performance) → Context Setup → preHook(s) → Handler → afterHook(s) → Response
+Frontend → HTTP Request → Backend Route Detection → Context Setup → preHook(s) → Handler → afterHook(s) → Response → Frontend
 ```
 
 **Performance Note**: Route detection bypasses Express's middleware stack and uses a custom engine that's significantly faster than Express's built-in route tree matching.
+
+**API Flow Note**: The entire lifecycle happens on the **backend server**. Frontend apps send HTTP requests to backend endpoints and receive JSON responses.
 
 ### Phase Breakdown
 
