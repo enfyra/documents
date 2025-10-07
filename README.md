@@ -168,7 +168,8 @@ enfyra-docs/
 ├── 🏗️ architecture-overview.md  # System architecture diagram and component responsibilities
 ├── 🚀 getting-started/
 │   ├── installation.md          # Setup guide for backend and app
-│   ├── getting-started.md       # First steps after installation, including table creation
+│   ├── getting-started.md       # First steps after installation and interface overview
+│   ├── table-creation.md        # Complete guide to creating tables with all field types
 │   └── data-management.md       # Complete guide to managing records in your tables
 │
 ├── 📝 examples/
@@ -213,38 +214,39 @@ enfyra-docs/
 
 ### 🚀 Phase 1: Setup & Basics (30 mins)
 1. **[Installation](./getting-started/installation.md)** - Set up Enfyra backend and app
-2. **[Getting Started](./getting-started/getting-started.md)** - Create your first table and understand the interface
-3. **[Data Management](./getting-started/data-management.md)** - Learn to manage records and relationships
+2. **[Getting Started](./getting-started/getting-started.md)** - First login and interface overview
+3. **[Table Creation](./getting-started/table-creation.md)** - Create your first table with all field types and relations
+4. **[Data Management](./getting-started/data-management.md)** - Learn to manage records and relationships
 
 ### 🎨 Phase 2: Frontend Mastery (2-3 hours)
-4. **[Form System](./frontend/form-system.md)** - Understand how forms work with your data
-5. **[Filter System](./frontend/filter-system.md)** - Master data filtering and searching  
-6. **[Permission Builder](./frontend/permission-builder.md)** - Set up access control rules
-7. **[Menu Management](./frontend/menu-management.md)** - Customize navigation and user interface
+5. **[Form System](./frontend/form-system.md)** - Understand how forms work with your data
+6. **[Filter System](./frontend/filter-system.md)** - Master data filtering and searching  
+7. **[Permission Builder](./frontend/permission-builder.md)** - Set up access control rules
+8. **[Menu Management](./frontend/menu-management.md)** - Customize navigation and user interface
 
 ### 🔧 Phase 3: Customization (3-4 hours)
-8. **[API Integration](./frontend/api-integration.md)** - Learn to fetch and manipulate data programmatically
-9. **[Package Management](./frontend/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
-10. **[Extension System](./frontend/extension-system.md)** - Build custom pages and functionality
-11. **[Header Actions](./frontend/header-actions.md)** - Inject custom buttons and widgets into the app interface
-12. **[Custom Handlers](./frontend/custom-handlers.md)** - Override default API behavior with business logic
+9. **[API Integration](./frontend/api-integration.md)** - Learn to fetch and manipulate data programmatically
+10. **[Package Management](./frontend/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
+11. **[Extension System](./frontend/extension-system.md)** - Build custom pages and functionality
+12. **[Header Actions](./frontend/header-actions.md)** - Inject custom buttons and widgets into the app interface
+13. **[Custom Handlers](./frontend/custom-handlers.md)** - Override default API behavior with business logic
 
 ### ⚙️ Phase 4: Advanced Development (4-5 hours)
-13. **[API Querying](./backend/api-querying.md)** - Master MongoDB-like querying for complex data retrieval
-14. **[Context Reference](./backend/context-reference.md)** - Complete reference for $ctx object in hooks and handlers
-15. **[Hook Development](./backend/hook-development.md)** - Create sophisticated request/response hooks
-16. **[API Lifecycle](./backend/api-lifecycle.md)** - Understand the complete request processing pipeline
+14. **[API Querying](./backend/api-querying.md)** - Master MongoDB-like querying for complex data retrieval
+15. **[Context Reference](./backend/context-reference.md)** - Complete reference for $ctx object in hooks and handlers
+16. **[Hook Development](./backend/hook-development.md)** - Create sophisticated request/response hooks
+17. **[API Lifecycle](./backend/api-lifecycle.md)** - Understand the complete request processing pipeline
 
 ### 🏗️ Phase 5: Production & Scale (2-3 hours)
-17. **[Permission System](./backend/permission-system.md)** - Deep dive into role-based access control
-18. **[Cluster Architecture](./backend/cluster-architecture.md)** - Deploy and scale across multiple instances
-19. **[Bootstrap Scripts](./backend/bootstrap-scripts.md)** - Initialize application state and perform startup tasks
+18. **[Permission System](./backend/permission-system.md)** - Deep dive into role-based access control
+19. **[Cluster Architecture](./backend/cluster-architecture.md)** - Deploy and scale across multiple instances
+20. **[Bootstrap Scripts](./backend/bootstrap-scripts.md)** - Initialize application state and perform startup tasks
 
 ### 🎯 Goal-Oriented Paths
 
 **Have a specific goal?** Jump directly to what you need:
 
-- 🚀 **Building an MVP?** → Phases 1-2 (3-4 hours total)
+- 🚀 **Building an MVP?** → Phases 1-2 (4-5 hours total)
 - 🔧 **Need custom functionality?** → Focus on Phase 3: API Integration + Extensions
 - 📊 **Building a dashboard?** → [Extension System](./frontend/extension-system.md) + [API Integration](./frontend/api-integration.md)
 - 🔒 **Need role-based access?** → [Permission Builder](./frontend/permission-builder.md) + [Permission System](./backend/permission-system.md)
@@ -261,7 +263,8 @@ enfyra-docs/
 
 **🚀 Getting Started**
 - **[Installation](./getting-started/installation.md)** - Setup guide for backend and app
-- **[Getting Started](./getting-started/getting-started.md)** - First steps after installation, including table creation
+- **[Getting Started](./getting-started/getting-started.md)** - First steps after installation and interface overview
+- **[Table Creation](./getting-started/table-creation.md)** - Complete guide to creating tables with all field types
 - **[Data Management](./getting-started/data-management.md)** - Complete guide to managing records in your tables
 
 **🎨 Frontend (User Interface)**
