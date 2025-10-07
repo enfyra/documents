@@ -40,7 +40,6 @@ The most important step is connecting your route to a data source:
 2. Search and select the table this route should serve
 3. **Automatic CRUD Operations**: Once linked, your custom route can provide:
    - `GET /your-route` - List all records
-   - `GET /your-route/:id` - Get single record
    - `POST /your-route` - Create new record
    - `PATCH /your-route/:id` - Update record
    - `DELETE /your-route/:id` - Delete record
@@ -115,7 +114,6 @@ The **Published Methods** field controls the authentication requirements for eac
 ### Default CRUD Operations
 When you create a route and link it to targetTables, Enfyra automatically provides standard CRUD operations:
 - `GET /your-route` - List records
-- `GET /your-route/:id` - Get single record  
 - `POST /your-route` - Create record
 - `PATCH /your-route/:id` - Update record
 - `DELETE /your-route/:id` - Delete record
@@ -138,7 +136,7 @@ For detailed handler creation and examples, see [Custom Handlers](./custom-handl
 ### API Consistency
 Create RESTful endpoints that match your application's naming conventions:
 - `/products` instead of `/table_definition`
-- `/orders/:id` instead of `/order_table`
+- `/orders` instead of `/order_table`
 
 ### Versioning Support
 Implement API versioning:
