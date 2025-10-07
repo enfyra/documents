@@ -93,7 +93,7 @@ npm run start
 (or use `yarn start:dev` / `bun run start:dev` depending on the package manager you selected.)
 
 ## **SECURITY WARNING:**
-#### Your admin credentials are stored in `.env` and will be pushed to Git when you deploy your Enfyra server. Change your admin password on the dashboard interface immediately after first login to secure your account.
+#### Your admin credentials are stored in `init.json` and will be pushed to Git when you deploy your Enfyra server. Change your admin password on the dashboard interface immediately after first login to secure your account.
 
 ## 4. Frontend Configuration Prompts
 
