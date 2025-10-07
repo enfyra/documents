@@ -104,7 +104,7 @@ the CLI will ask you a series of configuration questions for the frontend applic
 
 | Prompt                                | Description                                                         |
 | ------------------------------------- | ------------------------------------------------------------------- |
-| **Package manager**                   | Select the package manager you want to use (`npm`, `yarn`, `pnpm`, `bun`) |
+| **Package manager**                   | Select the package manager you want to use (`npm`, `yarn`, `pnpm`) |
 | **API base URL**                      | **CRITICAL**: Base URL of your backend API server that generates all APIs (must include `http://` or `https://`) |
 | **App port**                          | Port where the Enfyra frontend will run (default `3000`)           |
 
