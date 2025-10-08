@@ -193,10 +193,12 @@ enfyra-docs/
 └── ⚙️ backend/
     ├── api-lifecycle.md         # 🔄 Request lifecycle, hook system, and context sharing
     ├── api-querying.md          # 🔥 MongoDB-like API querying with powerful operators (for developers)
+    ├── graphql-api.md           # 📊 GraphQL queries and mutations with auto-generated schema
     ├── hook-development.md      # Advanced hook programming with context, examples, and best practices
     ├── context-reference.md     # 📖 Complete $ctx object reference for hooks and handlers
     ├── cluster-architecture.md  # 🏗️ Multi-instance coordination and distributed synchronization
     ├── permission-system.md     # 🔐 Role-based access control with allowedUsers bypass
+    ├── template-syntax.md       # ✨ Modern template syntax for cleaner code
     └── bootstrap-scripts.md     # 🚀 Startup script execution system with full context access
 ```
 
@@ -285,6 +287,7 @@ enfyra-docs/
 **⚙️ Backend (Developer Integration)**
 - **[API Lifecycle](./backend/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
 - **[API Querying](./backend/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
+- **[GraphQL API](./backend/graphql-api.md)** - 📊 **GraphQL queries and mutations** with auto-generated schema and permission control
 - **[Context Reference](./backend/context-reference.md)** - 📖 **Complete $ctx object reference** for hooks and handlers with examples
 - **[Hook Development](./backend/hook-development.md)** - Advanced hook programming with context, examples, and best practices
 - **[Cluster Architecture](./backend/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization

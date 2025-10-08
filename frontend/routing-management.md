@@ -64,7 +64,9 @@ After creating the route, you can set up fine-grained access control:
 3. **Click "Add Permission"** to open the permission configuration drawer
 4. **Configure permission settings:**
    - **Role**: Select which role gets access (single selection via relation picker)
-   - **Methods**: Choose which HTTP methods this role can access (multiple selection)
+   - **Methods**: Choose which methods this role can access (multiple selection):
+     - **REST API Methods**: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`
+     - **GraphQL Methods**: `GQL_QUERY`, `GQL_MUTATION`
    - **Allowed Users**: Select specific users who bypass role restrictions (multiple selection via relation picker)
    - **Is Enabled**: Toggle to activate/deactivate this permission rule
    - **Description**: Document the purpose of this permission
@@ -82,6 +84,51 @@ After creating permissions, they appear as a list in the Route Permissions secti
 - **Instant updates**: All permission changes take effect immediately, separate from route modifications
 
 See [Relation Picker System](../frontend/relation-picker.md) for details on selecting roles and users through the relation interface.
+
+### GraphQL Permission Control
+
+GraphQL API access is controlled through two special methods in Route Permissions:
+
+**`GQL_QUERY` Method:**
+- Controls **read access** via GraphQL queries
+- When enabled for a role, allows querying table data through GraphQL
+- Example: `query { users { data { id name email } } }`
+- Independent from REST `GET` permission
+
+**`GQL_MUTATION` Method:**
+- Controls **write access** (create, update, delete) via GraphQL mutations
+- When enabled for a role, allows all mutation operations:
+  - `create_table_name` - Create new records
+  - `update_table_name` - Update existing records
+  - `delete_table_name` - Delete records
+- Independent from REST `POST`, `PUT`, `PATCH`, `DELETE` permissions
+
+**Permission Examples:**
+
+```
+# Editor Role - Read-only GraphQL access
+Role: Editor
+Methods: [GQL_QUERY]
+Result: Can query data but cannot create/update/delete via GraphQL
+
+# Admin Role - Full GraphQL access  
+Role: Admin
+Methods: [GQL_QUERY, GQL_MUTATION]
+Result: Can query and mutate data via GraphQL
+
+# Developer Role - Mixed access
+Role: Developer
+Methods: [GET, POST, GQL_QUERY, GQL_MUTATION]
+Result: Full REST and GraphQL access
+```
+
+**Important Notes:**
+- GraphQL permissions are **separate** from REST permissions
+- A role can have GraphQL access without REST access and vice versa
+- `GQL_MUTATION` covers all mutation operations (create, update, delete) - you cannot separate them
+- `GQL_QUERY` covers all query operations
+
+For complete GraphQL API documentation, see **[GraphQL API Guide](../backend/graphql-api.md)**.
 
 ## System Routes
 
@@ -113,10 +160,18 @@ The **Published Methods** field controls the authentication requirements for eac
 
 ### Default CRUD Operations
 When you create a route and link it to targetTables, Enfyra automatically provides standard CRUD operations:
+
+**REST API:**
 - `GET /your-route` - List records
 - `POST /your-route` - Create record
 - `PATCH /your-route/:id` - Update record
 - `DELETE /your-route/:id` - Delete record
+
+**GraphQL API:**
+- `query { your_table(...) }` - Query records
+- `mutation { create_your_table(...) }` - Create record
+- `mutation { update_your_table(...) }` - Update record
+- `mutation { delete_your_table(...) }` - Delete record
 
 ### Custom Handlers Override
 You can replace any of these default operations with custom business logic by creating handlers:

@@ -21,10 +21,12 @@ Enfyra provides a powerful MongoDB-like querying system for your API endpoints. 
 - [Sorting & Pagination](#sorting) - Control data ordering and paging
 
 **💼 Practical Usage:**
-- [GraphQL API Usage](#graphql-api-usage) - GraphQL query examples
 - [URL Query Examples](#url-query-examples) - REST API examples
 - [Complex Examples](#complex-examples) - Real-world use cases
 - [Custom Handler Integration](#api-usage-in-custom-handlers) - Use in your code
+
+**🔗 Related APIs:**
+- **[GraphQL API](./graphql-api.md)** - Complete GraphQL queries and mutations guide
 
 **Developer Resources:**
 - [Performance Tips](#performance-tips) - Optimization guidelines
@@ -503,47 +505,6 @@ GET /users?limit=10&deep={"recentPosts":{"limit":3,"sort":"-createdAt"}}
       }
     }
   }
-}
-```
-
-## GraphQL API Usage
-
-GraphQL queries use the same query parameters but in a different format:
-
-```graphql
-query {
-  users(
-    filter: "{\"status\":{\"_eq\":\"active\"}}"
-    fields: "id,name,email,role.name"
-    sort: "name,-createdAt"
-    page: 1
-    limit: 10
-  ) {
-    data
-    meta
-  }
-}
-```
-
-Or with GraphQL variables:
-
-```graphql
-query GetUsers($filter: String, $fields: String, $sort: String, $page: Int, $limit: Int) {
-  users(filter: $filter, fields: $fields, sort: $sort, page: $page, limit: $limit) {
-    data
-    meta
-  }
-}
-```
-
-Variables:
-```json
-{
-  "filter": "{\"status\":{\"_eq\":\"active\"},\"age\":{\"_gte\":18}}",
-  "fields": "id,name,email",
-  "sort": "-createdAt",
-  "page": 1,
-  "limit": 20
 }
 ```
 
