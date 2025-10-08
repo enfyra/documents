@@ -135,7 +135,7 @@ Permission Builder controls menu visibility:
 ### Route System  
 Controls API endpoint access:
 - Works with Published Methods and Role Permissions
-- See [Permission System](../backend/permission-system.md) for technical details
+- See [Permission System](../server/permission-system.md) for technical details
 
 ### Form System
 Integrated into Enfyra's form rendering:

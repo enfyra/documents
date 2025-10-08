@@ -118,7 +118,7 @@ Forms respect user permissions automatically:
 3. **Menus hide** options user cannot access
 4. **Forms disable** fields user cannot edit
 
-**See [Permission System](../backend/permission-system.md) for technical details**
+**See [Permission System](../server/permission-system.md) for technical details**
 
 ## Special Form Features
 

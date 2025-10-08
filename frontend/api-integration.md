@@ -887,7 +887,7 @@ const { data } = await useApi<{ data: User[], total: number }>('/user_definition
 
 - **[Extension System](./extension-system.md)** - Using API in extensions
 - **[Form System](./form-system.md)** - API integration in forms  
-- **[Permission System](../backend/permission-system.md)** - API permission handling
+- **[Permission System](../server/permission-system.md)** - API permission handling
 - **[SDK Documentation](https://github.com/dothinh115/enfyra-sdk-nuxt)** - Complete SDK reference
 
 The Enfyra SDK provides everything you need for robust API integration with built-in caching, error handling, and TypeScript support.

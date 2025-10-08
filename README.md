@@ -50,7 +50,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 - **Born for Clustering**: Designed from day one to run multiple instances - no configuration, no setup, just scale
 - **Automatic Coordination**: Schema changes sync instantly across all instances via Redis
 - **Zero Additional Work**: Deploy 1 instance or 100 instances - the experience is identical
-- **Stateless by Design**: Any instance handles any request seamlessly - [Learn how it works →](./backend/cluster-architecture.md)
+- **Stateless by Design**: Any instance handles any request seamlessly - [Learn how it works →](./server/cluster-architecture.md)
 
 **🛡️ Enterprise-Grade Security**
 
@@ -190,7 +190,7 @@ enfyra-docs/
 │   ├── permission-components.md # PermissionGate and usePermissions for UI control
 │   └── form-system.md          # Dynamic form generation with validation and relations
 │
-└── ⚙️ backend/
+└── ⚙️ server/
     ├── api-lifecycle.md         # 🔄 Request lifecycle, hook system, and context sharing
     ├── api-querying.md          # 🔥 MongoDB-like API querying with powerful operators (for developers)
     ├── graphql-api.md           # 📊 GraphQL queries and mutations with auto-generated schema
@@ -234,15 +234,15 @@ enfyra-docs/
 13. **[Custom Handlers](./frontend/custom-handlers.md)** - Override default API behavior with business logic
 
 ### ⚙️ Phase 4: Advanced Development (4-5 hours)
-14. **[API Querying](./backend/api-querying.md)** - Master MongoDB-like querying for complex data retrieval
-15. **[Context Reference](./backend/context-reference.md)** - Complete reference for $ctx object in hooks and handlers
-16. **[Hook Development](./backend/hook-development.md)** - Create sophisticated request/response hooks
-17. **[API Lifecycle](./backend/api-lifecycle.md)** - Understand the complete request processing pipeline
+14. **[API Querying](./server/api-querying.md)** - Master MongoDB-like querying for complex data retrieval
+15. **[Context Reference](./server/context-reference.md)** - Complete reference for $ctx object in hooks and handlers
+16. **[Hook Development](./server/hook-development.md)** - Create sophisticated request/response hooks
+17. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
 
 ### 🏗️ Phase 5: Production & Scale (2-3 hours)
-18. **[Permission System](./backend/permission-system.md)** - Deep dive into role-based access control
-19. **[Cluster Architecture](./backend/cluster-architecture.md)** - Deploy and scale across multiple instances
-20. **[Bootstrap Scripts](./backend/bootstrap-scripts.md)** - Initialize application state and perform startup tasks
+18. **[Permission System](./server/permission-system.md)** - Deep dive into role-based access control
+19. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
+20. **[Bootstrap Scripts](./server/bootstrap-scripts.md)** - Initialize application state and perform startup tasks
 
 ### 🎯 Goal-Oriented Paths
 
@@ -251,10 +251,10 @@ enfyra-docs/
 - 🚀 **Building an MVP?** → Phases 1-2 (4-5 hours total)
 - 🔧 **Need custom functionality?** → Focus on Phase 3: API Integration + Extensions
 - 📊 **Building a dashboard?** → [Extension System](./frontend/extension-system.md) + [API Integration](./frontend/api-integration.md)
-- 🔒 **Need role-based access?** → [Permission Builder](./frontend/permission-builder.md) + [Permission System](./backend/permission-system.md)
-- ⚙️ **Complex business logic?** → [Custom Handlers](./frontend/custom-handlers.md) + [Context Reference](./backend/context-reference.md) + [Hook Development](./backend/hook-development.md)
-- 🏢 **Enterprise deployment?** → [Cluster Architecture](./backend/cluster-architecture.md) + [Permission System](./backend/permission-system.md)
-- 🚀 **Application initialization?** → [Bootstrap Scripts](./backend/bootstrap-scripts.md) + [API Integration](./frontend/api-integration.md)
+- 🔒 **Need role-based access?** → [Permission Builder](./frontend/permission-builder.md) + [Permission System](./server/permission-system.md)
+- ⚙️ **Complex business logic?** → [Custom Handlers](./frontend/custom-handlers.md) + [Context Reference](./server/context-reference.md) + [Hook Development](./server/hook-development.md)
+- 🏢 **Enterprise deployment?** → [Cluster Architecture](./server/cluster-architecture.md) + [Permission System](./server/permission-system.md)
+- 🚀 **Application initialization?** → [Bootstrap Scripts](./server/bootstrap-scripts.md) + [API Integration](./frontend/api-integration.md)
 
 ---
 
@@ -285,14 +285,14 @@ enfyra-docs/
 - **[Form System](./frontend/form-system.md)** - Dynamic form generation with validation and relations
 
 **⚙️ Backend (Developer Integration)**
-- **[API Lifecycle](./backend/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
-- **[API Querying](./backend/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
-- **[GraphQL API](./backend/graphql-api.md)** - 📊 **GraphQL queries and mutations** with auto-generated schema and permission control
-- **[Context Reference](./backend/context-reference.md)** - 📖 **Complete $ctx object reference** for hooks and handlers with examples
-- **[Hook Development](./backend/hook-development.md)** - Advanced hook programming with context, examples, and best practices
-- **[Cluster Architecture](./backend/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
-- **[Permission System](./backend/permission-system.md)** - 🔐 **Role-based access control** with allowedUsers bypass
-- **[Bootstrap Scripts](./backend/bootstrap-scripts.md)** - 🚀 **Startup script execution** with full context access and hot reload
+- **[API Lifecycle](./server/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
+- **[API Querying](./server/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
+- **[GraphQL API](./server/graphql-api.md)** - 📊 **GraphQL queries and mutations** with auto-generated schema and permission control
+- **[Context Reference](./server/context-reference.md)** - 📖 **Complete $ctx object reference** for hooks and handlers with examples
+- **[Hook Development](./server/hook-development.md)** - Advanced hook programming with context, examples, and best practices
+- **[Cluster Architecture](./server/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
+- **[Permission System](./server/permission-system.md)** - 🔐 **Role-based access control** with allowedUsers bypass
+- **[Bootstrap Scripts](./server/bootstrap-scripts.md)** - 🚀 **Startup script execution** with full context access and hot reload
 
 **📝 Examples & Templates**
 - **[User Registration](./examples/user-registration-example.md)** - Complete end-to-end example featuring template syntax, hooks, handlers, and package management
@@ -304,7 +304,7 @@ Enfyra requires both backend and frontend to work properly. See our complete ins
 **[→ Complete Installation Guide](./getting-started/installation.md)**
 
 Quick overview:
-1. First install Enfyra Backend
+1. First install Enfyra Server
 2. Then install Enfyra App  
 3. Connect them together
 
