@@ -14,23 +14,23 @@
 ### 1. Install and run the backend
 
 ```bash
-npx @enfyra/create-enfyra-be@latest <project-name>
+npx @enfyra/create-server@latest <project-name>
 cd <project-name>
 npm run start
 ```
 **Backend runs at http://localhost:1105** - This server generates and serves ALL API endpoints
 
-- For detailed instructions: [@enfyra/create-enfyra-be](https://www.npmjs.com/package/@enfyra/create-enfyra-be)
+- For detailed instructions: [@enfyra/create-server](https://www.npmjs.com/package/@enfyra/create-server)
 
 ### 2. Install and run the frontend app
 ```bash
-npx @enfyra/create-enfyra-app@latest <project-name>
+npx @enfyra/create-app@latest <project-name>
 cd <project-name>
 npm run dev
 ```
 **Frontend runs at http://localhost:3000** - This app consumes APIs from your backend URL
 
-- For detailed instructions: [@enfyra/create-enfyra-app](https://www.npmjs.com/package/@enfyra/create-enfyra-app)
+- For detailed instructions: [@enfyra/create-app](https://www.npmjs.com/package/@enfyra/create-app)
 
 ## 🔄 Connection Flow
 
@@ -53,7 +53,7 @@ Database → Backend APIs (1105) ← Frontend App (3000)
 When you run:
 
 ```bash
-npx @enfyra/create-enfyra-be@latest <project-name>
+npx @enfyra/create-server@latest <project-name>
 ```
 
 the CLI will ask you a series of configuration questions. Enter the values that match your environment.
@@ -100,7 +100,7 @@ npm run start
 When you run:
 
 ```bash
-npx @enfyra/create-enfyra-app@latest <project-name>
+npx @enfyra/create-app@latest <project-name>
 ```
 
 the CLI will ask you a series of configuration questions for the frontend application. Enter the values that match your environment.

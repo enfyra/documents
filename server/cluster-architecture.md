@@ -62,7 +62,7 @@ NODE_NAME=production-node-1
 NODE_NAME=production-node-2
 ```
 
-**Note**: When using `npx @enfyra/create-enfyra-be`, you'll be prompted for the node name during setup.
+**Note**: When using `npx @enfyra/create-server`, you'll be prompted for the node name during setup.
 
 ## Result
 

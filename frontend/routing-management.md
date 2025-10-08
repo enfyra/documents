@@ -128,7 +128,7 @@ Result: Full REST and GraphQL access
 - `GQL_MUTATION` covers all mutation operations (create, update, delete) - you cannot separate them
 - `GQL_QUERY` covers all query operations
 
-For complete GraphQL API documentation, see **[GraphQL API Guide](../backend/graphql-api.md)**.
+For complete GraphQL API documentation, see **[GraphQL API Guide](../server/graphql-api.md)**.
 
 ## System Routes
 
@@ -144,7 +144,7 @@ Examples include routes for:
 
 The **Published Methods** field controls the authentication requirements for each HTTP method.
 
-**For complete details on permissions, roles, and allowedUsers, see [Permission System Documentation](../backend/permission-system.md).**
+**For complete details on permissions, roles, and allowedUsers, see [Permission System Documentation](../server/permission-system.md).**
 
 ### Published Methods vs Private Methods
 - **Published Methods**: Public access, no authentication required

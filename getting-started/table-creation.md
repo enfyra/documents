@@ -217,4 +217,4 @@ Table: posts (create after categories)
 - **[Relation Picker System](../frontend/relation-picker.md)** - Using relation fields in forms
 - **[Filter System](../frontend/filter-system.md)** - Searching and filtering data
 - **[Form System](../frontend/form-system.md)** - How forms are generated from tables
-- **[API Querying](../backend/api-querying.md)** - Advanced querying capabilities
+- **[API Querying](../server/api-querying.md)** - Advanced querying capabilities
