@@ -11,7 +11,6 @@ Enfyra provides a powerful GraphQL API that automatically generates queries and 
 - [Error Handling](#error-handling) - Handle errors gracefully
 
 **Advanced Topics:**
-- [Variables and Dynamic Queries](#variables-and-dynamic-queries) - Reusable queries
 - [Relation Loading](#relation-loading) - Load related data
 - [Best Practices](#best-practices) - Production-ready patterns
 
@@ -28,14 +27,23 @@ Query a table with filtering and field selection:
 ```graphql
 query {
   users(
-    filter: "{\"status\":{\"_eq\":\"active\"}}"
-    fields: "id,name,email,role.name"
-    sort: "name,-createdAt"
+    filter: {status: {_eq: "active"}}
+    sort: ["name", "-createdAt"]
     page: 1
     limit: 10
   ) {
-    data
-    meta
+    data {
+      id
+      name
+      email
+      role {
+        name
+      }
+    }
+    meta {
+      totalCount
+      filterCount
+    }
   }
 }
 ```
@@ -66,52 +74,44 @@ query {
 
 ### Query Parameters
 
-All queries support the same parameters as REST endpoints:
+GraphQL queries support filtering, sorting, and pagination through query arguments:
 
-- **`filter`**: JSON string for filtering conditions (see [Filter Operators](./api-querying.md#filter-operators))
-- **`fields`**: Comma-separated field names (e.g., `"id,name,email,role.name"`)
-- **`sort`**: Comma-separated sort fields (prefix with `-` for descending)
+- **`filter`**: JSON object for filtering conditions (see [Filter Operators](./api-querying.md#filter-operators))
+- **`sort`**: Array of sort fields (prefix with `-` for descending, e.g., `["name", "-createdAt"]`)
 - **`page`**: Page number for pagination (starts at 1)
 - **`limit`**: Maximum records to return (default: 10)
-- **`meta`**: Metadata to include (`"totalCount"`, `"filterCount"`, or `"*"`)
-- **`deep`**: JSON string for loading nested relations (see [Deep Relations](./api-querying.md#deep-relations))
 
-### Variables and Dynamic Queries
+**Note:** Unlike REST endpoints, GraphQL does NOT use `fields` or `meta` parameters. Instead:
+- **Field Selection**: Specify fields in the GraphQL selection set (e.g., `data { id name email }`)
+- **Metadata**: Include meta fields in the selection set (e.g., `meta { totalCount filterCount }`)
 
-Use GraphQL variables for reusable queries:
-
-```graphql
-query GetUsers($filter: String, $fields: String, $sort: String, $page: Int, $limit: Int) {
-  users(filter: $filter, fields: $fields, sort: $sort, page: $page, limit: $limit) {
-    data
-    meta
-  }
-}
-```
-
-**Variables:**
-```json
-{
-  "filter": "{\"status\":{\"_eq\":\"active\"},\"age\":{\"_gte\":18}}",
-  "fields": "id,name,email",
-  "sort": "-createdAt",
-  "page": 1,
-  "limit": 20
-}
-```
 
 ### Complex Filtering Example
 
 ```graphql
 query {
   posts(
-    filter: "{\"_or\":[{\"views\":{\"_gt\":1000}},{\"featured\":{\"_eq\":true}}],\"status\":{\"_eq\":\"published\"}}"
-    fields: "id,title,views,author.name"
-    sort: "-views"
+    filter: {
+      _or: [
+        {views: {_gt: 1000}},
+        {featured: {_eq: true}}
+      ],
+      status: {_eq: "published"}
+    }
+    sort: ["-views"]
     limit: 20
   ) {
-    data
-    meta
+    data {
+      id
+      title
+      views
+      author {
+        name
+      }
+    }
+    meta {
+      totalCount
+    }
   }
 }
 ```
@@ -121,29 +121,25 @@ query {
 Load related data using field selection or deep relations:
 
 ```graphql
-# Simple relation fields (Auto-Join - Recommended)
+# Load related data through GraphQL selection set
 query {
-  posts(
-    fields: "id,title,author.name,author.email,category.name"
-    limit: 10
-  ) {
-    data
-  }
-}
-
-# Deep relations (for collections - N+1 queries)
-query {
-  users(
-    fields: "id,name,email"
-    deep: "{\"posts\":{\"fields\":[\"title\",\"views\"],\"limit\":3,\"sort\":[\"-views\"]}}"
-    limit: 10
-  ) {
-    data
+  posts(limit: 10) {
+    data {
+      id
+      title
+      author {
+        name
+        email
+      }
+      category {
+        name
+      }
+    }
   }
 }
 ```
 
-**⚠️ Warning:** Deep relations create N+1 queries. Use auto-join via `fields` when possible. See [Deep Relations documentation](./api-querying.md#deep-relations) for details.
+**Note:** GraphQL automatically handles relation loading through the selection set. Simply include the relation fields you need in your query.
 
 ---
 
