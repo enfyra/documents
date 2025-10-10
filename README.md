@@ -288,6 +288,7 @@ enfyra-docs/
 - **[API Lifecycle](./server/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
 - **[API Querying](./server/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
 - **[GraphQL API](./server/graphql-api.md)** - 📊 **GraphQL queries and mutations** with auto-generated schema and permission control
+- **[Swagger API](./server/swagger-api.md)** - 📖 **OpenAPI/Swagger documentation** with interactive testing and auto-generation
 - **[Context Reference](./server/context-reference.md)** - 📖 **Complete $ctx object reference** for hooks and handlers with examples
 - **[Hook Development](./server/hook-development.md)** - Advanced hook programming with context, examples, and best practices
 - **[Cluster Architecture](./server/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
