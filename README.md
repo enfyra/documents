@@ -1,5 +1,10 @@
 # Enfyra Documentation
 
+> **⚠️ IMPORTANT NOTICE ⚠️**  
+> **This is the DOCUMENTATION repository only.**  
+> **Please DO NOT star this repo! ⭐**  
+> **Star the main project instead: [https://github.com/enfyra/enfyra](https://github.com/enfyra/enfyra) 🌟**
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Nuxt](https://img.shields.io/badge/Nuxt-4-green.svg)](https://nuxt.com/)
 [![Vue](https://img.shields.io/badge/Vue-3-green.svg)](https://vuejs.org/)
