@@ -27,6 +27,7 @@ Enfyra provides a powerful MongoDB-like querying system for your API endpoints. 
 
 **🔗 Related APIs:**
 - **[GraphQL API](./graphql-api.md)** - Complete GraphQL queries and mutations guide
+- **[Swagger API](./swagger-api.md)** - Interactive API documentation and testing
 
 **Developer Resources:**
 - [Performance Tips](#performance-tips) - Optimization guidelines

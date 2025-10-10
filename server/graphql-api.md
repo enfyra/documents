@@ -2,6 +2,16 @@
 
 Enfyra provides a powerful GraphQL API that automatically generates queries and mutations for all tables in your database. The GraphQL API uses the same query engine as REST endpoints, supporting filtering, sorting, pagination, and relation loading.
 
+## GraphQL Endpoint
+
+Access the GraphQL API at:
+
+```
+http://localhost:1105/graphql
+```
+
+Replace `localhost:1105` with your backend server URL in production.
+
 ## Quick Navigation
 
 **Essential Sections:**
@@ -684,5 +694,9 @@ The GraphQL playground provides:
 
 ---
 
-For more advanced filtering, sorting, and aggregation options, see the **[API Querying Documentation](./api-querying.md)**.
+## Related Documentation
+
+- **[API Querying](./api-querying.md)** - Advanced filtering, sorting, and aggregation options
+- **[Swagger API](./swagger-api.md)** - Interactive REST API documentation and testing
+- **[Routing Management](../frontend/routing-management.md)** - Configure routes and permissions
 
