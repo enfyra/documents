@@ -300,6 +300,7 @@ Custom Handlers provide unlimited flexibility while maintaining security through
 ## Related Documentation
 
 - **[Context Reference](../server/context-reference.md)** - Complete $ctx object reference
+- **[File Handling](../server/file-handling.md)** - File upload and response streaming guide
 - **[Hooks](./hooks.md)** - Lightweight request/response hooks for simple customizations
 - **[Hook Development](../server/hook-development.md)** - Advanced hook programming with examples
 - **[API Lifecycle](../server/api-lifecycle.md)** - Complete request processing pipeline

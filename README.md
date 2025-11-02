@@ -191,6 +191,7 @@ enfyra-docs/
 │   ├── menu-management.md       # UI guide for creating custom navigation menus
 │   ├── extension-system.md      # Create custom pages with Vue.js components (linked to menus)
 │   ├── header-actions.md        # Inject custom actions into header and sub-header areas
+│   ├── page-header.md           # Register custom page headers with stats and gradients
 │   ├── permission-builder.md    # Visual interface for creating complex permission rules
 │   ├── permission-components.md # PermissionGate and usePermissions for UI control
 │   └── form-system.md          # Dynamic form generation with validation and relations
@@ -201,6 +202,7 @@ enfyra-docs/
     ├── graphql-api.md           # 📊 GraphQL queries and mutations with auto-generated schema
     ├── hook-development.md      # Advanced hook programming with context, examples, and best practices
     ├── context-reference.md     # 📖 Complete $ctx object reference for hooks and handlers
+    ├── file-handling.md         # 📁 File upload handling and response streaming with Sharp image processing
     ├── cluster-architecture.md  # 🏗️ Multi-instance coordination and distributed synchronization
     ├── permission-system.md     # 🔐 Role-based access control with allowedUsers bypass
     ├── template-syntax.md       # ✨ Modern template syntax for cleaner code
@@ -294,7 +296,9 @@ enfyra-docs/
 - **[API Querying](./server/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
 - **[GraphQL API](./server/graphql-api.md)** - 📊 **GraphQL queries and mutations** with auto-generated schema and permission control
 - **[Swagger API](./server/swagger-api.md)** - 📖 **OpenAPI/Swagger documentation** with interactive testing and auto-generation
+- **[MongoDB Relations](./server/mongodb-relations.md)** - 🔗 **MongoDB relation management**, inverse sync, and metadata change behavior
 - **[Context Reference](./server/context-reference.md)** - 📖 **Complete $ctx object reference** for hooks and handlers with examples
+- **[File Handling](./server/file-handling.md)** - 📁 **File upload and streaming** with Sharp image processing and memory optimization
 - **[Hook Development](./server/hook-development.md)** - Advanced hook programming with context, examples, and best practices
 - **[Cluster Architecture](./server/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
 - **[Permission System](./server/permission-system.md)** - 🔐 **Role-based access control** with allowedUsers bypass
