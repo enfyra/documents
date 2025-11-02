@@ -47,6 +47,7 @@ const bodyData = @BODY.name;
 | `@QUERY` | `$ctx.$query` | Query parameters |
 | `@USER` | `$ctx.$user` | Current user information |
 | `@REQ` | `$ctx.$req` | Express request object |
+| `@RES` | `$ctx.$res` | Express response object (handlers only) |
 | `@SHARE` | `$ctx.$share` | Shared data between hooks |
 | `@API` | `$ctx.$api` | API request/response information |
 | `@UPLOADED` | `$ctx.$uploadedFile` | Uploaded file information |
@@ -246,6 +247,42 @@ const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
 // Error logging
 @LOGS('Error occurred:', error.message, error.stack);
 ```
+
+### File Upload & Streaming
+
+```javascript
+// Access uploaded file
+const file = @UPLOADED;
+@LOGS('File uploaded:', file.filename, file.mimetype, file.size);
+
+// Save uploaded file to database
+const savedFile = await #file_definition.create({
+  filename: @UPLOADED.filename,
+  mimetype: @UPLOADED.mimetype,
+  filesize: @UPLOADED.size,
+  buffer: @UPLOADED.buffer
+});
+
+// Stream response (for large files or image processing)
+const { Readable } = require('stream');
+const sharp = @PKGS.sharp;
+
+// Download and resize image
+const response = await fetch(@QUERY.imageUrl);
+const stream = Readable.fromWeb(response.body);
+
+const transformer = sharp()
+  .resize(800, 600, { fit: 'inside' })
+  .jpeg({ quality: 85 });
+
+// Stream to client (memory efficient!)
+@RES.stream(stream.pipe(transformer), {
+  mimetype: 'image/jpeg',
+  filename: 'resized-image.jpg'
+});
+```
+
+**📖 See [File Handling](./file-handling.md)** for complete guide on file uploads, streaming, and image processing.
 
 ### Error Handling
 
@@ -494,6 +531,7 @@ if (!user) {
 ## Related Documentation
 
 - [Context Reference](./context-reference.md) - Complete `$ctx` object documentation
+- [File Handling](./file-handling.md) - File upload and response streaming guide
 - [Bootstrap Scripts](./bootstrap-scripts.md) - Using templates in bootstrap scripts
 - [Hook Development](./hook-development.md) - Using templates in hooks
 - [Custom Handlers](../frontend/custom-handlers.md) - Using templates in handlers

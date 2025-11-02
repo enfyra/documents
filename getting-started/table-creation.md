@@ -25,9 +25,20 @@ You'll see the table creation form with these sections:
 
 ### Columns Configuration
 
-**Columns** - Add fields to your table (an "id" field is added by default)
+**Columns** - Add fields to your table (an "id" field is added by default as primary key with auto increment)
 - Click green **"+ Add Column"** button to add new fields
 - Configure column properties in the drawer:
+
+#### Default ID Field
+
+**Every table automatically gets an `id` field with these properties:**
+- **Type**: `int` (integer)
+- **Primary Key**: Yes
+- **Auto Increment**: Yes (automatically increments for each new record)
+- **Nullable**: No (required field)
+- **Updatable**: No (system managed)
+
+You can change the id field type to `uuid` if you prefer UUID identifiers, but `int` with auto-increment is the default and recommended for most use cases.
 
 #### Column Properties
 
@@ -61,7 +72,7 @@ You'll see the table creation form with these sections:
 | `uuid` | Auto-generated UUID (sets isGenerated to true automatically) | Unique identifiers |
 | `varchar` | Variable length text | Names, titles, short text |
 | `text` | Long text content | Descriptions, articles |
-| `int`, `bigint`, `number` | Numeric values | Prices, quantities, IDs |
+| `int`, `bigint`, `number` | Numeric values. **Note**: When used for `id` field, automatically becomes auto-increment primary key | Prices, quantities, IDs |
 | `boolean` | True/false values | Flags, status indicators |
 | `date`, `timestamp` | Date/time values | Created dates, deadlines |
 | `enum` | Single selection from predefined options | Status, categories |
@@ -91,12 +102,18 @@ You'll see the table creation form with these sections:
 - Configure relation properties in the drawer:
   - **type** - Relationship type (one-to-one, one-to-many, many-to-one, many-to-many)
   - **propertyName** - Name of the property in current table (required)
-  - **inversePropertyName** - Name of the reverse property in target table (optional)
+  - **inversePropertyName** - Name of the reverse property in target table (optional, required for O2M)
   - **targetTable** - Select the target table from available tables (only shows tables you've already created)
   - **isNullable** - Toggle to allow null relations
   - **description** - Relation documentation with rich text editor
 - Relations list shows: property name, type badge, target table badge (→ TargetTable), nullable badge if applicable
 - **Note**: Once created, these relations will appear as fields with pencil icons in forms - see [Relation Picker System](../frontend/relation-picker.md) for how to use them
+
+**⚠️ IMPORTANT for MongoDB users:**
+- When you **update or delete** a relation after creating it, **all relation data will be dropped** from your records
+- This includes both the relation field AND the inverse field
+- You will need to re-populate the data after changing relation metadata
+- **See [MongoDB Relations Guide](../server/mongodb-relations.md) for details on why this happens and how to handle it**
 
 ## Saving Your Table
 

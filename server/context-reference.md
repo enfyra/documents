@@ -517,6 +517,8 @@ $ctx.$uploadedFile.size          // File size in bytes
 $ctx.$uploadedFile.fieldname     // Form field name
 ```
 
+**📖 See [File Handling](./file-handling.md)** for complete guide on file uploads, response streaming, and image processing with Sharp.
+
 ## API Information
 
 ### Request/Response Details
@@ -656,6 +658,7 @@ const users = await @REPOS.users.find({...});
 - **[Template Syntax](./template-syntax.md)** - Clean syntax for context operations
 - **[Hook Development](./hook-development.md)** - Using context in hooks
 - **[Custom Handlers](../frontend/custom-handlers.md)** - Using context in handlers
+- **[File Handling](./file-handling.md)** - File upload and response streaming
 - **[API Lifecycle](./api-lifecycle.md)** - Complete request processing pipeline
 - **[Routing Management](../frontend/routing-management.md)** - Configuring target tables
 - **[Package Management](../frontend/package-management.md)** - Installing NPM packages
