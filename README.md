@@ -128,19 +128,20 @@ Database → Backend (API Server) → Frontend (Admin App)
 
 ### 🏗️ Built With Modern Technology
 
-**Backend**: NestJS + Express.js + TypeORM + Redis + GraphQL Yoga
+**Backend**: NestJS + Express.js + Knex + Redis + GraphQL Yoga
 **Frontend**: Nuxt 4 + Vue 3 + TypeScript + TailwindCSS
-**Database**: MySQL, MariaDB, PostgreSQL (your choice)
+**Database**: MySQL, MariaDB, PostgreSQL, MongoDB (your choice)
 **Extensions**: Dynamic Vue SFC compilation via Vite
 
 #### Technology Stack Details
 
 **NestJS + Express.js** - Enterprise Node.js framework built on Express with custom high-performance route engine that bypasses Express middleware stack for superior API performance
 
-**TypeORM** - Database ORM with comprehensive support for:
+**Knex** - SQL query builder with comprehensive support for:
 - **MySQL** - Recommended for production environments
 - **MariaDB** - MySQL-compatible with full feature support
 - **PostgreSQL** - Advanced features and complex data types supported
+- **MongoDB** - NoSQL document database with full CRUD operations and query support
 - **SQLite** - Planned for future release (development and testing environments)
 
 ## Features

@@ -11,7 +11,6 @@ Enfyra provides a powerful MongoDB-like querying system for your API endpoints. 
 - [Query Parameters](#query-parameters) - Basic params like `fields`, `limit`, `sort`, `filter`
 - [Filter Operators](#filter-operators) - `_eq`, `_gt`, `_contains`, etc.
 - [Logical Operators](#logical-operators) - `_and`, `_or`, `_not` combinations
-- [Deep Relations](#deep-relations) - ⚠️ Load nested data (with N+1 warnings)
 
 **Advanced Features:**
 - [Auto-Join Feature](#auto-join-feature) - Automatic JOIN creation for related data
@@ -114,7 +113,6 @@ GET /api/products?fields=name,price&limit=20&page=2&sort=-createdAt&meta=*
 - **`sort`**: Sort fields (prefix with `-` for descending, e.g., `-price,name`)
 - **`meta`**: Include metadata (`totalCount`, `filterCount`, or `*` for all)
 - **`filter`**: Complex filtering conditions (see below)
-- **`deep`**: Load nested relations with their own filtering (see [Deep Relations](#deep-relations))
 
 ## Filter Operators
 
@@ -406,109 +404,6 @@ Example response with metadata:
 }
 ```
 
-## Deep Relations
-
-Load nested relations with their own filtering, pagination, and sorting:
-
-**⚠️ CRITICAL WARNING: N+1 Query Performance Impact**
-
-Deep queries execute **separate queries for each parent record**, creating N+1 query problems:
-- Fetching 10 users with deep posts: 1 query for users + 10 queries for posts = **11 total queries**
-- Fetching 100 products with deep reviews: 1 query for products + 100 queries for reviews = **101 total queries**  
-- Nested deep multiplies exponentially: 10 users → posts → comments = 1 + 10 + (posts per user × 10) queries!
-
-**🚨 DANGER: Always limit root level records when using Deep!**
-
-```javascript
-// ❌ EXTREMELY DANGEROUS - Getting ALL users with deep relations
-GET /users?limit=0&deep={"posts":{"limit":5}}
-// Result: ALL users (could be thousands) × 5 posts = potentially thousands of queries!
-
-// ✅ SAFE - Control exact number of root records  
-GET /users?limit=20&deep={"posts":{"limit":5}}
-// Result: 20 users × 5 posts = ~25 queries (controlled)
-```
-
-**When to Use Deep Relations:**
-- Loading collections (one-to-many) with specific limits per parent
-- Independent pagination of related records
-- Different filtering at each relation level  
-- Complex nested data structures
-- **ONLY when viewing single records OR explicitly limited result sets**
-
-**When NOT to Use Deep Relations:**
-- When you need simple related field data (use auto-join instead via `fields=author.name`)
-- When fetching large lists without explicit limits
-- When performance is critical and you can achieve the same with JOINs
-
-### Auto-Join vs Deep Relations Comparison
-
-| Scenario | Auto-Join (Recommended) | Deep Relations | Performance |
-|----------|------------------------|----------------|-------------|
-| **Simple related fields** | `fields=author.name,author.email` | ❌ Overkill | 1 query ✅ |
-| **Filter by relations** | `filter={"author":{"name":"john"}}` | ❌ Not needed | 1 query ✅ |
-| **Top N per parent** | ❌ Can't guarantee N per parent | `deep={"posts":{"limit":5}}` | N+1 queries ⚠️ |
-| **Independent pagination** | ❌ Single pagination only | `deep={"comments":{"page":2}}` | N+1 queries ⚠️ |
-
-**Decision Matrix:**
-```javascript
-// ✅ PREFER: Auto-join for related data
-GET /posts?fields=id,title,author.name,category.name
-
-// ❌ AVOID: Deep relations for simple fields  
-GET /posts?deep={"author":{"fields":["name"]},"category":{"fields":["name"]}}
-
-// ✅ ACCEPTABLE: Deep relations when you need "top N per parent"
-GET /users?limit=10&deep={"recentPosts":{"limit":3,"sort":"-createdAt"}}
-```
-
-### Basic Deep Relations
-```javascript
-{
-  "deep": {
-    "posts": {
-      "fields": ["title", "views"],
-      "limit": 5,
-      "sort": ["-views"]
-    }
-  }
-}
-```
-
-### Filtered Deep Relations
-```javascript
-{
-  "deep": {
-    "posts": {
-      "fields": ["title", "views"],
-      "filter": { "views": { "_gt": 1000 } },
-      "limit": 3,
-      "sort": ["-views"]
-    }
-  }
-}
-```
-
-### Nested Deep Relations
-```javascript
-{
-  "deep": {
-    "posts": {
-      "fields": ["title", "views"],
-      "limit": 3,
-      "deep": {
-        "comments": {
-          "fields": ["content", "createdAt"],
-          "filter": { "content": { "_contains": "awesome" } },
-          "limit": 2,
-          "sort": ["-createdAt"]
-        }
-      }
-    }
-  }
-}
-```
-
 ## URL Query Examples
 
 ### Simple Filtering
@@ -614,26 +509,6 @@ const useProducts = (filters = {}) => {
 };
 ```
 
-### Deep Relations Example
-```http
-# ⚠️ WARNING: This creates N+1 queries!
-GET /api/users?deep={"posts":{"fields":["title","views"],"filter":{"views":{"_gt":1000}},"limit":3}}
-```
-
-**Safe Alternative with Auto-Join:**
-```javascript
-// ✅ Better: Use auto-join instead of deep relations
-const url = buildQueryUrl('/api/users', {
-  fields: 'id,name,posts.title,posts.views',
-  filter: {
-    posts: { views: { _gt: 1000 } }
-  },
-  limit: 10
-});
-
-// This creates optimized JOIN queries instead of N+1
-```
-
 ## API Usage in Custom Handlers
 
 When using the filter system in [Custom Handlers](../frontend/custom-handlers.md), you can access and utilize these same filtering capabilities:
@@ -697,12 +572,12 @@ const products = await queryEngine.find({
 });
 ```
 
-### Example 2: Blog Post Query with Author and Comments
+### Example 2: Blog Post Query with Author
 
-Find recent published posts with their authors and approved comments:
+Find recent published posts with their authors:
 
 ```javascript
-// Find recent published posts with their authors and approved comments
+// Find recent published posts with their authors
 const posts = await queryEngine.find({
   tableName: 'posts',
   filter: {
@@ -718,14 +593,6 @@ const posts = await queryEngine.find({
     ]
   },
   fields: 'id,title,excerpt,publishedAt,author.name,author.avatar',
-  deep: {
-    comments: {
-      fields: ['id', 'content', 'createdAt', 'user.name'],
-      filter: { approved: { _eq: true } },
-      sort: ['-createdAt'],
-      limit: 5
-    }
-  },
   sort: ['-publishedAt'],
   limit: 10
 });
@@ -790,13 +657,10 @@ GET /api/users?fields=id,name,email
 ```
 
 ### Query Optimization
-3. **Prefer Auto-Join over Deep**: Use auto-join for simple related data
+3. **Use Auto-Join for Related Data**: Use auto-join to fetch related data efficiently
 ```javascript
 // ✅ Efficient: Single JOIN query
 GET /api/posts?fields=title,author.name&filter={"status":"published"}
-
-// ❌ Inefficient: N+1 queries  
-GET /api/posts?deep={"author":{"fields":["name"]}}&filter={"status":"published"}
 ```
 
 4. **Limit Results**: Always use pagination for large datasets
@@ -982,26 +846,13 @@ interface QueryOptions {
   page?: number;
   limit?: number;
   meta?: string;
-  deep?: DeepRelationOptions;
 }
 
 interface FilterCondition {
-  [field: string]: 
+  [field: string]:
     | any // Direct value (implicit _eq)
     | { [operator: string]: any }
     | FilterCondition; // Nested conditions
-}
-
-interface DeepRelationOptions {
-  [relationName: string]: {
-    fields?: string | string[];
-    filter?: FilterCondition;
-    sort?: string[];
-    page?: number;
-    limit?: number;
-    meta?: string;
-    deep?: DeepRelationOptions;
-  };
 }
 ```
 
@@ -1010,7 +861,7 @@ interface DeepRelationOptions {
 ### Performance Optimization
 - **Use field selection**: Only request fields you need
 - **Apply filters early**: Use specific filters to reduce data transfer
-- **Limit deep relations**: Avoid loading excessive nested data
+- **Use auto-join**: Leverage auto-join feature for related data
 - **Use pagination**: Don't load all records at once
 
 ### Filter Design
@@ -1036,13 +887,7 @@ interface DeepRelationOptions {
 
 // Avoid: Too broad and inefficient
 {
-  "fields": "*",
-  "deep": {
-    "everything": {
-      "fields": ["*"],
-      "deep": { "more": {} }
-    }
-  }
+  "fields": "*"
 }
 ```
 

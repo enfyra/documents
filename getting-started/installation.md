@@ -4,7 +4,7 @@
 
 - **Node.js** >= 20.0.0
 - **Package manager** (npm ≥8.0.0, yarn ≥1.22.0, or bun ≥1.0.0)
-- **Database server** (MySQL, MariaDB, or PostgreSQL)
+- **Database server** (MySQL, MariaDB, PostgreSQL, or MongoDB)
 - **Redis server**
 
 ---
@@ -62,7 +62,7 @@ the CLI will ask you a series of configuration questions. Enter the values that 
 | ------------------------------------- | ------------------------------------------------------------------- |
 | **Package manager**                   | Select the package manager you want to use (`npm`, `yarn`, `bun`)   |
 | **Project name**                      | Name of the backend project (if not passed as a CLI argument)       |
-| **Database type**                     | Type of database (`MySQL`, `PostgreSQL`, `MariaDB`)                 |
+| **Database type**                     | Type of database (`MySQL`, `PostgreSQL`, `MariaDB`, `MongoDB`)      |
 | **Database host**                     | Hostname or IP address of your database                             |
 | **Database port**                     | Port number of your database (e.g. `3306` for MySQL)                |
 | **Database username**                 | Database user account                                               |
