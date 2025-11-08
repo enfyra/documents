@@ -158,23 +158,55 @@ Storage Management allows you to organize and manage files and folders in your a
 2. You'll see a list of all storage configurations
 3. Each configuration shows:
    - Name
-   - Driver type (S3, Local, GCS, etc.)
+   - Storage type (Amazon S3, Google Cloud Storage, Cloudflare R2, Local Storage)
    - Status (Active/Inactive)
    - Description
+   - Badge color indicating storage type:
+     - **Blue (Primary)**: Amazon S3
+     - **Cyan (Info)**: Google Cloud Storage
+     - **Orange (Warning)**: Cloudflare R2
+     - **Gray (Neutral)**: Local Storage
 
 ### Creating Storage Configuration
 
 1. Go to Storage Config page
 2. Click **"Create Storage"** button in the header
-3. Fill in the configuration form
-4. Click **"Save"** to create
+3. The form will initially show only these fields:
+   - **Name**: A descriptive name for this storage configuration
+   - **Bucket**: Storage bucket/container name
+   - **Description**: Optional description
+   - **Type**: Select the storage type (Amazon S3, Google Cloud Storage, or Cloudflare R2)
+     - **Note**: Local Storage cannot be created through the UI
+
+4. After selecting a storage type, additional fields will appear based on the type:
+
+   **For Amazon S3:**
+   - **Access Key ID**: Your AWS access key ID
+   - **Secret Access Key**: Your AWS secret access key
+   - **Bucket**: S3 bucket name
+   - **Region**: AWS region (e.g., us-east-1, eu-west-1)
+
+   **For Google Cloud Storage:**
+   - **Credentials**: JSON credentials for GCS service account
+   - **Bucket**: GCS bucket name
+
+   **For Cloudflare R2:**
+   - **Access Key ID**: Your R2 access key ID
+   - **Secret Access Key**: Your R2 secret access key
+   - **Account ID**: Your Cloudflare account ID
+   - **Bucket**: R2 bucket name
+
+5. Fill in all required fields for your selected storage type
+6. Click **"Save"** to create the configuration
 
 ### Editing Storage Configuration
 
 1. Click on any storage configuration card
-2. Edit the fields in the form
-3. Click **"Save"** to save changes
-4. Click **"Reset"** to discard changes
+2. The form will show all relevant fields based on the storage type
+3. **Note**: The **Type** field is disabled and cannot be changed after creation
+4. Edit the fields you want to modify
+5. Click **"Save"** to save changes
+6. Click **"Reset"** to discard changes
 
 ### Enabling/Disabling Storage
 

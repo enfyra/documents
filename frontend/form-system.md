@@ -354,32 +354,106 @@ async function handleReset() {
 
 ### TypeMap System
 
-Customize form behavior without code:
+The `typeMap` prop allows you to customize form behavior for specific fields without modifying the database schema. Pass it to `FormEditorLazy` component:
 
-```javascript
-// Example: Make description a rich text field
-typeMap: {
+```typescript
+<FormEditorLazy
+  v-model="form"
+  :table-name="tableName"
+  :type-map="typeMap"
+/>
+```
+
+#### Basic TypeMap Usage
+
+```typescript
+// Example: Change field type
+const typeMap = computed(() => ({
   description: {
-    type: 'richtext'
+    type: 'richtext'  // Make description a rich text field
   }
-}
+}));
 
 // Example: Span full width
-typeMap: {
+const typeMap = computed(() => ({
   content: {
     fieldProps: {
       class: 'col-span-2'
     }
   }
-}
+}));
 
 // Example: Custom placeholder
-typeMap: {
+const typeMap = computed(() => ({
   email: {
     placeholder: 'user@example.com'
   }
-}
+}));
+
+// Example: Disable a field
+const typeMap = computed(() => ({
+  type: {
+    disabled: true  // Field cannot be edited
+  }
+}));
 ```
+
+#### Filtering Enum Options
+
+For enum and array-select fields, you can filter which options appear in the dropdown:
+
+**Exclude Options:**
+```typescript
+// Hide specific options from enum dropdown
+const typeMap = computed(() => ({
+  storageType: {
+    excludedOptions: ['Local Storage', 'Legacy System']
+  }
+}));
+```
+
+**Include Only Specific Options:**
+```typescript
+// Show only specific options in enum dropdown
+const typeMap = computed(() => ({
+  status: {
+    includedOptions: ['Active', 'Pending', 'Review']
+  }
+}));
+```
+
+**Complete Example - Storage Configuration:**
+```typescript
+// In storage config create page
+const typeMap = computed(() => ({
+  type: {
+    excludedOptions: ['Local Storage']  // Hide Local Storage from create form
+  }
+}));
+
+// In storage config detail page
+const typeMap = computed(() => ({
+  type: {
+    disabled: true,  // Cannot change type after creation
+    excludedOptions: ['Local Storage']  // Still hide it
+  }
+}));
+```
+
+#### TypeMap Options Reference
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `type` | `string` | Override field input type (richtext, code, etc.) |
+| `disabled` | `boolean` | Make field read-only |
+| `placeholder` | `string` | Custom placeholder text |
+| `excludedOptions` | `string[]` | Hide these options from enum/array-select dropdowns |
+| `includedOptions` | `string[]` | Show only these options in enum/array-select dropdowns |
+| `fieldProps` | `object` | Additional props for field wrapper (e.g., `class: 'col-span-2'`) |
+| `componentProps` | `object` | Additional props for input component |
+| `options` | `any[]` | Override all options (use with excludedOptions/includedOptions for filtering) |
+
+**Note:** `excludedOptions` and `includedOptions` work with the original enum options from your schema. They filter the options, not replace them.
 
 ### Field Visibility
 
