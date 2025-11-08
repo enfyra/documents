@@ -219,7 +219,7 @@ const inputStream = Readable.from(file.buffer);
 const transformer = sharp()
   .resize(200, 200, {
     fit: 'cover',           // Crop to fill dimensions
-    position: 'center'
+    position: 'center'      // Or use 'attention' for face detection
   })
   .jpeg({ quality: 70 });
 
@@ -229,6 +229,17 @@ const outputStream = inputStream.pipe(transformer);
   mimetype: 'image/jpeg',
   filename: `thumb-${file.filename}`
 });
+```
+
+### Example: Using Assets API for Thumbnails
+
+Instead of processing in handlers, you can use the `/assets/:id` endpoint with query parameters:
+
+```http
+# Create thumbnail via API
+GET /assets/123?width=200&height=200&fit=cover&gravity=face&format=webp&quality=70
+
+# This is more efficient as it uses restreaming and caching
 ```
 
 ### Example: Add Watermark
@@ -269,22 +280,35 @@ const outputStream = inputStream.pipe(transformer);
 const sharp = @PKGS.sharp;
 
 const transformer = sharp()
-  // Resize
-  .resize(width, height, options)
+  // Resize with fit modes
+  .resize(width, height, {
+    fit: 'cover',              // 'cover', 'contain', 'fill', 'inside', 'outside'
+    position: 'center',        // 'center', 'north', 'south', 'east', 'west', 
+                                // 'northeast', 'northwest', 'southeast', 'southwest',
+                                // 'attention' (face/auto detection)
+    withoutEnlargement: true
+  })
 
   // Format conversion
-  .jpeg({ quality: 80, progressive: true })
-  .png({ compressionLevel: 9 })
-  .webp({ quality: 80 })
+  .jpeg({ quality: 80, progressive: false, mozjpeg: true })
+  .png({ quality: 80, compressionLevel: 6, progressive: false })
+  .webp({ quality: 80, effort: 1 })
+  .avif({ quality: 80, effort: 1 })
 
-  // Image operations
-  .rotate(90)                    // Rotate
-  .flip()                        // Flip vertically
-  .flop()                        // Flip horizontally
-  .blur(5)                       // Gaussian blur
-  .sharpen()                     // Sharpen
-  .grayscale()                   // Convert to grayscale
-  .normalize()                   // Auto-enhance
+  // Transformations
+  .rotate(90)                   // Rotate (degrees)
+  .flip()                       // Flip vertically
+  .flop()                       // Flip horizontally
+  .blur(5)                      // Gaussian blur (0-100)
+  .sharpen(5)                   // Sharpen (0-100)
+
+  // Effects
+  .modulate({
+    brightness: 1.2,            // 0-2 (1 = no change)
+    saturation: 1.5             // 0-2 (1 = no change)
+  })
+  .greyscale()                  // Convert to grayscale
+  .normalize()                  // Auto-enhance
 
   // Cropping
   .extract({ left: 0, top: 0, width: 100, height: 100 })
@@ -292,6 +316,31 @@ const transformer = sharp()
   // Composition
   .composite([{ input: buffer, top: 0, left: 0 }]);
 ```
+
+### Assets API Query Parameters (Recommended)
+
+For most use cases, use the `/assets/:id` endpoint with query parameters instead of processing in handlers:
+
+```http
+# Resize with cover fit and face detection
+GET /assets/123?width=400&height=400&fit=cover&gravity=face&format=webp
+
+# Rotate and apply effects
+GET /assets/123?rotate=90&flip=horizontal&blur=10&brightness=20
+
+# Create optimized thumbnail
+GET /assets/123?width=200&height=200&fit=cover&gravity=auto&format=avif&quality=85
+
+# Download processed image
+GET /assets/123?width=1200&height=800&format=webp&download=true
+```
+
+**Benefits of using Assets API:**
+- ✅ Restreaming (no memory overhead)
+- ✅ Automatic caching
+- ✅ Works with all storage types
+- ✅ Consistent processing pipeline
+- ✅ Better performance
 
 ---
 
@@ -574,24 +623,112 @@ GET /assets/101
 
 ### Image Processing Across All Storage Types
 
-The endpoint supports image processing query parameters regardless of storage location:
+The endpoint supports comprehensive image processing query parameters regardless of storage location:
 
 ```http
-# Local file with image processing
+# Basic resize and format conversion
 GET /assets/123?width=800&height=600&format=webp&quality=85
 
-# GCS file with image processing
-GET /assets/456?width=800&height=600&format=webp&quality=85
+# Cover fit with face detection (perfect for thumbnails)
+GET /assets/123?width=400&height=400&fit=cover&gravity=face&format=webp
 
-# Both work identically - the system handles streaming and processing
+# Transformations: rotate and flip
+GET /assets/123?rotate=90&flip=horizontal&blur=5
+
+# Effects: brightness and saturation
+GET /assets/123?brightness=20&saturation=50&grayscale=true
+
+# Combine all features
+GET /assets/123?width=1200&height=800&fit=cover&gravity=auto&format=avif&quality=90&sharpen=10&brightness=10
+
+# Force download
+GET /assets/123?width=800&height=600&format=webp&download=true
 ```
 
+**All storage types (Local, GCS, R2) support the same query parameters and processing capabilities.**
+
+### Assets API Usage Examples
+
+**1. Basic Thumbnail (Cover Fit)**
+```http
+GET /assets/123?width=400&height=400&fit=cover&gravity=center&format=webp&quality=85
+```
+Perfect for: Profile pictures, product thumbnails
+
+**2. Responsive Image (Inside Fit)**
+```http
+GET /assets/123?width=1200&height=800&fit=inside&format=webp&quality=80
+```
+Perfect for: Responsive images that must fit within container
+
+**3. Face-Aware Thumbnail**
+```http
+GET /assets/123?width=200&height=200&fit=cover&gravity=face&format=webp
+```
+Perfect for: User avatars, portrait thumbnails
+
+**4. Rotated Image**
+```http
+GET /assets/123?rotate=90&format=webp
+```
+Perfect for: Correcting EXIF orientation issues
+
+**5. Blurred Background**
+```http
+GET /assets/123?width=1920&height=1080&fit=cover&blur=20&brightness=-10
+```
+Perfect for: Background images, hero sections
+
+**6. Grayscale with Effects**
+```http
+GET /assets/123?width=800&height=600&grayscale=true&brightness=10&sharpen=5
+```
+Perfect for: Artistic effects, vintage looks
+
+**7. High-Quality Download**
+```http
+GET /assets/123?width=2400&height=1600&format=avif&quality=95&download=true
+```
+Perfect for: High-resolution downloads
+
+**8. Combined Transformations**
+```http
+GET /assets/123?width=1200&height=800&fit=cover&gravity=auto&format=webp&quality=85&rotate=90&flip=horizontal&sharpen=10&brightness=15&saturation=20
+```
+Perfect for: Complex image processing needs
+
 **Supported Query Parameters:**
-- `width`: Resize width (pixels)
-- `height`: Resize height (pixels)
-- `format`: Output format (`jpeg`, `png`, `webp`, etc.)
-- `quality`: Compression quality (1-100)
+
+**Basic Resize & Format:**
+- `width`: Resize width (pixels, 1-4000)
+- `height`: Resize height (pixels, 1-4000)
+- `format`: Output format (`jpeg`, `jpg`, `png`, `webp`, `avif`, `gif`)
+- `quality`: Compression quality (1-100, default: 80)
 - `cache`: Cache-Control max-age (seconds)
+- `download`: Force download (`true`/`false`)
+
+**Fit Modes & Gravity:**
+- `fit`: Resize fit mode (`cover`, `contain`, `fill`, `inside`, `outside`, default: `inside`)
+  - `cover`: Fill dimensions, may crop (keeps aspect ratio)
+  - `contain`: Fit inside dimensions, no crop (keeps aspect ratio)
+  - `fill`: Fill dimensions, no aspect ratio preservation
+  - `inside`: Fit inside dimensions, no crop (default)
+  - `outside`: May exceed dimensions (keeps aspect ratio)
+- `gravity`: Crop position (`center`, `north`, `south`, `east`, `west`, `northeast`, `northwest`, `southeast`, `southwest`, `face`, `faces`, `auto`)
+  - Position-based: `center`, `north`, `south`, `east`, `west`, `northeast`, `northwest`, `southeast`, `southwest`
+  - Smart: `face` (detect single face), `faces` (detect multiple faces), `auto` (auto-detect important area)
+
+**Transformations:**
+- `rotate`: Rotation angle in degrees (-360 to 360)
+- `flip`: Flip direction (`horizontal`/`h` or `vertical`/`v`)
+- `blur`: Blur intensity (0-100)
+- `sharpen`: Sharpen intensity (0-100)
+
+**Effects:**
+- `brightness`: Brightness adjustment (-100 to 100, 0 = no change)
+- `contrast`: Contrast adjustment (-100 to 100, 0 = no change) - *Note: Limited support in Sharp*
+- `saturation`: Saturation adjustment (-100 to 100, 0 = no change)
+- `grayscale`: Convert to grayscale (`true`/`false`)
 
 ### Multi-Account Support
 
@@ -685,6 +822,39 @@ GET /assets/789 (GCS credentials invalid or bucket not accessible)
 → 500 Internal Server Error
 ```
 
+### Validation & Error Handling
+
+The Assets API validates all query parameters and returns clear error messages:
+
+```http
+# Invalid width (out of range)
+GET /assets/123?width=5000
+→ 400 Bad Request: "Width 1-4000"
+
+# Invalid fit mode
+GET /assets/123?fit=invalid
+→ 400 Bad Request: "Fit: cover, contain, fill, inside, outside"
+
+# Invalid gravity
+GET /assets/123?gravity=invalid
+→ 400 Bad Request: "Gravity: center, north, south, east, west, ..."
+
+# Invalid rotation
+GET /assets/123?rotate=500
+→ 400 Bad Request: "Rotate -360 to 360"
+
+# Invalid blur value
+GET /assets/123?blur=150
+→ 400 Bad Request: "Blur 0-100"
+```
+
+**Parameter Ranges:**
+- `width`, `height`: 1-4000 pixels
+- `quality`: 1-100
+- `rotate`: -360 to 360 degrees
+- `blur`, `sharpen`: 0-100
+- `brightness`, `contrast`, `saturation`: -100 to 100
+
 ### Best Practices
 
 1. **Use storage configs for organization**
@@ -694,18 +864,27 @@ GET /assets/789 (GCS credentials invalid or bucket not accessible)
 
 2. **Leverage image processing**
    - Use query parameters instead of storing multiple sizes
-   - Cache frequently accessed transformations
-   - Optimize quality based on use case
+   - Use `fit=cover&gravity=face` for user avatars
+   - Use `fit=inside` for responsive images
+   - Use `format=webp` or `format=avif` for modern browsers
+   - Optimize quality based on use case (70-85 for thumbnails, 90-95 for downloads)
 
-3. **Monitor storage usage**
+3. **Performance optimization**
+   - Use `fit=cover` with `gravity=auto` for smart cropping
+   - Combine transformations in single request (more efficient)
+   - Use appropriate cache headers for frequently accessed images
+   - Prefer restreaming over buffering for large files
+
+4. **Monitor storage usage**
    - Track which storage configs are being used
    - Monitor costs per account
    - Set up alerts for storage limits
 
-4. **Security**
+5. **Security**
    - Store credentials securely in database
    - Use service accounts with minimal required permissions
    - Regularly rotate credentials
+   - Use file permissions for private assets
 
 ---
 
