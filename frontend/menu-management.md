@@ -1,6 +1,6 @@
 # Menu Management
 
-Menu Management lets you create custom navigation menus for your application. You can create sidebar icons, dropdown menus, and individual menu items with custom permissions and ordering.
+Menu Management lets you create custom navigation menus for your application. You can create top-level menus, dropdown menus, and individual menu items with custom permissions and ordering.
 
 ## Accessing Menu Management
 
@@ -10,21 +10,19 @@ Menu Management lets you create custom navigation menus for your application. Yo
 
 ## Menu Types
 
-### Mini Sidebar
-- **Purpose**: Main sidebar icons (like Dashboard, Data, Collections)
-- **Displays**: As icons in the left sidebar
-- **Can contain**: Dropdown menus and direct menu items
+### Menu
+- **Purpose**: Top-level navigation items or individual menu links
+- **Displays**: As clickable menu items in the sidebar
+- **Can be**: 
+  - A simple menu with a direct route (navigates to a page)
+  - A menu group with children items (displays as expandable section)
+- **Can contain**: Child menu items (optional)
 
 ### Dropdown Menu
-- **Purpose**: Collapsible menu sections within a sidebar
+- **Purpose**: Collapsible menu sections that group related menu items
 - **Displays**: As expandable sections with arrow icons
-- **Must belong to**: A Mini Sidebar
 - **Can contain**: Individual menu items
-
-### Menu
-- **Purpose**: Individual navigation links
-- **Displays**: As clickable menu items
-- **Must belong to**: Either a Mini Sidebar or a Dropdown Menu
+- **Behavior**: Click to expand/collapse and reveal child items
 
 ## Creating a New Menu
 
@@ -40,21 +38,22 @@ Menu Management lets you create custom navigation menus for your application. Yo
 
 ### Step 3: Choose Menu Type
 Select the type from the dropdown:
-- **Mini Sidebar**: Creates a new main sidebar section
-- **Dropdown Menu**: Creates a collapsible menu section
-- **Menu**: Creates an individual menu item
+- **Menu**: Creates a top-level menu item (can have a route or contain child items)
+- **Dropdown Menu**: Creates a collapsible menu section for grouping related items
 
-### Step 4: Set Hierarchy (for Dropdown Menu and Menu types)
+### Step 4: Set Hierarchy (Optional)
+
+**For Menu:**
+- **Parent**: Use the relation picker to select a parent menu (Dropdown Menu or Menu with children)
+- If no parent is selected, the menu appears at the top level
+- **Path**: Set the route path if this menu should navigate to a page
 
 **For Dropdown Menu:**
-- **Sidebar**: Use the relation picker to select which Mini Sidebar this belongs to
+- **Parent**: Use the relation picker to select a parent menu (optional)
+- If no parent is selected, the dropdown appears at the top level
+- Dropdown menus typically don't have routes - they're containers for other items
 
-**For Menu items:**
-You can choose either:
-- **Sidebar**: Place directly in a Mini Sidebar (top level)
-- **Parent**: Place under a Dropdown Menu (nested)
-
-**Note**: You cannot select both sidebar and parent - the form will automatically clear the other field when you make a selection.
+**Note**: You can nest menus under other menus or dropdown menus to create hierarchical structures.
 
 ### Step 5: Configure Settings
 - **Order**: Number to control display order (lower numbers appear first)
@@ -116,18 +115,31 @@ The menu system uses `PermissionGate` and `usePermissions` internally to automat
 
 ## Menu Hierarchy Examples
 
-### Simple Sidebar Menu
-1. Create **Mini Sidebar**: "Reports" (`/reports`)
-2. Create **Menu** items under Reports sidebar:
-   - "Sales Report" (`/reports/sales`)
-   - "User Report" (`/reports/users`)
+### Simple Top-Level Menu
+1. Create **Menu**: "Reports" with path `/reports`
+2. This appears as a clickable menu item that navigates to the reports page
 
-### Complex Nested Structure
-1. Create **Mini Sidebar**: "Management" (`/management`)
-2. Create **Dropdown Menu**: "User Management" (under Management sidebar)
-3. Create **Menu** items under User Management dropdown:
+### Menu with Children
+1. Create **Menu**: "Management" (no path, or set a default path)
+2. Create **Menu** items with parent set to "Management":
    - "User List" (`/management/users`)
    - "User Roles" (`/management/roles`)
+3. The Management menu becomes expandable and shows its children when clicked
+
+### Dropdown Menu Structure
+1. Create **Dropdown Menu**: "User Management" (no path needed)
+2. Create **Menu** items with parent set to "User Management":
+   - "User List" (`/management/users`)
+   - "User Roles" (`/management/roles`)
+3. The dropdown menu appears as a collapsible section with arrow icon
+
+### Complex Nested Structure
+1. Create **Menu**: "Settings" (top level)
+2. Create **Dropdown Menu**: "User Management" with parent "Settings"
+3. Create **Menu** items with parent "User Management":
+   - "User List" (`/settings/users`)
+   - "User Roles" (`/settings/roles`)
+4. This creates: Settings → User Management → (User List, User Roles)
 
 ## Important Notes
 
@@ -143,8 +155,9 @@ The menu system uses `PermissionGate` and `usePermissions` internally to automat
 
 ### Order and Organization
 - **Numerical ordering**: Lower numbers appear first (0, 1, 2, etc.)
-- **Visual hierarchy**: Mini Sidebars contain Dropdown Menus, which contain Menu items
-- **Logical grouping**: Group related functionality under the same sidebar or dropdown
+- **Visual hierarchy**: Menus can contain Dropdown Menus or other Menu items
+- **Logical grouping**: Group related functionality under the same parent menu or dropdown
+- **Position**: Use the position field to place menus at "top" or "bottom" of the sidebar
 
 ## Troubleshooting
 
@@ -159,6 +172,7 @@ The menu system uses `PermissionGate` and `usePermissions` internally to automat
 - Test with "Allow All" to isolate permission vs. other issues
 
 ### Hierarchy Problems
-- **Dropdown Menu**: Must have a sidebar selected
-- **Menu item**: Must have either sidebar OR parent selected (not both)
-- **Mini Sidebar**: Should not have parent or sidebar selected
+- **Menu**: Can have a parent (Menu or Dropdown Menu) or be top-level
+- **Dropdown Menu**: Can have a parent (Menu or Dropdown Menu) or be top-level
+- **Circular references**: Ensure menus don't reference themselves as parents
+- **Path conflicts**: Each menu with a route should have a unique path

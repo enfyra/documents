@@ -17,8 +17,8 @@ Once logged in, you'll see the main Enfyra interface with several key components
 ### Interface Layout
 
 **Left Side:**
-- **Mini Sidebar** - 16px wide icon bar with toggle button and navigation shortcuts
-- **Expandable Sidebar** - Contains full navigation menu (visible on desktop by default, toggle on mobile)
+- **Sidebar** - Contains full navigation menu with menus and dropdowns (visible on desktop by default, toggle on mobile)
+- **Collapse Toggle** - Button to show/hide the sidebar (collapsed shows icon-only view)
 
 **Main Area:**
 - **Header** - Top section with page title and action buttons
@@ -39,10 +39,10 @@ Once logged in, you'll see the main Enfyra interface with several key components
 - **Storage** (Folder icon) - Upload and manage media files, folders, and storage configurations
 
 **Sidebar Behavior:**
-- Click items to expand submenus on the right side
-- Desktop: Sidebar visible by default
+- Click menu items to navigate or expand/collapse dropdown menus
+- Desktop: Sidebar visible by default, can be collapsed to icon-only view
 - Mobile/Tablet: Collapsed by default, overlay when opened
-- Toggle button in mini sidebar to show/hide full menu
+- Toggle button to show/hide full sidebar menu
 
 ## Next Steps: Create Your First Table
 
