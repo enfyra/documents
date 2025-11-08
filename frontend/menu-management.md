@@ -132,7 +132,7 @@ The menu system uses `PermissionGate` and `usePermissions` internally to automat
 ## Important Notes
 
 ### System Menus
-- **Protected**: System menus (Dashboard, Data, Collections, Settings, Files) cannot be deleted
+- **Protected**: System menus (Dashboard, Data, Collections, Settings, Storage) cannot be deleted
 - **Limited Editing**: You can modify labels and icons but core functionality is protected
 - **Recognition**: System menus show a "System" badge
 

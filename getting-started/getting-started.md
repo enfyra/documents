@@ -36,7 +36,7 @@ Once logged in, you'll see the main Enfyra interface with several key components
 - **Data** (List icon) - Browse, create, edit and delete records in your tables
 - **Collections** (Database icon) - Create and manage database tables/schemas
 - **Settings** (Gear icon) - System configuration, users, roles, and permissions
-- **Files Management** (Folder icon) - Upload and manage media files and documents
+- **Storage** (Folder icon) - Upload and manage media files, folders, and storage configurations
 
 **Sidebar Behavior:**
 - Click items to expand submenus on the right side
