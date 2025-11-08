@@ -469,6 +469,246 @@ if (@QUERY.resize) {
 
 ---
 
+## Multi Cloud & Multi Account Support
+
+Enfyra provides a unified file serving endpoint `/assets/:id` that seamlessly handles files stored across multiple cloud providers and multiple accounts. This system automatically routes requests to the correct storage backend based on each file's configuration.
+
+### Overview
+
+The `/assets/:id` endpoint is a **single unified interface** that:
+- Automatically detects where each file is stored (local, GCS, S3)
+- Uses the correct credentials for each storage account
+- Streams files efficiently regardless of storage location
+- Supports image processing with query parameters for all storage types
+- Handles permissions and access control transparently
+
+### How It Works
+
+When you request a file via `/assets/:id`, the system:
+
+1. **Fetches file metadata** from the `file_definition` table, including the associated `storageConfig`
+2. **Determines storage type** (local, GCS, or S3) from the file's storage configuration
+3. **Retrieves credentials** from the storage config (each config can have different credentials)
+4. **Streams the file** using the appropriate method for that storage type
+5. **Applies image processing** if query parameters are provided (works for all storage types)
+
+### Uploading Files with Folder and Storage Config
+
+When uploading files, you can specify both the target folder and storage configuration:
+
+```http
+POST /file_definition
+Content-Type: multipart/form-data
+
+file: <file>
+folder: 123                    # Folder ID (optional)
+storageConfig: 2               # Storage config ID (optional)
+title: "My Document"            # Title (optional)
+description: "File description" # Description (optional)
+```
+
+**Parameters:**
+- `file` (required): The file to upload
+- `folder` (optional): ID of the folder to organize the file. Can be:
+  - A number: `folder: 123`
+  - An object: `folder: { id: 123 }`
+- `storageConfig` (optional): ID of the storage configuration to use. Can be:
+  - A number: `storageConfig: 2`
+  - An object: `storageConfig: { id: 2 }`
+  - If not specified, uses default local storage
+- `title` (optional): Custom title for the file (defaults to original filename)
+- `description` (optional): File description
+
+**Example: Upload to specific folder and storage config**
+
+```javascript
+// Using FormData in JavaScript
+const formData = new FormData();
+formData.append('file', fileInput.files[0]);
+formData.append('folder', '123');              // Upload to folder ID 123
+formData.append('storageConfig', '2');         // Use storage config ID 2
+
+const response = await fetch('/file_definition', {
+  method: 'POST',
+  body: formData
+});
+
+const uploadedFile = await response.json();
+// File is now stored using storage config #2 in folder #123
+```
+
+**Example: Upload to default storage (local)**
+
+```javascript
+const formData = new FormData();
+formData.append('file', fileInput.files[0]);
+// No storageConfig specified → uses default local storage
+
+const response = await fetch('/file_definition', {
+  method: 'POST',
+  body: formData
+});
+```
+
+### Single Endpoint, Multiple Backends
+
+The beauty of `/assets/:id` is that **you don't need to know where the file is stored**. The endpoint handles everything:
+
+```http
+# File stored locally
+GET /assets/123
+→ Automatically streams from local filesystem
+
+# File stored in GCS Account #1
+GET /assets/456
+→ Automatically streams from GCS using Account #1 credentials
+
+# File stored in GCS Account #2 (different project)
+GET /assets/789
+→ Automatically streams from GCS using Account #2 credentials
+
+# File stored in S3
+GET /assets/101
+→ Automatically streams from S3 (when implemented)
+```
+
+### Image Processing Across All Storage Types
+
+The endpoint supports image processing query parameters regardless of storage location:
+
+```http
+# Local file with image processing
+GET /assets/123?width=800&height=600&format=webp&quality=85
+
+# GCS file with image processing
+GET /assets/456?width=800&height=600&format=webp&quality=85
+
+# Both work identically - the system handles streaming and processing
+```
+
+**Supported Query Parameters:**
+- `width`: Resize width (pixels)
+- `height`: Resize height (pixels)
+- `format`: Output format (`jpeg`, `png`, `webp`, etc.)
+- `quality`: Compression quality (1-100)
+- `cache`: Cache-Control max-age (seconds)
+
+### Multi-Account Support
+
+Each storage configuration can use **different cloud accounts**. Storage configurations are managed through the admin interface, where you can:
+- Create multiple storage configs for different environments (dev, staging, prod)
+- Configure different GCS accounts with their own credentials
+- Set up client-specific storage accounts
+- Enable or disable storage configs
+
+When uploading a file, specify the `storageConfig` parameter to choose which storage backend to use. The `/assets/:id` endpoint automatically uses the correct credentials when serving that file, regardless of which storage config was used during upload.
+
+### How It Works
+
+The `/assets/:id` endpoint automatically handles all the complexity behind the scenes:
+
+1. **Fetches file metadata** including storage configuration
+2. **Checks permissions** (if file is private)
+3. **Routes to correct storage** (local, GCS, or S3) based on file's configuration
+4. **Uses correct credentials** for the storage account associated with the file
+5. **Streams the file** efficiently, applying image processing if requested
+
+You don't need to worry about where files are stored or which credentials to use - the system handles everything transparently.
+
+### Performance Features
+
+**Caching:**
+- Image processing results are cached in Redis
+- Cache keys include file path, dimensions, format, and quality
+- Frequently accessed images are kept in "hot keys" for faster access
+
+**Streaming:**
+- Files are streamed directly from cloud storage (no local download)
+- Image processing happens on-the-fly during streaming
+- Memory-efficient: only processes chunks, not entire file
+
+**Storage Config Cache:**
+- Storage configurations are cached in memory
+- Cache is synchronized across multiple server instances via Redis pub/sub
+- Automatic reload when configurations change
+
+### Example: Uploading and Serving Files
+
+```javascript
+// Upload file to production storage config in a specific folder
+const formData = new FormData();
+formData.append('file', fileInput.files[0]);
+formData.append('folder', '10');           // Organize in folder #10
+formData.append('storageConfig', '1');     // Use production storage config
+formData.append('title', 'Product Photo');
+
+const response = await fetch('/file_definition', {
+  method: 'POST',
+  body: formData
+});
+
+const uploadedFile = await response.json();
+
+// Serve the file - system automatically uses correct storage config
+// GET /assets/{uploadedFile.id}
+// → Automatically streams from production GCS using config #1 credentials
+```
+
+### Permissions
+
+The endpoint respects file permissions:
+- **Published files** (`isPublished: true`): Publicly accessible
+- **Private files** (`isPublished: false`): Requires permission check
+  - Checks `file_permission_definition` table
+  - Validates user/role permissions
+  - Returns 403 if access denied
+
+### Error Handling
+
+The endpoint handles various error scenarios:
+
+```http
+# File not found
+GET /assets/999
+→ 404 Not Found
+
+# Permission denied
+GET /assets/123 (private file, user not authorized)
+→ 403 Forbidden
+
+# Storage config not found
+GET /assets/456 (file references invalid storage config)
+→ 400 Bad Request
+
+# Cloud storage error
+GET /assets/789 (GCS credentials invalid or bucket not accessible)
+→ 500 Internal Server Error
+```
+
+### Best Practices
+
+1. **Use storage configs for organization**
+   - Separate configs for different environments (dev, staging, prod)
+   - Separate configs for different clients/tenants
+   - Separate configs for different file types if needed
+
+2. **Leverage image processing**
+   - Use query parameters instead of storing multiple sizes
+   - Cache frequently accessed transformations
+   - Optimize quality based on use case
+
+3. **Monitor storage usage**
+   - Track which storage configs are being used
+   - Monitor costs per account
+   - Set up alerts for storage limits
+
+4. **Security**
+   - Store credentials securely in database
+   - Use service accounts with minimal required permissions
+   - Regularly rotate credentials
+
+---
+
 ## Related Documentation
 
 - [Context Reference](./context-reference.md) - Full `$ctx` object reference
