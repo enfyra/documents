@@ -195,6 +195,7 @@ enfyra-docs/
 │   ├── page-header.md           # Register custom page headers with stats and gradients
 │   ├── permission-builder.md    # Visual interface for creating complex permission rules
 │   ├── permission-components.md # PermissionGate and usePermissions for UI control
+│   ├── storage-management.md    # Upload and manage files, folders, and storage configurations
 │   └── form-system.md          # Dynamic form generation with validation and relations
 │
 └── ⚙️ server/
@@ -233,24 +234,25 @@ enfyra-docs/
 6. **[Filter System](./frontend/filter-system.md)** - Master data filtering and searching  
 7. **[Permission Builder](./frontend/permission-builder.md)** - Set up access control rules
 8. **[Menu Management](./frontend/menu-management.md)** - Customize navigation and user interface
+9. **[Storage Management](./frontend/storage-management.md)** - Upload and manage files, folders, and storage configurations
 
 ### 🔧 Phase 3: Customization (3-4 hours)
-9. **[API Integration](./frontend/api-integration.md)** - Learn to fetch and manipulate data programmatically
-10. **[Package Management](./frontend/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
-11. **[Extension System](./frontend/extension-system.md)** - Build custom pages and functionality
-12. **[Header Actions](./frontend/header-actions.md)** - Inject custom buttons and widgets into the app interface
-13. **[Custom Handlers](./frontend/custom-handlers.md)** - Override default API behavior with business logic
+10. **[API Integration](./frontend/api-integration.md)** - Learn to fetch and manipulate data programmatically
+11. **[Package Management](./frontend/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
+12. **[Extension System](./frontend/extension-system.md)** - Build custom pages and functionality
+13. **[Header Actions](./frontend/header-actions.md)** - Inject custom buttons and widgets into the app interface
+14. **[Custom Handlers](./frontend/custom-handlers.md)** - Override default API behavior with business logic
 
 ### ⚙️ Phase 4: Advanced Development (4-5 hours)
-14. **[API Querying](./server/api-querying.md)** - Master MongoDB-like querying for complex data retrieval
-15. **[Context Reference](./server/context-reference.md)** - Complete reference for $ctx object in hooks and handlers
-16. **[Hook Development](./server/hook-development.md)** - Create sophisticated request/response hooks
-17. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
+15. **[API Querying](./server/api-querying.md)** - Master MongoDB-like querying for complex data retrieval
+16. **[Context Reference](./server/context-reference.md)** - Complete reference for $ctx object in hooks and handlers
+17. **[Hook Development](./server/hook-development.md)** - Create sophisticated request/response hooks
+18. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
 
 ### 🏗️ Phase 5: Production & Scale (2-3 hours)
-18. **[Permission System](./server/permission-system.md)** - Deep dive into role-based access control
-19. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
-20. **[Bootstrap Scripts](./server/bootstrap-scripts.md)** - Initialize application state and perform startup tasks
+19. **[Permission System](./server/permission-system.md)** - Deep dive into role-based access control
+20. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
+21. **[Bootstrap Scripts](./server/bootstrap-scripts.md)** - Initialize application state and perform startup tasks
 
 ### 🎯 Goal-Oriented Paths
 
@@ -288,8 +290,10 @@ enfyra-docs/
 - **[Menu Management](./frontend/menu-management.md)** - UI guide for creating custom navigation menus
 - **[Extension System](./frontend/extension-system.md)** - Create custom pages with Vue.js components (linked to menus)
 - **[Header Actions](./frontend/header-actions.md)** - Inject custom actions into header and sub-header areas
+- **[Page Header](./frontend/page-header.md)** - Register custom page headers with stats and gradients
 - **[Permission Builder](./frontend/permission-builder.md)** - Visual interface for creating complex permission rules
 - **[Permission Components](./frontend/permission-components.md)** - PermissionGate and usePermissions for UI control
+- **[Storage Management](./frontend/storage-management.md)** - Upload and manage files, folders, and storage configurations
 - **[Form System](./frontend/form-system.md)** - Dynamic form generation with validation and relations
 
 **⚙️ Backend (Developer Integration)**

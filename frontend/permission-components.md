@@ -175,10 +175,10 @@ The menu system:
 
 ### Menu Components
 
-**Mini Sidebar** uses permissions:
+**Menu System** uses permissions:
 ```vue
-// Internally filters items based on permissions
-const visibleItems = miniSidebars.filter(item => {
+// Internally filters menu items based on permissions
+const visibleItems = menuGroups.filter(item => {
   if (!item.permission) return true;
   return checkPermissionCondition(item.permission);
 });

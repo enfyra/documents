@@ -135,7 +135,7 @@ For complete GraphQL API documentation, see **[GraphQL API Guide](../server/grap
 System routes (marked with "System Route" badge) are core Enfyra endpoints that power the admin interface. These routes are automatically created and should generally not be modified unless you understand the implications.
 
 Examples include routes for:
-- File management and serving
+- File and storage management
 - Route definition management
 - Menu configuration
 - User and permission systems
