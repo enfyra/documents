@@ -4,6 +4,9 @@ This guide covers file upload handling and response streaming in Enfyra, includi
 
 ## Table of Contents
 - [File Upload](#file-upload)
+  - [Using `$uploadFile` Helper](#using-uploadfile-helper)
+  - [Using `$updateFile` Helper](#using-updatefile-helper)
+  - [Using `$deleteFile` Helper](#using-deletefile-helper)
 - [Response Streaming](#response-streaming)
 - [Image Processing with Sharp](#image-processing-with-sharp)
 - [Performance Considerations](#performance-considerations)
@@ -62,6 +65,229 @@ const savedFile = await #file_definition.create({
 
 return savedFile;
 ```
+
+### Using `$uploadFile` Helper
+
+The `$uploadFile` helper provides a convenient way to upload files and automatically create records in the `file_definition` table. It handles file processing, storage configuration, and database record creation in one call.
+
+**Signature:**
+```typescript
+await $ctx.$helpers.$uploadFile(options: {
+  originalname?: string;      // Original filename (or use 'filename')
+  filename?: string;            // Alternative to 'originalname'
+  mimetype: string;             // MIME type (required)
+  buffer: Buffer;               // File buffer (required)
+  size: number;                 // File size in bytes (required)
+  encoding?: string;            // File encoding (optional)
+  folder?: number | { id: number };  // Folder ID (optional)
+  storageConfig?: number;       // Storage config ID (optional)
+  title?: string;               // Custom title (optional, defaults to filename)
+  description?: string;         // File description (optional)
+}) => Promise<any>
+```
+
+**Basic Usage:**
+
+```javascript
+// Upload file from @UPLOADED_FILE
+const savedFile = await @HELPERS.$uploadFile({
+  originalname: @UPLOADED_FILE.filename,
+  mimetype: @UPLOADED_FILE.mimetype,
+  buffer: @UPLOADED_FILE.buffer,
+  size: @UPLOADED_FILE.filesize
+});
+
+return savedFile;
+```
+
+**With Folder and Storage Config:**
+
+```javascript
+// Upload to specific folder and storage config
+const savedFile = await @HELPERS.$uploadFile({
+  ...@UPLOADED_FILE,
+  originalname: @UPLOADED_FILE.filename,
+  mimetype: @UPLOADED_FILE.mimetype,
+  buffer: @UPLOADED_FILE.buffer,
+  size: @UPLOADED_FILE.filesize,
+  folder: 123,                  // Upload to folder ID 123
+  storageConfig: 2,             // Use storage config ID 2
+  title: "My Document",          // Custom title
+  description: "File description"
+});
+
+return savedFile;
+```
+
+**Using Spread Syntax with @UPLOADED_FILE:**
+
+```javascript
+// Simplified syntax using spread operator
+const savedFile = await @HELPERS.$uploadFile({
+  ...@UPLOADED_FILE,
+  originalname: @UPLOADED_FILE.filename,
+  mimetype: @UPLOADED_FILE.mimetype,
+  buffer: @UPLOADED_FILE.buffer,
+  size: @UPLOADED_FILE.filesize,
+  folder: @BODY.folderId,       // From request body
+  storageConfig: @BODY.storageConfigId,
+  title: @BODY.title || @UPLOADED_FILE.filename
+});
+
+return savedFile;
+```
+
+**Example: Upload User Avatar in Hook:**
+
+```javascript
+// Before create hook on user_definition
+if (@UPLOADED_FILE) {
+  const avatarFile = await @HELPERS.$uploadFile({
+    originalname: @UPLOADED_FILE.filename,
+    mimetype: @UPLOADED_FILE.mimetype,
+    buffer: @UPLOADED_FILE.buffer,
+    size: @UPLOADED_FILE.filesize,
+    folder: { id: 1 },          // Upload to folder ID 1
+    title: `Avatar for ${@BODY.email}`
+  });
+  
+  @BODY.avatarId = avatarFile.id;
+}
+```
+
+**Benefits of `$uploadFile` Helper:**
+
+- ✅ **Automatic Processing**: Handles file processing, storage upload, and database record creation
+- ✅ **Storage Configuration**: Supports different storage backends (local, GCS, S3, R2)
+- ✅ **Folder Organization**: Automatically associates files with folders
+- ✅ **Error Handling**: Includes rollback logic if database creation fails
+- ✅ **Buffer Handling**: Automatically handles buffer serialization from IPC
+- ✅ **User Association**: Automatically links file to current user if available
+
+**Note:** The helper automatically uses the current user (`@USER.id`) for the `uploaded_by` field if available in the context.
+
+### Using `$updateFile` Helper
+
+The `$updateFile` helper allows you to update file metadata or replace the file content. It supports both updating metadata only (title, description, folder, storageConfig) and replacing the actual file.
+
+**Signature:**
+```typescript
+await $ctx.$helpers.$updateFile(
+  fileId: string | number,
+  options: {
+    buffer?: Buffer;              // New file buffer (optional - if provided, replaces file)
+    originalname?: string;        // New filename (optional)
+    filename?: string;            // Alternative to 'originalname'
+    mimetype?: string;            // New MIME type (optional, required if buffer provided)
+    size?: number;                // New file size (optional, auto-calculated from buffer if not provided)
+    folder?: number | { id: number };  // New folder ID (optional)
+    storageConfig?: number;       // New storage config ID (optional)
+    title?: string;               // New title (optional)
+    description?: string;         // New description (optional)
+  }
+) => Promise<any>
+```
+
+**Update Metadata Only:**
+```javascript
+// Update only file metadata (title, description, folder)
+const updatedFile = await @HELPERS.$updateFile(fileId, {
+  title: 'Updated Title',
+  description: 'Updated description',
+  folder: 2  // Move to folder ID 2
+});
+
+return updatedFile;
+```
+
+**Replace File Content:**
+```javascript
+// Replace file with new content from @UPLOADED_FILE
+const updatedFile = await @HELPERS.$updateFile(fileId, {
+  ...@UPLOADED_FILE,
+  originalname: @UPLOADED_FILE.filename,
+  mimetype: @UPLOADED_FILE.mimetype,
+  buffer: @UPLOADED_FILE.buffer,
+  size: @UPLOADED_FILE.filesize,
+  description: 'New file version'
+});
+
+return updatedFile;
+```
+
+**Replace File and Change Storage:**
+```javascript
+// Replace file and move to different storage config
+const updatedFile = await @HELPERS.$updateFile(fileId, {
+  ...@UPLOADED_FILE,
+  originalname: @UPLOADED_FILE.filename,
+  mimetype: @UPLOADED_FILE.mimetype,
+  buffer: @UPLOADED_FILE.buffer,
+  size: @UPLOADED_FILE.filesize,
+  storageConfig: 2  // Move to storage config ID 2
+});
+
+return updatedFile;
+```
+
+**Features:**
+- ✅ **Metadata Updates**: Update title, description, folder, or storageConfig without replacing file
+- ✅ **File Replacement**: Replace file content while preserving file record
+- ✅ **Storage Support**: Works with local, GCS, R2, and S3 storage
+- ✅ **Backup & Rollback**: Automatically backs up original file for local storage (rollback on error)
+- ✅ **Cloud Storage**: Direct replacement for cloud storage (no backup needed)
+
+**Note:** When replacing a file:
+- For **cloud storage** (GCS, R2, S3): File is replaced directly on cloud storage
+- For **local storage**: Original file is backed up, new file is processed, then replaced. If error occurs, original is restored.
+
+### Using `$deleteFile` Helper
+
+The `$deleteFile` helper deletes both the physical file from storage and the database record.
+
+**Signature:**
+```typescript
+await $ctx.$helpers.$deleteFile(
+  fileId: string | number
+) => Promise<any>
+```
+
+**Basic Usage:**
+```javascript
+// Delete file by ID
+await @HELPERS.$deleteFile(fileId);
+
+return { message: 'File deleted successfully' };
+```
+
+**Example: Delete File in Hook:**
+```javascript
+// Before delete hook on user_definition
+if (@BODY.avatarId) {
+  // Delete old avatar file when user is deleted
+  await @HELPERS.$deleteFile(@BODY.avatarId);
+}
+```
+
+**Example: Conditional Delete:**
+```javascript
+// Delete file if it exists
+const file = await #file_definition.findOne({ id: fileId });
+if (file) {
+  await @HELPERS.$deleteFile(fileId);
+  return { message: 'File deleted' };
+} else {
+  return { message: 'File not found' };
+}
+```
+
+**Features:**
+- ✅ **Physical Deletion**: Deletes file from storage (local, GCS, R2, S3)
+- ✅ **Database Cleanup**: Removes record from `file_definition` table
+- ✅ **Error Handling**: Throws error if file not found or deletion fails
+- ✅ **Storage Support**: Works with all storage types
+
+**Note:** This operation is **irreversible**. The file and its record are permanently deleted.
 
 ---
 
@@ -907,6 +1133,57 @@ GET /assets/123?blur=150
   buffer: Buffer;      // File content
 }
 ```
+
+### `@HELPERS.$uploadFile` (Upload Helper)
+```typescript
+await @HELPERS.$uploadFile({
+  originalname?: string;      // Original filename (or use 'filename')
+  filename?: string;            // Alternative to 'originalname'
+  mimetype: string;             // MIME type (required)
+  buffer: Buffer;               // File buffer (required)
+  size: number;                 // File size in bytes (required)
+  encoding?: string;            // File encoding (optional)
+  folder?: number | { id: number };  // Folder ID (optional)
+  storageConfig?: number;       // Storage config ID (optional)
+  title?: string;               // Custom title (optional)
+  description?: string;         // File description (optional)
+}): Promise<any>
+```
+
+**Returns:** The created file record from `file_definition` table with all fields including `id`, `filename`, `location`, `storageConfig`, etc.
+
+### `@HELPERS.$updateFile` (Update Helper)
+```typescript
+await @HELPERS.$updateFile(
+  fileId: string | number,
+  options: {
+    buffer?: Buffer;              // New file buffer (optional - if provided, replaces file)
+    originalname?: string;        // New filename (optional)
+    filename?: string;            // Alternative to 'originalname'
+    mimetype?: string;            // New MIME type (optional, required if buffer provided)
+    size?: number;                // New file size (optional)
+    folder?: number | { id: number };  // New folder ID (optional)
+    storageConfig?: number;       // New storage config ID (optional)
+    title?: string;               // New title (optional)
+    description?: string;         // New description (optional)
+  }
+): Promise<any>
+```
+
+**Returns:** The updated file record from `file_definition` table.
+
+**Note:** If `buffer` is provided, the file content is replaced. Otherwise, only metadata is updated.
+
+### `@HELPERS.$deleteFile` (Delete Helper)
+```typescript
+await @HELPERS.$deleteFile(
+  fileId: string | number
+): Promise<any>
+```
+
+**Returns:** The deletion result.
+
+**Note:** This permanently deletes both the physical file from storage and the database record. Operation is irreversible.
 
 ### `@RES.stream()` (Response Streaming)
 ```typescript
