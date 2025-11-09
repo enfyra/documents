@@ -50,7 +50,7 @@ const bodyData = @BODY.name;
 | `@RES` | `$ctx.$res` | Express response object (handlers only) |
 | `@SHARE` | `$ctx.$share` | Shared data between hooks |
 | `@API` | `$ctx.$api` | API request/response information |
-| `@UPLOADED` | `$ctx.$uploadedFile` | Uploaded file information |
+| `@UPLOADED_FILE` | `$ctx.$uploadedFile` | Uploaded file information |
 | `@PKGS` | `$ctx.$pkgs` | Installed npm packages for use in handlers |
 | `@THROW` | `$ctx.$throw` | Error throwing functions |
 | `@THROW400` | `$ctx.$throw['400']` | HTTP 400 Bad Request (shortcut) |
@@ -252,15 +252,15 @@ const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
 
 ```javascript
 // Access uploaded file
-const file = @UPLOADED;
+const file = @UPLOADED_FILE;
 @LOGS('File uploaded:', file.filename, file.mimetype, file.size);
 
 // Save uploaded file to database
 const savedFile = await #file_definition.create({
-  filename: @UPLOADED.filename,
-  mimetype: @UPLOADED.mimetype,
-  filesize: @UPLOADED.size,
-  buffer: @UPLOADED.buffer
+  filename: @UPLOADED_FILE.filename,
+  mimetype: @UPLOADED_FILE.mimetype,
+  filesize: @UPLOADED_FILE.size,
+  buffer: @UPLOADED_FILE.buffer
 });
 
 // Stream response (for large files or image processing)
