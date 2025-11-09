@@ -14,11 +14,11 @@ This guide covers file upload handling and response streaming in Enfyra, includi
 
 ### Basic File Upload
 
-When a handler receives a file upload, the file is available via `@UPLOADED` (or `$ctx.$uploadedFile`):
+When a handler receives a file upload, the file is available via `@UPLOADED_FILE` (or `$ctx.$uploadedFile`):
 
 ```javascript
 // Handler for file upload
-const file = @UPLOADED;
+const file = @UPLOADED_FILE;
 
 console.log(file.filename);   // Original filename
 console.log(file.mimetype);   // MIME type (e.g., 'image/jpeg')
@@ -39,7 +39,7 @@ console.log(file.buffer);     // Buffer containing file data
 
 ```javascript
 // Parse uploaded text file
-const content = @UPLOADED.buffer.toString('utf-8');
+const content = @UPLOADED_FILE.buffer.toString('utf-8');
 const lines = content.split('\n');
 
 return {
@@ -53,10 +53,10 @@ return {
 ```javascript
 // Save uploaded file to file_definition table
 const savedFile = await #file_definition.create({
-  filename: @UPLOADED.filename,
-  mimetype: @UPLOADED.mimetype,
-  filesize: @UPLOADED.filesize,
-  buffer: @UPLOADED.buffer,
+  filename: @UPLOADED_FILE.filename,
+  mimetype: @UPLOADED_FILE.mimetype,
+  filesize: @UPLOADED_FILE.filesize,
+  buffer: @UPLOADED_FILE.buffer,
   uploadedById: @USER.id
 });
 
@@ -183,7 +183,7 @@ const { Readable } = require('stream');
 const sharp = @PKGS.sharp;
 
 // Get uploaded image
-const uploadedFile = @UPLOADED;
+const uploadedFile = @UPLOADED_FILE;
 
 // Create stream from buffer
 const inputStream = Readable.from(uploadedFile.buffer);
@@ -417,8 +417,8 @@ For very small files or when you need to modify the entire buffer:
 
 ```javascript
 // Small files (< 1MB) - buffer is fine
-if (@UPLOADED.filesize < 1_000_000) {
-  const text = @UPLOADED.buffer.toString('utf-8');
+if (@UPLOADED_FILE.filesize < 1_000_000) {
+  const text = @UPLOADED_FILE.buffer.toString('utf-8');
   return { content: text };
 }
 
@@ -466,7 +466,7 @@ const { Readable } = require('stream');
 const sharp = @PKGS.sharp;
 
 // 1. Get upload
-const uploaded = @UPLOADED;
+const uploaded = @UPLOADED_FILE;
 
 // 2. Process to buffer (need to save to DB)
 const inputStream = Readable.from(uploaded.buffer);
@@ -891,14 +891,14 @@ GET /assets/123?blur=150
 ## Related Documentation
 
 - [Context Reference](./context-reference.md) - Full `$ctx` object reference
-- [Template Syntax](./template-syntax.md) - Shortcuts like `@UPLOADED`, `@RES`
+- [Template Syntax](./template-syntax.md) - Shortcuts like `@UPLOADED_FILE`, `@RES`
 - [Hook Development](./hook-development.md) - Using file handling in hooks
 
 ---
 
 ## API Reference Summary
 
-### `@UPLOADED` (File Upload)
+### `@UPLOADED_FILE` (File Upload)
 ```typescript
 {
   filename: string;    // Original filename
