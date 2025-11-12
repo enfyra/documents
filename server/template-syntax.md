@@ -98,42 +98,93 @@ if (lockAcquired) {
 
 #### Using @REPOS syntax:
 ```javascript
-// Find records with filtering
+// Find records with filtering and pagination
 const users = await @REPOS.user_definition.find({
   where: { isActive: true },
-  fields: 'id,email,name', // Only fetch required fields
-  limit: 10,
-  page: 1
+  fields: 'id,email,name',   // Only fetch required fields
+  limit: 10,                  // Max 10 records (default: 10)
+  sort: '-createdAt'          // Sort by createdAt DESC
+});
+
+// Fetch ALL records (no limit)
+const allUsers = await @REPOS.user_definition.find({
+  where: { isActive: true },
+  limit: 0  // 0 = fetch all
+});
+
+// Multi-field sorting
+const sorted = await @REPOS.user_definition.find({
+  sort: 'name,-createdAt'  // Sort by name ASC, then createdAt DESC
+});
+
+// Nested relations (get related data in ONE query)
+const usersWithPosts = await @REPOS.user_definition.find({
+  fields: 'id,email,posts.title,posts.createdAt',  // Nested field: posts.title
+  where: { isActive: true }
+});
+
+// Filter by nested relation
+const usersInRole = await @REPOS.user_definition.find({
+  where: {
+    role: {
+      name: { _eq: 'Admin' }  // Filter by related role name
+    }
+  },
+  fields: 'id,email,role.name'
 });
 
 // Create new record
-const newUser = await @REPOS.users.create({
+const newUser = await @REPOS.user_definition.create({
   email: 'user@example.com',
   name: 'John Doe',
   isActive: true
 });
 
-// Update record
-const updatedUser = await @REPOS.users.update(
-  { id: 123 },
-  { name: 'Jane Doe', lastLogin: new Date() }
-);
+// Update record by ID
+const updatedUser = await @REPOS.user_definition.update(userId, {
+  name: 'Jane Doe',
+  lastLogin: new Date()
+});
 
-// Delete record
-await @REPOS.users.delete({ id: 123 });
-
-// Count records
-const totalUsers = await @REPOS.users.count({ isActive: true });
+// Delete record by ID
+await @REPOS.user_definition.delete(userId);
 ```
 
 #### Using #table_name syntax (shorter):
 ```javascript
-// Find records with filtering
+// Find records with filtering and pagination
 const users = await #user_definition.find({
   where: { isActive: true },
-  fields: 'id,email,name', // Only fetch required fields
-  limit: 10,
-  page: 1
+  fields: 'id,email,name',   // Only fetch required fields
+  limit: 10,                  // Max 10 records (default: 10)
+  sort: '-createdAt'          // Sort by createdAt DESC
+});
+
+// Fetch ALL records (no limit)
+const allUsers = await #user_definition.find({
+  where: { isActive: true },
+  limit: 0  // 0 = fetch all
+});
+
+// Multi-field sorting
+const sorted = await #user_definition.find({
+  sort: 'name,-createdAt'  // Sort by name ASC, then createdAt DESC
+});
+
+// Nested relations (get related data in ONE query)
+const usersWithPosts = await #user_definition.find({
+  fields: 'id,email,posts.title,posts.createdAt',  // Nested field: posts.title
+  where: { isActive: true }
+});
+
+// Filter by nested relation
+const usersInRole = await #user_definition.find({
+  where: {
+    role: {
+      name: { _eq: 'Admin' }  // Filter by related role name
+    }
+  },
+  fields: 'id,email,role.name'
 });
 
 // Create new record
@@ -143,17 +194,14 @@ const newUser = await #user_definition.create({
   isActive: true
 });
 
-// Update record
-const updatedUser = await #user_definition.update(
-  { id: 123 },
-  { name: 'Jane Doe', lastLogin: new Date() }
-);
+// Update record by ID
+const updatedUser = await #user_definition.update(userId, {
+  name: 'Jane Doe',
+  lastLogin: new Date()
+});
 
-// Delete record
-await #user_definition.delete({ id: 123 });
-
-// Count records
-const totalUsers = await #user_definition.count({ isActive: true });
+// Delete record by ID
+await #user_definition.delete(userId);
 ```
 
 ### Helper Functions

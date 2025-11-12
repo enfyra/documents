@@ -76,7 +76,9 @@ Each repository provides full CRUD operations:
 // Find records (returns {data: [], meta: {totalCount, filterCount}})
 const result = await $ctx.$repos.products.find({
   where: { category: { _eq: 'electronics' } },
-  fields: 'id,name,price' // Override context fields or specify required fields
+  fields: 'id,name,price',  // Override context fields or specify required fields
+  limit: 10,                 // Max records to return (0 = no limit, fetch all)
+  sort: '-createdAt'         // Sort by field: "fieldName" (ASC) or "-fieldName" (DESC)
 });
 const products = result.data; // Array of products
 
@@ -115,12 +117,102 @@ const result = await $ctx.$repos.products.find({
 
 **Available Operators**:
 - **Comparison**: `_eq`, `_neq`, `_gt`, `_gte`, `_lt`, `_lte`, `_between`
-- **Arrays**: `_in`, `_not_in` 
+- **Arrays**: `_in`, `_not_in`
 - **Text Search**: `_contains`, `_starts_with`, `_ends_with`
 - **Null Checks**: `_is_null`
 - **Logical**: `_and`, `_or`, `_not`
 - **Relations**: Filter by related table data
 - **Aggregations**: `_count`, `_sum`, `_avg`, `_min`, `_max`
+
+### Pagination and Sorting
+
+Control result size and order with `limit` and `sort` parameters:
+
+```javascript
+// Limit results (default: 10 if not specified)
+const result = await $ctx.$repos.products.find({
+  where: { isActive: { _eq: true } },
+  limit: 20  // Return max 20 records
+});
+
+// Fetch ALL records (no limit)
+const allProducts = await $ctx.$repos.products.find({
+  where: { isActive: { _eq: true } },
+  limit: 0  // 0 = no limit, fetch everything
+});
+
+// Sort ascending (oldest first)
+const ascending = await $ctx.$repos.products.find({
+  sort: 'createdAt'  // Sort by createdAt ASC
+});
+
+// Sort descending (newest first)
+const descending = await $ctx.$repos.products.find({
+  sort: '-createdAt'  // Prefix with "-" for DESC
+});
+
+// Multi-field sorting
+const multiSort = await $ctx.$repos.products.find({
+  sort: 'category,-price'  // Sort by category ASC, then price DESC
+});
+
+// Combined: paginate + sort
+const paged = await $ctx.$repos.products.find({
+  where: { category: { _eq: 'electronics' } },
+  fields: 'id,name,price',
+  sort: '-price',
+  limit: 10
+});
+```
+
+**Sorting Rules**:
+- Format: `"fieldName"` (ascending) or `"-fieldName"` (descending)
+- Multi-field: Comma-separated, e.g., `"name,-createdAt"` (name ASC, then createdAt DESC)
+- Default: `"id"` (ascending) if not specified
+
+**Limit Rules**:
+- `limit: 0` → Fetch ALL records (no limit)
+- `limit: N` → Fetch max N records
+- Default: `10` if not specified
+- Use `limit: 0` for "get all" or "count all" queries
+
+### Nested Relations
+
+Query related table data without separate queries using dot notation:
+
+```javascript
+// Get products with nested category data
+const result = await $ctx.$repos.products.find({
+  fields: 'id,name,price,category.name,category.description',
+  where: { isActive: { _eq: true } }
+});
+// Returns: [{id: 1, name: "Phone", price: 500, category: {name: "Electronics", description: "..."}}]
+
+// Get all fields from relation using wildcard
+const withAllCategory = await $ctx.$repos.products.find({
+  fields: 'id,name,category.*'  // category.* = all category fields
+});
+
+// Deep nesting (multiple levels)
+const deepNested = await $ctx.$repos.orders.find({
+  fields: 'id,total,orderItems.product.name,orderItems.product.category.name'
+});
+
+// Filter by nested relation
+const filtered = await $ctx.$repos.products.find({
+  where: {
+    category: {
+      name: { _eq: 'Electronics' }  // Filter by related table field
+    }
+  },
+  fields: 'id,name,price'
+});
+```
+
+**Nested Query Benefits**:
+- **One query** instead of multiple separate queries
+- **Better performance** - database handles JOINs efficiently
+- **Cleaner code** - no manual data merging needed
 
 ## Utility Functions
 
