@@ -135,19 +135,24 @@ const usersInRole = await @REPOS.user_definition.find({
 
 // Create new record
 const newUser = await @REPOS.user_definition.create({
+  data: {
   email: 'user@example.com',
   name: 'John Doe',
   isActive: true
+  }
 });
 
 // Update record by ID
-const updatedUser = await @REPOS.user_definition.update(userId, {
+const updatedUser = await @REPOS.user_definition.update({
+  id: userId,
+  data: {
   name: 'Jane Doe',
   lastLogin: new Date()
+  }
 });
 
 // Delete record by ID
-await @REPOS.user_definition.delete(userId);
+await @REPOS.user_definition.delete({ id: userId });
 ```
 
 #### Using #table_name syntax (shorter):
@@ -188,20 +193,20 @@ const usersInRole = await #user_definition.find({
 });
 
 // Create new record
-const newUser = await #user_definition.create({
+const newUser = await #user_definition.create({ data: {
   email: 'user@example.com',
   name: 'John Doe',
   isActive: true
 });
 
 // Update record by ID
-const updatedUser = await #user_definition.update(userId, {
+const updatedUser = await #user_definition.update({ id: userId, data: {
   name: 'Jane Doe',
   lastLogin: new Date()
 });
 
 // Delete record by ID
-await #user_definition.delete(userId);
+await #user_definition.delete({ id: userId });
 ```
 
 ### Helper Functions
@@ -304,7 +309,7 @@ const file = @UPLOADED_FILE;
 @LOGS('File uploaded:', file.filename, file.mimetype, file.size);
 
 // Save uploaded file to database
-const savedFile = await #file_definition.create({
+const savedFile = await #file_definition.create({ data: {
   filename: @UPLOADED_FILE.filename,
   mimetype: @UPLOADED_FILE.mimetype,
   filesize: @UPLOADED_FILE.size,
@@ -417,10 +422,10 @@ try {
     @THROW404('User not found');
   }
   
-  const updatedUser = await #user_definition.update(
-    { id: userId },
-    { lastLogin: new Date() }
-  );
+  const updatedUser = await #user_definition.update({
+    id: userId,
+    data: { lastLogin: new Date() }
+  });
   
   @LOGS('User login updated:', updatedUser.id);
   return updatedUser;
@@ -450,7 +455,7 @@ async function registerUser(userData) {
   const hashedPassword = await @HELPERS.$bcrypt.hash(userData.password, 10);
   
   // Create user
-  const newUser = await #user_definition.create({
+  const newUser = await #user_definition.create({ data: {
     ...userData,
     password: hashedPassword,
     createdAt: new Date()
@@ -544,7 +549,7 @@ const users = await #user_definition.find({
 ```javascript
 // ✅ Good - comprehensive error handling
 try {
-  const result = await @REPOS.users.create(userData);
+  const result = await @REPOS.users.create({ data: userData });
   @LOGS('User created successfully');
   return result;
 } catch (error) {

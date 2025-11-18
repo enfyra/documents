@@ -48,7 +48,7 @@ const { email, password, name } = $ctx.$body;
 const hashedPassword = await $ctx.$helpers.$bcrypt.hash(password);
 
 // 2. Create user (auto-calls .find() after insert to return full record)
-const userResult = await $ctx.$repos.user_definition.create({
+const userResult = await $ctx.$repos.user_definition.create({ data: {
   email: email,
   password: hashedPassword, // Store hashed version
   name: name || null, // Optional field
@@ -69,7 +69,7 @@ const { email, password, name } = @BODY;
 const hashedPassword = await @HELPERS.$bcrypt.hash(password);
 
 // 2. Create user (auto-calls .find() after insert to return full record)
-const userResult = await #user_definition.create({
+const userResult = await #user_definition.create({ data: {
   email: email,
   password: hashedPassword, // Store hashed version
   name: name || null, // Optional field
@@ -83,7 +83,7 @@ const userResult = await #user_definition.create({
 // You can mix both syntaxes in the same handler!
 const { email, password, name } = @BODY;  // Template syntax
 const hashedPassword = await $ctx.$helpers.$bcrypt.hash(password);  // Traditional syntax
-const userResult = await #user_definition.create({  // Direct table access
+const userResult = await #user_definition.create({ data: {  // Direct table access
   email: email,
   password: hashedPassword,
   name: name || null,

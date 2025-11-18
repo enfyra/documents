@@ -84,19 +84,24 @@ const products = result.data; // Array of products
 
 // Create new record (auto-calls .find() after insert to return full record)
 const createResult = await $ctx.$repos.products.create({
+  data: {
   name: $ctx.$body.name,
   price: $ctx.$body.price
+  }
 });
 const newProduct = createResult.data[0]; // Full product record with ID, timestamps, etc.
 
 // Update record by ID (auto-calls .find() after update to return full record)
-const updateResult = await $ctx.$repos.products.update($ctx.$params.id, {
+const updateResult = await $ctx.$repos.products.update({
+  id: $ctx.$params.id,
+  data: {
   price: $ctx.$body.price
+  }
 });
 const updatedProduct = updateResult.data[0]; // Full updated record from database
 
 // Delete record by ID (returns {data: [deleted_record], query_response})
-const deleteResult = await $ctx.$repos.products.delete($ctx.$params.id);
+const deleteResult = await $ctx.$repos.products.delete({ id: $ctx.$params.id });
 ```
 
 ### Query Filtering
@@ -274,7 +279,7 @@ if ($ctx.$api.error) {
   $ctx.$logs(`Error timestamp: ${$ctx.$api.error.timestamp}`);
   
   // Log error to audit system
-  await $ctx.$repos.audit_logs.create({
+  await $ctx.$repos.audit_logs.create({ data: {
     action: 'error_occurred',
     userId: $ctx.$user?.id,
     errorMessage: $ctx.$api.error.message,
@@ -327,7 +332,7 @@ if ($ctx.$api.error) {
   $ctx.$logs(`Error occurred in main operation: ${$ctx.$api.error.message}`);
   
   // Log error to audit system
-  await $ctx.$repos.audit_logs.create({
+  await $ctx.$repos.audit_logs.create({ data: {
     action: 'error_occurred',
     userId: $ctx.$user?.id,
     errorMessage: $ctx.$api.error.message,
@@ -351,7 +356,7 @@ if ($ctx.$api.error) {
   $ctx.$logs('Operation completed successfully');
   
   // Add audit trail for successful operations
-  await $ctx.$repos.audit_logs.create({
+  await $ctx.$repos.audit_logs.create({ data: {
     action: 'operation_completed',
     userId: $ctx.$user?.id,
     timestamp: new Date().toISOString(),
@@ -535,6 +540,7 @@ $ctx.$logs('Processing user registration')
 $ctx.$logs(`Validating email: ${$ctx.$body.email}`)
 
 const userResult = await $ctx.$repos.user_definition.create({
+  data: {
   email: $ctx.$body.email,
   name: $ctx.$body.name
 })

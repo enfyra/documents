@@ -55,7 +55,7 @@ return {
 
 ```javascript
 // Save uploaded file to file_definition table
-const savedFile = await #file_definition.create({
+const savedFile = await #file_definition.create({ data: {
   filename: @UPLOADED_FILE.filename,
   mimetype: @UPLOADED_FILE.mimetype,
   filesize: @UPLOADED_FILE.filesize,
@@ -701,7 +701,7 @@ const processedBuffer = await inputStream
   .toBuffer();
 
 // 3. Save to database
-const savedFile = await #file_definition.create({
+const savedFile = await #file_definition.create({ data: {
   filename: uploaded.filename,
   mimetype: 'image/jpeg',
   filesize: processedBuffer.length,
