@@ -78,6 +78,7 @@ Choose your coding style - both work seamlessly together:
 **Traditional Syntax:**
 ```javascript
 const user = await $ctx.$repos.user_definition.create({
+  data: {
   email: $ctx.$body.email,
   password: await $ctx.$helpers.$bcrypt.hash($ctx.$body.password)
 });

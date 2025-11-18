@@ -324,7 +324,7 @@ if ($ctx.$share.auditData.userId) {
 }
 
 // Global afterHook: Save audit log
-await $ctx.$repos.auditLogs.create($ctx.$share.auditData);
+await $ctx.$repos.auditLogs.create({ data: $ctx.$share.auditData });
 ```
 
 ### Example 3: Multi-Step Data Processing

@@ -318,7 +318,7 @@ if ($ctx.$req.method !== 'GET' && $ctx.$data.data) {
     timestamp: new Date().toISOString()
   };
   
-  await $ctx.$repos.audit_logs.create(auditEntry);
+  await $ctx.$repos.audit_logs.create({ data: auditEntry });
   $ctx.$logs('Created audit log entry');
 }
 ```

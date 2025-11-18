@@ -136,7 +136,7 @@ const existingAdmin = await $ctx.$repos.user_definition.find({
 });
 
 if (!existingAdmin.data || existingAdmin.data.length === 0) {
-  await $ctx.$repos.user_definition.create({
+  await $ctx.$repos.user_definition.create({ data: {
     email: 'admin@example.com',
     password: 'admin123',
     isRootAdmin: true,
@@ -173,7 +173,7 @@ const usersResult = await $ctx.$repos.user_definition.find();
 
 for (const user of usersResult.data) {
   if (!user.profile) {
-    await $ctx.$repos.user_definition.update(user.id, {
+    await $ctx.$repos.user_definition.update({ id: user.id, data: {
       profile: {
         firstName: user.firstName || '',
         lastName: user.lastName || '',
@@ -215,7 +215,7 @@ const orphanedResult = await $ctx.$repos.file_definition.find({
 
 if (orphanedResult.data && orphanedResult.data.length > 0) {
   for (const record of orphanedResult.data) {
-    await $ctx.$repos.file_definition.delete(record.id);
+    await $ctx.$repos.file_definition.delete({ id: record.id });
   }
   
   $ctx.$logs(`Cleaned up ${orphanedResult.data.length} orphaned files`);
@@ -250,7 +250,7 @@ const existing = await $ctx.$repos.setting_definition.find({
 });
 
 if (!existing.data || existing.data.length === 0) {
-  await $ctx.$repos.setting_definition.create({
+  await $ctx.$repos.setting_definition.create({ data: {
     key: 'app_version',
     value: '1.0.0'
   });
@@ -410,7 +410,7 @@ for (const [key, value] of Object.entries(defaultSettings)) {
   });
   
   if (!existing.data || existing.data.length === 0) {
-    await $ctx.$repos.setting_definition.create({ key, value });
+    await $ctx.$repos.setting_definition.create({ data: { key, value });
   }
 }
 
@@ -433,7 +433,7 @@ for (const role of defaultRoles) {
   });
   
   if (!existing.data || existing.data.length === 0) {
-    await $ctx.$repos.role_definition.create(role);
+    await $ctx.$repos.role_definition.create({ data: role });
   }
 }
 

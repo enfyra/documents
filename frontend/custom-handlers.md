@@ -71,6 +71,7 @@ if (!categoryResult.data.length) {
 // Create product with auto-generated slug
 const slug = await $ctx.$helpers.autoSlug($ctx.$body.name);
 const productResult = await $ctx.$repos.products.create({
+  data: {
   name: $ctx.$body.name,
   slug: slug,
   price: $ctx.$body.price,
@@ -81,7 +82,7 @@ const productResult = await $ctx.$repos.products.create({
 const newProduct = productResult.data[0];
 
 // Log the creation
-await $ctx.$repos.audit_logs.create({
+await $ctx.$repos.audit_logs.create({ data: {
   action: 'product_created',
   userId: $ctx.$user.id,
   entityId: newProduct.id,
@@ -133,9 +134,9 @@ const token = await $ctx.$helpers.$jwt(
 );
 
 // Update last login
-await $ctx.$repos.user_definition.update(user.id, {
+await $ctx.$repos.user_definition.update({ id: user.id, data: {
   lastLoginAt: new Date()
-});
+} });
 
 return {
   success: true,
