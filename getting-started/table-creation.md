@@ -109,6 +109,51 @@ You can change the id field type to `uuid` if you prefer UUID identifiers, but `
 - Relations list shows: property name, type badge, target table badge (→ TargetTable), nullable badge if applicable
 - **Note**: Once created, these relations will appear as fields with pencil icons in forms - see [Relation Picker System](../frontend/relation-picker.md) for how to use them
 
+#### onDelete (cascade behavior)
+
+When configuring relations that create foreign keys (one-to-one, one-to-many, many-to-one, many-to-many), Enfyra exposes an **onDelete** option that controls what happens when related records are deleted:
+
+- **CASCADE**  
+  - **1‑N / N‑1**: Deleting the parent record will automatically delete all children that point to it (database-level cascade).  
+  - **1‑1**: Deleting a record on either side will delete the paired record as well (the system enforces this symmetrically at runtime).  
+  - **N‑N**: Cascade applies to the junction rows; deleting one side removes its links, but **does not delete rows in the other table**.
+
+- **SET NULL**  
+  - Deleting the parent record will keep child records, but set their foreign key to `NULL`.  
+  - Useful when the child data can live independently after the parent is gone.
+
+- **RESTRICT / NO ACTION**  
+  - Database will **block deletion** of a parent record if there are still related children.  
+  - Use this when you want to force explicit cleanup (delete or re-assign children) before deleting the parent.
+
+**Current runtime behavior notes:**
+
+- **Deleting records**  
+  - 1‑N / N‑1: Actual delete behavior is controlled by the database foreign key `onDelete` setting (CASCADE / SET NULL / RESTRICT).  
+  - 1‑1 with `onDelete = CASCADE`: Enfyra ensures that deleting either side of the relation will also delete the other side, even when only one side has the physical FK.  
+  - N‑N: Deleting a record removes its junction rows according to FK rules; data in the opposite table is not touched.
+
+- **Updating relations through payloads**  
+  - N‑N: Updating a relation array (e.g. `tags`) replaces rows in the junction table to match the new list of IDs/objects; target entities themselves are never deleted, only links change.  
+  - 1‑N: When you update a parent with a list of children, removed children are currently **detached** (their FK is set to `NULL`) rather than deleted; the `onDelete` option primarily affects what happens when the parent row itself is deleted.
+
+#### Practical cascade examples
+
+- **User ↔ Profile (1‑1, CASCADE)**  
+  - Relation: `user.profile` (one‑to‑one), `onDelete = CASCADE`.  
+  - Effect: Deleting a user deletes the attached profile; deleting the profile also deletes the user. Use this when neither record should exist without the other.
+
+- **Post ↔ Comment (1‑N)**  
+  - Relation: `post.comments` (one‑to‑many) to `comment.post`.  
+  - `onDelete = CASCADE`: Deleting a post deletes all its comments.  
+  - `onDelete = SET NULL`: Deleting a post keeps comments but clears their `postId`, so you can re‑attach or inspect them later.  
+  - `onDelete = RESTRICT`: You must delete or reassign comments before deleting the post.
+
+- **Post ↔ Tag (N‑N)**  
+  - Relation: `post.tags` (many‑to‑many) through a junction table.  
+  - Removing a tag from `post.tags` only removes the junction row; the `tag` record itself remains.  
+  - Deleting a `post` or `tag` will clean up junction rows via FK `onDelete`, but will not touch the opposite table’s main records.
+
 **⚠️ IMPORTANT for MongoDB users:**
 - When you **update or delete** a relation after creating it, **all relation data will be dropped** from your records
 - This includes both the relation field AND the inverse field
