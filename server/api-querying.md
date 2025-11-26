@@ -425,6 +425,65 @@ const response = await fetch(url);
 const data = await response.json();
 ```
 
+### Working with relations & cascade when calling APIs
+
+The cascade rules you configure with `onDelete` are enforced at the database and runtime levels when you call the default REST APIs:
+
+- **One‑to‑many / Many‑to‑one (1‑N / N‑1)**  
+  - **Delete parent:**  
+    ```http
+    DELETE /posts/1
+    ```
+    - If `onDelete = CASCADE` on `post.comments`, deleting the post will delete all related comments.  
+    - If `onDelete = SET NULL`, comments are kept and their `postId` is set to `NULL`.  
+    - If `onDelete = RESTRICT`, the API returns an error if comments still exist.
+  - **Delete child:**  
+    ```http
+    DELETE /comments/10
+    ```
+    - The parent post is never deleted; only the comment is removed.
+  - **Update children through parent (detach vs keep)**  
+    ```http
+    PATCH /posts/1
+    Content-Type: application/json
+
+    {
+      "title": "Updated post",
+      "comments": [
+        { "id": 10, "content": "keep this comment" },
+        { "content": "new comment" }
+      ]
+    }
+    ```
+    - Existing children not present in the `comments` array are **detached**: their FK is set to `NULL` (not deleted).  
+    - New objects without `id` are created and linked to the post.
+
+- **Many‑to‑many (N‑N)**  
+  - Updating relations only changes junction rows, not main table data:
+    ```http
+    PATCH /posts/1
+    Content-Type: application/json
+
+    {
+      "tags": [1, 2, { "name": "new-tag" }]
+    }
+    ```
+    - The system will:
+      - Ensure tag `1` and `2` are linked via the junction table.  
+      - Create a new `tag` if it doesn’t have an `id`, then link it.  
+      - Remove any previous tag links **not included** in the new array.  
+    - Tag records themselves are never deleted when you remove them from the `tags` array.
+
+- **One‑to‑one (1‑1) with `onDelete = CASCADE`**  
+  - When a 1‑1 relation is configured with `onDelete = CASCADE`, deleting either side via API will delete the paired record as well:
+    ```http
+    # User ↔ Profile (1‑1, CASCADE)
+    DELETE /users/1      # deletes user + profile
+    DELETE /profiles/1   # deletes profile + user
+    ```
+  - This behavior is enforced by Enfyra’s runtime hooks, even if only one side has the physical foreign key.
+
+
 ### Complex Filtering with Pagination
 ```http
 GET /api/users?filter={"_or":[{"age":{"_lt":25}},{"posts":{"_count":{"_gte":5}}}]}&page=2&limit=10&sort=-createdAt

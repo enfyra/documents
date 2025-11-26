@@ -227,7 +227,7 @@ enfyra-docs/
 ### 🚀 Phase 1: Setup & Basics (30 mins)
 1. **[Installation](./getting-started/installation.md)** - Set up Enfyra backend and app
 2. **[Getting Started](./getting-started/getting-started.md)** - First login and interface overview
-3. **[Table Creation](./getting-started/table-creation.md)** - Create your first table with all field types and relations
+3. **[Table Creation](./getting-started/table-creation.md)** - Create your first table with all field types and relations, including `onDelete` cascade behavior
 4. **[Data Management](./getting-started/data-management.md)** - Learn to manage records and relationships
 
 ### 🎨 Phase 2: Frontend Mastery (2-3 hours)
@@ -299,7 +299,7 @@ enfyra-docs/
 
 **⚙️ Backend (Developer Integration)**
 - **[API Lifecycle](./server/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
-- **[API Querying](./server/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, and deep relations
+- **[API Querying](./server/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, deep relations, and cascade behavior when calling APIs
 - **[GraphQL API](./server/graphql-api.md)** - 📊 **GraphQL queries and mutations** with auto-generated schema and permission control
 - **[Swagger API](./server/swagger-api.md)** - 📖 **OpenAPI/Swagger documentation** with interactive testing and auto-generation
 - **[MongoDB Relations](./server/mongodb-relations.md)** - 🔗 **MongoDB relation management**, inverse sync, and metadata change behavior
