@@ -32,7 +32,7 @@ Hooks can perform a wide variety of operations:
 - **Format inputs**: Clean phone numbers, normalize emails
 - **Convert data types**: String to numbers, date parsing
 
-### ✅ Validation & Security
+### Validation & Security
 - **Input validation**: Email format, required fields, data ranges
 - **Business rules**: Check inventory, validate relationships
 - **Security checks**: Rate limiting, IP restrictions, role validation
@@ -50,7 +50,7 @@ Hooks can perform a wide variety of operations:
 - **Data masking**: Hide sensitive info based on user role
 - **Format conversion**: Transform data for different clients
 
-### 📝 Auditing & Logging
+### Auditing & Logging
 - **Audit trails**: Log all data changes with user context
 - **Performance monitoring**: Track request timing, database queries
 - **Debug information**: Add detailed execution logs
@@ -64,14 +64,14 @@ Hooks can perform a wide variety of operations:
 
 ## Why Use Hooks?
 
-### ✅ Advantages over Custom Handlers
+### Advantages over Custom Handlers
 - **Lightweight**: No need to reimplement CRUD operations
 - **Composable**: Multiple hooks can work together on same route
 - **Maintainable**: Small, focused pieces of code
 - **Performance**: Less overhead than full handler replacement
 - **Priority system**: Control execution order across hooks
 
-### ✅ Perfect for Cross-Cutting Concerns
+### Perfect for Cross-Cutting Concerns
 - **Consistent validation**: Apply same rules across multiple tables
 - **Automatic auditing**: Log changes without modifying business logic
 - **Global transformations**: Apply company-wide data policies

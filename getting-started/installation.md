@@ -32,7 +32,7 @@ npm run dev
 
 - For detailed instructions: [@enfyra/create-app](https://www.npmjs.com/package/@enfyra/create-app)
 
-## 🔄 Connection Flow
+## Connection Flow
 
 **Important**: The frontend app is a client that connects to your backend server:
 

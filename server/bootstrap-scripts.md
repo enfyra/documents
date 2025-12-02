@@ -286,7 +286,7 @@ $ctx.$logs('Data migration completed successfully');
 
 ## Multi-Instance Support
 
-### 🔒 Distributed Locking
+### Distributed Locking
 
 Bootstrap scripts use **distributed locking** to ensure only one instance executes them:
 
@@ -295,7 +295,7 @@ Bootstrap scripts use **distributed locking** to ensure only one instance execut
 3. **Lock Release**: Lock is automatically released after completion or timeout (30s)
 4. **Skip Mode**: Other instances skip execution and log the skip
 
-### 📋 Instance Behavior
+### Instance Behavior
 
 ```bash
 # Instance 1 (Got the lock)
@@ -318,7 +318,7 @@ When you update a bootstrap script in the database, the system automatically:
 3. **Reloads bootstrap scripts** - Only the locked instance executes
 4. **Other instances skip** - No duplicate execution
 
-### 🔒 Reload Lock Mechanism
+### Reload Lock Mechanism
 
 ```bash
 # Instance A (Gets reload lock)
