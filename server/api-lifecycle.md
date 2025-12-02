@@ -4,7 +4,7 @@ Understanding Enfyra's API request lifecycle is crucial for building effective h
 
 > **📝 Template Syntax Note**: All code examples in this document use the traditional `$ctx.$property` syntax. You can also use the shorter template syntax (`@BODY`, `@REPOS`, `#table_name`) - see [Template Syntax Guide](./template-syntax.md) for details. Both syntaxes work identically and can be mixed in the same code.
 
-## 🔥 API Source Context
+## API Source Context
 
 **CRITICAL**: All API endpoints are generated and served by the **backend server** (port 1105). When you create tables through the admin interface, APIs are automatically generated on the backend. The frontend app consumes these APIs by making HTTP requests to your backend URL.
 

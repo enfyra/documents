@@ -28,7 +28,7 @@ When you:
 - **Update** file's folder → Old folder's `files` removes file, new folder's `files` adds file ✅
 - **Delete** a file → Folder's `files` removes file ✅
 
-## ⚠️ IMPORTANT: Metadata Changes Behavior
+## IMPORTANT: Metadata Changes Behavior
 
 ### When You Update or Delete Relations
 

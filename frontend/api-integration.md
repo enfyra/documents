@@ -4,7 +4,7 @@ Enfyra uses the official **@enfyra/sdk-nuxt** package for all API interactions, 
 
 **📖 Complete SDK Documentation**: [https://github.com/dothinh115/enfyra-sdk-nuxt](https://github.com/dothinh115/enfyra-sdk-nuxt)
 
-## 🔄 Backend Dependency
+## Backend Dependency
 
 **CRITICAL**: All API calls in the frontend connect to your **backend server URL** (typically `http://localhost:1105`). The `useApi()` composable internally makes HTTP requests to:
 

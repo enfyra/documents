@@ -179,7 +179,7 @@ const hasFormChanges = ref(false);
 const formEditorRef = ref();
 
 // Template
-<FormEditorLazy
+<FormEditor
   ref="formEditorRef"
   v-model="form"
   v-model:errors="errors"
@@ -354,10 +354,10 @@ async function handleReset() {
 
 ### TypeMap System
 
-The `typeMap` prop allows you to customize form behavior for specific fields without modifying the database schema. Pass it to `FormEditorLazy` component:
+The `typeMap` prop allows you to customize form behavior for specific fields without modifying the database schema. Pass it to `FormEditor` component:
 
 ```typescript
-<FormEditorLazy
+<FormEditor
   v-model="form"
   :table-name="tableName"
   :type-map="typeMap"
