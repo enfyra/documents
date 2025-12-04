@@ -1,11 +1,11 @@
 # User Registration Example
 
-This example demonstrates how to create a custom `/api/register` endpoint using Enfyra's Custom Handler system. The endpoint handles user registration with validation, password hashing, and proper response formatting.
+This example demonstrates how to create a custom `/register` endpoint using Enfyra's Custom Handler system. The endpoint handles user registration with validation, password hashing, and proper response formatting.
 
 ## Overview
 
 **Why Custom Handler?**
-- Default `/api/user_definition` POST creates users but doesn't include registration-specific validation
+- Default `/user_definition` POST creates users but doesn't include registration-specific validation
 - Need custom email/password validation rules
 - Want to hash passwords before storage
 - Need to check for duplicate emails
@@ -507,7 +507,7 @@ if ($ctx.$body.email && !$ctx.$body.email.endsWith('@company.com')) {
 - Suggest login instead or password reset
 
 **Handler Not Found**
-- Ensure route `/api/register` exists
+- Ensure route `/register` exists
 - Ensure handler is linked to route
 - Check handler is enabled
 
@@ -516,7 +516,7 @@ if ($ctx.$body.email && !$ctx.$body.email.endsWith('@company.com')) {
 - Check route permissions in Settings
 
 ### Debug Checklist:
-1.  Route configured with `/api/register` path
+1.  Route configured with `/register` path
 2.  Handler linked to route and POST method
 3.  Target Tables includes `user_definition`
 4.  Handler logic syntax is valid JavaScript

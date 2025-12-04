@@ -690,7 +690,7 @@ onUnmounted(() => {
 When working with permissions:
 - ** [Permission Builder](./permission-builder.md)** - Create complex permission rules
 - ** [Permission Components](./permission-components.md)** - PermissionGate usage
-- ** [Permission System](../server/permission-system.md)** - Backend permission architecture
+- ** [Permission System](permission-components.md)** - Backend permission architecture
 
 ## API Reference
 
