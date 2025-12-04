@@ -69,17 +69,22 @@ This diagram shows how Enfyra's two-component system works:
 
 ```
 1. Create/Modify Tables (Backend Admin Interface)
-2. ✅ Backend generates API endpoints automatically
-3. ✅ Frontend consumes APIs via HTTP requests
-4. ✅ Zero additional configuration needed
+2.  Backend generates API endpoints automatically
+3.  Frontend consumes APIs via HTTP requests
+4.  Zero additional configuration needed
 ```
 
 ## Production Deployment
 
 ```
-Backend Server (1105) → API Endpoints → Frontend App (3000) → User Browser
+Backend Server (1105)  API Endpoints  Frontend App (3000)  User Browser
        ↓
    Database Server
        ↓
    Redis (Synchronization)
 ```
+
+## Related Documentation
+
+- **Server Documentation**: `./server/README.md` – Server architecture, APIs, repositories, and context object
+- **App Documentation**: `./app/README.md` – Frontend/admin app behavior, extensions, forms, and permissions

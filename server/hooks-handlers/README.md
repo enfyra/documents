@@ -27,7 +27,7 @@ Handlers contain the main business logic:
 ### Execution Flow
 
 ```
-preHook #1 → preHook #2 → Handler → afterHook #1 → afterHook #2
+preHook #1  preHook #2  Handler  afterHook #1  afterHook #2
 ```
 
 All hooks and handlers have access to the same `$ctx` object, so changes in one phase are visible to all subsequent phases.

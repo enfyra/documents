@@ -2,9 +2,9 @@
 
 Custom Handlers let you replace default CRUD operations with your own JavaScript code. Instead of basic create/read/update/delete behavior, you can write custom functions that handle complex business logic, external integrations, or specialized data processing.
 
-** For complete request lifecycle understanding, see [API Lifecycle](../server/api-lifecycle.md)**
+**For complete request lifecycle understanding, see [API Lifecycle](../../server/api-lifecycle.md)**
 
-> ** Template Syntax Note**: All examples use the traditional `$ctx.$property` syntax, but you can also use the shorter template syntax (`@BODY`, `@REPOS`, `#table_name`). See [Template Syntax Guide](../server/template-syntax.md) for details. Both work identically and can be mixed freely.
+> **Template Syntax Note**: All examples use the traditional `$ctx.$property` syntax, but you can also use the shorter template syntax (`@BODY`, `@REPOS`, `#table_name`). See [Template Syntax Guide](../../server/template-syntax.md) for details. Both work identically and can be mixed freely.
 
 ## When to Use Custom Handlers
 
@@ -36,20 +36,20 @@ You'll see the handler creation form with these fields:
 ### Step 4: Handler Execution
 When a request matches the route and method, your custom handler code executes instead of the default CRUD operation.
 
-** Important: Return Values**
+**Important: Return Values**  
 Your handler **MUST return a value** - this becomes the API response. If you don't return anything, the API will return nothing to the client.
 
 ## Handler Context ($ctx)
 
 Your handler code receives a rich context object `$ctx` with everything you need.
 
-** For complete context reference, see [Context Reference](../server/context-reference.md)**
+**For complete context reference, see [Context Reference](../../server/context-reference/README.md)**
 
 ## Database Repository Methods
 
 Each repository in `$ctx.$repos` provides full database access through the QueryEngine.
 
-** For complete database operations and examples, see [Context Reference](../server/context-reference.md#database-access)**
+**For complete database operations and examples, see [Context Reference](../../server/context-reference/README.md#database-access)**
 
 ## Example Handlers
 
@@ -87,7 +87,7 @@ await $ctx.$repos.audit_logs.create({ data: {
   userId: $ctx.$user.id,
   entityId: newProduct.id,
   details: JSON.stringify({ productName: newProduct.name })
-});
+}});
 
 $ctx.$logs(`Product created: ${newProduct.name}`);
 
@@ -294,19 +294,20 @@ return {
 - **Audit Trails**: Log important business operations
 - **Performance Tracking**: Log execution times for optimization
 
-** For complete best practices including cache operations and API filtering, see [Context Reference](../server/context-reference.md#best-practices)**
+**For complete best practices including cache operations and API filtering, see [Context Reference](../../server/context-reference/README.md#best-practices)**
 
 Custom Handlers provide unlimited flexibility while maintaining security through isolated execution and rich context access.
 
 ## Related Documentation
 
-- **[Context Reference](../server/context-reference.md)** - Complete $ctx object reference
-- **[File Handling](../server/file-handling.md)** - File upload and response streaming guide
+- **[Context Reference](../../server/context-reference/README.md)** - Complete $ctx object reference
+- **[File Handling](../../server/file-handling.md)** - File upload and response streaming guide
 - **[Hooks](./hooks.md)** - Lightweight request/response hooks for simple customizations
-- **[Hook Development](../server/hook-development.md)** - Advanced hook programming with examples
-- **[API Lifecycle](../server/api-lifecycle.md)** - Complete request processing pipeline
-- **[Routing Management](./routing-management.md)** - UI guide for creating custom endpoints
+- **[Hook Development](../../server/hook-development.md)** - Advanced hook programming with examples
+- **[API Lifecycle](../../server/api-lifecycle.md)** - Complete request processing pipeline
+- **[Routing Management](../routing-management.md)** - UI guide for creating custom endpoints
 
 ## Practical Examples
 
-- **[User Registration Example](../examples/user-registration-example.md)** - Complete walkthrough of creating `/register` endpoint with validation, password hashing, and welcome emails
+- **[User Registration Example](../../examples/user-registration-example.md)** - Complete walkthrough of creating `/register` endpoint with validation, password hashing, and welcome emails
+

@@ -1,20 +1,20 @@
 # Enfyra Documentation
 
-> **⚠️ IMPORTANT NOTICE ⚠️**  
+> ** IMPORTANT NOTICE **  
 > **This is the DOCUMENTATION repository only.**  
-> **Please DO NOT star this repo! ⭐**  
-> **Star the main project instead: [https://github.com/enfyra/enfyra](https://github.com/enfyra/enfyra) 🌟**
+> **Please DO NOT star this repo! **  
+> **Star the main project instead: [https://github.com/enfyra/enfyra](https://github.com/enfyra/enfyra) **
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Nuxt](https://img.shields.io/badge/Nuxt-4-green.svg)](https://nuxt.com/)
 [![Vue](https://img.shields.io/badge/Vue-3-green.svg)](https://vuejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org/)
 
-## 🚀 What is Enfyra?
+##  What is Enfyra?
 
 **Enfyra is a backend framework that automatically generates APIs from your database.** You create tables through a visual interface, and Enfyra instantly provides REST & GraphQL APIs for them - no coding required. It's like having a backend developer that never sleeps.
 
-🔗 **Live Demo**: [https://demo.enfyra.io/](https://demo.enfyra.io/) - Pre-filled admin credentials, just click login!
+ **Live Demo**: [https://demo.enfyra.io/](https://demo.enfyra.io/) - Pre-filled admin credentials, just click login!
 
 **What can you build with Enfyra?**
 
@@ -24,7 +24,7 @@
 - **Mobile app backends** - User management, data sync, push notifications
 - **Any data-driven system** - If it needs a database and API, Enfyra can power it
 
-### 💪 No-Code Simplicity, Full-Code Power
+###  No-Code Simplicity, Full-Code Power
 
 Unlike typical no-code platforms that limit you to predefined features, **Enfyra gives you complete control over every aspect of your API lifecycle**:
 
@@ -36,34 +36,34 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 
 **The result?** Start building in minutes with no-code, but never hit a ceiling when your requirements grow complex. Every API endpoint can be customized, every workflow can be automated, and every business rule can be implemented - all without forking or modifying the core system.
 
-### ⚡ Key Differentiators
+###  Key Differentiators
 
-**🔥 Backend-First Architecture**
+** Backend-First Architecture**
 
 - **API Generation**: All REST & GraphQL APIs are automatically generated and served by the backend server (port 1105)
 - **Frontend as Client**: The frontend app (port 3000) is purely a client that consumes APIs from your backend URL
 - **Single Source of Truth**: Backend generates APIs from database schema, frontend consumes them via HTTP requests
 
-**🔥 Real-time Everything**
+** Real-time Everything**
 
 - **Live Extension System**: Write Vue/JavaScript extensions that compile and load instantly from the database - no server restarts, no deployments
 - **Zero-downtime Schema Updates**: Change your data structure while your API stays 100% available
 - **Instant API Generation**: Every table immediately becomes a full REST & GraphQL API with advanced querying
 
-**🏗️ Cluster-Ready Architecture**
+** Cluster-Ready Architecture**
 
 - **Born for Clustering**: Designed from day one to run multiple instances - no configuration, no setup, just scale
 - **Automatic Coordination**: Schema changes sync instantly across all instances via Redis
 - **Zero Additional Work**: Deploy 1 instance or 100 instances - the experience is identical
-- **Stateless by Design**: Any instance handles any request seamlessly - [Learn how it works →](./server/cluster-architecture.md)
+- **Stateless by Design**: Any instance handles any request seamlessly - [Learn how it works ](./server/cluster-architecture.md)
 
-**🛡️ Enterprise-Grade Security**
+** Enterprise-Grade Security**
 
 - **Visual Permission Builder**: Create complex permission logic with AND/OR conditions and nested rules
 - **Dynamic Role System**: Permissions that adapt based on data relationships and user context
 - **Handler Isolation**: Custom code runs in isolated processes for security and stability
 
-**🚀 Beyond Traditional CMS**
+** Beyond Traditional CMS**
 
 - **Meta-Programming Core**: The entire API structure is generated from database metadata in real-time
 - **Multi-Instance Coordination**: Run multiple instances with automatic schema synchronization via Redis
@@ -71,7 +71,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 - **Flexible Syntax**: Choose between traditional `$ctx.$property` or modern template syntax `@TEMPLATE` & `#table_name`
 - **Built-in Tables**: Leverage system tables like `user_definition` for immediate user management
 
-### ⚡ Modern Template Syntax
+###  Modern Template Syntax
 
 Choose your coding style - both work seamlessly together:
 
@@ -94,7 +94,7 @@ const user = await #user_definition.create({
 
 **See**: [Complete Example](./examples/user-registration-example.md) featuring both syntax styles!
 
-### 🎯 Core Capabilities
+###  Core Capabilities
 
 | Feature               | How It Works                                                            |
 | --------------------- | ----------------------------------------------------------------------- |
@@ -108,7 +108,7 @@ const user = await #user_definition.create({
 | **Package Management**| Install NPM packages directly from UI for use in handlers and hooks     |
 | **Built-in Auth**     | System tables like `user_definition` for immediate user management     |
 
-### 💡 Perfect For
+###  Perfect For
 
 - **Rapid Development**: Go from idea to production API in minutes, not days
 - **Complex Projects**: Handle sophisticated data relationships and business logic without limitations
@@ -116,18 +116,18 @@ const user = await #user_definition.create({
 - **Team Collaboration**: Intuitive interface for non-technical users, powerful tools for developers
 - **Custom Solutions**: Build exactly what you need without fighting framework limitations
 
-### 🏗️ Architecture Overview
+###  Architecture Overview
 
 **Two-Component System:**
 ```
-Database → Backend (API Server) → Frontend (Admin App)
+Database  Backend (API Server)  Frontend (Admin App)
 ```
 
 - **Backend (Port 1105)**: Generates & serves all REST & GraphQL APIs from your database schema
 - **Frontend (Port 3000)**: Pure client application consuming APIs from backend URL
 - **All API endpoints**: Originate from backend server, frontend makes HTTP requests
 
-### 🏗️ Built With Modern Technology
+###  Built With Modern Technology
 
 **Backend**: NestJS + Express.js + Knex + Redis + GraphQL Yoga
 **Frontend**: Nuxt 4 + Vue 3 + TypeScript + TailwindCSS
@@ -147,13 +147,15 @@ Database → Backend (API Server) → Frontend (Admin App)
 
 ## Features
 
-### 🏗️ Core Infrastructure
+###  Core Infrastructure
 - **Dynamic Table Management** - Create and modify database tables on the fly
 - **Package Management** - Install and manage NPM packages directly from the UI for use in handlers and hooks
-- **Official SDK** - `useApi` and `useEnfyraAuth` from @enfyra/sdk-nuxt package with custom error handling
+- **Official SDKs**  
+  - Nuxt: `@enfyra/sdk-nuxt` ([docs](https://github.com/enfyra/sdk-nuxt)) – `useApi`, `useEnfyraAuth`, and related composables with custom error handling  
+  - Next.js: `@enfyra/sdk-next` ([docs](https://github.com/enfyra/sdk-next)) – API client and auth utilities for custom Next.js apps
 - **TypeScript Support** - Full type safety throughout the application
 
-### 🎨 User Interface  
+###  User Interface  
 - **Extension System** - Extensible architecture with dynamic extension loading
 - **Permission System** - Comprehensive role-based access control (RBAC)
 - **Menu Registry** - Dynamic sidebar and menu management
@@ -161,28 +163,28 @@ Database → Backend (API Server) → Frontend (Admin App)
 - **Dynamic Forms** - Auto-generated forms with validation and relations
 - **Advanced Filtering** - Interactive UI filtering with MongoDB-like syntax
 
-### ⚙️ Developer Experience
+###  Developer Experience
 - **Flexible Code Syntax** - Choose between traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name`
 - **Built-in Authentication** - System tables like `user_definition` for immediate user management
 - **Hook System** - PreHook and AfterHook support for custom business logic
 - **Custom Handlers** - Override default CRUD operations with your own code
 - **Request Context** - Full `$ctx` object with repositories, helpers, packages, and more
 
-## 📚 Documentation
+##  Documentation
 
 ```
 enfyra-docs/
-├── 🏗️ architecture-overview.md  # System architecture diagram and component responsibilities
-├── 🚀 getting-started/
+├──  architecture-overview.md  # System architecture diagram and component responsibilities
+├──  getting-started/
 │   ├── installation.md          # Setup guide for backend and app
 │   ├── getting-started.md       # First steps after installation and interface overview
 │   ├── table-creation.md        # Complete guide to creating tables with all field types
 │   └── data-management.md       # Complete guide to managing records in your tables
 │
-├── 📝 examples/
+├──  examples/
 │   └── user-registration-example.md # Complete end-to-end example with template syntax
 │
-├── 🎨 frontend/
+├──  frontend/
 │   ├── api-integration.md        # API integration with Enfyra SDK and examples for extensions
 │   ├── filter-system.md         # Interactive UI filtering for data tables and forms
 │   ├── relation-picker.md       # Working with related data in forms (powered by Filter System)
@@ -199,27 +201,27 @@ enfyra-docs/
 │   ├── storage-management.md    # Upload and manage files, folders, and storage configurations
 │   └── form-system.md          # Dynamic form generation with validation and relations
 │
-└── ⚙️ server/
-    ├── README.md                # 📖 Server documentation overview and quick navigation
-    ├── api-lifecycle.md         # 🔄 Request lifecycle, hook system, and context sharing
-    ├── query-filtering.md       # 🔥 MongoDB-like query filtering operators and examples
-    ├── error-handling.md        # 🚨 Error handling patterns and best practices
-    ├── cache-operations.md      # 💾 Distributed caching and locking operations
-    ├── file-handling.md         # 📁 File upload handling and management
-    ├── cluster-architecture.md  # 🏗️ Multi-instance coordination and distributed synchronization
-    ├── repository-methods/      # 📚 Complete guide to database operations
+└──  server/
+    ├── README.md                #  Server documentation overview and quick navigation
+    ├── api-lifecycle.md         #  Request lifecycle, hook system, and context sharing
+    ├── query-filtering.md       #  MongoDB-like query filtering operators and examples
+    ├── error-handling.md        #  Error handling patterns and best practices
+    ├── cache-operations.md      #  Distributed caching and locking operations
+    ├── file-handling.md         #  File upload handling and management
+    ├── cluster-architecture.md  #  Multi-instance coordination and distributed synchronization
+    ├── repository-methods/      #  Complete guide to database operations
     │   ├── README.md            # Overview and quick reference
     │   ├── find.md              # Query records with filtering, sorting, pagination
     │   ├── create-update-delete.md # Create, update, and delete operations
     │   └── patterns.md          # Common patterns and best practices
-    ├── context-reference/       # 📖 Complete $ctx object reference
+    ├── context-reference/       #  Complete $ctx object reference
     │   ├── README.md            # Overview and navigation
     │   ├── request-data.md      # Request body, params, query, user
     │   ├── repositories.md      # Database repository access
     │   ├── helpers-cache.md     # Helper functions and cache operations
     │   ├── logging-errors.md    # Logging and error handling
     │   └── advanced.md          # File uploads, API info, shared context
-    └── hooks-handlers/          # 🎣 Hooks and handlers guide
+    └── hooks-handlers/          #  Hooks and handlers guide
         ├── README.md            # Overview and execution flow
         ├── prehooks.md          # Pre-handler operations
         ├── afterhooks.md        # Post-handler operations
@@ -227,39 +229,39 @@ enfyra-docs/
         └── patterns.md          # Common patterns and best practices
 ```
 
-## 🗺️ Learning Path
+##  Learning Path
 
 **New to Enfyra?** Choose your journey:
 
-### ⚡ Quick Start (5 mins)
+###  Quick Start (5 mins)
 **Just want to see what Enfyra can do?**
-1. 🌐 **[Try Live Demo](https://demo.enfyra.io/)** - Pre-filled admin credentials, just click login!
-2. 📖 **[Getting Started Guide](./getting-started/getting-started.md)** - See table creation and data management in action
+1.  **[Try Live Demo](https://demo.enfyra.io/)** - Pre-filled admin credentials, just click login!
+2.  **[Getting Started Guide](./getting-started/getting-started.md)** - See table creation and data management in action
 
-### 📚 Full Learning Path
+###  Full Learning Path
 **Ready to master Enfyra?** Follow this step-by-step path to become proficient:
 
-### 🚀 Phase 1: Setup & Basics (30 mins)
+###  Phase 1: Setup & Basics (30 mins)
 1. **[Installation](./getting-started/installation.md)** - Set up Enfyra backend and app
 2. **[Getting Started](./getting-started/getting-started.md)** - First login and interface overview
 3. **[Table Creation](./getting-started/table-creation.md)** - Create your first table with all field types and relations, including `onDelete` cascade behavior
 4. **[Data Management](./getting-started/data-management.md)** - Learn to manage records and relationships
 
-### 🎨 Phase 2: Frontend Mastery (2-3 hours)
+###  Phase 2: Frontend Mastery (2-3 hours)
 5. **[Form System](./frontend/form-system.md)** - Understand how forms work with your data
 6. **[Filter System](./frontend/filter-system.md)** - Master data filtering and searching  
 7. **[Permission Builder](./frontend/permission-builder.md)** - Set up access control rules
 8. **[Menu Management](./frontend/menu-management.md)** - Customize navigation and user interface
 9. **[Storage Management](./frontend/storage-management.md)** - Upload and manage files, folders, and storage configurations
 
-### 🔧 Phase 3: Customization (3-4 hours)
+###  Phase 3: Customization (3-4 hours)
 10. **[API Integration](./frontend/api-integration.md)** - Learn to fetch and manipulate data programmatically
 11. **[Package Management](./frontend/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
 12. **[Extension System](./frontend/extension-system.md)** - Build custom pages and functionality
 13. **[Header Actions](./frontend/header-actions.md)** - Inject custom buttons and widgets into the app interface
 14. **[Custom Handlers](./frontend/custom-handlers.md)** - Override default API behavior with business logic
 
-### ⚙️ Phase 4: Advanced Development (4-5 hours)
+###  Phase 4: Advanced Development (4-5 hours)
 15. **[Repository Methods](./server/repository-methods/)** - Master database operations with find, create, update, delete
 16. **[Context Reference](./server/context-reference/)** - Complete reference for $ctx object in hooks and handlers
 17. **[Hooks and Handlers](./server/hooks-handlers/)** - Create sophisticated preHooks, afterHooks, and custom handlers
@@ -267,37 +269,37 @@ enfyra-docs/
 19. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
 20. **[Error Handling](./server/error-handling.md)** - Handle errors properly with best practices
 
-### 🏗️ Phase 5: Production & Scale (2-3 hours)
+###  Phase 5: Production & Scale (2-3 hours)
 21. **[Cache Operations](./server/cache-operations.md)** - Implement distributed caching and locking
 22. **[File Handling](./server/file-handling.md)** - Handle file uploads and management
 23. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
 
-### 🎯 Goal-Oriented Paths
+###  Goal-Oriented Paths
 
 **Have a specific goal?** Jump directly to what you need:
 
-- 🚀 **Building an MVP?** → Phases 1-2 (4-5 hours total)
-- 🔧 **Need custom functionality?** → Focus on Phase 3: API Integration + Extensions
-- 📊 **Building a dashboard?** → [Extension System](./frontend/extension-system.md) + [API Integration](./frontend/api-integration.md)
-- 🔒 **Need role-based access?** → [Permission Builder](./frontend/permission-builder.md)
-- ⚙️ **Complex business logic?** → [Custom Handlers](./frontend/custom-handlers.md) + [Context Reference](./server/context-reference/) + [Hooks and Handlers](./server/hooks-handlers/)
-- 🏢 **Enterprise deployment?** → [Cluster Architecture](./server/cluster-architecture.md) + [Cache Operations](./server/cache-operations.md)
-- 🚀 **Application initialization?** → [Repository Methods](./server/repository-methods/) + [API Integration](./frontend/api-integration.md)
+-  **Building an MVP?**  Phases 1-2 (4-5 hours total)
+-  **Need custom functionality?**  Focus on Phase 3: API Integration + Extensions
+-  **Building a dashboard?**  [Extension System](./frontend/extension-system.md) + [API Integration](./frontend/api-integration.md)
+-  **Need role-based access?**  [Permission Builder](./frontend/permission-builder.md)
+-  **Complex business logic?**  [Custom Handlers](./frontend/custom-handlers.md) + [Context Reference](./server/context-reference/) + [Hooks and Handlers](./server/hooks-handlers/)
+-  **Enterprise deployment?**  [Cluster Architecture](./server/cluster-architecture.md) + [Cache Operations](./server/cache-operations.md)
+-  **Application initialization?**  [Repository Methods](./server/repository-methods/) + [API Integration](./frontend/api-integration.md)
 
 ---
 
 ### Quick Navigation
 
-**🏗️ Architecture Overview**
+** Architecture Overview**
 - **[Architecture Overview](./architecture-overview.md)** - System architecture diagram and component responsibilities
 
-**🚀 Getting Started**
+** Getting Started**
 - **[Installation](./getting-started/installation.md)** - Setup guide for backend and app
 - **[Getting Started](./getting-started/getting-started.md)** - First steps after installation and interface overview
 - **[Table Creation](./getting-started/table-creation.md)** - Complete guide to creating tables with all field types
 - **[Data Management](./getting-started/data-management.md)** - Complete guide to managing records in your tables
 
-**🎨 Frontend (User Interface)**
+** Frontend (User Interface)**
 - **[API Integration](./frontend/api-integration.md)** - API integration with Enfyra SDK and examples for extensions
 - **[Filter System](./frontend/filter-system.md)** - Interactive UI filtering for data tables and forms
 - **[Relation Picker](./frontend/relation-picker.md)** - Working with related data in forms (powered by Filter System)
@@ -314,26 +316,26 @@ enfyra-docs/
 - **[Storage Management](./frontend/storage-management.md)** - Upload and manage files, folders, and storage configurations
 - **[Form System](./frontend/form-system.md)** - Dynamic form generation with validation and relations
 
-**⚙️ Backend (Developer Integration)**
-- **[Server Documentation](./server/)** - 📖 Complete server documentation overview
-- **[Repository Methods](./server/repository-methods/)** - 📚 Database operations: find, create, update, delete with filtering and patterns
-- **[Context Reference](./server/context-reference/)** - 📖 Complete $ctx object reference for hooks and handlers
-- **[Hooks and Handlers](./server/hooks-handlers/)** - 🎣 PreHooks, afterHooks, and custom handlers guide
-- **[API Lifecycle](./server/api-lifecycle.md)** - 🔄 Request lifecycle, hook system, and context sharing
-- **[Query Filtering](./server/query-filtering.md)** - 🔥 MongoDB-like query filtering operators and examples
-- **[Error Handling](./server/error-handling.md)** - 🚨 Error handling patterns and best practices
-- **[Cache Operations](./server/cache-operations.md)** - 💾 Distributed caching and locking operations
-- **[File Handling](./server/file-handling.md)** - 📁 File upload handling and management
-- **[Cluster Architecture](./server/cluster-architecture.md)** - 🏗️ Multi-instance coordination and distributed synchronization
+** Backend (Developer Integration)**
+- **[Server Documentation](./server/)** -  Complete server documentation overview
+- **[Repository Methods](./server/repository-methods/)** -  Database operations: find, create, update, delete with filtering and patterns
+- **[Context Reference](./server/context-reference/)** -  Complete $ctx object reference for hooks and handlers
+- **[Hooks and Handlers](./server/hooks-handlers/)** -  PreHooks, afterHooks, and custom handlers guide
+- **[API Lifecycle](./server/api-lifecycle.md)** -  Request lifecycle, hook system, and context sharing
+- **[Query Filtering](./server/query-filtering.md)** -  MongoDB-like query filtering operators and examples
+- **[Error Handling](./server/error-handling.md)** -  Error handling patterns and best practices
+- **[Cache Operations](./server/cache-operations.md)** -  Distributed caching and locking operations
+- **[File Handling](./server/file-handling.md)** -  File upload handling and management
+- **[Cluster Architecture](./server/cluster-architecture.md)** -  Multi-instance coordination and distributed synchronization
 
-**📝 Examples & Templates**
+** Examples & Templates**
 - **[User Registration](./examples/user-registration-example.md)** - Complete end-to-end example featuring template syntax, hooks, handlers, and package management
 
 ## Installation
 
 Enfyra requires both backend and frontend to work properly. See our complete installation guide:
 
-**[→ Complete Installation Guide](./getting-started/installation.md)**
+**[ Complete Installation Guide](./getting-started/installation.md)**
 
 Quick overview:
 1. First install Enfyra Server
@@ -360,13 +362,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- 📖 [Documentation](./)
-- 🐛 [Issues](https://github.com/dothinh115/enfyra/issues)
-- 💬 [Discussions](https://github.com/dothinh115/enfyra/discussions)
+-  [Documentation](./)
+-  [Issues](https://github.com/dothinh115/enfyra/issues)
+-  [Discussions](https://github.com/dothinh115/enfyra/discussions)
 
 ## Credits
 
-Built with ❤️ using:
+Built with  using:
 
 - [Nuxt.js](https://nuxt.com/) - The Vue.js Framework
 - [Vue.js](https://vuejs.org/) - The Progressive JavaScript Framework

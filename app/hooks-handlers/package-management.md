@@ -2,7 +2,7 @@
 
 Package Management lets you install NPM packages directly from the Enfyra interface and use them in your custom handlers and hooks. Instead of managing dependencies manually, you can search, install, and configure packages through the UI - they're automatically available in your custom code as `$ctx.$pkgs.packagename`.
 
-**Related Documentation**: [Custom Handlers](./custom-handlers.md) | [Hook Development](../server/hook-development.md) | [User Registration Example](../examples/user-registration-example.md)
+**Related Documentation**: [Custom Handlers](./custom-handlers.md) | [Hook Development](../../server/hook-development.md) | [User Registration Example](../../examples/user-registration-example.md)
 
 ## Why Use Package Management?
 
@@ -46,7 +46,7 @@ joi            # Data validation schemas
 3. **Customize details** if needed (description, flags, etc.)
 4. **Click Install** to add the package to your project
 
-** Important**: The package name field is automatically populated and cannot be edited - this ensures correct package resolution.
+**Important**: The package name field is automatically populated and cannot be edited - this ensures correct package resolution.
 
 ## Using Installed Packages
 
@@ -168,7 +168,7 @@ Current: lodash v4.17.20
 Updated: lodash v4.17.21
 ```
 
-** Version Update Notes:**
+**Version Update Notes:**
 - **Manual specification**: You must enter the exact version number you want
 - **Version validation**: Ensure the version exists on NPM before updating
 - **Backward compatibility**: Test your handlers after version updates, especially major version changes
@@ -179,7 +179,7 @@ Updated: lodash v4.17.21
 2. **Click Uninstall** button in the header (red trash icon)
 3. **Confirm removal** when prompted
 
-** Warning**: Uninstalling removes the package from all handlers and hooks immediately. Make sure no active code depends on it first.
+**Warning**: Uninstalling removes the package from all handlers and hooks immediately. Make sure no active code depends on it first.
 
 ## Common Package Use Cases
 
@@ -298,3 +298,4 @@ const axios = $ctx.$pkgs.axios; // undefined
 - **Test in staging**: For production systems, test version updates in a staging environment first
 - **Pin important versions**: Keep stable versions for critical functionality
 - **Document dependencies**: Keep track of which handlers/hooks use which packages and versions
+

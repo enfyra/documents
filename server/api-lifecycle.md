@@ -15,7 +15,7 @@ Understanding how API requests flow through Enfyra helps you build effective hoo
 Every API request in Enfyra follows this lifecycle:
 
 ```
-HTTP Request → Route Detection → Context Setup → preHooks → Handler → afterHooks → Response
+HTTP Request  Route Detection  Context Setup  preHooks  Handler  afterHooks  Response
 ```
 
 ### Visual Flow
@@ -245,7 +245,7 @@ For a `POST /users` request with these hooks:
 
 **Execution sequence:**
 ```
-[Global preHook - all] → [Global preHook - POST] → [Route preHook - all] → [Route preHook - POST] → [Handler] → [afterHooks in same order]
+[Global preHook - all]  [Global preHook - POST]  [Route preHook - all]  [Route preHook - POST]  [Handler]  [afterHooks in same order]
 ```
 
 ### Sequential Execution

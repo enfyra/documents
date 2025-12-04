@@ -13,7 +13,7 @@ This example demonstrates how to create a custom `/api/register` endpoint using 
 
 ## Step 1: Create the Route
 
-1. Navigate to **Settings → Routes** → [📖 Routing Management Guide](../frontend/routing-management.md)
+1. Navigate to **Settings  Routes**  [ Routing Management Guide](../frontend/routing-management.md)
 2. Click **"Create New Route"**
 3. Configure:
    - **Route**: `/register`
@@ -24,17 +24,17 @@ This example demonstrates how to create a custom `/api/register` endpoint using 
 
 ## Step 2: Create the Custom Handler
 
-1. Navigate to **Settings → Handlers** → [📖 Custom Handlers Guide](../frontend/custom-handlers.md)
+1. Navigate to **Settings  Handlers**  [ Custom Handlers Guide](../frontend/custom-handlers.md)
 2. Click **"Create New Handler"**
 3. Configure:
-   - **Route**: Click relation picker → Select `/register` route
-   - **Method**: Click relation picker → Select `POST`
+   - **Route**: Click relation picker  Select `/register` route
+   - **Method**: Click relation picker  Select `POST`
    - **Logic**: Enter the JavaScript code below
 4. Save the handler
 
 ### Handler Code:
 
-**📝 Syntax Options**: Both traditional (`$ctx.$property`) and new template syntax (`@TEMPLATE`, `#table_name`) work interchangeably. Choose what feels comfortable!
+** Syntax Options**: Both traditional (`$ctx.$property`) and new template syntax (`@TEMPLATE`, `#table_name`) work interchangeably. Choose what feels comfortable!
 
 **Traditional Syntax (Original Way):**
 ```javascript
@@ -112,7 +112,7 @@ return {
 
 ## Step 3: Install Nodemailer Package
 
-1. Navigate to **Settings → Packages** → [📖 Package Management Guide](../frontend/package-management.md)
+1. Navigate to **Settings  Packages**  [ Package Management Guide](../frontend/package-management.md)
 2. Click **"Install Package"**
 3. Select **"Backend Package"** type
 4. Search for `nodemailer`
@@ -121,18 +121,18 @@ return {
 
 ## Step 4: Create Registration Hook (PreHook + AfterHook)
 
-1. Navigate to **Settings → Hooks** → [📖 Hooks System Guide](../frontend/hooks.md)
+1. Navigate to **Settings  Hooks**  [ Hooks System Guide](../frontend/hooks.md)
 2. Click **"Create New Hook"**
 3. Configure:
-   - **Route**: Click relation picker → Select `/register` route
-   - **Method**: Click relation picker → Select `POST`
+   - **Route**: Click relation picker  Select `/register` route
+   - **Method**: Click relation picker  Select `POST`
    - **Priority**: `0` (run first, before handler)
 4. Enter both PreHook and AfterHook code below
 5. Save the hook
 
 ### Complete Hook Code:
 
-**📝 Choose Your Syntax Style**: Both traditional and template syntax work perfectly together!
+** Choose Your Syntax Style**: Both traditional and template syntax work perfectly together!
 
 **PreHook (Validation) - Traditional Syntax:**
 ```javascript
@@ -229,7 +229,7 @@ if (!$ctx.$api.error && $ctx.$data.success && $ctx.$data.user) {
   const mailOptions = {
     from: '"Your App" <noreply@yourapp.com>',
     to: $ctx.$data.user.email,
-    subject: '🎉 Welcome to Our Platform!',
+    subject: ' Welcome to Our Platform!',
     html: `
       <h2>Welcome ${$ctx.$data.user.name || 'there'}!</h2>
       <p>Thank you for registering with our platform.</p>
@@ -280,7 +280,7 @@ if (!@API.error && @DATA.success && @DATA.user) {
   const mailOptions = {
     from: '"Your App" <noreply@yourapp.com>',
     to: @DATA.user.email,
-    subject: '🎉 Welcome to Our Platform!',
+    subject: ' Welcome to Our Platform!',
     html: `
       <h2>Welcome ${@DATA.user.name || 'there'}!</h2>
       <p>Thank you for registering with our platform.</p>
@@ -367,7 +367,8 @@ curl -X POST http://localhost:1105/register \
 
 Use the API in your **external frontend application** (not the Enfyra admin app):
 
-**📖 SDK Documentation**: [https://github.com/dothinh115/enfyra-sdk-nuxt](https://github.com/dothinh115/enfyra-sdk-nuxt)
+**Nuxt SDK Documentation**: [https://github.com/enfyra/sdk-nuxt](https://github.com/enfyra/sdk-nuxt)  
+**Next.js SDK Documentation**: [https://github.com/enfyra/sdk-next](https://github.com/enfyra/sdk-next)
 
 Install the SDK:
 ```bash
@@ -478,20 +479,20 @@ if ($ctx.$body.email && !$ctx.$body.email.endsWith('@company.com')) {
 ## Security Considerations
 
 ### Password Security:
-- ✅ Passwords are hashed using bcrypt before storage
-- ✅ Never log or return password fields
-- ✅ Minimum 8-character password requirement
+-  Passwords are hashed using bcrypt before storage
+-  Never log or return password fields
+-  Minimum 8-character password requirement
 
 ### Validation:
-- ✅ Email format validation
-- ✅ Duplicate email checking
-- ✅ Required field validation
-- ✅ SQL injection prevention (via repository methods)
+-  Email format validation
+-  Duplicate email checking
+-  Required field validation
+-  SQL injection prevention (via repository methods)
 
 ### Error Handling:
-- ✅ Clear error messages for validation failures
-- ✅ Proper HTTP status codes
-- ✅ Graceful email failure handling
+-  Clear error messages for validation failures
+-  Proper HTTP status codes
+-  Graceful email failure handling
 
 ## Troubleshooting
 
@@ -515,10 +516,10 @@ if ($ctx.$body.email && !$ctx.$body.email.endsWith('@company.com')) {
 - Check route permissions in Settings
 
 ### Debug Checklist:
-1. ✅ Route configured with `/api/register` path
-2. ✅ Handler linked to route and POST method
-3. ✅ Target Tables includes `user_definition`
-4. ✅ Handler logic syntax is valid JavaScript
-5. ✅ Test data includes valid email and password
+1.  Route configured with `/api/register` path
+2.  Handler linked to route and POST method
+3.  Target Tables includes `user_definition`
+4.  Handler logic syntax is valid JavaScript
+5.  Test data includes valid email and password
 
 This registration endpoint provides a complete, production-ready user registration system with proper validation, security, and error handling.
