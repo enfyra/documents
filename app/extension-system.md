@@ -475,7 +475,7 @@ onUnmounted(() => {
 
 ## Full SDK Access in Extensions
 
-** Complete SDK Integration**: Extensions have full access to all Enfyra SDK features from `@enfyra/sdk-nuxt`. Every composable, utility, and API feature available in the main application is also available in your extensions - no limitations.
+**Complete SDK Integration**: Extensions run inside the Nuxt-based admin app and have full access to all Enfyra Nuxt SDK features from `@enfyra/sdk-nuxt`. Every composable, utility, and API feature available in the main application is also available in your extensions – no limitations.
 
 ## Complete List of Injected Resources
 

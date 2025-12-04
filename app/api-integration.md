@@ -2,7 +2,10 @@
 
 Enfyra uses the official **@enfyra/sdk-nuxt** package for all API interactions, with a custom `useApi` wrapper that provides enhanced error handling and additional features. The SDK provides optimized composables for fetching data, authentication, and real-time updates with built-in caching and error handling.
 
-** Complete SDK Documentation**: [https://github.com/dothinh115/enfyra-sdk-nuxt](https://github.com/dothinh115/enfyra-sdk-nuxt)
+From the app's perspective, **all API calls go to the Enfyra Server (port 1105)**. The frontend never talks to the database directly – it only calls HTTP endpoints exposed by the server.
+
+**Complete Nuxt SDK Documentation**: [https://github.com/enfyra/sdk-nuxt](https://github.com/enfyra/sdk-nuxt)  
+**Next.js SDK** (for custom Next.js apps): [https://github.com/enfyra/sdk-next](https://github.com/enfyra/sdk-next)
 
 ## Backend Dependency
 
@@ -882,9 +885,12 @@ const { data } = await useApi<{ data: User[], total: number }>('/user_definition
 
 ## Related Documentation
 
-- **[Extension System](./extension-system.md)** - Using API in extensions
-- **[Form System](./form-system.md)** - API integration in forms  
-- **[Permission System](../server/permission-system.md)** - API permission handling
-- **[SDK Documentation](https://github.com/dothinh115/enfyra-sdk-nuxt)** - Complete SDK reference
+- **[Extension System](./extension-system.md)** - Using API in extensions and widgets
+- **[Form System](./form-system.md)** - How forms integrate with backend APIs  
+- **[Permission Components](./permission-components.md)** - Controlling UI access around API calls  
+- **[Permission System (Server)](../server/permission-system.md)** - How permissions are evaluated on the backend
+- **[Server Documentation](../server/README.md)** - Overview of backend APIs and context
+- **[Nuxt SDK Documentation](https://github.com/enfyra/sdk-nuxt)** - Official Nuxt SDK reference
+- **[Next.js SDK Documentation](https://github.com/enfyra/sdk-next)** - Official Next.js SDK reference
 
-The Enfyra SDK provides everything you need for robust API integration with built-in caching, error handling, and TypeScript support.
+The Enfyra SDK family provides everything you need for robust API integration with built-in caching, error handling, and TypeScript support.

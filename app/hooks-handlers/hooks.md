@@ -2,7 +2,7 @@
 
 Hooks are a powerful feature that allows you to inject custom code at specific points in the API request lifecycle. Instead of creating full [Custom Handlers](./custom-handlers.md), you can use hooks to modify requests and responses with minimal code.
 
-**For complete lifecycle understanding, see [API Lifecycle](../server/api-lifecycle.md)**
+**For complete lifecycle understanding, see [API Lifecycle](../../server/api-lifecycle.md)**
 
 ## What are Hooks?
 
@@ -31,7 +31,7 @@ Hooks execute JavaScript code at two key moments:
 
 Hooks have access to a shared context object (`$ctx`) that persists throughout the entire API request lifecycle. This context contains request data, database repositories, helper functions, and user information.
 
-**For complete $ctx documentation and lifecycle details, see [API Lifecycle](../server/api-lifecycle.md#context-sharing-ctx)**
+**For complete $ctx documentation and lifecycle details, see [API Lifecycle](../../server/api-lifecycle.md#context-sharing-ctx)**
 
 ### Key Context Properties Available in Hooks
 
@@ -124,7 +124,7 @@ $ctx.$response.data.forEach(record => {
 
 For detailed information about writing JavaScript code within hooks, including the context object (`$ctx`), available functions, and comprehensive examples, see:
 
-** [Hook Development Guide](../server/hook-development.md)**
+**[Hook Development Guide](../../server/hook-development.md)**
 
 This covers:
 - Hook context and available variables
@@ -135,6 +135,7 @@ This covers:
 
 ## Practical Examples
 
-**[ User Registration Example](../examples/user-registration-example.md)** - See hooks in action with welcome email AfterHook using nodemailer package.
+**[User Registration Example](../../examples/user-registration-example.md)** - See hooks in action with welcome email AfterHook using nodemailer package.
 
 Hooks provide the perfect balance between simplicity and power, allowing you to customize API behavior without the complexity of full custom handlers.
+
