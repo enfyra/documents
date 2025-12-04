@@ -200,16 +200,31 @@ enfyra-docs/
 │   └── form-system.md          # Dynamic form generation with validation and relations
 │
 └── ⚙️ server/
+    ├── README.md                # 📖 Server documentation overview and quick navigation
     ├── api-lifecycle.md         # 🔄 Request lifecycle, hook system, and context sharing
-    ├── api-querying.md          # 🔥 MongoDB-like API querying with powerful operators (for developers)
-    ├── graphql-api.md           # 📊 GraphQL queries and mutations with auto-generated schema
-    ├── hook-development.md      # Advanced hook programming with context, examples, and best practices
-    ├── context-reference.md     # 📖 Complete $ctx object reference for hooks and handlers
-    ├── file-handling.md         # 📁 File upload handling and response streaming with Sharp image processing
+    ├── query-filtering.md       # 🔥 MongoDB-like query filtering operators and examples
+    ├── error-handling.md        # 🚨 Error handling patterns and best practices
+    ├── cache-operations.md      # 💾 Distributed caching and locking operations
+    ├── file-handling.md         # 📁 File upload handling and management
     ├── cluster-architecture.md  # 🏗️ Multi-instance coordination and distributed synchronization
-    ├── permission-system.md     # 🔐 Role-based access control with allowedUsers bypass
-    ├── template-syntax.md       # ✨ Modern template syntax for cleaner code
-    └── bootstrap-scripts.md     # 🚀 Startup script execution system with full context access
+    ├── repository-methods/      # 📚 Complete guide to database operations
+    │   ├── README.md            # Overview and quick reference
+    │   ├── find.md              # Query records with filtering, sorting, pagination
+    │   ├── create-update-delete.md # Create, update, and delete operations
+    │   └── patterns.md          # Common patterns and best practices
+    ├── context-reference/       # 📖 Complete $ctx object reference
+    │   ├── README.md            # Overview and navigation
+    │   ├── request-data.md      # Request body, params, query, user
+    │   ├── repositories.md      # Database repository access
+    │   ├── helpers-cache.md     # Helper functions and cache operations
+    │   ├── logging-errors.md    # Logging and error handling
+    │   └── advanced.md          # File uploads, API info, shared context
+    └── hooks-handlers/          # 🎣 Hooks and handlers guide
+        ├── README.md            # Overview and execution flow
+        ├── prehooks.md          # Pre-handler operations
+        ├── afterhooks.md        # Post-handler operations
+        ├── custom-handlers.md   # Custom business logic
+        └── patterns.md          # Common patterns and best practices
 ```
 
 ## 🗺️ Learning Path
@@ -245,15 +260,17 @@ enfyra-docs/
 14. **[Custom Handlers](./frontend/custom-handlers.md)** - Override default API behavior with business logic
 
 ### ⚙️ Phase 4: Advanced Development (4-5 hours)
-15. **[API Querying](./server/api-querying.md)** - Master MongoDB-like querying for complex data retrieval
-16. **[Context Reference](./server/context-reference.md)** - Complete reference for $ctx object in hooks and handlers
-17. **[Hook Development](./server/hook-development.md)** - Create sophisticated request/response hooks
-18. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
+15. **[Repository Methods](./server/repository-methods/)** - Master database operations with find, create, update, delete
+16. **[Context Reference](./server/context-reference/)** - Complete reference for $ctx object in hooks and handlers
+17. **[Hooks and Handlers](./server/hooks-handlers/)** - Create sophisticated preHooks, afterHooks, and custom handlers
+18. **[Query Filtering](./server/query-filtering.md)** - Master MongoDB-like query filtering for complex data retrieval
+19. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
+20. **[Error Handling](./server/error-handling.md)** - Handle errors properly with best practices
 
 ### 🏗️ Phase 5: Production & Scale (2-3 hours)
-19. **[Permission System](./server/permission-system.md)** - Deep dive into role-based access control
-20. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
-21. **[Bootstrap Scripts](./server/bootstrap-scripts.md)** - Initialize application state and perform startup tasks
+21. **[Cache Operations](./server/cache-operations.md)** - Implement distributed caching and locking
+22. **[File Handling](./server/file-handling.md)** - Handle file uploads and management
+23. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
 
 ### 🎯 Goal-Oriented Paths
 
@@ -262,10 +279,10 @@ enfyra-docs/
 - 🚀 **Building an MVP?** → Phases 1-2 (4-5 hours total)
 - 🔧 **Need custom functionality?** → Focus on Phase 3: API Integration + Extensions
 - 📊 **Building a dashboard?** → [Extension System](./frontend/extension-system.md) + [API Integration](./frontend/api-integration.md)
-- 🔒 **Need role-based access?** → [Permission Builder](./frontend/permission-builder.md) + [Permission System](./server/permission-system.md)
-- ⚙️ **Complex business logic?** → [Custom Handlers](./frontend/custom-handlers.md) + [Context Reference](./server/context-reference.md) + [Hook Development](./server/hook-development.md)
-- 🏢 **Enterprise deployment?** → [Cluster Architecture](./server/cluster-architecture.md) + [Permission System](./server/permission-system.md)
-- 🚀 **Application initialization?** → [Bootstrap Scripts](./server/bootstrap-scripts.md) + [API Integration](./frontend/api-integration.md)
+- 🔒 **Need role-based access?** → [Permission Builder](./frontend/permission-builder.md)
+- ⚙️ **Complex business logic?** → [Custom Handlers](./frontend/custom-handlers.md) + [Context Reference](./server/context-reference/) + [Hooks and Handlers](./server/hooks-handlers/)
+- 🏢 **Enterprise deployment?** → [Cluster Architecture](./server/cluster-architecture.md) + [Cache Operations](./server/cache-operations.md)
+- 🚀 **Application initialization?** → [Repository Methods](./server/repository-methods/) + [API Integration](./frontend/api-integration.md)
 
 ---
 
@@ -298,17 +315,16 @@ enfyra-docs/
 - **[Form System](./frontend/form-system.md)** - Dynamic form generation with validation and relations
 
 **⚙️ Backend (Developer Integration)**
-- **[API Lifecycle](./server/api-lifecycle.md)** - 🔄 **Request lifecycle**, hook system, and context sharing
-- **[API Querying](./server/api-querying.md)** - 🔥 **MongoDB-like API querying** with powerful operators, relation filtering, aggregation, deep relations, and cascade behavior when calling APIs
-- **[GraphQL API](./server/graphql-api.md)** - 📊 **GraphQL queries and mutations** with auto-generated schema and permission control
-- **[Swagger API](./server/swagger-api.md)** - 📖 **OpenAPI/Swagger documentation** with interactive testing and auto-generation
-- **[MongoDB Relations](./server/mongodb-relations.md)** - 🔗 **MongoDB relation management**, inverse sync, and metadata change behavior
-- **[Context Reference](./server/context-reference.md)** - 📖 **Complete $ctx object reference** for hooks and handlers with examples
-- **[File Handling](./server/file-handling.md)** - 📁 **File upload and streaming** with Sharp image processing and memory optimization
-- **[Hook Development](./server/hook-development.md)** - Advanced hook programming with context, examples, and best practices
-- **[Cluster Architecture](./server/cluster-architecture.md)** - 🏗️ **Multi-instance coordination** and distributed synchronization
-- **[Permission System](./server/permission-system.md)** - 🔐 **Role-based access control** with allowedUsers bypass
-- **[Bootstrap Scripts](./server/bootstrap-scripts.md)** - 🚀 **Startup script execution** with full context access and hot reload
+- **[Server Documentation](./server/)** - 📖 Complete server documentation overview
+- **[Repository Methods](./server/repository-methods/)** - 📚 Database operations: find, create, update, delete with filtering and patterns
+- **[Context Reference](./server/context-reference/)** - 📖 Complete $ctx object reference for hooks and handlers
+- **[Hooks and Handlers](./server/hooks-handlers/)** - 🎣 PreHooks, afterHooks, and custom handlers guide
+- **[API Lifecycle](./server/api-lifecycle.md)** - 🔄 Request lifecycle, hook system, and context sharing
+- **[Query Filtering](./server/query-filtering.md)** - 🔥 MongoDB-like query filtering operators and examples
+- **[Error Handling](./server/error-handling.md)** - 🚨 Error handling patterns and best practices
+- **[Cache Operations](./server/cache-operations.md)** - 💾 Distributed caching and locking operations
+- **[File Handling](./server/file-handling.md)** - 📁 File upload handling and management
+- **[Cluster Architecture](./server/cluster-architecture.md)** - 🏗️ Multi-instance coordination and distributed synchronization
 
 **📝 Examples & Templates**
 - **[User Registration](./examples/user-registration-example.md)** - Complete end-to-end example featuring template syntax, hooks, handlers, and package management

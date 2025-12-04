@@ -48,7 +48,7 @@ Once logged in, you'll see the main Enfyra interface with several key components
 
 Now that you're familiar with the interface, it's time to create your first table and start building your application.
 
-**→ [Table Creation Guide](./table-creation.md)** - Complete step-by-step guide to creating tables with all field types, relations, and constraints.
+** [Table Creation Guide](./table-creation.md)** - Complete step-by-step guide to creating tables with all field types, relations, and constraints.
 
 This comprehensive guide covers:
 - **Table creation workflow** - Step-by-step process

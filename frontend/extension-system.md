@@ -2,7 +2,7 @@
 
 The Extension System allows you to create custom pages and widgets using Vue.js components. Extensions are tightly coupled with the menu system - when you create a menu item, you need an extension to provide the actual content that displays when users click that menu.
 
-**→ [Menu Management Guide](./menu-management.md)** - Learn how to create and configure menus
+** [Menu Management Guide](./menu-management.md)** - Learn how to create and configure menus
 
 ## Table of Contents
 
@@ -42,20 +42,20 @@ Extensions provide the Vue.js component that renders when users navigate to your
 This example shows the complete process from creating a menu to displaying custom content.
 
 ### Step 1: Create a Menu Item
-1. Navigate to **Settings → Menu**
+1. Navigate to **Settings  Menu**
 2. Click **"Create"** to add a new menu
 3. Configure your menu:
    - **Type**: Select "Menu" (for regular menu items)
    - **Label**: "Analytics Dashboard"
    - **Path**: `/custom/analytics` (this will be your extension's URL)
-   - **Icon**: Choose "lucide:bar-chart-3"
+   - **Icon**: Choose ""
    - **Sidebar**: Select "Dashboard" (so it appears under Dashboard sidebar)
 4. Save the menu item
 
 **Result**: You now have a menu entry, but clicking it shows a blank page because there's no extension linked.
 
 ### Step 2: Create the Extension
-1. Navigate to **Settings → Extensions**
+1. Navigate to **Settings  Extensions**
 2. Click **"Create Extension"**
 3. Fill in the extension details:
    - **Name**: "Analytics Dashboard"
@@ -69,7 +69,7 @@ This example shows the complete process from creating a menu to displaying custo
 ### Step 3: Write Your Extension Code
 In the code editor, write your Vue.js Single File Component (SFC).
 
-**✅ Complete Copy-Paste Ready Example:**
+** Complete Copy-Paste Ready Example:**
 This example demonstrates all features and can be pasted directly into the extension editor:
 
 ```vue
@@ -84,7 +84,7 @@ This example demonstrates all features and can be pasted directly into the exten
         </p>
       </div>
       <UBadge color="green" variant="soft">
-        <Icon name="lucide:activity" class="w-4 h-4 mr-1" />
+        
         Live Data
       </UBadge>
     </div>
@@ -93,7 +93,7 @@ This example demonstrates all features and can be pasted directly into the exten
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <UCard>
         <div class="text-center p-4">
-          <Icon name="lucide:users" class="w-8 h-8 mx-auto mb-2 text-blue-600" />
+          
           <div class="text-2xl font-bold text-blue-600">{{ stats.users }}</div>
           <div class="text-sm text-gray-500">Total Users</div>
         </div>
@@ -101,7 +101,7 @@ This example demonstrates all features and can be pasted directly into the exten
 
       <UCard>
         <div class="text-center p-4">
-          <Icon name="lucide:dollar-sign" class="w-8 h-8 mx-auto mb-2 text-green-600" />
+          
           <div class="text-2xl font-bold text-green-600">{{ stats.revenue }}</div>
           <div class="text-sm text-gray-500">Monthly Revenue</div>
         </div>
@@ -109,7 +109,7 @@ This example demonstrates all features and can be pasted directly into the exten
 
       <UCard>
         <div class="text-center p-4">
-          <Icon name="lucide:shopping-cart" class="w-8 h-8 mx-auto mb-2 text-purple-600" />
+          
           <div class="text-2xl font-bold text-purple-600">{{ stats.orders }}</div>
           <div class="text-sm text-gray-500">Orders Today</div>
         </div>
@@ -122,7 +122,7 @@ This example demonstrates all features and can be pasted directly into the exten
         @click="refreshData"
         :loading="loading"
         color="primary"
-        icon="lucide:refresh-cw"
+       
       >
         Refresh Data
       </UButton>
@@ -131,7 +131,7 @@ This example demonstrates all features and can be pasted directly into the exten
         @click="fetchFromAPI"
         :loading="apiLoading"
         variant="outline"
-        icon="lucide:download-cloud"
+       
       >
         Fetch Real Data
       </UButton>
@@ -141,7 +141,7 @@ This example demonstrates all features and can be pasted directly into the exten
           @click="generateReport"
           variant="soft"
           color="green"
-          icon="lucide:file-text"
+         
         >
           Generate Report (Admin Only)
         </UButton>
@@ -160,7 +160,7 @@ This example demonstrates all features and can be pasted directly into the exten
       <UTable :rows="recentActivity" :columns="columns">
         <template #action-data="{ row }">
           <div class="flex items-center gap-2">
-            <Icon :name="getActionIcon(row.action)" class="w-4 h-4" />
+            
             {{ row.action }}
           </div>
         </template>
@@ -182,7 +182,7 @@ This example demonstrates all features and can be pasted directly into the exten
           v-model="formData.name"
           placeholder="Enter name"
           label="Name"
-          icon="lucide:user"
+         
         />
 
         <UTextarea
@@ -278,13 +278,13 @@ const isFormValid = computed(() => {
 // Helper function for action icons
 const getActionIcon = (action) => {
   const icons = {
-    'User login': 'lucide:log-in',
-    'New order': 'lucide:shopping-bag',
-    'Payment received': 'lucide:credit-card',
-    'Profile update': 'lucide:user-check',
-    'Password reset': 'lucide:key'
+    'User login': '',
+    'New order': '',
+    'Payment received': '',
+    'Profile update': '',
+    'Password reset': ''
   };
-  return icons[action] || 'lucide:activity';
+  return icons[action] || '';
 };
 
 // Methods
@@ -302,7 +302,6 @@ const refreshData = async () => {
     title: 'Success',
     description: 'Data has been refreshed',
     color: 'green',
-    icon: 'lucide:check-circle'
   });
 
   loading.value = false;
@@ -403,7 +402,6 @@ onMounted(() => {
     {
       id: 'refresh-dashboard',
       label: 'Refresh',
-      icon: 'lucide:refresh-cw',
       onClick: refreshData,
       color: 'primary',
       variant: 'soft'
@@ -411,7 +409,6 @@ onMounted(() => {
     {
       id: 'view-settings',
       label: 'Settings',
-      icon: 'lucide:settings',
       variant: 'ghost',
       onClick: () => {
         navigateTo('/settings');
@@ -462,7 +459,7 @@ onUnmounted(() => {
 7. **Renders extension** with full access to components and composables
 8. **User sees** the custom analytics dashboard content
 
-**The Magic**: Menu provides navigation → Extension provides content → Complete user experience!
+**The Magic**: Menu provides navigation  Extension provides content  Complete user experience!
 
 ## Extension Types
 
@@ -478,7 +475,7 @@ onUnmounted(() => {
 
 ## Full SDK Access in Extensions
 
-**🚀 Complete SDK Integration**: Extensions have full access to all Enfyra SDK features from `@enfyra/sdk-nuxt`. Every composable, utility, and API feature available in the main application is also available in your extensions - no limitations.
+** Complete SDK Integration**: Extensions have full access to all Enfyra SDK features from `@enfyra/sdk-nuxt`. Every composable, utility, and API feature available in the main application is also available in your extensions - no limitations.
 
 ## Complete List of Injected Resources
 
@@ -487,7 +484,7 @@ Extensions have access to a comprehensive set of resources that are automaticall
 ### UI Components (Auto-Injected)
 All UI components are automatically injected by the extension system and can be used directly in templates without imports:
 
-**Nuxt UI Components** ([📖 Nuxt UI Documentation](https://ui.nuxt.com/)):
+**Nuxt UI Components** ([ Nuxt UI Documentation](https://ui.nuxt.com/)):
 - `UIcon`, `Icon` - Icons and SVG components
 - `UButton` - Buttons with variants and states
 - `UCard` - Container cards with headers/footers
@@ -581,7 +578,7 @@ const handleClick = () => {
 - `useApi()` - Custom API wrapper with error handling (recommended)
 - `useEnfyraApi()` - Direct SDK API calls
 - `useSchema()` - Schema validation and form generation
-- `useFilterQuery()` - Advanced filtering and querying → [Filter System Guide](./filter-system.md)
+- `useFilterQuery()` - Advanced filtering and querying  [Filter System Guide](./filter-system.md)
 - `useDataTableColumns()` - Data table column management
 
 **Authentication & Permissions:**
@@ -735,7 +732,7 @@ Control visibility based on permissions:
 
 ## Header Actions Integration
 
-**🚀 Extensions can inject custom actions directly into the app's header and sub-header areas** - demonstrating the incredible power to intervene in ANY part of the application interface.
+** Extensions can inject custom actions directly into the app's header and sub-header areas** - demonstrating the incredible power to intervene in ANY part of the application interface.
 
 ### Quick Header Action Example
 
@@ -746,7 +743,6 @@ onMounted(() => {
   useHeaderActionRegistry().register({
     id: 'save-report',
     label: 'Save Report',
-    icon: 'lucide:save',
     color: 'primary',
     onClick: () => saveReport(),
     permission: {
@@ -759,7 +755,6 @@ onMounted(() => {
   useSubHeaderActionRegistry().register({
     id: 'filter-toggle',
     label: 'Filters',
-    icon: 'lucide:filter',
     side: 'left',
     onClick: () => toggleFilters()
   });
@@ -774,7 +769,7 @@ onMounted(() => {
 - **Reactive Properties**: Dynamic labels, loading states, conditional visibility
 - **Positioning Control**: Left/right positioning in sub-header
 
-**→ [Complete Header Actions Guide](./header-actions.md)** - Full documentation with advanced examples
+** [Complete Header Actions Guide](./header-actions.md)** - Full documentation with advanced examples
 
 ### Fetching Data from API
 ```vue
@@ -847,7 +842,7 @@ onMounted(() => {
 
 Extensions can use Enfyra's powerful form system to create dynamic, validated forms:
 
-**→ [Complete Form System Guide](./form-system.md)** - Learn about dynamic forms, validation, and field types
+** [Complete Form System Guide](./form-system.md)** - Learn about dynamic forms, validation, and field types
 
 ```vue
 <template>
@@ -968,7 +963,7 @@ const handleFileUpload = async (event) => {
 ## Extension Management
 
 ### Enabling/Disabling Extensions
-1. Go to **Settings → Extensions**
+1. Go to **Settings  Extensions**
 2. Find your extension in the list
 3. Toggle the switch to enable/disable
 4. Disabled extensions won't load even if menu is clicked
@@ -1203,12 +1198,12 @@ const submitForm = async () => {
 ## Summary
 
 The Extension System provides a powerful way to add custom functionality to Enfyra:
-1. **Create Menu** → Defines the navigation entry
-2. **Create Extension** → Provides the page content  
-3. **Link Together** → Menu and extension work as one
-4. **Write Vue Code** → Full Vue 3 SFC support with auto-injected components
-5. **Full SDK Access** → Complete access to all Enfyra SDK features and composables
-6. **Access Resources** → UI components, API, permissions, Vue functions
-7. **Deploy Instantly** → No build process required
+1. **Create Menu**  Defines the navigation entry
+2. **Create Extension**  Provides the page content  
+3. **Link Together**  Menu and extension work as one
+4. **Write Vue Code**  Full Vue 3 SFC support with auto-injected components
+5. **Full SDK Access**  Complete access to all Enfyra SDK features and composables
+6. **Access Resources**  UI components, API, permissions, Vue functions
+7. **Deploy Instantly**  No build process required
 
 Extensions give you the flexibility to create any custom functionality while maintaining the security and consistency of the Enfyra platform. With full SDK integration, extensions have the same power as the core application.

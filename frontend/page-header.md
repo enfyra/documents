@@ -407,12 +407,12 @@ const {
 
 The Page Header System provides:
 
-✅ **Consistent page headers** across the application
-✅ **Multiple layout variants** for different page types
-✅ **Gradient themes** for visual variety
-✅ **Stats display** for key metrics
-✅ **Auto-cleanup** on route changes
-✅ **Reactive support** for dynamic content
+ **Consistent page headers** across the application
+ **Multiple layout variants** for different page types
+ **Gradient themes** for visual variety
+ **Stats display** for key metrics
+ **Auto-cleanup** on route changes
+ **Reactive support** for dynamic content
 
 **Related Documentation:**
 - **[Header Actions](./header-actions.md)** - Adding actions to headers

@@ -70,8 +70,8 @@ The Filter System helps you search and filter data in your tables. Instead of sc
 - Premium or VIP customers: `plan = "premium" OR plan = "VIP"`
 
 **Relation Filtering:**
-- Orders from specific customers: `customer → name contains "John"`
-- Products in certain categories: `category → name = "Electronics"`
+- Orders from specific customers: `customer  name contains "John"`
+- Products in certain categories: `category  name = "Electronics"`
 - **Note**: These relation fields come from table relationships you create - see [Getting Started](../getting-started/getting-started.md) for setting up relations, and [Relation Picker System](./relation-picker.md) for selecting related records
 
 ## Tips for Better Filtering

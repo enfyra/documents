@@ -4,7 +4,7 @@ Storage Management allows you to organize and manage files and folders in your a
 
 ## Accessing Storage Management
 
-1. Navigate to **Storage → Management** in the sidebar
+1. Navigate to **Storage  Management** in the sidebar
 2. You'll see the file management interface with folders and files
 
 ## Routes
@@ -154,7 +154,7 @@ Storage Management allows you to organize and manage files and folders in your a
 
 ### Viewing Storage Configurations
 
-1. Navigate to **Storage → Config** in the sidebar
+1. Navigate to **Storage  Config** in the sidebar
 2. You'll see a list of all storage configurations
 3. Each configuration shows:
    - Name

@@ -11,7 +11,7 @@ Permission fields appear in various forms throughout Enfyra:
 - **Custom Forms**: Any form field with permission type
 
 **How to Identify Permission Fields:**
-- Look for fields with shield icons (🛡️)
+- Look for fields with shield icons ()
 - Click the field to open the Permission Builder drawer
 
 ## Building Permissions
@@ -81,7 +81,7 @@ When you open the Permission Builder, you have two options:
 1. **Add Group** (AND logic - default)
 2. **Add Permission** in the group:
    - **Route**: `/users`
-   - **Actions**: Read ✓
+   - **Actions**: Read 
 
 ### Complex Permission  
 **Goal**: Admin or Editor can manage posts, OR any user can read posts
@@ -89,26 +89,26 @@ When you open the Permission Builder, you have two options:
 1. **Main Group** (OR logic)
 
 2. **First Sub-Group** (AND logic):
-   - **Permission 1**: Route `/roles`, Actions: Read ✓  
-   - **Permission 2**: Route `/posts`, Actions: Create ✓, Update ✓, Delete ✓
+   - **Permission 1**: Route `/roles`, Actions: Read   
+   - **Permission 2**: Route `/posts`, Actions: Create , Update , Delete 
 
 3. **Second Permission** (in main OR group):
    - **Route**: `/posts`
-   - **Actions**: Read ✓
+   - **Actions**: Read 
 
 ### Real-World Menu Example
 **Goal**: Show "User Management" menu only to users who can manage users OR view user reports
 
 1. **Main Group** (OR logic)
-2. **Permission 1**: Route `/users`, Actions: Create ✓, Update ✓, Delete ✓
-3. **Permission 2**: Route `/reports/users`, Actions: Read ✓
+2. **Permission 1**: Route `/users`, Actions: Create , Update , Delete 
+3. **Permission 2**: Route `/reports/users`, Actions: Read 
 
 ## Visual Interface Guide
 
 ### Permission Field Display
-- **Shield with Check** ✅: Permissions configured
-- **Plain Shield** 🛡️: Allow All enabled  
-- **Shield with X** ❌: No permissions configured
+- **Shield with Check** : Permissions configured
+- **Plain Shield** : Allow All enabled  
+- **Shield with X** : No permissions configured
 
 ### Group Headers
 - **AND/OR Toggle**: Switch between logical operators

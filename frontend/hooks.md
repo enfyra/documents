@@ -15,17 +15,17 @@ Hooks execute JavaScript code at two key moments:
 ## When to Use Hooks vs Handlers
 
 ### Use Hooks When:
-- ✅ **Modify request data**: Transform input before database operations
-- ✅ **Add validation**: Check data before processing
-- ✅ **Modify query filters**: Change filtering programmatically  
-- ✅ **Transform responses**: Format output data after operations
-- ✅ **Add logging**: Track operations without changing core logic
-- ✅ **Auto-generate fields**: Create slugs, hash passwords, set timestamps
+-  **Modify request data**: Transform input before database operations
+-  **Add validation**: Check data before processing
+-  **Modify query filters**: Change filtering programmatically  
+-  **Transform responses**: Format output data after operations
+-  **Add logging**: Track operations without changing core logic
+-  **Auto-generate fields**: Create slugs, hash passwords, set timestamps
 
 ### Use Custom Handlers When:
-- ❌ **Complex business logic**: Multi-step operations across multiple tables
-- ❌ **Replace entire operation**: Completely different behavior than CRUD
-- ❌ **External API calls**: Third-party integrations requiring complex workflows
+-  **Complex business logic**: Multi-step operations across multiple tables
+-  **Replace entire operation**: Completely different behavior than CRUD
+-  **External API calls**: Third-party integrations requiring complex workflows
 
 ## The $ctx Context Object
 
@@ -76,7 +76,7 @@ $ctx = {
 ## Creating Hooks
 
 ### Step 1: Access Hooks Management
-1. Navigate to **Settings → Hooks** in the sidebar
+1. Navigate to **Settings  Hooks** in the sidebar
 2. Click **"Create New Hook"** button
 
 ### Step 2: Configure Hook
@@ -124,7 +124,7 @@ $ctx.$response.data.forEach(record => {
 
 For detailed information about writing JavaScript code within hooks, including the context object (`$ctx`), available functions, and comprehensive examples, see:
 
-**➡️ [Hook Development Guide](../server/hook-development.md)**
+** [Hook Development Guide](../server/hook-development.md)**
 
 This covers:
 - Hook context and available variables
@@ -135,6 +135,6 @@ This covers:
 
 ## Practical Examples
 
-**[➡️ User Registration Example](../examples/user-registration-example.md)** - See hooks in action with welcome email AfterHook using nodemailer package.
+**[ User Registration Example](../examples/user-registration-example.md)** - See hooks in action with welcome email AfterHook using nodemailer package.
 
 Hooks provide the perfect balance between simplicity and power, allowing you to customize API behavior without the complexity of full custom handlers.
