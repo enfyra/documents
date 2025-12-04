@@ -29,7 +29,7 @@ Routing Management lets you create custom API endpoints that are served by your 
 
 ### Step 2: Basic Configuration
 Configure the essential route properties:
-- **Path**: Set your custom endpoint (e.g., `/api/v1/products`, `/user-profiles`)
+- **Path**: Set your custom endpoint (e.g., `/v1/products`, `/user-profiles`)
 - **Icon**: Choose a Lucide icon for visual identification
 - **Description**: Add a clear description of the route's purpose
 - **Is Enabled**: Toggle to activate the route
@@ -48,7 +48,7 @@ The most important step is connecting your route to a data source:
 
 The route inherits all the table's fields, validation rules, and relationships without requiring additional configuration.
 
-See [Relation Picker System](../frontend/relation-picker.md) for detailed usage of the relation selection interface.
+See [Relation Picker System](relation-picker.md) for detailed usage of the relation selection interface.
 
 ### Step 4: Save and Test
 1. Click **Save** to create the route
@@ -83,7 +83,7 @@ After creating permissions, they appear as a list in the Route Permissions secti
 - **Multiple permissions** can be configured for the same route with different roles/methods
 - **Instant updates**: All permission changes take effect immediately, separate from route modifications
 
-See [Relation Picker System](../frontend/relation-picker.md) for details on selecting roles and users through the relation interface.
+See [Relation Picker System](relation-picker.md) for details on selecting roles and users through the relation interface.
 
 ### GraphQL Permission Control
 
@@ -195,8 +195,8 @@ Create RESTful endpoints that match your application's naming conventions:
 
 ### Versioning Support
 Implement API versioning:
-- `/api/v1/users`
-- `/api/v2/users`
+- `/v1/users`
+- `/v2/users`
 
 ### Business Logic Integration
 Routes can be enhanced with:
@@ -218,7 +218,7 @@ Changes to routes take effect immediately without requiring application restart.
 
 ### Naming Conventions
 - Use lowercase, hyphen-separated paths: `/user-profiles`
-- Include version prefixes for API stability: `/api/v1/`
+- Include version prefixes for API stability: `/v1/`
 - Be descriptive but concise: `/product-categories` not `/pc`
 
 ### Route Organization

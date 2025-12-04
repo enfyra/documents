@@ -55,7 +55,7 @@ Each repository in `$ctx.$repos` provides full database access through the Query
 
 ### Custom Product Creation
 ```javascript
-// POST /api/products handler
+// POST /products handler
 // Target Tables: products, categories, audit_logs
 
 // Validate category exists
@@ -100,7 +100,7 @@ return {
 
 ### User Authentication
 ```javascript
-// POST /api/auth/login handler  
+// POST /auth/login handler  
 // Target Tables: user_definition
 
 const { email, password } = $ctx.$body;
@@ -151,7 +151,7 @@ return {
 
 ### Advanced Filtering with API Filtering System
 ```javascript
-// GET /api/products/advanced-search handler  
+// GET /products/advanced-search handler  
 // Target Tables: products, categories, users
 // Demonstrates the full power of API Filtering in handlers
 
@@ -208,7 +208,7 @@ return {
 
 ### Complex Data Processing
 ```javascript
-// GET /api/reports/sales handler
+// GET /reports/sales handler
 // Target Tables: orders, products, users
 
 const { startDate, endDate, category } = $ctx.$query;

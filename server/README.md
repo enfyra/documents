@@ -5,12 +5,12 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 ## Quick Navigation
 
 ### Getting Started
-- **[Repository Methods](./repository-methods/)** - Complete guide to database operations (find, create, update, delete)
+- **[Repository Methods](repository-methods/find.md)** - Complete guide to database operations (find, create, update, delete)
 - **[Context Object ($ctx)](./context-reference/)** - All available properties and methods in the context
 - **[API Lifecycle](./api-lifecycle.md)** - How requests flow through the system
 
 ### Core Concepts
-- **[Hooks and Handlers](./hooks-handlers/)** - Creating preHooks, afterHooks, and custom handlers
+- **[Hooks and Handlers](hooks-handlers/prehooks.md)** - Creating preHooks, afterHooks, and custom handlers
 - **[Query Filtering](./query-filtering.md)** - MongoDB-like filtering operators and examples
 - **[Error Handling](./error-handling.md)** - Throwing errors and handling exceptions
 
@@ -25,16 +25,16 @@ This documentation covers the Enfyra server architecture, APIs, and development 
  See [Repository Methods - find()](./repository-methods/find.md)
 
 ### "I need to create a new record"
- See [Repository Methods - create()](./repository-methods/create-update-delete.md#create)
+ See [Repository Methods - create()](repository-methods/find.md)
 
 ### "I want to update a record"
- See [Repository Methods - update()](./repository-methods/create-update-delete.md#update)
+ See [Repository Methods - update()](repository-methods/find.md)
 
 ### "I need to delete a record"
- See [Repository Methods - delete()](./repository-methods/create-update-delete.md#delete)
+ See [Repository Methods - delete()](repository-methods/find.md)
 
 ### "What properties are available in $ctx?"
- See [Context Reference](./context-reference/)
+ See [Context Reference](context-reference/request-data.md)
 
 ### "How do I access request body and params?"
  See [Context Reference - Request Data](./context-reference/request-data.md)
@@ -73,10 +73,10 @@ This documentation covers the Enfyra server architecture, APIs, and development 
  See [File Handling](./file-handling.md)
 
 ### "How do repositories work?"
- See [Repository Methods](./repository-methods/)
+ See [Repository Methods](repository-methods/find.md)
 
 ### "What methods does repository have?"
- See [Repository Methods](./repository-methods/) - Complete list of find, create, update, delete methods
+ See [Repository Methods](repository-methods/find.md) - Complete list of find, create, update, delete methods
 
 ## Documentation Structure
 
@@ -100,7 +100,7 @@ The repository is the main way to interact with your database tables. Each table
 
 All methods return data in a consistent format: `{ data: [...], meta: {...} }`
 
-See [Repository Methods Guide](./repository-methods/) for complete details.
+See [Repository Methods Guide](repository-methods/find.md) for complete details.
 
 ## Context Object Overview
 
@@ -113,7 +113,7 @@ The `$ctx` (context) object is available in all hooks and handlers. It provides 
 - **Logging**: `$ctx.$logs()` for adding logs to responses
 - **Error Handling**: `$ctx.$throw['400']()` for throwing errors
 
-See [Context Reference](./context-reference/) for complete details.
+See [Context Reference](context-reference/request-data.md) for complete details.
 
 ## API Lifecycle Overview
 
@@ -134,10 +134,10 @@ See [API Lifecycle](./api-lifecycle.md) for complete details.
 
 **New to Enfyra Server?** Follow this step-by-step path:
 
-1. **[Repository Methods](./repository-methods/)** - Start here! Learn how to query, create, update, and delete records
-2. **[Context Reference](./context-reference/)** - Understand all available properties and methods in `$ctx`
+1. **[Repository Methods](repository-methods/find.md)** - Start here! Learn how to query, create, update, and delete records
+2. **[Context Reference](context-reference/request-data.md)** - Understand all available properties and methods in `$ctx`
 3. **[API Lifecycle](./api-lifecycle.md)** - Learn how requests flow through the system
-4. **[Hooks and Handlers](./hooks-handlers/)** - Customize API behavior with hooks and handlers
+4. **[Hooks and Handlers](hooks-handlers/prehooks.md)** - Customize API behavior with hooks and handlers
 5. **[Query Filtering](./query-filtering.md)** - Master filtering and querying data
 6. **[Error Handling](./error-handling.md)** - Handle errors properly
 
@@ -148,10 +148,10 @@ See [API Lifecycle](./api-lifecycle.md) for complete details.
 
 ## Next Steps
 
-1. Start with [Repository Methods](./repository-methods/) to learn database operations
-2. Read [Context Reference](./context-reference/) to understand available properties
+1. Start with [Repository Methods](repository-methods/find.md) to learn database operations
+2. Read [Context Reference](context-reference/request-data.md) to understand available properties
 3. Check [API Lifecycle](./api-lifecycle.md) to see how everything fits together
-4. Explore [Hooks and Handlers](./hooks-handlers/) for customization
+4. Explore [Hooks and Handlers](hooks-handlers/prehooks.md) for customization
 
 For specific questions, use the Quick Navigation section above to jump directly to relevant documentation.
 
