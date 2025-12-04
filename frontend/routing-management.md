@@ -24,7 +24,7 @@ Routing Management lets you create custom API endpoints that are served by your 
 ## Creating Custom Routes
 
 ### Step 1: Access Route Manager
-1. Navigate to **Settings → Routings**
+1. Navigate to **Settings  Routings**
 2. Click **"Create Route"** button
 
 ### Step 2: Basic Configuration
@@ -177,7 +177,7 @@ When you create a route and link it to targetTables, Enfyra automatically provid
 You can replace any of these default operations with custom business logic by creating handlers:
 
 1. **Create the route** with targetTables configured
-2. **Add custom handlers** via **Settings → Handlers** to override specific HTTP methods
+2. **Add custom handlers** via **Settings  Handlers** to override specific HTTP methods
 3. **Handler takes precedence** - when a handler exists for a route+method, it executes instead of default CRUD
 
 For detailed handler creation and examples, see [Custom Handlers](./custom-handlers.md).

@@ -1,454 +1,410 @@
 # API Lifecycle
 
-Understanding Enfyra's API request lifecycle is crucial for building effective hooks and handlers. This guide explains the complete flow and how context sharing works throughout the request.
-
-> **📝 Template Syntax Note**: All code examples in this document use the traditional `$ctx.$property` syntax. You can also use the shorter template syntax (`@BODY`, `@REPOS`, `#table_name`) - see [Template Syntax Guide](./template-syntax.md) for details. Both syntaxes work identically and can be mixed in the same code.
-
-## API Source Context
-
-**CRITICAL**: All API endpoints are generated and served by the **backend server** (port 1105). When you create tables through the admin interface, APIs are automatically generated on the backend. The frontend app consumes these APIs by making HTTP requests to your backend URL.
-
-```
-Frontend App → HTTP Request → Backend API Server → Database
-```
-
-**No API logic exists on the frontend** - it's purely a client consuming backend-produced APIs.
-
+Understanding how API requests flow through Enfyra helps you build effective hooks and handlers. This guide explains the complete request lifecycle and how the context object flows through each phase.
 
 ## Quick Navigation
 
-**Core Concepts:**
-- [Request Flow](#request-flow) - Complete lifecycle overview
-- [Context Sharing ($ctx)](#context-sharing-ctx) - How data flows between phases
-- [Hook System](#hook-system) - Global vs route-specific hooks
-- [Execution Order](#execution-order) - Predictable hook sequencing
+- [Request Flow Overview](#request-flow-overview) - High-level lifecycle
+- [Phase Breakdown](#phase-breakdown) - Detailed explanation of each phase
+- [Context Sharing](#context-sharing) - How $ctx flows through phases
+- [Execution Order](#execution-order) - Hook and handler execution sequence
+- [Common Patterns](#common-patterns) - Real-world examples
 
-**Practical Usage:**
-- [Context Modifications](#context-modifications) - Changing data between hooks
-- [Real Examples](#real-examples) - Complete lifecycle scenarios
-- [Best Practices](#best-practices) - Effective lifecycle management
-
----
-
-## Request Flow
+## Request Flow Overview
 
 Every API request in Enfyra follows this lifecycle:
 
 ```
-Frontend → HTTP Request → Backend Route Detection → Context Setup → preHook(s) → Handler → afterHook(s) → Response → Frontend
+HTTP Request → Route Detection → Context Setup → preHooks → Handler → afterHooks → Response
 ```
 
-**Performance Note**: Route detection bypasses Express's middleware stack and uses a custom engine that's significantly faster than Express's built-in route tree matching.
+### Visual Flow
 
-**API Flow Note**: The entire lifecycle happens on the **backend server**. Frontend apps send HTTP requests to backend endpoints and receive JSON responses.
+```
+1. Client sends HTTP request
+   ↓
+2. System detects route and matches to route definition
+   ↓
+3. Context ($ctx) is created with repositories and helpers
+   ↓
+4. All matching preHooks execute sequentially
+   ↓
+5. Handler executes (custom handler or default CRUD)
+   ↓
+6. All matching afterHooks execute sequentially
+   ↓
+7. Response is sent back to client
+```
 
-### Phase Breakdown
+## Phase Breakdown
 
-**1. Route Detection (Automatic)**
-- **High-Performance Engine**: Bypasses Express middleware stack entirely
-- **Custom Route Matching**: Uses optimized algorithm that's many times faster than Express's route tree
-- **Smart Parameter Extraction**: Automatically extracts path parameters (e.g., `/users/123` → `{ id: "123" }`)
-- **Hook & Handler Discovery**: Determines all applicable hooks and handlers based on route and method
-- **Zero Configuration**: This entire process is 100% automatic - you never need to configure routes manually
+### Phase 1: Route Detection
 
-**2. Context Setup ($ctx)**
-- Creates shared context object
-- Initializes repositories for all target tables
-- Sets up helper functions and user data
-- **CRITICAL: Same reference throughout entire request**
+The system automatically matches the incoming request to a route definition.
 
-**3. preHook(s) Execution**
-- All matching preHooks run sequentially
-- Can modify request data, add validation, transform input
-- Changes to $ctx affect subsequent hooks and handlers
+**What happens:**
+- Request URL and method are analyzed
+- Route cache is checked for matching route
+- Route definition is loaded from database
+- Target tables are identified
+- Hooks and handlers are discovered
 
-**4. Handler Execution**  
-- Custom handler OR default CRUD operation
-- Has access to all $ctx modifications from preHooks
-- Can use modified data and add its own changes
+**Automatic operation:**
+- No manual configuration needed
+- Routes are defined in the database
+- System handles all matching logic
 
-**5. afterHook(s) Execution**
-- All matching afterHooks run sequentially
-- Can transform response, add computed fields, trigger side effects
-- Final $ctx state affects the response
+### Phase 2: Context Setup
 
-**6. Response Delivery**
-- Returns processed data with optional logs
-- Includes any modifications made throughout lifecycle
+The `$ctx` (context) object is created and initialized.
 
-## Context Sharing ($ctx)
+**What's included:**
+- Request data: `$ctx.$body`, `$ctx.$params`, `$ctx.$query`, `$ctx.$user`
+- Repositories: `$ctx.$repos` for all target tables
+- Helpers: `$ctx.$helpers` for utilities (JWT, bcrypt, etc.)
+- Cache: `$ctx.$cache` for Redis operations
+- Logging: `$ctx.$logs()` function
+- Error handling: `$ctx.$throw` methods
 
-The `$ctx` object is the **same reference** throughout the entire request lifecycle. This means:
+**Important:** The same `$ctx` object reference is used throughout the entire request lifecycle.
 
-### **Persistent Reference**
+### Phase 3: preHooks Execution
+
+All matching preHooks execute sequentially before the handler.
+
+**Execution order:**
+1. Global preHooks (all routes, all methods)
+2. Global preHooks (all routes, specific method)
+3. Route-specific preHooks (specific route, all methods)
+4. Route-specific preHooks (specific route, specific method)
+
+**What preHooks can do:**
+- Validate request data
+- Transform input data
+- Check permissions
+- Modify `$ctx.$body` or `$ctx.$query`
+- Store data in `$ctx.$share` for later use
+- Throw errors to stop execution
+
+**Example:**
 ```javascript
-// preHook #1 modifies context
-$ctx.$share.customField = "hello";
-$ctx.$body.processed = true;
-
-// preHook #2 sees the changes
-$ctx.$logs(`Custom field: ${$ctx.$share.customField}`); // "hello"
-$ctx.$logs(`Body processed: ${$ctx.$body.processed}`); // true
-
-// Handler also sees all changes
-if ($ctx.$body.processed) {
-  // This will execute because preHook #1 set it
+// preHook: Validate and transform
+if (!$ctx.$body.email) {
+  $ctx.$throw['400']('Email is required');
+  return;
 }
 
-// afterHook gets final state
-$ctx.$share.customField += " world"; // Now "hello world"
+$ctx.$body.email = $ctx.$body.email.toLowerCase();
+$ctx.$share.validationPassed = true;
 ```
 
-### **Available Context Properties**
+### Phase 4: Handler Execution
 
+The handler executes the main business logic.
+
+**Handler types:**
+- **Custom Handler**: Your custom code from route definition
+- **Default CRUD**: Automatic CRUD operation based on HTTP method
+
+**What handlers can do:**
+- Use repositories to query/create/update/delete data
+- Access all `$ctx` properties modified by preHooks
+- Return data that will be available in `$ctx.$data` for afterHooks
+- Throw errors
+
+**Example:**
 ```javascript
-$ctx = {
-  // Request data
-  $body: {},           // Request body (mutable)
-  $params: {},         // Path parameters (e.g., /users/:id)
-  $query: {},          // Query parameters (e.g., ?limit=10)
-  $user: {},           // Authenticated user info
-  
-  // Database access
-  $repos: {            // Dynamic repositories for all tables
-    main: repository,  // Main table repository
-    users: repository, // Named table repositories
-    // ... other target tables
-  },
-  
-  // Utilities
-  $helpers: {          // Utility functions
-    $jwt: function,    // JWT token creation
-    $bcrypt: object,   // Password hashing
-    autoSlug: function // Slug generation
-  },
-  
-  // Logging
-  $logs: function,     // Add logs to response
-  $share: {            // Shared data container
-    $logs: []          // Collected logs
-  },
-  
-  // Response control
-  $statusCode: 200,    // HTTP status (can be changed)
-  $data: {},          // Response data (available in afterHook)
-  
-  // Error handling
-  $errors: {}          // Error handlers
-};
+// Custom handler
+const result = await $ctx.$repos.products.create({
+  data: $ctx.$body
+});
+
+return result;
 ```
 
-## Hook System
+### Phase 5: afterHooks Execution
 
-### Global vs Route-Specific Hooks
+All matching afterHooks execute sequentially after the handler.
 
-**Global Hooks** run on ALL API endpoints:
-```javascript
-{
-  "route": null,          // No specific route
-  "methods": [],          // Empty = all HTTP methods
-  "preHook": "// code",
-  "afterHook": "// code"
-}
+**Execution order:**
+1. Global afterHooks (all routes, all methods)
+2. Global afterHooks (all routes, specific method)
+3. Route-specific afterHooks (specific route, all methods)
+4. Route-specific afterHooks (specific route, specific method)
 
-// This runs on: GET /users, POST /products, DELETE /orders, etc.
-```
+**What afterHooks can do:**
+- Transform response data
+- Add computed fields
+- Log audit trails
+- Trigger side effects (emails, notifications)
+- Handle errors that occurred in handler
+- Access `$ctx.$data` with handler response
 
-**Method-Specific Global Hooks:**
-```javascript
-{
-  "route": null,          // No specific route
-  "methods": ["GET"],     // Only GET requests
-  "preHook": "// code"
-}
-
-// This runs on: GET /users, GET /products, but NOT POST /users
-```
-
-**Route-Specific Hooks:**
-```javascript
-{
-  "route": { "id": "route123", "path": "/users" },
-  "methods": ["POST"],
-  "preHook": "// code"
-}
-
-// This runs ONLY on: POST /users
-```
-
-### Hook Filtering Logic
-
-The system uses this exact logic to determine which hooks run:
-
-```javascript
-const isGlobalAll = !hook.route && methodList.length === 0;        // Global + all methods
-const isGlobalMethod = !hook.route && methodList.includes(method); // Global + specific method
-const isLocalAll = hook.route?.id === route.id && methodList.length === 0;     // Route + all methods
-const isLocalMethod = hook.route?.id === route.id && methodList.includes(method); // Route + specific method
-
-// Hook runs if ANY condition is true
-```
-
-## Execution Order
-
-Hooks execute **sequentially** in database order (no priority system):
-
-```javascript
-// Request: POST /users
-// Available hooks:
-// 1. Global preHook (all methods)
-// 2. Global preHook (POST only) 
-// 3. /users preHook (all methods)
-// 4. /users preHook (POST only)
-
-Execution Flow:
-[preHook #1] → [preHook #2] → [preHook #3] → [preHook #4] → [Handler] → [afterHook #1] → [afterHook #2]
-```
-
-### Predictable Execution
-
-```javascript
-// preHook #1: Sets base validation
-$ctx.$share.validated = false;
-if ($ctx.$body.email) {
-  $ctx.$share.validated = true;
-}
-
-// preHook #2: Adds additional checks (sees validated = true)
-if ($ctx.$share.validated && $ctx.$body.name) {
-  $ctx.$share.fullyValidated = true;
-}
-
-// Handler: Uses validation results
-if (!$ctx.$share.fullyValidated) {
-  throw new Error("Validation failed");
-}
-
-// afterHook: Adds final metadata (sees all previous changes)
-$ctx.$data.validationPassed = $ctx.$share.fullyValidated;
-```
-
-## Context Modifications
-
-### Modifying Request Data
-
-```javascript
-// preHook: Transform incoming data
-if ($ctx.$body.email) {
-  $ctx.$body.email = $ctx.$body.email.toLowerCase().trim();
-}
-
-// Add computed fields
-$ctx.$body.slug = $ctx.$helpers.autoSlug($ctx.$body.title);
-
-// Store data in $share for other hooks/handlers
-$ctx.$share.requestTimestamp = new Date();
-$ctx.$share.validationErrors = [];
-```
-
-### Modifying Query Parameters
-
-```javascript
-// preHook: Add filters based on user
-if ($ctx.$user.role !== 'admin') {
-  // Modify the filter to only show user's own records
-  $ctx.$query.filter = {
-    ...($ctx.$query.filter || {}),
-    userId: { _eq: $ctx.$user.id }
-  };
-}
-```
-
-### Modifying Response Data
-
+**Example:**
 ```javascript
 // afterHook: Transform response
 if ($ctx.$data && Array.isArray($ctx.$data.data)) {
-  // Add computed field to each item
   $ctx.$data.data = $ctx.$data.data.map(item => ({
     ...item,
     fullName: `${item.firstName} ${item.lastName}`
   }));
 }
-
-// Add metadata
-$ctx.$data.processedAt = new Date();
-$ctx.$data.processedBy = $ctx.$user.id;
 ```
 
-## Real Examples
+### Phase 6: Response Delivery
 
-### Example 1: User Registration with Validation
+The processed response is sent back to the client.
+
+**Response includes:**
+- Data from handler (possibly modified by afterHooks)
+- Logs collected from all phases
+- HTTP status code
+- Headers
+
+## Context Sharing
+
+The `$ctx` object is the **same reference** throughout the entire request lifecycle. This means:
+
+### Persistent Reference
+
+Changes made in one phase are visible in all subsequent phases:
 
 ```javascript
-// preHook #1: Validate input
-if (!$ctx.$body.email || !$ctx.$body.password) {
-  throw new Error("Email and password required");
-}
-
-// Store validation result in $share
+// preHook #1 modifies context
+$ctx.$body.email = $ctx.$body.email.toLowerCase();
 $ctx.$share.validationPassed = true;
-$ctx.$logs(`Validation passed for ${$ctx.$body.email}`);
 
-// preHook #2: Hash password (sees validationPassed in $share)
+// preHook #2 sees the changes
+$ctx.$logs(`Email normalized: ${$ctx.$body.email}`);
+$ctx.$logs(`Validation: ${$ctx.$share.validationPassed}`);
+
+// Handler also sees all changes
+const email = $ctx.$body.email;  // Already normalized
 if ($ctx.$share.validationPassed) {
-  $ctx.$body.password = await $ctx.$helpers.$bcrypt.hash($ctx.$body.password);
-  $ctx.$logs("Password hashed");
+  // Validation already passed
 }
 
-// Handler: Create user (sees hashed password and $share data)
-// Uses default CRUD with modified $ctx.$body
-
-// afterHook: Generate welcome token (sees created user data)
-$ctx.$data.welcomeToken = $ctx.$helpers.$jwt(
-  { userId: $ctx.$data.id, type: 'welcome' },
-  '24h'
-);
-$ctx.$logs("Welcome token generated");
+// afterHook gets final state
+$ctx.$data.email = $ctx.$body.email;  // Use normalized email
 ```
 
-### Example 2: Global Audit Logging
+### Available Context Properties
+
+Throughout all phases, you have access to:
 
 ```javascript
-// Global preHook: Log all requests
-$ctx.$share.auditData = {
-  userId: $ctx.$user?.id,
-  action: `${$ctx.$req.method} ${$ctx.$req.path}`,
-  timestamp: new Date(),
-  ip: $ctx.$req.ip
-};
+// Request data (immutable after setup)
+$ctx.$req          // Express request object
+$ctx.$user         // Authenticated user
 
-// Any subsequent preHook sees auditData in $share
-if ($ctx.$share.auditData.userId) {
-  $ctx.$logs(`Authenticated request by user ${$ctx.$share.auditData.userId}`);
-}
+// Request data (mutable)
+$ctx.$body         // Request body - can be modified in preHooks
+$ctx.$params       // URL parameters
+$ctx.$query        // Query string parameters
 
-// Global afterHook: Save audit log
-await $ctx.$repos.auditLogs.create({ data: $ctx.$share.auditData });
+// Repositories (available after context setup)
+$ctx.$repos        // Table repositories
+
+// Utilities
+$ctx.$helpers      // Helper functions
+$ctx.$cache        // Cache operations
+$ctx.$logs()       // Logging function
+$ctx.$throw        // Error throwing
+
+// Response data (available in handler and afterHook)
+$ctx.$data         // Response data from handler
+$ctx.$statusCode   // HTTP status code
+
+// Shared context (persists across all phases)
+$ctx.$share        // Shared data container
+
+// API information (available in afterHook)
+$ctx.$api          // Request/response/error details
 ```
 
-### Example 3: Multi-Step Data Processing
+## Execution Order
+
+Hooks execute in a predictable order based on their scope and method filters.
+
+### Hook Filtering Logic
+
+A hook runs if it matches any of these conditions:
+- Global hook with no method filter (runs on all routes, all methods)
+- Global hook with method filter (runs on all routes, specific method)
+- Route-specific hook with no method filter (runs on specific route, all methods)
+- Route-specific hook with method filter (runs on specific route, specific method)
+
+### Example Execution
+
+For a `POST /users` request with these hooks:
+
+1. Global preHook (all methods)
+2. Global preHook (POST only)
+3. Route preHook for `/users` (all methods)
+4. Route preHook for `/users` (POST only)
+
+**Execution sequence:**
+```
+[Global preHook - all] → [Global preHook - POST] → [Route preHook - all] → [Route preHook - POST] → [Handler] → [afterHooks in same order]
+```
+
+### Sequential Execution
+
+All matching hooks run **sequentially** (one after another), not in parallel. This ensures:
+- Predictable execution order
+- Changes from one hook are visible to the next
+- Easy debugging and logging
+
+## Common Patterns
+
+### Pattern 1: Validation in preHook
 
 ```javascript
-// preHook #1: Parse and validate JSON fields
-if ($ctx.$body.metadata) {
-  try {
-    $ctx.$body.metadata = JSON.parse($ctx.$body.metadata);
-    $ctx.$share.metadataParsed = true;
-  } catch (e) {
-    $ctx.$share.metadataParsed = false;
-    $ctx.$logs("Invalid JSON in metadata field");
-  }
+// preHook: Validate request
+if (!$ctx.$body.email) {
+  $ctx.$throw['400']('Email is required');
+  return;
 }
 
-// preHook #2: Enrich metadata (sees parsed data status in $share)
-if ($ctx.$share.metadataParsed && $ctx.$body.metadata) {
-  $ctx.$body.metadata.processedAt = new Date();
-  $ctx.$body.metadata.processedBy = $ctx.$user.id;
-  $ctx.$logs("Metadata enriched");
+if (!$ctx.$body.password || $ctx.$body.password.length < 6) {
+  $ctx.$throw['422']('Password must be at least 6 characters');
+  return;
 }
 
-// Handler: Save enriched data
+// Store validation result for later use
+$ctx.$share.validationPassed = true;
+```
 
-// afterHook: Generate processing report
-$ctx.$data.processingReport = {
-  metadataParsed: $ctx.$share.metadataParsed,
-  fieldsProcessed: Object.keys($ctx.$body.metadata || {}).length,
-  totalProcessingSteps: 2
+### Pattern 2: Data Transformation in preHook
+
+```javascript
+// preHook: Normalize and enrich data
+$ctx.$body.email = $ctx.$body.email.toLowerCase().trim();
+$ctx.$body.slug = await $ctx.$helpers.autoSlug($ctx.$body.title);
+
+// Add computed fields
+$ctx.$body.createdBy = $ctx.$user.id;
+$ctx.$body.createdAt = new Date();
+```
+
+### Pattern 3: Response Enhancement in afterHook
+
+```javascript
+// afterHook: Add metadata to response
+if ($ctx.$data && Array.isArray($ctx.$data.data)) {
+  $ctx.$data.data = $ctx.$data.data.map(item => ({
+    ...item,
+    fullName: `${item.firstName} ${item.lastName}`,
+    processedAt: new Date()
+  }));
+}
+
+$ctx.$data.meta = {
+  processedBy: $ctx.$user.id,
+  timestamp: new Date()
 };
+```
+
+### Pattern 4: Shared Context Between Hooks
+
+```javascript
+// preHook: Store data
+$ctx.$share.processStartTime = Date.now();
+$ctx.$share.userId = $ctx.$user.id;
+
+// afterHook: Use shared data
+if ($ctx.$share.processStartTime) {
+  const processingTime = Date.now() - $ctx.$share.processStartTime;
+  $ctx.$data.processingTime = processingTime;
+}
+```
+
+### Pattern 5: Error Handling in afterHook
+
+```javascript
+// afterHook: Handle errors
+if ($ctx.$api.error) {
+  // Error occurred
+  $ctx.$logs(`Error: ${$ctx.$api.error.message}`);
+  
+  // Log to audit system
+  await $ctx.$repos.audit_logs.create({
+    data: {
+      action: 'error_occurred',
+      errorMessage: $ctx.$api.error.message,
+      statusCode: $ctx.$api.error.statusCode,
+      userId: $ctx.$user?.id
+    }
+  });
+} else {
+  // Success
+  $ctx.$logs('Operation completed successfully');
+}
+```
+
+### Pattern 6: Permission Checking in preHook
+
+```javascript
+// preHook: Check permissions
+if (!$ctx.$user) {
+  $ctx.$throw['401']('Authentication required');
+  return;
+}
+
+if ($ctx.$user.role !== 'admin') {
+  $ctx.$throw['403']('Admin access required');
+  return;
+}
+
+// Check resource ownership
+const resource = await $ctx.$repos.resources.find({
+  where: { id: { _eq: $ctx.$params.id } }
+});
+
+if (resource.data.length === 0) {
+  $ctx.$throw['404']('Resource not found');
+  return;
+}
+
+if (resource.data[0].userId !== $ctx.$user.id && $ctx.$user.role !== 'admin') {
+  $ctx.$throw['403']('Access denied');
+  return;
+}
 ```
 
 ## Best Practices
 
 ### Context Management
-1. **Use descriptive names** for custom context properties
+
+1. **Use descriptive names** for custom properties in `$ctx.$share`
 2. **Check existence** before accessing nested properties
 3. **Clean up** temporary properties in afterHooks if needed
 4. **Log important changes** for debugging
 
 ### Hook Organization
+
 1. **Global hooks** for cross-cutting concerns (auth, logging, audit)
 2. **Route-specific hooks** for business logic
 3. **Method-specific hooks** for operation-specific logic
 4. **Keep hooks focused** - one responsibility per hook
 
-### Performance Considerations
-1. **Minimize database calls** in hooks
-2. **Cache expensive operations** in context
+### Performance
+
+1. **Minimize database calls** in hooks - batch operations when possible
+2. **Cache expensive operations** in `$ctx.$share`
 3. **Use early returns** to avoid unnecessary processing
-4. **Consider hook execution order** for optimal performance
+4. **Consider execution order** for optimal performance
 
 ### Error Handling
-1. **Validate context state** before using it
-2. **Provide meaningful error messages**
-3. **Use $ctx.$logs** for debugging information
-4. **Clean up resources** in case of errors
 
-## Technical Deep Dive: Route Detection
-
-### High-Performance Route Engine
-
-Enfyra uses a custom route detection system that provides significant performance advantages:
-
-**Traditional Express Approach:**
-```javascript
-// Express processes middleware stack sequentially
-app.use(middleware1);
-app.use(middleware2);
-app.get('/users/:id', handler); // Goes through entire middleware chain
-```
-
-**Enfyra's Approach:**
-```javascript
-// Bypasses Express middleware stack entirely
-// Direct route matching with custom algorithm
-// 1. Load all routes from database with SWR (Stale-While-Revalidate) caching
-// 2. Use optimized matching algorithm on cached routes
-// 3. Extract parameters and context in single pass
-// 4. Directly execute matched hooks/handlers
-```
-
-**Performance Benefits:**
-- **Many times faster** than Express route tree matching
-- **No middleware overhead** for API routes
-- **Direct execution path** from request to handler
-- **SWR Caching**: Routes loaded from database with Stale-While-Revalidate pattern for extreme performance
-- **Optimized for dynamic routes** generated from database
-
-**Automatic Operation:**
-- Route detection is **100% automatic**
-- No manual route configuration required
-- **SWR Pattern**: Routes cached for instant access, revalidated in background
-- Dynamic routes generated from your route definitions
-- Supports complex patterns: `/users/:id`, `/api/v1/products`, etc.
-- Parameter extraction handled automatically
-
-
-## Best Practices
-
-### Context Management
-1. **Use `$ctx.$share`** for custom properties that need to persist across hooks
-2. **Check existence** before accessing nested properties
-3. **Clean up** temporary properties in afterHooks if needed
-4. **Log important changes** using `$ctx.$logs()` for debugging
-
-### Hook Organization
-1. **Global hooks** for cross-cutting concerns (auth, logging, audit)
-2. **Route-specific hooks** for business logic
-3. **Method-specific hooks** for operation-specific logic
-4. **Keep hooks focused** - one responsibility per hook
-
-### Performance Considerations
-1. **Leverage the fast route engine** - it's optimized for high throughput
-2. **Minimize database calls** in hooks - batch operations when possible
-3. **Cache expensive operations** in `$ctx.$share`
-4. **Use early returns** to avoid unnecessary processing
-5. **Consider hook execution order** for optimal performance
-
-### Error Handling
-1. **Validate context state** before using it
+1. **Validate early** in preHooks to fail fast
 2. **Provide meaningful error messages**
 3. **Use `$ctx.$logs()`** for debugging information
-4. **Clean up resources** in case of errors
+4. **Handle errors gracefully** in afterHooks when possible
 
-This lifecycle system gives you complete control over every API request while maintaining predictable, debuggable behavior through the shared context approach.
+## Next Steps
+
+- Learn about [Repository Methods](./repository-methods/) for database operations
+- See [Context Reference](./context-reference/) for all available properties
+- Check [Hooks and Handlers](./hooks-handlers/) for creating custom logic
+

@@ -266,7 +266,6 @@ useHeaderActionRegistry([
   {
     id: "reset-user",
     label: "Reset",
-    icon: "lucide:rotate-ccw",
     variant: "outline",
     color: "gray",
     side: "left",
@@ -319,8 +318,7 @@ async function handleReset() {
 1. **Always Confirm**: Use confirmation dialog for destructive actions
 2. **Clear Messaging**: Explain what will be lost
 3. **Positioning**: Place reset button on the left side
-4. **Icon Usage**: Use `lucide:rotate-ccw` for consistency
-5. **State Management**: Always call `confirmChanges()` after reset
+4. 5. **State Management**: Always call `confirmChanges()` after reset
 
 ### Disabled Fields
 
@@ -352,30 +350,30 @@ async function handleReset() {
 
 ## Advanced Configuration
 
-### TypeMap System
+### FieldMap System
 
-The `typeMap` prop allows you to customize form behavior for specific fields without modifying the database schema. Pass it to `FormEditor` component:
+The `fieldMap` prop allows you to customize form behavior for specific fields without modifying the database schema. Pass it to `FormEditor` component:
 
 ```typescript
 <FormEditor
   v-model="form"
   :table-name="tableName"
-  :type-map="typeMap"
+  :field-map="fieldMap"
 />
 ```
 
-#### Basic TypeMap Usage
+#### Basic FieldMap Usage
 
 ```typescript
 // Example: Change field type
-const typeMap = computed(() => ({
+const fieldMap = computed(() => ({
   description: {
     type: 'richtext'  // Make description a rich text field
   }
 }));
 
 // Example: Span full width
-const typeMap = computed(() => ({
+const fieldMap = computed(() => ({
   content: {
     fieldProps: {
       class: 'col-span-2'
@@ -384,14 +382,14 @@ const typeMap = computed(() => ({
 }));
 
 // Example: Custom placeholder
-const typeMap = computed(() => ({
+const fieldMap = computed(() => ({
   email: {
     placeholder: 'user@example.com'
   }
 }));
 
 // Example: Disable a field
-const typeMap = computed(() => ({
+const fieldMap = computed(() => ({
   type: {
     disabled: true  // Field cannot be edited
   }
@@ -405,7 +403,7 @@ For enum and array-select fields, you can filter which options appear in the dro
 **Exclude Options:**
 ```typescript
 // Hide specific options from enum dropdown
-const typeMap = computed(() => ({
+const fieldMap = computed(() => ({
   storageType: {
     excludedOptions: ['Local Storage', 'Legacy System']
   }
@@ -415,7 +413,7 @@ const typeMap = computed(() => ({
 **Include Only Specific Options:**
 ```typescript
 // Show only specific options in enum dropdown
-const typeMap = computed(() => ({
+const fieldMap = computed(() => ({
   status: {
     includedOptions: ['Active', 'Pending', 'Review']
   }
@@ -425,14 +423,14 @@ const typeMap = computed(() => ({
 **Complete Example - Storage Configuration:**
 ```typescript
 // In storage config create page
-const typeMap = computed(() => ({
+const fieldMap = computed(() => ({
   type: {
     excludedOptions: ['Local Storage']  // Hide Local Storage from create form
   }
 }));
 
 // In storage config detail page
-const typeMap = computed(() => ({
+const fieldMap = computed(() => ({
   type: {
     disabled: true,  // Cannot change type after creation
     excludedOptions: ['Local Storage']  // Still hide it
@@ -440,13 +438,45 @@ const typeMap = computed(() => ({
 }));
 ```
 
-#### TypeMap Options Reference
+#### Field-Level Permissions
+
+You can control field visibility using the `permission` option in fieldMap. Fields are automatically shown if no permission is specified, or only shown when the user has the required permission:
+
+```typescript
+// Example: Show field only to users with specific permission
+const fieldMap = computed(() => ({
+  adminNotes: {
+    permission: {
+      and: [
+        { route: '/user_definition', actions: ['update'] }
+      ]
+    }
+  }
+}));
+
+// Example: Show field with OR condition
+const fieldMap = computed(() => ({
+  sensitiveData: {
+    permission: {
+      or: [
+        { route: '/admin_panel', actions: ['read'] },
+        { route: '/reports', actions: ['read'] }
+      ]
+    }
+  }
+}));
+```
+
+**Note:** If `permission` is not specified, the field is automatically shown to all users. This allows you to selectively restrict fields without affecting others.
+
+#### FieldMap Options Reference
 
 | Option | Type | Description |
 |--------|------|-------------|
 | `type` | `string` | Override field input type (richtext, code, etc.) |
 | `disabled` | `boolean` | Make field read-only |
 | `placeholder` | `string` | Custom placeholder text |
+| `permission` | `PermissionCondition` | Control field visibility based on user permissions (see [Permission System](../server/permission-system.md)) |
 | `excludedOptions` | `string[]` | Hide these options from enum/array-select dropdowns |
 | `includedOptions` | `string[]` | Show only these options in enum/array-select dropdowns |
 | `fieldProps` | `object` | Additional props for field wrapper (e.g., `class: 'col-span-2'`) |

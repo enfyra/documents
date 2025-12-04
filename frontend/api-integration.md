@@ -2,7 +2,7 @@
 
 Enfyra uses the official **@enfyra/sdk-nuxt** package for all API interactions, with a custom `useApi` wrapper that provides enhanced error handling and additional features. The SDK provides optimized composables for fetching data, authentication, and real-time updates with built-in caching and error handling.
 
-**📖 Complete SDK Documentation**: [https://github.com/dothinh115/enfyra-sdk-nuxt](https://github.com/dothinh115/enfyra-sdk-nuxt)
+** Complete SDK Documentation**: [https://github.com/dothinh115/enfyra-sdk-nuxt](https://github.com/dothinh115/enfyra-sdk-nuxt)
 
 ## Backend Dependency
 
@@ -215,8 +215,8 @@ const handleLogout = async () => {
 
 API calls often need permission checks. Enfyra provides the powerful `PermissionGate` component and `usePermissions` composable for controlling access to API functionality.
 
-**→ [Complete Permission Guide](./permission-components.md)** - Learn about PermissionGate and usePermissions
-**→ [Permission Builder](./permission-builder.md)** - Visual interface for creating permission rules
+** [Complete Permission Guide](./permission-components.md)** - Learn about PermissionGate and usePermissions
+** [Permission Builder](./permission-builder.md)** - Visual interface for creating permission rules
 
 ```vue
 <template>
@@ -286,7 +286,6 @@ const deleteUser = async (userId) => {
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-semibold">Recent Activity</h3>
           <UButton @click="refreshData" :loading="refreshing" size="sm">
-            <UIcon name="lucide:refresh-cw" />
             Refresh
           </UButton>
         </div>
@@ -415,7 +414,6 @@ onMounted(() => {
       <!-- Permission-controlled button - see Permission Components guide -->
       <PermissionGate :condition="{ route: '/user_definition', actions: ['create'] }">
         <UButton @click="showCreateModal = true" color="primary">
-          <UIcon name="lucide:plus" />
           Add User
         </UButton>
       </PermissionGate>
@@ -427,7 +425,6 @@ onMounted(() => {
         <UInput 
           v-model="searchTerm" 
           placeholder="Search users..." 
-          icon="lucide:search"
         />
         
         <USelect 

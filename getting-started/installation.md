@@ -37,12 +37,12 @@ npm run dev
 **Important**: The frontend app is a client that connects to your backend server:
 
 ```
-Database → Backend APIs (1105) ← Frontend App (3000)
+Database  Backend APIs (1105) ← Frontend App (3000)
 ```
 
 1. **Backend** generates REST & GraphQL APIs from your database schema
 2. **Frontend** connects to backend URL (`BACKEND_URL`) and makes HTTP requests
-3. **All data operations** flow through: Frontend → Backend → Database
+3. **All data operations** flow through: Frontend  Backend  Database
 
 **No API exists on the frontend** - it's purely a client consuming backend APIs.
 
@@ -74,7 +74,7 @@ the CLI will ask you a series of configuration questions. Enter the values that 
 | **Admin email**                       | Initial admin email used to log into the dashboard                  |
 | **Admin password**                    | Initial admin password                                              |
 
-> 💡 If any of the database or Redis connection details are invalid, the CLI will prompt you to re-enter them or cancel setup.
+>  If any of the database or Redis connection details are invalid, the CLI will prompt you to re-enter them or cancel setup.
 
 **The backend will run at http://localhost:1105 by default.**
 
@@ -111,7 +111,7 @@ the CLI will ask you a series of configuration questions for the frontend applic
 | **API base URL**                      | **CRITICAL**: Base URL of your backend API server that generates all APIs (must include `http://` or `https://`) |
 | **App port**                          | Port where the Enfyra frontend will run (default `3000`)           |
 
-> 💡 **Important**: The API base URL must point to your **backend server** (usually `http://localhost:1105`). The frontend app will make HTTP requests to this URL to consume APIs. All REST & GraphQL endpoints are served by your backend, not the frontend.
+>  **Important**: The API base URL must point to your **backend server** (usually `http://localhost:1105`). The frontend app will make HTTP requests to this URL to consume APIs. All REST & GraphQL endpoints are served by your backend, not the frontend.
 
 After you finish answering the prompts, the CLI will:
 

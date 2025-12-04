@@ -270,7 +270,6 @@ async function handleSubmit() {
 useHeaderActionRegistry({
   id: 'create-user',
   label: 'Create User',
-  icon: 'lucide:plus',
   permission: {
     route: '/user_definition',
     actions: ['create']

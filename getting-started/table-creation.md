@@ -11,7 +11,7 @@ This guide walks you through creating your first table in Enfyra, from basic set
 
 **You must create tables in the right order for relations to work:**
 
-1. **Create target tables first** - If you want to create relations (like "Post → Category"), you must create the "Category" table before creating the "Post" table
+1. **Create target tables first** - If you want to create relations (like "Post  Category"), you must create the "Category" table before creating the "Post" table
 2. **Add columns before constraints** - Unique constraints and indexes need existing columns to reference
 3. **Add columns/relations before constraints** - Both unique constraints and indexes need existing fields to select from
 
@@ -106,7 +106,7 @@ You can change the id field type to `uuid` if you prefer UUID identifiers, but `
   - **targetTable** - Select the target table from available tables (only shows tables you've already created)
   - **isNullable** - Toggle to allow null relations
   - **description** - Relation documentation with rich text editor
-- Relations list shows: property name, type badge, target table badge (→ TargetTable), nullable badge if applicable
+- Relations list shows: property name, type badge, target table badge ( TargetTable), nullable badge if applicable
 - **Note**: Once created, these relations will appear as fields with pencil icons in forms - see [Relation Picker System](../frontend/relation-picker.md) for how to use them
 
 #### onDelete (cascade behavior)
@@ -154,7 +154,7 @@ When configuring relations that create foreign keys (one-to-one, one-to-many, ma
   - Removing a tag from `post.tags` only removes the junction row; the `tag` record itself remains.  
   - Deleting a `post` or `tag` will clean up junction rows via FK `onDelete`, but will not touch the opposite table’s main records.
 
-**⚠️ IMPORTANT for MongoDB users:**
+** IMPORTANT for MongoDB users:**
 - When you **update or delete** a relation after creating it, **all relation data will be dropped** from your records
 - This includes both the relation field AND the inverse field
 - You will need to re-populate the data after changing relation metadata
@@ -182,7 +182,7 @@ Once saved, Enfyra automatically sets up several things for your new table:
 
 - A new route `/[your-table-name]` is automatically generated on the backend
 - This route handles the 4 CRUD operations above
-- **You can view this route**: Go to **Settings** → **Routings** in the sidebar to see all your table routes
+- **You can view this route**: Go to **Settings**  **Routings** in the sidebar to see all your table routes
 
 ### 3. Frontend Integration
 
@@ -192,7 +192,7 @@ Once saved, Enfyra automatically sets up several things for your new table:
 
 ## Next Steps
 
-- Navigate to **Data** → **[Your Table Name]** to start adding records - see [Data Management](./data-management.md) for complete guide
+- Navigate to **Data**  **[Your Table Name]** to start adding records - see [Data Management](./data-management.md) for complete guide
 - **Remember**: All data operations flow through backend APIs, frontend never touches database directly
 - Use the [Relation Picker System](../frontend/relation-picker.md) when working with relation fields
 - Use the [Filter System](../frontend/filter-system.md) to search and filter your data

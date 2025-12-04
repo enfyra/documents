@@ -14,13 +14,13 @@ Package Management lets you install NPM packages directly from the Enfyra interf
 ## Installing a Package
 
 ### Step 1: Access Package Installation
-1. Navigate to **Settings → Packages** in the sidebar
+1. Navigate to **Settings  Packages** in the sidebar
 2. Click **Install Package** button in the header
 
 ### Step 2: Choose Package Type
 You'll see two package type options:
-- **Backend Package**: For use in custom handlers and hooks ✅
-- **App Package**: Coming soon in a future update 🚧
+- **Backend Package**: For use in custom handlers and hooks 
+- **App Package**: Coming soon in a future update 
 
 Select **Backend Package** to proceed.
 
@@ -46,7 +46,7 @@ joi            # Data validation schemas
 3. **Customize details** if needed (description, flags, etc.)
 4. **Click Install** to add the package to your project
 
-**⚠️ Important**: The package name field is automatically populated and cannot be edited - this ensures correct package resolution.
+** Important**: The package name field is automatically populated and cannot be edited - this ensures correct package resolution.
 
 ## Using Installed Packages
 
@@ -136,7 +136,7 @@ export default async function handler({ $ctx }) {
 ## Managing Installed Packages
 
 ### Viewing All Packages
-1. Navigate to **Settings → Packages** in the sidebar
+1. Navigate to **Settings  Packages** in the sidebar
 2. Click **Backend** to view all installed backend packages
 
 **Package card information:**
@@ -168,7 +168,7 @@ Current: lodash v4.17.20
 Updated: lodash v4.17.21
 ```
 
-**⚠️ Version Update Notes:**
+** Version Update Notes:**
 - **Manual specification**: You must enter the exact version number you want
 - **Version validation**: Ensure the version exists on NPM before updating
 - **Backward compatibility**: Test your handlers after version updates, especially major version changes
@@ -179,7 +179,7 @@ Updated: lodash v4.17.21
 2. **Click Uninstall** button in the header (red trash icon)
 3. **Confirm removal** when prompted
 
-**⚠️ Warning**: Uninstalling removes the package from all handlers and hooks immediately. Make sure no active code depends on it first.
+** Warning**: Uninstalling removes the package from all handlers and hooks immediately. Make sure no active code depends on it first.
 
 ## Common Package Use Cases
 
@@ -234,15 +234,15 @@ $ctx.$pkgs.slugify('Hello World', { lower: true })
 
 ### Package Not Found
 ```javascript
-// ❌ Wrong - package not installed
+//  Wrong - package not installed
 const axios = $ctx.$pkgs.axios; // undefined
 
-// ✅ Correct - install package first via UI
+//  Correct - install package first via UI
 // Then access as shown above
 ```
 
 **Solutions:**
-1. Verify package is installed in **Settings → Packages → Backend**
+1. Verify package is installed in **Settings  Packages  Backend**
 2. Check package name spelling (case-sensitive)
 3. Ensure you're using `$ctx.$pkgs.exactname` syntax
 

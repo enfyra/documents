@@ -34,23 +34,23 @@ The Relation Picker lets you select related records when working with forms. Whe
 
 ## Common Examples
 
-**Blog Post → Categories:**
+**Blog Post  Categories:**
 - **"Categories" field** shows pencil icon
-- **Click field** → see list of all categories
-- **Click multiple categories** → they get selected with checkmarks
-- **Click "Apply"** → field shows "3 categories selected"
+- **Click field**  see list of all categories
+- **Click multiple categories**  they get selected with checkmarks
+- **Click "Apply"**  field shows "3 categories selected"
 
-**Order → Customer:**
+**Order  Customer:**
 - **"Customer" field** shows pencil icon  
-- **Click field** → see list of all customers
-- **Click one customer** → previous selection is replaced
-- **Click "Apply"** → field shows the selected customer's name
+- **Click field**  see list of all customers
+- **Click one customer**  previous selection is replaced
+- **Click "Apply"**  field shows the selected customer's name
 
-**Product → Supplier:**
+**Product  Supplier:**
 - **"Supplier" field** shows pencil icon
-- **Click field** → see many suppliers
-- **Click Filter button** → search by location or name
-- **Select supplier** → field shows the chosen supplier
+- **Click field**  see many suppliers
+- **Click Filter button**  search by location or name
+- **Select supplier**  field shows the chosen supplier
 
 ## Tips
 

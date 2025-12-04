@@ -4,7 +4,7 @@ Menu Management lets you create custom navigation menus for your application. Yo
 
 ## Accessing Menu Management
 
-1. Navigate to **Settings → Menu** in the sidebar
+1. Navigate to **Settings  Menu** in the sidebar
 2. You'll see all existing menus displayed as cards
 3. System menus (like Dashboard, Settings) are protected and cannot be deleted
 
@@ -139,7 +139,7 @@ The menu system uses `PermissionGate` and `usePermissions` internally to automat
 3. Create **Menu** items with parent "User Management":
    - "User List" (`/settings/users`)
    - "User Roles" (`/settings/roles`)
-4. This creates: Settings → User Management → (User List, User Roles)
+4. This creates: Settings  User Management  (User List, User Roles)
 
 ## Important Notes
 

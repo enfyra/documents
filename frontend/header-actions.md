@@ -2,7 +2,7 @@
 
 Extensions can dynamically inject custom actions into the app's header and sub-header areas, providing seamless integration with the core interface. **This demonstrates the incredible power of Enfyra's extension system - extensions can intervene and customize ANY part of the application interface.**
 
-🔗 **Live Demo**: [https://demo.enfyra.io/](https://demo.enfyra.io/) - See header actions in action!
+ **Live Demo**: [https://demo.enfyra.io/](https://demo.enfyra.io/) - See header actions in action!
 
 ## Table of Contents
 
@@ -21,7 +21,7 @@ Extensions can dynamically inject custom actions into the app's header and sub-h
 
 ## Overview
 
-**🚀 Extension Power**: Extensions can completely control the application interface through header actions. This is just one example of how Enfyra extensions can **intervene in ANY part of the app**, making them incredibly powerful for customization.
+** Extension Power**: Extensions can completely control the application interface through header actions. This is just one example of how Enfyra extensions can **intervene in ANY part of the app**, making them incredibly powerful for customization.
 
 The Header Actions system provides two main areas for custom actions:
 
@@ -56,7 +56,6 @@ Standard buttons with icons, labels, and click handlers:
 const buttonAction = {
   id: 'export-data',
   label: 'Export',
-  icon: 'lucide:download',
   variant: 'solid',
   color: 'primary',
   onClick: () => exportData()
@@ -76,15 +75,14 @@ const componentAction = {
 
 ## Permission Integration
 
-**🔐 Every action is automatically wrapped with PermissionGate** - the same powerful permission system used throughout Enfyra.
+** Every action is automatically wrapped with PermissionGate** - the same powerful permission system used throughout Enfyra.
 
-**→ [Learn about Permission System](./permission-components.md)**
+** [Learn about Permission System](./permission-components.md)**
 
 ```javascript
 const permissionAction = {
   id: 'admin-action',
   label: 'Admin Panel',
-  icon: 'lucide:settings',
   onClick: () => openAdminPanel(),
   permission: {
     route: '/admin',
@@ -99,7 +97,7 @@ const permissionAction = {
 - Works with role-based access control
 - Dynamic permission checking based on data context
 
-**→ [Complete Permission Guide](./permission-builder.md)**
+** [Complete Permission Guide](./permission-builder.md)**
 
 ## Basic Usage
 
@@ -113,7 +111,6 @@ useHeaderActionRegistry([
   {
     id: 'save-report',
     label: 'Save Report',
-    icon: 'lucide:save',
     color: 'success',
     onClick: () => {
       toast.add({
@@ -140,7 +137,6 @@ useSubHeaderActionRegistry([
   {
     id: 'filter-toggle',
     label: 'Filters',
-    icon: 'lucide:filter',
     side: 'left', // Position on left side
     variant: 'soft',
     onClick: () => toggleFilters()
@@ -186,18 +182,15 @@ useHeaderActionRegistry([
 const actions = [
   {
     id: 'refresh',
-    icon: 'lucide:refresh-cw',
     onClick: () => refresh()
   },
   {
     id: 'export',
     label: 'Export',
-    icon: 'lucide:download',
     onClick: () => exportData()
   },
   {
     id: 'settings',
-    icon: 'lucide:settings',
     onClick: () => openSettings()
   }
 ];
@@ -218,14 +211,12 @@ useSubHeaderActionRegistry([
   {
     id: 'view-toggle',
     label: 'Grid View',
-    icon: 'lucide:grid',
     side: 'left',
     onClick: () => toggleView()
   },
   {
     id: 'export',
     label: 'Export',
-    icon: 'lucide:download',
     side: 'right', // Default
     onClick: () => exportData()
   }
@@ -249,7 +240,6 @@ useHeaderActionRegistry([
   {
     id: 'route-specific',
     label: 'Data Tools',
-    icon: 'lucide:database',
     showOn: ['/data'], // Only show on data routes
     hideOn: ['/settings'], // Hide on settings routes
     onClick: () => openDataTools()
@@ -266,7 +256,6 @@ useHeaderActionRegistry([
 useHeaderActionRegistry([
   {
     id: 'global-help',
-    icon: 'lucide:help-circle',
     global: true, // Persists across all routes
     onClick: () => openHelp()
   },
@@ -296,7 +285,7 @@ const CustomStatusWidget = {
   template: `
     <div class="flex items-center gap-2">
       <UBadge :color="status.color">{{ status.text }}</UBadge>
-      <UButton @click="refresh" icon="lucide:refresh-cw" variant="ghost" size="sm" />
+      <UButton @click="refresh" variant="ghost" size="sm" />
     </div>
   `,
   setup() {
@@ -395,7 +384,7 @@ onMounted(() => {
       <UDropdown :items="exportItems">
         <UButton 
           label="Export"
-          icon="lucide:download"
+         
           :loading="loading"
           variant="solid"
           color="primary"
@@ -407,7 +396,6 @@ onMounted(() => {
         [
           {
             label: 'JSON',
-            icon: 'lucide:file-json',
             click: () => {
               selectedFormat.value = 'json';
               exportData();
@@ -415,7 +403,6 @@ onMounted(() => {
           },
           {
             label: 'CSV',
-            icon: 'lucide:file-spreadsheet',
             click: () => {
               selectedFormat.value = 'csv';
               exportData();
@@ -423,7 +410,6 @@ onMounted(() => {
           },
           {
             label: 'PDF',
-            icon: 'lucide:file-text',
             click: () => {
               selectedFormat.value = 'pdf';
               exportData();
@@ -526,7 +512,6 @@ useSubHeaderActionRegistry([
   {
     id: 'auto-refresh-toggle',
     label: computed(() => autoRefresh.value ? 'Auto-refresh ON' : 'Auto-refresh OFF'),
-    icon: 'lucide:refresh-cw',
     variant: computed(() => autoRefresh.value ? 'solid' : 'outline'),
     color: computed(() => autoRefresh.value ? 'primary' : 'neutral'),
     side: 'right',
@@ -583,7 +568,6 @@ onMounted(() => {
     {
       id: 'system-settings',
       label: 'System',
-      icon: 'lucide:server',
       permission: {
         route: '/admin',
         actions: ['update']
@@ -593,7 +577,6 @@ onMounted(() => {
     {
       id: 'user-management',
       label: 'Users',
-      icon: 'lucide:users',
       permission: {
         route: '/user_definition',
         actions: ['create', 'update', 'delete']
@@ -603,7 +586,6 @@ onMounted(() => {
     {
       id: 'audit-logs',
       label: 'Audit',
-      icon: 'lucide:file-search',
       permission: {
         route: '/audit_log',
         actions: ['read']
@@ -617,7 +599,6 @@ onMounted(() => {
     {
       id: 'danger-zone',
       label: 'Danger Zone',
-      icon: 'lucide:alert-triangle',
       color: 'error',
       permission: {
         and: [
@@ -638,7 +619,6 @@ onMounted(() => {
       {
         id: 'team-overview',
         label: `Team Overview (${me.value.team?.memberCount || 0})`,
-        icon: 'lucide:users',
         side: 'left',
         onClick: () => showTeamOverview()
       }
@@ -665,7 +645,6 @@ onMounted(() => {
 {
   id: 'delete-action',
   label: 'Delete',
-  icon: 'lucide:trash-2',
   color: 'error',
   permission: {
     route: '/data',
@@ -709,9 +688,9 @@ onUnmounted(() => {
 
 ### 6. Cross-Reference Related Documentation
 When working with permissions:
-- **→ [Permission Builder](./permission-builder.md)** - Create complex permission rules
-- **→ [Permission Components](./permission-components.md)** - PermissionGate usage
-- **→ [Permission System](../server/permission-system.md)** - Backend permission architecture
+- ** [Permission Builder](./permission-builder.md)** - Create complex permission rules
+- ** [Permission Components](./permission-components.md)** - PermissionGate usage
+- ** [Permission System](../server/permission-system.md)** - Backend permission architecture
 
 ## API Reference
 
@@ -722,7 +701,7 @@ interface HeaderAction {
   // Core Properties
   id: string;                                    // Unique identifier
   label?: string | ComputedRef<string>;          // Button text
-  icon?: string | ComputedRef<string>;           // Icon name
+
   
   // Styling
   variant?: 'solid' | 'outline' | 'ghost' | 'soft';
@@ -776,13 +755,13 @@ useSubHeaderActionRegistry(actions: HeaderAction | HeaderAction[])
 
 The Header Actions system showcases the **incredible power of Enfyra extensions** - they can seamlessly integrate with and control ANY part of the application interface. This is just one example of how extensions can:
 
-✅ **Intervene in core UI areas** - Headers, sidebars, forms, tables
-✅ **Inject custom functionality** - Buttons, widgets, complete components  
-✅ **Respect permission systems** - Automatic PermissionGate integration
-✅ **Respond to route changes** - Dynamic behavior based on current page
-✅ **Provide real-time updates** - Reactive properties and live data
+ **Intervene in core UI areas** - Headers, sidebars, forms, tables
+ **Inject custom functionality** - Buttons, widgets, complete components  
+ **Respect permission systems** - Automatic PermissionGate integration
+ **Respond to route changes** - Dynamic behavior based on current page
+ **Provide real-time updates** - Reactive properties and live data
 
-**🚀 Extensions aren't limited to custom pages - they can enhance and customize every aspect of the Enfyra experience, making them incredibly powerful for building exactly what you need.**
+** Extensions aren't limited to custom pages - they can enhance and customize every aspect of the Enfyra experience, making them incredibly powerful for building exactly what you need.**
 
 **Related Documentation:**
 - **[Extension System](./extension-system.md)** - Complete extension development guide

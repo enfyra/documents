@@ -1,1216 +1,378 @@
-# File Handling & Streaming
+# File Handling
 
-This guide covers file upload handling and response streaming in Enfyra, including advanced use cases like image processing and efficient memory management.
+Enfyra provides file upload and management capabilities through helpers in the context object. You can upload, update, and delete files with support for folders and storage configurations.
 
-## Table of Contents
-- [File Upload](#file-upload)
-  - [Using `$uploadFile` Helper](#using-uploadfile-helper)
-  - [Using `$updateFile` Helper](#using-updatefile-helper)
-  - [Using `$deleteFile` Helper](#using-deletefile-helper)
-- [Response Streaming](#response-streaming)
-- [Image Processing with Sharp](#image-processing-with-sharp)
-- [Performance Considerations](#performance-considerations)
+## Quick Navigation
 
----
+- [Uploaded File Information](#uploaded-file-information) - Access uploaded files
+- [Upload Files](#upload-files) - Using $uploadFile helper
+- [Update Files](#update-files) - Using $updateFile helper
+- [Delete Files](#delete-files) - Using $deleteFile helper
+- [Common Patterns](#common-patterns) - Real-world examples
 
-## File Upload
+## Uploaded File Information
 
-### Basic File Upload
+When a file is uploaded via a request, it's available in the context.
 
-When a handler receives a file upload, the file is available via `@UPLOADED_FILE` (or `$ctx.$uploadedFile`):
+### $ctx.$uploadedFile
+
+Information about the uploaded file (if any).
 
 ```javascript
-// Handler for file upload
-const file = @UPLOADED_FILE;
-
-console.log(file.filename);   // Original filename
-console.log(file.mimetype);   // MIME type (e.g., 'image/jpeg')
-console.log(file.filesize);   // File size in bytes
-console.log(file.buffer);     // Buffer containing file data
+if ($ctx.$uploadedFile) {
+  const filename = $ctx.$uploadedFile.originalname;  // Original filename
+  const mimetype = $ctx.$uploadedFile.mimetype;      // MIME type
+  const size = $ctx.$uploadedFile.size;              // File size in bytes
+  const buffer = $ctx.$uploadedFile.buffer;          // File buffer
+  const fieldname = $ctx.$uploadedFile.fieldname;    // Form field name
+}
 ```
 
 ### File Properties
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `filename` | `string` | Original filename from client |
+| `originalname` | `string` | Original filename from client |
 | `mimetype` | `string` | MIME type (e.g., `image/jpeg`, `application/pdf`) |
-| `filesize` | `number` | File size in bytes |
+| `size` | `number` | File size in bytes |
 | `buffer` | `Buffer` | Raw file content as Node.js Buffer |
+| `fieldname` | `string` | Form field name used for upload |
 
-### Example: Text Extraction from Upload
+## Upload Files
+
+Use `$ctx.$helpers.$uploadFile` to upload files to storage.
+
+### Basic Upload
 
 ```javascript
-// Parse uploaded text file
-const content = @UPLOADED_FILE.buffer.toString('utf-8');
-const lines = content.split('\n');
+if (!$ctx.$uploadedFile) {
+  $ctx.$throw['400']('No file uploaded');
+  return;
+}
+
+const fileResult = await $ctx.$helpers.$uploadFile({
+  originalname: $ctx.$uploadedFile.originalname,
+  mimetype: $ctx.$uploadedFile.mimetype,
+  buffer: $ctx.$uploadedFile.buffer,
+  size: $ctx.$uploadedFile.size
+});
+
+return fileResult;
+```
+
+### Upload with Options
+
+```javascript
+const fileResult = await $ctx.$helpers.$uploadFile({
+  originalname: 'my-image.jpg',
+  filename: 'custom-filename.jpg',  // Optional: custom filename
+  mimetype: 'image/jpeg',
+  buffer: fileBuffer,
+  size: 1024000,
+  folder: 123,  // Optional: folder ID
+  storageConfig: 1,  // Optional: storage config ID
+  title: 'My Image',  // Optional: custom title
+  description: 'Image description'  // Optional
+});
+```
+
+### Upload Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `originalname` | `string` | No | Original filename |
+| `filename` | `string` | No | Custom filename (alternative to originalname) |
+| `mimetype` | `string` | Yes | MIME type |
+| `buffer` | `Buffer` | Yes | File buffer |
+| `size` | `number` | Yes | File size in bytes |
+| `encoding` | `string` | No | File encoding (default: 'utf8') |
+| `folder` | `number \| { id: number }` | No | Folder ID to store file in |
+| `storageConfig` | `number` | No | Storage configuration ID |
+| `title` | `string` | No | Custom title (defaults to filename) |
+| `description` | `string` | No | File description |
+
+### Example: Upload from Request
+
+```javascript
+// In handler for file upload endpoint
+if (!$ctx.$uploadedFile) {
+  $ctx.$throw['400']('No file uploaded');
+  return;
+}
+
+const fileResult = await $ctx.$helpers.$uploadFile({
+  originalname: $ctx.$uploadedFile.originalname,
+  mimetype: $ctx.$uploadedFile.mimetype,
+  buffer: $ctx.$uploadedFile.buffer,
+  size: $ctx.$uploadedFile.size,
+  title: $ctx.$body.title || $ctx.$uploadedFile.originalname,
+  description: $ctx.$body.description
+});
+
+$ctx.$logs(`File uploaded: ${fileResult.filename}`);
 
 return {
-  totalLines: lines.length,
-  preview: lines.slice(0, 10)
+  success: true,
+  file: fileResult
 };
 ```
 
-### Example: Save File to Database
+## Update Files
+
+Use `$ctx.$helpers.$updateFile` to update existing files.
+
+### Basic Update
 
 ```javascript
-// Save uploaded file to file_definition table
-const savedFile = await #file_definition.create({ data: {
-  filename: @UPLOADED_FILE.filename,
-  mimetype: @UPLOADED_FILE.mimetype,
-  filesize: @UPLOADED_FILE.filesize,
-  buffer: @UPLOADED_FILE.buffer,
-  uploadedById: @USER.id
+await $ctx.$helpers.$updateFile(fileId, {
+  buffer: newFileBuffer,
+  mimetype: 'image/jpeg',
+  size: newFileSize
 });
-
-return savedFile;
 ```
 
-### Using `$uploadFile` Helper
-
-The `$uploadFile` helper provides a convenient way to upload files and automatically create records in the `file_definition` table. It handles file processing, storage configuration, and database record creation in one call.
-
-**Signature:**
-```typescript
-await $ctx.$helpers.$uploadFile(options: {
-  originalname?: string;      // Original filename (or use 'filename')
-  filename?: string;            // Alternative to 'originalname'
-  mimetype: string;             // MIME type (required)
-  buffer: Buffer;               // File buffer (required)
-  size: number;                 // File size in bytes (required)
-  encoding?: string;            // File encoding (optional)
-  folder?: number | { id: number };  // Folder ID (optional)
-  storageConfig?: number;       // Storage config ID (optional)
-  title?: string;               // Custom title (optional, defaults to filename)
-  description?: string;         // File description (optional)
-}) => Promise<any>
-```
-
-**Basic Usage:**
+### Update with Options
 
 ```javascript
-// Upload file from @UPLOADED_FILE
-const savedFile = await @HELPERS.$uploadFile({
-  originalname: @UPLOADED_FILE.filename,
-  mimetype: @UPLOADED_FILE.mimetype,
-  buffer: @UPLOADED_FILE.buffer,
-  size: @UPLOADED_FILE.filesize
-});
-
-return savedFile;
-```
-
-**With Folder and Storage Config:**
-
-```javascript
-// Upload to specific folder and storage config
-const savedFile = await @HELPERS.$uploadFile({
-  ...@UPLOADED_FILE,
-  originalname: @UPLOADED_FILE.filename,
-  mimetype: @UPLOADED_FILE.mimetype,
-  buffer: @UPLOADED_FILE.buffer,
-  size: @UPLOADED_FILE.filesize,
-  folder: 123,                  // Upload to folder ID 123
-  storageConfig: 2,             // Use storage config ID 2
-  title: "My Document",          // Custom title
-  description: "File description"
-});
-
-return savedFile;
-```
-
-**Using Spread Syntax with @UPLOADED_FILE:**
-
-```javascript
-// Simplified syntax using spread operator
-const savedFile = await @HELPERS.$uploadFile({
-  ...@UPLOADED_FILE,
-  originalname: @UPLOADED_FILE.filename,
-  mimetype: @UPLOADED_FILE.mimetype,
-  buffer: @UPLOADED_FILE.buffer,
-  size: @UPLOADED_FILE.filesize,
-  folder: @BODY.folderId,       // From request body
-  storageConfig: @BODY.storageConfigId,
-  title: @BODY.title || @UPLOADED_FILE.filename
-});
-
-return savedFile;
-```
-
-**Example: Upload User Avatar in Hook:**
-
-```javascript
-// Before create hook on user_definition
-if (@UPLOADED_FILE) {
-  const avatarFile = await @HELPERS.$uploadFile({
-    originalname: @UPLOADED_FILE.filename,
-    mimetype: @UPLOADED_FILE.mimetype,
-    buffer: @UPLOADED_FILE.buffer,
-    size: @UPLOADED_FILE.filesize,
-    folder: { id: 1 },          // Upload to folder ID 1
-    title: `Avatar for ${@BODY.email}`
-  });
-  
-  @BODY.avatarId = avatarFile.id;
-}
-```
-
-**Benefits of `$uploadFile` Helper:**
-
-- ✅ **Automatic Processing**: Handles file processing, storage upload, and database record creation
-- ✅ **Storage Configuration**: Supports different storage backends (local, GCS, S3, R2)
-- ✅ **Folder Organization**: Automatically associates files with folders
-- ✅ **Error Handling**: Includes rollback logic if database creation fails
-- ✅ **Buffer Handling**: Automatically handles buffer serialization from IPC
-- ✅ **User Association**: Automatically links file to current user if available
-
-**Note:** The helper automatically uses the current user (`@USER.id`) for the `uploaded_by` field if available in the context.
-
-### Using `$updateFile` Helper
-
-The `$updateFile` helper allows you to update file metadata or replace the file content. It supports both updating metadata only (title, description, folder, storageConfig) and replacing the actual file.
-
-**Signature:**
-```typescript
-await $ctx.$helpers.$updateFile(
-  fileId: string | number,
-  options: {
-    buffer?: Buffer;              // New file buffer (optional - if provided, replaces file)
-    originalname?: string;        // New filename (optional)
-    filename?: string;            // Alternative to 'originalname'
-    mimetype?: string;            // New MIME type (optional, required if buffer provided)
-    size?: number;                // New file size (optional, auto-calculated from buffer if not provided)
-    folder?: number | { id: number };  // New folder ID (optional)
-    storageConfig?: number;       // New storage config ID (optional)
-    title?: string;               // New title (optional)
-    description?: string;         // New description (optional)
-  }
-) => Promise<any>
-```
-
-**Update Metadata Only:**
-```javascript
-// Update only file metadata (title, description, folder)
-const updatedFile = await @HELPERS.$updateFile(fileId, {
+await $ctx.$helpers.$updateFile(fileId, {
+  buffer: newFileBuffer,
+  originalname: 'new-name.jpg',
+  filename: 'custom-new-name.jpg',
+  mimetype: 'image/jpeg',
+  size: 2048000,
+  folder: 456,
   title: 'Updated Title',
-  description: 'Updated description',
-  folder: 2  // Move to folder ID 2
-});
-
-return updatedFile;
-```
-
-**Replace File Content:**
-```javascript
-// Replace file with new content from @UPLOADED_FILE
-const updatedFile = await @HELPERS.$updateFile(fileId, {
-  ...@UPLOADED_FILE,
-  originalname: @UPLOADED_FILE.filename,
-  mimetype: @UPLOADED_FILE.mimetype,
-  buffer: @UPLOADED_FILE.buffer,
-  size: @UPLOADED_FILE.filesize,
-  description: 'New file version'
-});
-
-return updatedFile;
-```
-
-**Replace File and Change Storage:**
-```javascript
-// Replace file and move to different storage config
-const updatedFile = await @HELPERS.$updateFile(fileId, {
-  ...@UPLOADED_FILE,
-  originalname: @UPLOADED_FILE.filename,
-  mimetype: @UPLOADED_FILE.mimetype,
-  buffer: @UPLOADED_FILE.buffer,
-  size: @UPLOADED_FILE.filesize,
-  storageConfig: 2  // Move to storage config ID 2
-});
-
-return updatedFile;
-```
-
-**Features:**
-- ✅ **Metadata Updates**: Update title, description, folder, or storageConfig without replacing file
-- ✅ **File Replacement**: Replace file content while preserving file record
-- ✅ **Storage Support**: Works with local, GCS, R2, and S3 storage
-- ✅ **Backup & Rollback**: Automatically backs up original file for local storage (rollback on error)
-- ✅ **Cloud Storage**: Direct replacement for cloud storage (no backup needed)
-
-**Note:** When replacing a file:
-- For **cloud storage** (GCS, R2, S3): File is replaced directly on cloud storage
-- For **local storage**: Original file is backed up, new file is processed, then replaced. If error occurs, original is restored.
-
-### Using `$deleteFile` Helper
-
-The `$deleteFile` helper deletes both the physical file from storage and the database record.
-
-**Signature:**
-```typescript
-await $ctx.$helpers.$deleteFile(
-  fileId: string | number
-) => Promise<any>
-```
-
-**Basic Usage:**
-```javascript
-// Delete file by ID
-await @HELPERS.$deleteFile(fileId);
-
-return { message: 'File deleted successfully' };
-```
-
-**Example: Delete File in Hook:**
-```javascript
-// Before delete hook on user_definition
-if (@BODY.avatarId) {
-  // Delete old avatar file when user is deleted
-  await @HELPERS.$deleteFile(@BODY.avatarId);
-}
-```
-
-**Example: Conditional Delete:**
-```javascript
-// Delete file if it exists
-const file = await #file_definition.findOne({ id: fileId });
-if (file) {
-  await @HELPERS.$deleteFile(fileId);
-  return { message: 'File deleted' };
-} else {
-  return { message: 'File not found' };
-}
-```
-
-**Features:**
-- ✅ **Physical Deletion**: Deletes file from storage (local, GCS, R2, S3)
-- ✅ **Database Cleanup**: Removes record from `file_definition` table
-- ✅ **Error Handling**: Throws error if file not found or deletion fails
-- ✅ **Storage Support**: Works with all storage types
-
-**Note:** This operation is **irreversible**. The file and its record are permanently deleted.
-
----
-
-## Response Streaming
-
-### Why Use Streaming?
-
-**Traditional approach (load entire file into memory):**
-```javascript
-// ❌ BAD: 100MB file = 100MB RAM usage
-const response = await fetch(imageUrl);
-const buffer = Buffer.from(await response.arrayBuffer());
-@RES.send(buffer);  // Memory spike!
-```
-
-**Streaming approach (process chunks):**
-```javascript
-// ✅ GOOD: 100MB file = only ~64KB RAM usage (per chunk)
-const response = await fetch(imageUrl);
-const stream = Readable.fromWeb(response.body);
-@RES.stream(stream);  // Efficient memory usage!
-```
-
-### Basic Streaming
-
-The `@RES.stream()` method allows you to send data efficiently by streaming chunks instead of loading everything into memory at once.
-
-**Signature:**
-```typescript
-@RES.stream(stream: Readable | AsyncIterable, options?: {
-  mimetype?: string;
-  filename?: string;
-})
-```
-
-**Parameters:**
-- `stream`: A Node.js `Readable` stream or any async iterable
-- `options.mimetype`: Content-Type header (e.g., `'image/jpeg'`)
-- `options.filename`: Filename for Content-Disposition header (for downloads)
-
-### Example: Stream File from URL
-
-```javascript
-const { Readable } = require('stream');
-
-// Download and stream image from external URL
-const imageUrl = 'https://example.com/large-photo.jpg';
-const response = await fetch(imageUrl);
-const stream = Readable.fromWeb(response.body);
-
-// Stream directly to client
-@RES.stream(stream, {
-  mimetype: 'image/jpeg',
-  filename: 'downloaded-photo.jpg'
+  description: 'Updated description'
 });
 ```
 
-### Example: Stream from Database
+### Update Parameters
+
+All parameters are optional - only include what you want to update.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `buffer` | `Buffer` | New file buffer |
+| `originalname` | `string` | New original filename |
+| `filename` | `string` | New custom filename |
+| `mimetype` | `string` | New MIME type |
+| `size` | `number` | New file size |
+| `folder` | `number \| { id: number }` | Move to different folder |
+| `title` | `string` | Update title |
+| `description` | `string` | Update description |
+
+### Example: Update File Metadata
 
 ```javascript
-const { Readable } = require('stream');
-
-// Get file from database
-const file = await #file_definition.findOne({ id: @PARAMS.id });
-
-// Create stream from buffer
-const stream = Readable.from(file.buffer);
-
-// Stream to client
-@RES.stream(stream, {
-  mimetype: file.mimetype,
-  filename: file.filename
+// Update only metadata, not file content
+await $ctx.$helpers.$updateFile($ctx.$params.fileId, {
+  title: $ctx.$body.title,
+  description: $ctx.$body.description,
+  folder: $ctx.$body.folderId
 });
+
+$ctx.$logs(`File metadata updated: ${$ctx.$params.fileId}`);
+
+return { success: true };
 ```
 
----
+## Delete Files
 
-## Image Processing with Sharp
+Use `$ctx.$helpers.$deleteFile` to delete files.
 
-Sharp is a high-performance image processing library that works excellently with streams.
-
-### Install Sharp
-
-Sharp is already available in Enfyra. Access it via `@PKGS`:
+### Basic Delete
 
 ```javascript
-const sharp = @PKGS.sharp;
+await $ctx.$helpers.$deleteFile(fileId);
 ```
 
-### Example: Download and Resize Image
+### Example: Delete File
 
 ```javascript
-const { Readable } = require('stream');
-const sharp = @PKGS.sharp;
-
-// Download image from URL
-const imageUrl = 'https://example.com/large-image.jpg';
-const response = await fetch(imageUrl);
-const inputStream = Readable.fromWeb(response.body);
-
-// Create Sharp transform stream
-const transformer = sharp()
-  .resize(800, 600, { fit: 'inside' })  // Resize to max 800x600
-  .jpeg({ quality: 85 });                // Convert to JPEG at 85% quality
-
-// Pipe through Sharp and stream to client
-const outputStream = inputStream.pipe(transformer);
-
-@RES.stream(outputStream, {
-  mimetype: 'image/jpeg',
-  filename: 'resized-image.jpg'
+// Check if file exists
+const fileResult = await $ctx.$repos.file_definition.find({
+  where: { id: { _eq: $ctx.$params.fileId } }
 });
-```
 
-### Example: Resize Uploaded Image
-
-```javascript
-const { Readable } = require('stream');
-const sharp = @PKGS.sharp;
-
-// Get uploaded image
-const uploadedFile = @UPLOADED_FILE;
-
-// Create stream from buffer
-const inputStream = Readable.from(uploadedFile.buffer);
-
-// Resize and optimize
-const transformer = sharp()
-  .resize(1024, 1024, {
-    fit: 'inside',
-    withoutEnlargement: true  // Don't upscale small images
-  })
-  .jpeg({ quality: 80, progressive: true });
-
-// Stream result
-const outputStream = inputStream.pipe(transformer);
-
-@RES.stream(outputStream, {
-  mimetype: 'image/jpeg',
-  filename: `resized-${uploadedFile.filename}`
-});
-```
-
-### Example: Create Thumbnail
-
-```javascript
-const { Readable } = require('stream');
-const sharp = @PKGS.sharp;
-
-// Get file from database
-const file = await #file_definition.findOne({ id: @PARAMS.id });
-
-// Create thumbnail stream
-const inputStream = Readable.from(file.buffer);
-const transformer = sharp()
-  .resize(200, 200, {
-    fit: 'cover',           // Crop to fill dimensions
-    position: 'center'      // Or use 'attention' for face detection
-  })
-  .jpeg({ quality: 70 });
-
-const outputStream = inputStream.pipe(transformer);
-
-@RES.stream(outputStream, {
-  mimetype: 'image/jpeg',
-  filename: `thumb-${file.filename}`
-});
-```
-
-### Example: Using Assets API for Thumbnails
-
-Instead of processing in handlers, you can use the `/assets/:id` endpoint with query parameters:
-
-```http
-# Create thumbnail via API
-GET /assets/123?width=200&height=200&fit=cover&gravity=face&format=webp&quality=70
-
-# This is more efficient as it uses restreaming and caching
-```
-
-### Example: Add Watermark
-
-```javascript
-const { Readable } = require('stream');
-const sharp = @PKGS.sharp;
-
-const imageUrl = @BODY.imageUrl;
-const response = await fetch(imageUrl);
-const inputStream = Readable.fromWeb(response.body);
-
-// Add text watermark
-const transformer = sharp()
-  .resize(1200, 800)
-  .composite([
-    {
-      input: Buffer.from(
-        '<svg><text x="10" y="30" font-size="24" fill="white" opacity="0.5">© Your Company</text></svg>'
-      ),
-      top: 10,
-      left: 10
-    }
-  ])
-  .jpeg({ quality: 85 });
-
-const outputStream = inputStream.pipe(transformer);
-
-@RES.stream(outputStream, {
-  mimetype: 'image/jpeg',
-  filename: 'watermarked-image.jpg'
-});
-```
-
-### Available Sharp Transformations
-
-```javascript
-const sharp = @PKGS.sharp;
-
-const transformer = sharp()
-  // Resize with fit modes
-  .resize(width, height, {
-    fit: 'cover',              // 'cover', 'contain', 'fill', 'inside', 'outside'
-    position: 'center',        // 'center', 'north', 'south', 'east', 'west', 
-                                // 'northeast', 'northwest', 'southeast', 'southwest',
-                                // 'attention' (face/auto detection)
-    withoutEnlargement: true
-  })
-
-  // Format conversion
-  .jpeg({ quality: 80, progressive: false, mozjpeg: true })
-  .png({ quality: 80, compressionLevel: 6, progressive: false })
-  .webp({ quality: 80, effort: 1 })
-  .avif({ quality: 80, effort: 1 })
-
-  // Transformations
-  .rotate(90)                   // Rotate (degrees)
-  .flip()                       // Flip vertically
-  .flop()                       // Flip horizontally
-  .blur(5)                      // Gaussian blur (0-100)
-  .sharpen(5)                   // Sharpen (0-100)
-
-  // Effects
-  .modulate({
-    brightness: 1.2,            // 0-2 (1 = no change)
-    saturation: 1.5             // 0-2 (1 = no change)
-  })
-  .greyscale()                  // Convert to grayscale
-  .normalize()                  // Auto-enhance
-
-  // Cropping
-  .extract({ left: 0, top: 0, width: 100, height: 100 })
-
-  // Composition
-  .composite([{ input: buffer, top: 0, left: 0 }]);
-```
-
-### Assets API Query Parameters (Recommended)
-
-For most use cases, use the `/assets/:id` endpoint with query parameters instead of processing in handlers:
-
-```http
-# Resize with cover fit and face detection
-GET /assets/123?width=400&height=400&fit=cover&gravity=face&format=webp
-
-# Rotate and apply effects
-GET /assets/123?rotate=90&flip=horizontal&blur=10&brightness=20
-
-# Create optimized thumbnail
-GET /assets/123?width=200&height=200&fit=cover&gravity=auto&format=avif&quality=85
-
-# Download processed image
-GET /assets/123?width=1200&height=800&format=webp&download=true
-```
-
-**Benefits of using Assets API:**
-- ✅ Restreaming (no memory overhead)
-- ✅ Automatic caching
-- ✅ Works with all storage types
-- ✅ Consistent processing pipeline
-- ✅ Better performance
-
----
-
-## Performance Considerations
-
-### Memory Usage Comparison
-
-**Loading file into memory:**
-```javascript
-// 100MB file → 100MB RAM + processing overhead
-const buffer = Buffer.from(await response.arrayBuffer());
-const resized = await sharp(buffer).resize(800, 600).toBuffer();
-// Peak RAM usage: ~200MB
-```
-
-**Streaming approach:**
-```javascript
-// 100MB file → only 64KB per chunk in RAM
-const stream = Readable.fromWeb(response.body);
-const transformer = sharp().resize(800, 600);
-@RES.stream(stream.pipe(transformer));
-// Peak RAM usage: ~5MB
-```
-
-### Best Practices
-
-1. **Always use streaming for large files** (> 10MB)
-   ```javascript
-   // ✅ Stream large files
-   if (filesize > 10_000_000) {
-     @RES.stream(stream, options);
-   }
-   ```
-
-2. **Use streaming for external URLs**
-   ```javascript
-   // ✅ Stream from external URL (unknown size)
-   const response = await fetch(externalUrl);
-   @RES.stream(Readable.fromWeb(response.body));
-   ```
-
-3. **Chain transformations efficiently**
-   ```javascript
-   // ✅ Single pipeline - very efficient
-   const output = inputStream
-     .pipe(sharp().resize(1024, 768))
-     .pipe(sharp().jpeg({ quality: 80 }));
-
-   @RES.stream(output);
-   ```
-
-4. **Set appropriate headers**
-   ```javascript
-   // ✅ Good user experience
-   @RES.stream(stream, {
-     mimetype: 'image/webp',
-     filename: 'optimized-image.webp'  // Browser will suggest this name
-   });
-   ```
-
-5. **Handle errors gracefully**
-   ```javascript
-   try {
-     const stream = await createImageStream(url);
-     @RES.stream(stream, { mimetype: 'image/jpeg' });
-   } catch (error) {
-     @THROW400(`Failed to process image: ${error.message}`);
-   }
-   ```
-
-### When NOT to Use Streaming
-
-For very small files or when you need to modify the entire buffer:
-
-```javascript
-// Small files (< 1MB) - buffer is fine
-if (@UPLOADED_FILE.filesize < 1_000_000) {
-  const text = @UPLOADED_FILE.buffer.toString('utf-8');
-  return { content: text };
+if (fileResult.data.length === 0) {
+  $ctx.$throw['404']('File not found');
+  return;
 }
 
-// Need entire file for processing
-const allData = [];
-for await (const chunk of stream) {
-  allData.push(chunk);
-}
-const buffer = Buffer.concat(allData);
-// Now process entire buffer...
-```
+// Delete the file
+await $ctx.$helpers.$deleteFile($ctx.$params.fileId);
 
----
+$ctx.$logs(`File deleted: ${$ctx.$params.fileId}`);
+
+return { success: true, message: 'File deleted successfully' };
+```
 
 ## Common Patterns
 
-### Pattern: Download → Transform → Stream
+### Pattern 1: Upload and Create Related Record
 
 ```javascript
-const { Readable } = require('stream');
-const sharp = @PKGS.sharp;
+// Upload file
+if (!$ctx.$uploadedFile) {
+  $ctx.$throw['400']('No file uploaded');
+  return;
+}
 
-// 1. Fetch from external source
-const response = await fetch(@QUERY.imageUrl);
-
-// 2. Create stream
-const stream = Readable.fromWeb(response.body);
-
-// 3. Transform
-const transformer = sharp()
-  .resize(1024, 1024, { fit: 'inside' })
-  .webp({ quality: 80 });
-
-// 4. Stream to client
-@RES.stream(stream.pipe(transformer), {
-  mimetype: 'image/webp',
-  filename: 'optimized.webp'
+const fileResult = await $ctx.$helpers.$uploadFile({
+  originalname: $ctx.$uploadedFile.originalname,
+  mimetype: $ctx.$uploadedFile.mimetype,
+  buffer: $ctx.$uploadedFile.buffer,
+  size: $ctx.$uploadedFile.size
 });
+
+// Create product with file reference
+const productResult = await $ctx.$repos.products.create({
+  data: {
+    name: $ctx.$body.name,
+    price: $ctx.$body.price,
+    imageFileId: fileResult.id
+  }
+});
+
+return {
+  product: productResult.data[0],
+  file: fileResult
+};
 ```
 
-### Pattern: Upload → Process → Save → Stream
+### Pattern 2: Validate File Before Upload
 
 ```javascript
-const { Readable } = require('stream');
-const sharp = @PKGS.sharp;
+if (!$ctx.$uploadedFile) {
+  $ctx.$throw['400']('No file uploaded');
+  return;
+}
 
-// 1. Get upload
-const uploaded = @UPLOADED_FILE;
+// Validate file type
+const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+if (!allowedTypes.includes($ctx.$uploadedFile.mimetype)) {
+  $ctx.$throw['400']('Invalid file type. Only images are allowed.');
+  return;
+}
 
-// 2. Process to buffer (need to save to DB)
-const inputStream = Readable.from(uploaded.buffer);
-const processedBuffer = await inputStream
-  .pipe(sharp().resize(800, 600).jpeg({ quality: 85 }))
-  .toBuffer();
+// Validate file size (max 5MB)
+const maxSize = 5 * 1024 * 1024; // 5MB
+if ($ctx.$uploadedFile.size > maxSize) {
+  $ctx.$throw['400']('File too large. Maximum size is 5MB.');
+  return;
+}
 
-// 3. Save to database
-const savedFile = await #file_definition.create({ data: {
-  filename: uploaded.filename,
-  mimetype: 'image/jpeg',
-  filesize: processedBuffer.length,
-  buffer: processedBuffer
+// Upload file
+const fileResult = await $ctx.$helpers.$uploadFile({
+  originalname: $ctx.$uploadedFile.originalname,
+  mimetype: $ctx.$uploadedFile.mimetype,
+  buffer: $ctx.$uploadedFile.buffer,
+  size: $ctx.$uploadedFile.size
 });
 
-// 4. Stream saved file back to client
-const outputStream = Readable.from(processedBuffer);
-@RES.stream(outputStream, {
-  mimetype: 'image/jpeg',
-  filename: savedFile.filename
-});
+return fileResult;
 ```
 
-### Pattern: Conditional Processing
+### Pattern 3: Upload to Specific Folder
 
 ```javascript
-const { Readable } = require('stream');
-const sharp = @PKGS.sharp;
+// Get or create folder
+let folder = await $ctx.$repos.folders.find({
+  where: { name: { _eq: 'User Uploads' } }
+});
 
-const file = await #file_definition.findOne({ id: @PARAMS.id });
-const stream = Readable.from(file.buffer);
-
-// Only resize if requested
-if (@QUERY.resize) {
-  const [width, height] = @QUERY.resize.split('x').map(Number);
-  const transformer = sharp().resize(width, height, { fit: 'inside' });
-  @RES.stream(stream.pipe(transformer), {
-    mimetype: file.mimetype,
-    filename: `${width}x${height}-${file.filename}`
+if (folder.data.length === 0) {
+  const folderResult = await $ctx.$repos.folders.create({
+    data: {
+      name: 'User Uploads',
+      userId: $ctx.$user.id
+    }
   });
+  folder = folderResult.data[0];
 } else {
-  // Stream original
-  @RES.stream(stream, {
-    mimetype: file.mimetype,
-    filename: file.filename
+  folder = folder.data[0];
+}
+
+// Upload file to folder
+const fileResult = await $ctx.$helpers.$uploadFile({
+  originalname: $ctx.$uploadedFile.originalname,
+  mimetype: $ctx.$uploadedFile.mimetype,
+  buffer: $ctx.$uploadedFile.buffer,
+  size: $ctx.$uploadedFile.size,
+  folder: folder.id
+});
+
+return fileResult;
+```
+
+### Pattern 4: Replace File
+
+```javascript
+// Get existing file
+const existingFile = await $ctx.$repos.file_definition.find({
+  where: { id: { _eq: $ctx.$params.fileId } }
+});
+
+if (existingFile.data.length === 0) {
+  $ctx.$throw['404']('File not found');
+  return;
+}
+
+// Replace with new file
+await $ctx.$helpers.$updateFile($ctx.$params.fileId, {
+  buffer: $ctx.$uploadedFile.buffer,
+  mimetype: $ctx.$uploadedFile.mimetype,
+  size: $ctx.$uploadedFile.size,
+  originalname: $ctx.$uploadedFile.originalname
+});
+
+$ctx.$logs(`File replaced: ${$ctx.$params.fileId}`);
+
+return { success: true };
+```
+
+### Pattern 5: Upload Multiple Files
+
+```javascript
+// Note: This requires multiple file uploads in the request
+// Each file would be processed separately
+
+const uploadResults = [];
+
+// Process each uploaded file
+// (Implementation depends on how multiple files are sent in request)
+
+for (const uploadedFile of uploadedFiles) {
+  const fileResult = await $ctx.$helpers.$uploadFile({
+    originalname: uploadedFile.originalname,
+    mimetype: uploadedFile.mimetype,
+    buffer: uploadedFile.buffer,
+    size: uploadedFile.size
   });
+  
+  uploadResults.push(fileResult);
 }
+
+return {
+  success: true,
+  files: uploadResults,
+  count: uploadResults.length
+};
 ```
 
----
+## Best Practices
 
-## Multi Cloud & Multi Account Support
+1. **Validate files** - Always validate file type and size before uploading
+2. **Handle missing files** - Check if file exists before processing
+3. **Use appropriate folders** - Organize files using folders
+4. **Set file metadata** - Include title and description for better organization
+5. **Error handling** - Wrap file operations in try-catch blocks
+6. **File size limits** - Enforce reasonable file size limits
+7. **File type restrictions** - Only allow safe file types
 
-Enfyra provides a unified file serving endpoint `/assets/:id` that seamlessly handles files stored across multiple cloud providers and multiple accounts. This system automatically routes requests to the correct storage backend based on each file's configuration.
+## Next Steps
 
-### Overview
+- Learn about [Context Reference](./context-reference/) for file-related properties
+- See [Error Handling](./error-handling.md) for proper error handling
+- Check [Repository Methods](./repository-methods/) for querying file records
 
-The `/assets/:id` endpoint is a **single unified interface** that:
-- Automatically detects where each file is stored (local, GCS, S3)
-- Uses the correct credentials for each storage account
-- Streams files efficiently regardless of storage location
-- Supports image processing with query parameters for all storage types
-- Handles permissions and access control transparently
-
-### How It Works
-
-When you request a file via `/assets/:id`, the system:
-
-1. **Fetches file metadata** from the `file_definition` table, including the associated `storageConfig`
-2. **Determines storage type** (local, GCS, or S3) from the file's storage configuration
-3. **Retrieves credentials** from the storage config (each config can have different credentials)
-4. **Streams the file** using the appropriate method for that storage type
-5. **Applies image processing** if query parameters are provided (works for all storage types)
-
-### Uploading Files with Folder and Storage Config
-
-When uploading files, you can specify both the target folder and storage configuration:
-
-```http
-POST /file_definition
-Content-Type: multipart/form-data
-
-file: <file>
-folder: 123                    # Folder ID (optional)
-storageConfig: 2               # Storage config ID (optional)
-title: "My Document"            # Title (optional)
-description: "File description" # Description (optional)
-```
-
-**Parameters:**
-- `file` (required): The file to upload
-- `folder` (optional): ID of the folder to organize the file. Can be:
-  - A number: `folder: 123`
-  - An object: `folder: { id: 123 }`
-- `storageConfig` (optional): ID of the storage configuration to use. Can be:
-  - A number: `storageConfig: 2`
-  - An object: `storageConfig: { id: 2 }`
-  - If not specified, uses default local storage
-- `title` (optional): Custom title for the file (defaults to original filename)
-- `description` (optional): File description
-
-**Example: Upload to specific folder and storage config**
-
-```javascript
-// Using FormData in JavaScript
-const formData = new FormData();
-formData.append('file', fileInput.files[0]);
-formData.append('folder', '123');              // Upload to folder ID 123
-formData.append('storageConfig', '2');         // Use storage config ID 2
-
-const response = await fetch('/file_definition', {
-  method: 'POST',
-  body: formData
-});
-
-const uploadedFile = await response.json();
-// File is now stored using storage config #2 in folder #123
-```
-
-**Example: Upload to default storage (local)**
-
-```javascript
-const formData = new FormData();
-formData.append('file', fileInput.files[0]);
-// No storageConfig specified → uses default local storage
-
-const response = await fetch('/file_definition', {
-  method: 'POST',
-  body: formData
-});
-```
-
-### Single Endpoint, Multiple Backends
-
-The beauty of `/assets/:id` is that **you don't need to know where the file is stored**. The endpoint handles everything:
-
-```http
-# File stored locally
-GET /assets/123
-→ Automatically streams from local filesystem
-
-# File stored in GCS Account #1
-GET /assets/456
-→ Automatically streams from GCS using Account #1 credentials
-
-# File stored in GCS Account #2 (different project)
-GET /assets/789
-→ Automatically streams from GCS using Account #2 credentials
-
-# File stored in S3
-GET /assets/101
-→ Automatically streams from S3 (when implemented)
-```
-
-### Image Processing Across All Storage Types
-
-The endpoint supports comprehensive image processing query parameters regardless of storage location:
-
-```http
-# Basic resize and format conversion
-GET /assets/123?width=800&height=600&format=webp&quality=85
-
-# Cover fit with face detection (perfect for thumbnails)
-GET /assets/123?width=400&height=400&fit=cover&gravity=face&format=webp
-
-# Transformations: rotate and flip
-GET /assets/123?rotate=90&flip=horizontal&blur=5
-
-# Effects: brightness and saturation
-GET /assets/123?brightness=20&saturation=50&grayscale=true
-
-# Combine all features
-GET /assets/123?width=1200&height=800&fit=cover&gravity=auto&format=avif&quality=90&sharpen=10&brightness=10
-
-# Force download
-GET /assets/123?width=800&height=600&format=webp&download=true
-```
-
-**All storage types (Local, GCS, R2) support the same query parameters and processing capabilities.**
-
-### Assets API Usage Examples
-
-**1. Basic Thumbnail (Cover Fit)**
-```http
-GET /assets/123?width=400&height=400&fit=cover&gravity=center&format=webp&quality=85
-```
-Perfect for: Profile pictures, product thumbnails
-
-**2. Responsive Image (Inside Fit)**
-```http
-GET /assets/123?width=1200&height=800&fit=inside&format=webp&quality=80
-```
-Perfect for: Responsive images that must fit within container
-
-**3. Face-Aware Thumbnail**
-```http
-GET /assets/123?width=200&height=200&fit=cover&gravity=face&format=webp
-```
-Perfect for: User avatars, portrait thumbnails
-
-**4. Rotated Image**
-```http
-GET /assets/123?rotate=90&format=webp
-```
-Perfect for: Correcting EXIF orientation issues
-
-**5. Blurred Background**
-```http
-GET /assets/123?width=1920&height=1080&fit=cover&blur=20&brightness=-10
-```
-Perfect for: Background images, hero sections
-
-**6. Grayscale with Effects**
-```http
-GET /assets/123?width=800&height=600&grayscale=true&brightness=10&sharpen=5
-```
-Perfect for: Artistic effects, vintage looks
-
-**7. High-Quality Download**
-```http
-GET /assets/123?width=2400&height=1600&format=avif&quality=95&download=true
-```
-Perfect for: High-resolution downloads
-
-**8. Combined Transformations**
-```http
-GET /assets/123?width=1200&height=800&fit=cover&gravity=auto&format=webp&quality=85&rotate=90&flip=horizontal&sharpen=10&brightness=15&saturation=20
-```
-Perfect for: Complex image processing needs
-
-**Supported Query Parameters:**
-
-**Basic Resize & Format:**
-- `width`: Resize width (pixels, 1-4000)
-- `height`: Resize height (pixels, 1-4000)
-- `format`: Output format (`jpeg`, `jpg`, `png`, `webp`, `avif`, `gif`)
-- `quality`: Compression quality (1-100, default: 80)
-- `cache`: Cache-Control max-age (seconds)
-- `download`: Force download (`true`/`false`)
-
-**Fit Modes & Gravity:**
-- `fit`: Resize fit mode (`cover`, `contain`, `fill`, `inside`, `outside`, default: `inside`)
-  - `cover`: Fill dimensions, may crop (keeps aspect ratio)
-  - `contain`: Fit inside dimensions, no crop (keeps aspect ratio)
-  - `fill`: Fill dimensions, no aspect ratio preservation
-  - `inside`: Fit inside dimensions, no crop (default)
-  - `outside`: May exceed dimensions (keeps aspect ratio)
-- `gravity`: Crop position (`center`, `north`, `south`, `east`, `west`, `northeast`, `northwest`, `southeast`, `southwest`, `face`, `faces`, `auto`)
-  - Position-based: `center`, `north`, `south`, `east`, `west`, `northeast`, `northwest`, `southeast`, `southwest`
-  - Smart: `face` (detect single face), `faces` (detect multiple faces), `auto` (auto-detect important area)
-
-**Transformations:**
-- `rotate`: Rotation angle in degrees (-360 to 360)
-- `flip`: Flip direction (`horizontal`/`h` or `vertical`/`v`)
-- `blur`: Blur intensity (0-100)
-- `sharpen`: Sharpen intensity (0-100)
-
-**Effects:**
-- `brightness`: Brightness adjustment (-100 to 100, 0 = no change)
-- `contrast`: Contrast adjustment (-100 to 100, 0 = no change) - *Note: Limited support in Sharp*
-- `saturation`: Saturation adjustment (-100 to 100, 0 = no change)
-- `grayscale`: Convert to grayscale (`true`/`false`)
-
-### Multi-Account Support
-
-Each storage configuration can use **different cloud accounts**. Storage configurations are managed through the admin interface, where you can:
-- Create multiple storage configs for different environments (dev, staging, prod)
-- Configure different GCS accounts with their own credentials
-- Set up client-specific storage accounts
-- Enable or disable storage configs
-
-When uploading a file, specify the `storageConfig` parameter to choose which storage backend to use. The `/assets/:id` endpoint automatically uses the correct credentials when serving that file, regardless of which storage config was used during upload.
-
-### How It Works
-
-The `/assets/:id` endpoint automatically handles all the complexity behind the scenes:
-
-1. **Fetches file metadata** including storage configuration
-2. **Checks permissions** (if file is private)
-3. **Routes to correct storage** (local, GCS, or S3) based on file's configuration
-4. **Uses correct credentials** for the storage account associated with the file
-5. **Streams the file** efficiently, applying image processing if requested
-
-You don't need to worry about where files are stored or which credentials to use - the system handles everything transparently.
-
-### Performance Features
-
-**Caching:**
-- Image processing results are cached in Redis
-- Cache keys include file path, dimensions, format, and quality
-- Frequently accessed images are kept in "hot keys" for faster access
-
-**Streaming:**
-- Files are streamed directly from cloud storage (no local download)
-- Image processing happens on-the-fly during streaming
-- Memory-efficient: only processes chunks, not entire file
-
-**Storage Config Cache:**
-- Storage configurations are cached in memory
-- Cache is synchronized across multiple server instances via Redis pub/sub
-- Automatic reload when configurations change
-
-### Example: Uploading and Serving Files
-
-```javascript
-// Upload file to production storage config in a specific folder
-const formData = new FormData();
-formData.append('file', fileInput.files[0]);
-formData.append('folder', '10');           // Organize in folder #10
-formData.append('storageConfig', '1');     // Use production storage config
-formData.append('title', 'Product Photo');
-
-const response = await fetch('/file_definition', {
-  method: 'POST',
-  body: formData
-});
-
-const uploadedFile = await response.json();
-
-// Serve the file - system automatically uses correct storage config
-// GET /assets/{uploadedFile.id}
-// → Automatically streams from production GCS using config #1 credentials
-```
-
-### Permissions
-
-The endpoint respects file permissions:
-- **Published files** (`isPublished: true`): Publicly accessible
-- **Private files** (`isPublished: false`): Requires permission check
-  - Checks `file_permission_definition` table
-  - Validates user/role permissions
-  - Returns 403 if access denied
-
-### Error Handling
-
-The endpoint handles various error scenarios:
-
-```http
-# File not found
-GET /assets/999
-→ 404 Not Found
-
-# Permission denied
-GET /assets/123 (private file, user not authorized)
-→ 403 Forbidden
-
-# Storage config not found
-GET /assets/456 (file references invalid storage config)
-→ 400 Bad Request
-
-# Cloud storage error
-GET /assets/789 (GCS credentials invalid or bucket not accessible)
-→ 500 Internal Server Error
-```
-
-### Validation & Error Handling
-
-The Assets API validates all query parameters and returns clear error messages:
-
-```http
-# Invalid width (out of range)
-GET /assets/123?width=5000
-→ 400 Bad Request: "Width 1-4000"
-
-# Invalid fit mode
-GET /assets/123?fit=invalid
-→ 400 Bad Request: "Fit: cover, contain, fill, inside, outside"
-
-# Invalid gravity
-GET /assets/123?gravity=invalid
-→ 400 Bad Request: "Gravity: center, north, south, east, west, ..."
-
-# Invalid rotation
-GET /assets/123?rotate=500
-→ 400 Bad Request: "Rotate -360 to 360"
-
-# Invalid blur value
-GET /assets/123?blur=150
-→ 400 Bad Request: "Blur 0-100"
-```
-
-**Parameter Ranges:**
-- `width`, `height`: 1-4000 pixels
-- `quality`: 1-100
-- `rotate`: -360 to 360 degrees
-- `blur`, `sharpen`: 0-100
-- `brightness`, `contrast`, `saturation`: -100 to 100
-
-### Best Practices
-
-1. **Use storage configs for organization**
-   - Separate configs for different environments (dev, staging, prod)
-   - Separate configs for different clients/tenants
-   - Separate configs for different file types if needed
-
-2. **Leverage image processing**
-   - Use query parameters instead of storing multiple sizes
-   - Use `fit=cover&gravity=face` for user avatars
-   - Use `fit=inside` for responsive images
-   - Use `format=webp` or `format=avif` for modern browsers
-   - Optimize quality based on use case (70-85 for thumbnails, 90-95 for downloads)
-
-3. **Performance optimization**
-   - Use `fit=cover` with `gravity=auto` for smart cropping
-   - Combine transformations in single request (more efficient)
-   - Use appropriate cache headers for frequently accessed images
-   - Prefer restreaming over buffering for large files
-
-4. **Monitor storage usage**
-   - Track which storage configs are being used
-   - Monitor costs per account
-   - Set up alerts for storage limits
-
-5. **Security**
-   - Store credentials securely in database
-   - Use service accounts with minimal required permissions
-   - Regularly rotate credentials
-   - Use file permissions for private assets
-
----
-
-## Related Documentation
-
-- [Context Reference](./context-reference.md) - Full `$ctx` object reference
-- [Template Syntax](./template-syntax.md) - Shortcuts like `@UPLOADED_FILE`, `@RES`
-- [Hook Development](./hook-development.md) - Using file handling in hooks
-
----
-
-## API Reference Summary
-
-### `@UPLOADED_FILE` (File Upload)
-```typescript
-{
-  filename: string;    // Original filename
-  mimetype: string;    // MIME type
-  filesize: number;    // Bytes
-  buffer: Buffer;      // File content
-}
-```
-
-### `@HELPERS.$uploadFile` (Upload Helper)
-```typescript
-await @HELPERS.$uploadFile({
-  originalname?: string;      // Original filename (or use 'filename')
-  filename?: string;            // Alternative to 'originalname'
-  mimetype: string;             // MIME type (required)
-  buffer: Buffer;               // File buffer (required)
-  size: number;                 // File size in bytes (required)
-  encoding?: string;            // File encoding (optional)
-  folder?: number | { id: number };  // Folder ID (optional)
-  storageConfig?: number;       // Storage config ID (optional)
-  title?: string;               // Custom title (optional)
-  description?: string;         // File description (optional)
-}): Promise<any>
-```
-
-**Returns:** The created file record from `file_definition` table with all fields including `id`, `filename`, `location`, `storageConfig`, etc.
-
-### `@HELPERS.$updateFile` (Update Helper)
-```typescript
-await @HELPERS.$updateFile(
-  fileId: string | number,
-  options: {
-    buffer?: Buffer;              // New file buffer (optional - if provided, replaces file)
-    originalname?: string;        // New filename (optional)
-    filename?: string;            // Alternative to 'originalname'
-    mimetype?: string;            // New MIME type (optional, required if buffer provided)
-    size?: number;                // New file size (optional)
-    folder?: number | { id: number };  // New folder ID (optional)
-    storageConfig?: number;       // New storage config ID (optional)
-    title?: string;               // New title (optional)
-    description?: string;         // New description (optional)
-  }
-): Promise<any>
-```
-
-**Returns:** The updated file record from `file_definition` table.
-
-**Note:** If `buffer` is provided, the file content is replaced. Otherwise, only metadata is updated.
-
-### `@HELPERS.$deleteFile` (Delete Helper)
-```typescript
-await @HELPERS.$deleteFile(
-  fileId: string | number
-): Promise<any>
-```
-
-**Returns:** The deletion result.
-
-**Note:** This permanently deletes both the physical file from storage and the database record. Operation is irreversible.
-
-### `@RES.stream()` (Response Streaming)
-```typescript
-@RES.stream(
-  stream: Readable | AsyncIterable,
-  options?: {
-    mimetype?: string;    // Content-Type header
-    filename?: string;    // Content-Disposition filename
-  }
-): Promise<void>
-```
-
-### `@PKGS.sharp` (Image Processing)
-```typescript
-const sharp = @PKGS.sharp;
-
-sharp()
-  .resize(width?, height?, options?)
-  .jpeg(options?)
-  .png(options?)
-  .webp(options?)
-  .rotate(angle?)
-  .flip()
-  .flop()
-  .blur(sigma?)
-  .sharpen()
-  .grayscale()
-  .composite(overlays?)
-  // ... and more
-```
