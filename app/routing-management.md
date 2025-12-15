@@ -17,7 +17,7 @@ Routing Management lets you create custom API endpoints that are served by your 
 - **Main Table**: The primary table this route serves
 - **Target Tables**: Additional tables this route can access (also provides automatic CRUD operations)
 - **Route Permissions**: Access control rules for this endpoint
-- **Handlers**: Custom request processing logic (see [Custom Handlers](./custom-handlers.md))
+- **Handlers**: Custom request processing logic (see [Custom Handlers](hooks-handlers/custom-handlers.md))
 - **Hooks**: Lifecycle events and custom processing
 - **Published Methods**: Defines which HTTP methods are public (no authentication required) vs private (role-protected)
 
@@ -180,7 +180,7 @@ You can replace any of these default operations with custom business logic by cr
 2. **Add custom handlers** via **Settings  Handlers** to override specific HTTP methods
 3. **Handler takes precedence** - when a handler exists for a route+method, it executes instead of default CRUD
 
-For detailed handler creation and examples, see [Custom Handlers](./custom-handlers.md).
+For detailed handler creation and examples, see [Custom Handlers](hooks-handlers/custom-handlers.md).
 
 ### Route Status
 - **Enabled/Disabled**: Controls whether the route is active
@@ -233,9 +233,9 @@ Changes to routes take effect immediately without requiring application restart.
 
 ## Related Documentation
 
-- **[Custom Handlers](./custom-handlers.md)** - Writing JavaScript logic for custom endpoints
-- **[Hooks System](./hooks.md)** - Adding validation and notifications
-- **[Package Management](./package-management.md)** - Installing NPM packages for external integrations
+- **[Custom Handlers](hooks-handlers/custom-handlers.md)** - Writing JavaScript logic for custom endpoints
+- **[Hooks System](hooks-handlers/hooks.md)** - Adding validation and notifications
+- **[Package Management](hooks-handlers/package-management.md)** - Installing NPM packages for external integrations
 
 ## Practical Examples
 

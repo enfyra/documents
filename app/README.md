@@ -17,6 +17,7 @@ The app is a **pure API client**: it never connects directly to your database. A
   - **[Form System](./form-system.md)** – Auto-generated forms, validation, relations, and change tracking  
   - **[Relation Picker](./relation-picker.md)** – Selecting related records inside forms  
   - **[Filter System](./filter-system.md)** – Advanced filtering for tables and pickers
+  - **[Enfyra Configuration](../getting-started/enfyra-config.md)** – Application configuration including Rich Text Editor
 
 - **Permissions & Visibility**  
   - **[Permission Builder](./permission-builder.md)** – Visual permission rule builder  
@@ -27,9 +28,9 @@ The app is a **pure API client**: it never connects directly to your database. A
   - **[Page Header](./page-header.md)** – Page headers with stats and gradients
 
 - **Hooks, Handlers & Packages (UI side)**  
-  - **[Hooks](./hooks.md)** – Managing hooks from the app UI  
-  - **[Custom Handlers](./custom-handlers.md)** – Managing custom handlers from the app UI  
-  - **[Package Management](./package-management.md)** – Installing NPM packages for hooks and handlers
+  - **[Hooks](hooks-handlers/hooks.md)** – Managing hooks from the app UI  
+  - **[Custom Handlers](hooks-handlers/custom-handlers.md)** – Managing custom handlers from the app UI  
+  - **[Package Management](hooks-handlers/package-management.md)** – Installing NPM packages for hooks and handlers
 
 - **Storage & Files**  
   - **[Storage Management](./storage-management.md)** – File uploads, folders, and storage configurations
@@ -58,9 +59,9 @@ If you are **building on top of the Enfyra App UI**, this is a suggested order:
    - **[Server Permission System](../server/permission-system.md)** – Backend permission evaluation
 
 5. **Go deeper into backend customization (from the app UI)**  
-   - **[Hooks](./hooks.md)** – Configure hooks that run on the server  
-   - **[Custom Handlers](./custom-handlers.md)** – Override default CRUD behavior  
-   - **[Package Management](./package-management.md)** – Install NPM packages for hooks/handlers  
+   - **[Hooks](hooks-handlers/hooks.md)** – Configure hooks that run on the server  
+   - **[Custom Handlers](hooks-handlers/custom-handlers.md)** – Override default CRUD behavior  
+   - **[Package Management](hooks-handlers/package-management.md)** – Install NPM packages for hooks/handlers  
    - **[Server Hooks & Handlers](../server/hooks-handlers/README.md)** – Full server-side behavior
 
 ## How This Relates to the Server Docs
