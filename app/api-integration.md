@@ -1,11 +1,8 @@
 # API Integration
 
-Enfyra uses the official **@enfyra/sdk-nuxt** package for all API interactions, with a custom `useApi` wrapper that provides enhanced error handling and additional features. The SDK provides optimized composables for fetching data, authentication, and real-time updates with built-in caching and error handling.
+Enfyra uses a **local `useApi` composable** that provides API interactions with enhanced error handling and additional features. The composable is built using `$fetch` and handles all HTTP requests to the Enfyra Server.
 
 From the app's perspective, **all API calls go to the Enfyra Server (port 1105)**. The frontend never talks to the database directly – it only calls HTTP endpoints exposed by the server.
-
-**Complete Nuxt SDK Documentation**: [https://github.com/enfyra/sdk-nuxt](https://github.com/enfyra/sdk-nuxt)  
-**Next.js SDK** (for custom Next.js apps): [https://github.com/enfyra/sdk-next](https://github.com/enfyra/sdk-next)
 
 ## Backend Dependency
 
@@ -17,14 +14,13 @@ ${BACKEND_URL}/api/${endpoint}
 
 **No API exists on the frontend** - it's purely a client consuming backend APIs. When you create tables, APIs are generated on the backend server and consumed by frontend via HTTP requests.
 
-## SDK Overview
+## API Composable Overview
 
-The Enfyra integration provides these main composables:
-- `useApi()` - Custom API wrapper with enhanced error handling (recommended)
-- `useEnfyraApi()` - Direct SDK API data fetching with caching
-- `useEnfyraAuth()` - Authentication management
+The Enfyra app provides:
+- `useApi()` - Local API composable with enhanced error handling (recommended)
 - Built-in TypeScript support and error handling
-- Automatic retry mechanisms and loading states
+- Manual execution control (must call `execute()` to run requests)
+- Support for file uploads and batch operations
 
 ## useApi Composable (Recommended)
 
@@ -32,19 +28,18 @@ The Enfyra integration provides these main composables:
 
 ```vue
 <script setup>
-// Fetch data with custom error handling and caching
-// This makes HTTP request to: ${BACKEND_URL}/api/user_definition
-const { data, pending, error, refresh } = await useApi('/user_definition', {
+// Fetch data with custom error handling
+// This makes HTTP request to: ${BACKEND_URL}/enfyra/api/user_definition
+const { data, pending, error, refresh, execute } = useApi('/user_definition', {
   query: {
     limit: 10,
     fields: 'id,email,name,role.name'
   }
 });
 
-// Direct SDK access also available for advanced usage
-// Also makes HTTP request to backend server
-const { data: directData } = await useEnfyraApi('/user_definition', {
-  query: { limit: 10 }
+// IMPORTANT: useApi does NOT auto-execute. You must call execute() to run the request
+onMounted(() => {
+  execute();
 });
 </script>
 
@@ -75,11 +70,11 @@ const { data: directData } = await useEnfyraApi('/user_definition', {
 
 ```vue
 <script setup>
-// Complex query with filtering, sorting, and pagination using custom wrapper
-const { data, pending, error } = await useApi('/product_definition', {
-  query: {
+// Complex query with filtering, sorting, and pagination
+const { data, pending, error, execute } = useApi('/product_definition', {
+  query: computed(() => ({
     // Pagination
-    page: 1,
+    page: currentPage.value,
     limit: 20,
     
     // Field selection
@@ -96,15 +91,17 @@ const { data, pending, error } = await useApi('/product_definition', {
     
     // Sorting
     sort: '-createdAt,name', // Sort by createdAt desc, then name asc
-    
-    // Relations
-    include: 'category,reviews'
-  },
-  
-  // Caching options
-  key: 'products-list',
-  server: false, // Client-side only
-  default: () => ({ data: [], total: 0 })
+  }))
+});
+
+// Execute the query
+onMounted(() => {
+  execute();
+});
+
+// Re-execute when page changes
+watch(currentPage, () => {
+  execute();
 });
 </script>
 ```
@@ -115,49 +112,116 @@ const { data, pending, error } = await useApi('/product_definition', {
 <script setup>
 const toast = useToast();
 
-// Create new record using custom API wrapper
-// POST request to: ${BACKEND_URL}/api/user_definition
+// Create new record
+// POST request to: ${BACKEND_URL}/enfyra/api/user_definition
 const createUser = async (userData) => {
-  try {
-    const { data } = await useApi('/user_definition', {
-      method: 'POST',
-      body: userData
-    });
-    
-    toast.add({
-      title: 'Success',
-      description: `User ${data.name} created successfully`,
-      color: 'success'
-    });
-    
-    return data;
-  } catch (error) {
-    toast.add({
-      title: 'Error',
-      description: error.message,
-      color: 'error'
-    });
-    throw error;
+  const { data, error, execute } = useApi('/user_definition', {
+    method: 'post',
+    body: userData
+  });
+  
+  await execute();
+  
+  if (error.value) {
+    throw new Error(error.value.message);
   }
+  
+  toast.add({
+    title: 'Success',
+    description: `User created successfully`,
+    color: 'success'
+  });
+  
+  return data.value;
 };
 
 // Update existing record
-// PATCH request to: ${BACKEND_URL}/api/user_definition/${userId}
+// PATCH request to: ${BACKEND_URL}/enfyra/api/user_definition/${userId}
 const updateUser = async (userId, updates) => {
-  const { data } = await useApi(`/user_definition/${userId}`, {
-    method: 'PATCH',
+  const { data, error, execute } = useApi('/user_definition', {
+    method: 'patch',
     body: updates
   });
   
-  return data;
+  await execute({ id: userId });
+  
+  if (error.value) {
+    throw new Error(error.value.message);
+  }
+  
+  return data.value;
 };
 
 // Delete record
-// DELETE request to: ${BACKEND_URL}/api/user_definition/${userId}
+// DELETE request to: ${BACKEND_URL}/enfyra/api/user_definition/${userId}
 const deleteUser = async (userId) => {
-  await useApi(`/user_definition/${userId}`, {
-    method: 'DELETE'
+  const { error, execute } = useApi('/user_definition', {
+    method: 'delete'
   });
+  
+  await execute({ id: userId });
+  
+  if (error.value) {
+    throw new Error(error.value.message);
+  }
+};
+
+// File Upload (Batch)
+// POST request with multiple files
+const uploadFiles = async (files: File[]) => {
+  const formDataArray = files.map((file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    // Add additional fields if needed
+    formData.append('folder', folderId);
+    return formData;
+  });
+  
+  const { data, error, execute } = useApi('/file_definition', {
+    method: 'post'
+  });
+  
+  await execute({ files: formDataArray });
+  
+  if (error.value) {
+    throw new Error(error.value.message);
+  }
+  
+  return data.value;
+};
+</script>
+```
+
+## MongoDB Support
+
+When working with MongoDB databases, the app automatically handles `_id` fields instead of `id`. All API queries and filters use `getIdFieldName()` helper to support both PostgreSQL (`id`) and MongoDB (`_id`).
+
+```vue
+<script setup>
+const { getId, getIdFieldName } = useDatabase();
+
+// Filter queries automatically use correct ID field
+const { data, execute } = useApi('/folder_definition', {
+  query: computed(() => {
+    const idField = getIdFieldName();
+    return {
+      filter: {
+        parent: {
+          [idField]: {
+            _is_null: true
+          }
+        }
+      }
+    };
+  })
+});
+
+// Getting IDs from records
+const folderId = getId(folder); // Returns id or _id based on database
+
+// Always use getId() instead of direct .id access
+const navigateToFolder = (folder) => {
+  navigateTo(`/storage/management/folder/${getId(folder)}`);
 };
 </script>
 ```
@@ -566,18 +630,29 @@ const apiQuery = computed(() => ({
 }));
 
 // Fetch users with reactive query
-const { data: usersData, pending, refresh: refreshUsers } = await useApi('/user_definition', {
-  query: apiQuery,
-  key: 'users-list'
+const { data: usersData, pending, execute: fetchUsers } = useApi('/user_definition', {
+  query: apiQuery
 });
 
+// Execute on mount and when query changes
+onMounted(() => {
+  fetchUsers();
+});
+
+watch(apiQuery, () => {
+  fetchUsers();
+}, { deep: true });
+
 // Fetch roles for dropdown
-const { data: rolesData } = await useApi('/role_definition', {
+const { data: rolesData, execute: fetchRoles } = useApi('/role_definition', {
   query: {
     fields: 'id,name',
     sort: 'name'
-  },
-  key: 'roles-list'
+  }
+});
+
+onMounted(() => {
+  fetchRoles();
 });
 
 // Computed properties
@@ -614,7 +689,7 @@ const applyFilters = () => {
 };
 
 const loadUsers = () => {
-  refreshUsers();
+  fetchUsers();
 };
 
 const editUser = (user) => {
@@ -634,10 +709,11 @@ const saveUser = async () => {
   try {
     if (editingUser.value) {
       // Update existing user
-      await $enfyraApi(`/user_definition/${editingUser.value.id}`, {
-        method: 'PATCH',
+      const { execute: updateUser } = useApi('/user_definition', {
+        method: 'patch',
         body: userForm
       });
+      await updateUser({ id: editingUser.value.id });
       
       toast.add({
         title: 'User updated',
@@ -646,10 +722,11 @@ const saveUser = async () => {
       });
     } else {
       // Create new user
-      await $enfyraApi('/user_definition', {
-        method: 'POST',
+      const { execute: createUser } = useApi('/user_definition', {
+        method: 'post',
         body: userForm
       });
+      await createUser();
       
       toast.add({
         title: 'User created',
@@ -660,7 +737,7 @@ const saveUser = async () => {
     
     showCreateModal.value = false;
     resetForm();
-    refreshUsers();
+    fetchUsers();
     
   } catch (error) {
     toast.add({
@@ -683,9 +760,10 @@ const deleteUser = async (userId) => {
   if (!isConfirmed) return;
   
   try {
-    await $enfyraApi(`/user_definition/${userId}`, {
-      method: 'DELETE'
+    const { execute: deleteUserApi } = useApi('/user_definition', {
+      method: 'delete'
     });
+    await deleteUserApi({ id: userId });
     
     toast.add({
       title: 'User deleted',
@@ -693,7 +771,7 @@ const deleteUser = async (userId) => {
       color: 'success'
     });
     
-    refreshUsers();
+    fetchUsers();
   } catch (error) {
     toast.add({
       title: 'Delete failed',
@@ -761,13 +839,15 @@ const handleApiError = (error) => {
 
 // API call with error handling
 const fetchData = async () => {
-  try {
-    const { data } = await $enfyraApi('/endpoint');
-    return data;
-  } catch (error) {
-    handleApiError(error);
-    throw error;
+  const { data, error, execute } = useApi('/endpoint');
+  await execute();
+  
+  if (error.value) {
+    handleApiError(error.value);
+    throw error.value;
   }
+  
+  return data.value;
 };
 </script>
 ```
@@ -781,21 +861,19 @@ const userListKey = computed(() =>
   `users-${currentPage.value}-${searchTerm.value}-${selectedRole.value}`
 );
 
-// Fetch with custom cache key
-const { data, pending, refresh } = await useApi('/user_definition', {
-  query: apiQuery,
-  key: userListKey, // Dynamic cache key
-  server: false, // Client-side only
-  default: () => ({ data: [], total: 0 })
+// Fetch with reactive query
+const { data, pending, execute: fetchUsers } = useApi('/user_definition', {
+  query: apiQuery
 });
 
-// Refresh specific cached data
+// Execute query
+onMounted(() => {
+  fetchUsers();
+});
+
+// Refresh data
 const invalidateCache = () => {
-  // Refresh current query
-  refresh();
-  
-  // Or clear specific cache
-  clearNuxtData('users-list');
+  fetchUsers();
 };
 
 // Optimistic updates
@@ -811,13 +889,14 @@ const updateUserOptimistically = async (userId, updates) => {
   
   try {
     // Send API request
-    await $enfyraApi(`/user_definition/${userId}`, {
-      method: 'PATCH',
+    const { execute: updateUser } = useApi('/user_definition', {
+      method: 'patch',
       body: updates
     });
+    await updateUser({ id: userId });
   } catch (error) {
     // Revert on error
-    refresh();
+    fetchUsers();
     throw error;
   }
 };
@@ -835,9 +914,12 @@ const apiQuery = computed(() => ({
   page: currentPage.value
 }));
 
-const { data } = await useApi('/users', {
-  query: apiQuery,
-  key: 'users-list'
+const { data, execute } = useApi('/users', {
+  query: apiQuery
+});
+
+onMounted(() => {
+  execute();
 });
 </script>
 ```
@@ -880,7 +962,11 @@ interface User {
   };
 }
 
-const { data } = await useApi<{ data: User[], total: number }>('/user_definition');
+const { data, execute } = useApi<{ data: User[], total: number }>('/user_definition');
+
+onMounted(() => {
+  execute();
+});
 ```
 
 ## Related Documentation
@@ -890,7 +976,5 @@ const { data } = await useApi<{ data: User[], total: number }>('/user_definition
 - **[Permission Components](./permission-components.md)** - Controlling UI access around API calls  
 - **[Permission System (Server)](../server/permission-system.md)** - How permissions are evaluated on the backend
 - **[Server Documentation](../server/README.md)** - Overview of backend APIs and context
-- **[Nuxt SDK Documentation](https://github.com/enfyra/sdk-nuxt)** - Official Nuxt SDK reference
-- **[Next.js SDK Documentation](https://github.com/enfyra/sdk-next)** - Official Next.js SDK reference
 
-The Enfyra SDK family provides everything you need for robust API integration with built-in caching, error handling, and TypeScript support.
+The `useApi` composable provides everything you need for robust API integration with error handling, TypeScript support, and MongoDB compatibility.
