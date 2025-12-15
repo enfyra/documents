@@ -14,7 +14,7 @@
 ### 1. Install and run the backend
 
 ```bash
-npx @enfyra/create-server@latest <project-name>
+npx @enfyra/create-server <project-name>
 cd <project-name>
 npm run start
 ```
@@ -24,7 +24,7 @@ npm run start
 
 ### 2. Install and run the frontend app
 ```bash
-npx @enfyra/create-app@latest <project-name>
+npx @enfyra/create-app <project-name>
 cd <project-name>
 npm run dev
 ```
@@ -53,7 +53,7 @@ Database  Backend APIs (1105) ← Frontend App (3000)
 When you run:
 
 ```bash
-npx @enfyra/create-server@latest <project-name>
+npx @enfyra/create-server <project-name>
 ```
 
 the CLI will ask you a series of configuration questions. Enter the values that match your environment.
@@ -100,7 +100,7 @@ npm run start
 When you run:
 
 ```bash
-npx @enfyra/create-app@latest <project-name>
+npx @enfyra/create-app <project-name>
 ```
 
 the CLI will ask you a series of configuration questions for the frontend application. Enter the values that match your environment.
