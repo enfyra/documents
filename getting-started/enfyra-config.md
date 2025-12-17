@@ -45,6 +45,49 @@ export const enfyraConfig: EnfyraConfig = {
 };
 ```
 
+### Per-column override via `column.metadata.richText`
+
+You can override the global `richText` config on a **specific column** by putting a `richText` object inside `column.metadata`. The editor will merge `column.metadata.richText` over the global `enfyraConfig.richText`.
+
+**Example (column metadata):**
+```json
+{
+  "richText": {
+    "toolbar": "undo redo | bold italic underline | codeinline | codeblock | bullist numlist | link table | code",
+    "customButtons": [
+      { "name": "codeinline", "text": "Highlight", "tooltip": "Inline code", "format": "code" },
+      { "name": "codeblock",  "text": "Code Block", "tooltip": "Code block (pre)", "format": "pre" }
+    ],
+    "formats": {
+      "code": {
+        "inline": "code",
+        "css": {
+          "backgroundColor": "#2d2d2d",
+          "color": "#ccc!important",
+          "padding": "2px 4px",
+          "borderRadius": "3px",
+          "fontFamily": "monospace"
+        }
+      },
+      "pre": {
+        "block": "pre",
+        "css": {
+          "backgroundColor": "#1e1e1e",
+          "padding": "12px",
+          "borderRadius": "4px",
+          "overflow": "auto",
+          "fontFamily": "monospace",
+          "whiteSpace": "pre",
+          "color": "#ccc!important"
+        }
+      }
+    }
+  }
+}
+```
+
+> Tip: Keep only the overrides you need in `metadata.richText`; anything not provided falls back to the global config.
+
 ### Available Options
 
 #### `plugins?: string[]`
