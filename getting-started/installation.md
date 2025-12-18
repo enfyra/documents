@@ -7,9 +7,111 @@
 - **Database server** (MySQL, MariaDB, PostgreSQL, or MongoDB)
 - **Redis server**
 
+**OR** use Docker for a complete all-in-one setup (recommended for quick start)
+
 ---
 
-## Quick Setup
+## Installation Methods
+
+### Option 1: Docker (Recommended for Quick Start)
+
+The easiest way to get started with Enfyra is using the all-in-one Docker image, which includes:
+- Backend server (NestJS)
+- Frontend app (Nuxt)
+- Embedded PostgreSQL/MySQL (optional)
+- Embedded Redis (optional)
+
+#### Quick Start with Docker
+
+```bash
+docker run -d \
+  --name enfyra \
+  -p 3000:3000 \
+  -e DB_TYPE=postgres \
+  -v enfyra-data:/app/data \
+  dothinh115/enfyra:latest
+```
+
+This single command will:
+- Start the backend server (port 1105, internal)
+- Start the frontend app (port 3000, exposed)
+- Start embedded PostgreSQL (if no DB config provided)
+- Start embedded Redis (if no REDIS_URI provided)
+
+**Access the application:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:1105
+
+**Default credentials:**
+- Admin Email: `enfyra@admin.com`
+- Admin Password: `1234`
+
+#### Docker with MySQL
+
+```bash
+docker run -d \
+  --name enfyra \
+  -p 3000:3000 \
+  -e DB_TYPE=mysql \
+  -v enfyra-data:/app/data \
+  dothinh115/enfyra:latest
+```
+
+#### Docker with External Database and Redis
+
+```bash
+docker run -d \
+  --name enfyra \
+  -p 3000:3000 \
+  -e DB_TYPE=postgres \
+  -e DB_HOST=my-postgres-host \
+  -e DB_PORT=5432 \
+  -e DB_USERNAME=enfyra \
+  -e DB_PASSWORD=secret \
+  -e DB_NAME=enfyra \
+  -e REDIS_URI=redis://my-redis:6379/0 \
+  dothinh115/enfyra:latest
+```
+
+#### Docker Modes
+
+The Docker image supports 3 modes:
+
+1. **`all`** (default) - Run both server + app + embedded services
+2. **`server`** - Run backend server only
+3. **`app`** - Run frontend app only
+
+Example - Server only:
+```bash
+docker run -d \
+  --name enfyra-server \
+  -p 1105:1105 \
+  -e ENFYRA_MODE=server \
+  -e DB_TYPE=postgres \
+  -e DB_HOST=my-postgres \
+  -e REDIS_URI=redis://my-redis:6379/0 \
+  dothinh115/enfyra:latest
+```
+
+Example - App only:
+```bash
+docker run -d \
+  --name enfyra-app \
+  -p 3000:3000 \
+  -e ENFYRA_MODE=app \
+  -e API_URL=http://your-backend:1105/ \
+  dothinh115/enfyra:latest
+```
+
+For detailed Docker documentation, see:
+- [Docker README](../../docker/README.md)
+- [Docker Usage Guide](../../docker/USAGE.md)
+
+---
+
+### Option 2: Manual Installation
+
+## Quick Setup (Manual Installation)
 
 ### 1. Install and run the backend
 
