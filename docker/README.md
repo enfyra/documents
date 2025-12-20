@@ -1,217 +1,77 @@
-# Enfyra Docker
-
-All-in-one Docker image for Enfyra platform, including Server + App + Embedded Redis + Embedded Database.
+# Enfyra Docker - Usage Guide
 
 > **New to Enfyra?** See the [Installation Guide](../getting-started/installation.md) for complete setup instructions, including Docker and manual installation options.
 
-## 🚀 Quick Start
+##  Overview
 
-### Simplest way (single command)
+The `dothinh115/enfyra` (or `enfyra/enfyra`) image can run in **3 different modes**:
 
-```bash
-docker run -d \
-  -p 3000:3000 \
-  -e DB_TYPE=postgres \
-  dothinh115/enfyra:latest
-```
+1. **`all`** (default) - Run both server + app + embedded services
+2. **`server`** - Run backend server only
+3. **`app`** - Run frontend app only
 
-→ Runs with embedded PostgreSQL and Redis, no additional configuration needed!
+All from the **same image**, just different environment variables!
 
-### With MySQL
+---
 
-```bash
-docker run -d \
-  -p 3000:3000 \
-  -e DB_TYPE=mysql \
-  dothinh115/enfyra:latest
-```
+##  1. Run All-in-One (Server + App + Embedded Services)
 
-### With MongoDB (requires MONGO_URI)
+### Simplest way (single command):
 
 ```bash
 docker run -d \
-  -p 3000:3000 \
-  -e DB_TYPE=mongodb \
-  -e MONGO_URI=mongodb://user:pass@host:27017/dbname \
-  dothinh115/enfyra:latest
-```
-
-## 🧹 Clean Up Old Images
-
-To remove old Docker images and free up disk space:
-
-```bash
-cd docker
-
-# List all Enfyra images
-./cleanup-images.sh --list
-
-# Keep only 5 latest images (default)
-./cleanup-images.sh --keep 5
-
-# Keep only 3 latest images
-./cleanup-images.sh --keep 3
-
-# Remove only dangling images
-./cleanup-images.sh --dangling
-
-# Remove ALL Enfyra images (⚠️ careful!)
-./cleanup-images.sh --all
-```
-
-## 📦 Build and Push Image
-
-### Build and push with automatic version (from server/package.json)
-
-```bash
-cd docker
-./build-and-push.sh
-```
-
-### Build and push with specific version
-
-```bash
-cd docker
-./build-and-push.sh 1.2.5
-```
-
-### Use environment variable to override namespace
-
-```bash
-DOCKER_NAMESPACE=enfyra ./build-and-push.sh
-```
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-#### Required
-- `DB_TYPE`: Database type (`postgres`, `mysql`, `mongodb`) - **default: `postgres`**
-
-#### Database Configuration
-
-**Primary (Prisma-style URI - Recommended):**
-- `DB_URI`: Database connection URI (if not set → uses embedded DB)
-  - PostgreSQL: `postgresql://user:password@host:port/database`
-  - MySQL: `mysql://user:password@host:port/database`
-  - Example: `postgresql://enfyra:secret@my-postgres:5432/enfyra`
-  - **Note**: If password contains special characters (`@`, `:`, `/`, etc.), URL-encode them:
-    - `@` → `%40`, `:` → `%3A`, `/` → `%2F`, `%` → `%25`, `#` → `%23`, `?` → `%3F`, `&` → `%26`
-
-**Replica Configuration (Optional):**
-- `DB_REPLICA_URIS`: Comma-separated replica URIs (e.g., `postgresql://user:pass@replica1:5432/db,postgresql://user:pass@replica2:5432/db`)
-- `DB_READ_FROM_MASTER`: Include master in read pool (`true`/`false`, default: `false`)
-
-**Legacy (Backward Compatible):**
-- `DB_HOST`: Database host (if `DB_URI` not set)
-- `DB_PORT`: Database port
-- `DB_USERNAME`: Database username
-- `DB_PASSWORD`: Database password
-- `DB_NAME`: Database name
-
-**MongoDB:**
-- `MONGO_URI`: MongoDB connection string (only when `DB_TYPE=mongodb`)
-
-#### Redis Configuration
-- `REDIS_URI`: Redis connection string (if not set → uses embedded Redis)
-
-#### Mode Configuration
-- `ENFYRA_MODE`: Run mode (`all`, `server`, `app`) - **default: `all`**
-  - `all`: Run both server + app (default)
-  - `server`: Run backend server only
-  - `app`: Run frontend app only
-
-#### Database Connection Pool (Optional)
-- `DB_POOL_MIN_SIZE`: Minimum connection pool size - **default: `2`**
-- `DB_POOL_MAX_SIZE`: Maximum connection pool size - **default: `100`**
-- `DB_POOL_MASTER_RATIO`: Master pool ratio (0.0-1.0) - **default: `0.6`** (60% master, 40% replicas)
-- `DB_ACQUIRE_TIMEOUT`: Connection acquisition timeout (ms) - **default: `60000`**
-- `DB_IDLE_TIMEOUT`: Idle connection timeout (ms) - **default: `30000`**
-
-#### Server Configuration
-- `PORT`: Server port - **default: `1105`**
-- `ENFYRA_SERVER_WORKERS`: Number of worker processes for cluster - **default: `1`**
-- `SECRET_KEY`: JWT secret key - **default: `enfyra_secret_key_change_in_production`**
-- `BACKEND_URL`: Backend URL (for Swagger/docs) - **default: `http://localhost:1105`**
-- `NODE_NAME`: Node instance name (for logs/cluster) - **default: `enfyra_docker`**
-- `DEFAULT_HANDLER_TIMEOUT`: Handler execution timeout (ms) - **default: `20000`**
-- `DEFAULT_PREHOOK_TIMEOUT`: Prehook timeout (ms) - **default: `20000`**
-- `DEFAULT_AFTERHOOK_TIMEOUT`: Afterhook timeout (ms) - **default: `20000`**
-
-#### Auth Configuration (Optional)
-- `SALT_ROUNDS`: bcrypt salt rounds - **default: `10`**
-- `ACCESS_TOKEN_EXP`: Access token expiration - **default: `15m`**
-- `REFRESH_TOKEN_NO_REMEMBER_EXP`: Refresh token expiration (no remember) - **default: `1d`**
-- `REFRESH_TOKEN_REMEMBER_EXP`: Refresh token expiration (remember) - **default: `7d`**
-
-#### Redis Configuration
-- `REDIS_URI`: Redis connection string (if not set → uses embedded Redis)
-  - Format: `redis://user:pass@host:port/db` or `redis://host:port/db`
-- `DEFAULT_TTL`: Default TTL for cache entries (seconds) - **default: `5`**
-
-#### App Configuration
-- `ENFYRA_APP_PORT`: App port - **default: `3000`**
-- `API_URL`: Backend API URL (automatically set if `ENFYRA_MODE=all`)
-
-#### Handler Executor (Optional)
-- `HANDLER_EXECUTOR_MAX_MEMORY`: Max memory per child process (MB) - **default: `512`**
-- `HANDLER_EXECUTOR_POOL_MIN`: Minimum pool size - **default: `2`**
-- `HANDLER_EXECUTOR_POOL_MAX`: Maximum pool size - **default: `4`**
-
-#### Package Manager (Optional)
-- `PACKAGE_MANAGER`: Package manager (`yarn`, `npm`, `pnpm`) - **default: `yarn`**
-
-#### Environment
-- `NODE_ENV`: Environment (`development`, `production`, `test`) - **default: `production`**
-
-### Usage Examples
-
-#### 1. All-in-one with embedded services (simplest)
-
-```bash
-docker run -d \
+  --name enfyra \
   -p 3000:3000 \
   -e DB_TYPE=postgres \
   -v enfyra-data:/app/data \
   dothinh115/enfyra:latest
 ```
 
-#### 2. Use external database and Redis (with DB_URI - Recommended)
+ Runs with:
+- **Server** (port 1105 internal)
+- **App** (port 3000, exposed)
+- **Embedded PostgreSQL** (if no DB config)
+- **Embedded Redis** (if no REDIS_URI)
+
+### With MySQL:
 
 ```bash
 docker run -d \
+  --name enfyra \
+  -p 3000:3000 \
+  -e DB_TYPE=mysql \
+  -v enfyra-data:/app/data \
+  dothinh115/enfyra:latest
+```
+
+### With external database and Redis:
+
+```bash
+docker run -d \
+  --name enfyra \
   -p 3000:3000 \
   -e DB_TYPE=postgres \
-  -e DB_URI=postgresql://enfyra:secret@my-postgres:5432/enfyra \
+  -e DB_URI=postgresql://enfyra:secret@my-postgres-host:5432/enfyra \
   -e REDIS_URI=redis://my-redis:6379/0 \
   dothinh115/enfyra:latest
 ```
 
 **Or with legacy vars (backward compatible):**
 
-```bash
-docker run -d \
-  -p 3000:3000 \
-  -e DB_TYPE=postgres \
-  -e DB_HOST=my-postgres \
-  -e DB_PORT=5432 \
-  -e DB_USERNAME=enfyra \
-  -e DB_PASSWORD=secret \
-  -e DB_NAME=enfyra \
-  -e REDIS_URI=redis://my-redis:6379/0 \
-  dothinh115/enfyra:latest
-```
+---
 
-#### 3. Run server only (for cluster)
+##  2. Run Server Only (Backend)
+
+### Run server only, no app:
 
 ```bash
 docker run -d \
+  --name enfyra-server \
   -p 1105:1105 \
   -e ENFYRA_MODE=server \
   -e DB_TYPE=postgres \
   -e DB_URI=postgresql://enfyra:secret@my-postgres:5432/enfyra \
   -e REDIS_URI=redis://my-redis:6379/0 \
-  -e ENFYRA_SERVER_WORKERS=4 \
   dothinh115/enfyra:latest
 ```
 
@@ -219,6 +79,7 @@ docker run -d \
 
 ```bash
 docker run -d \
+  --name enfyra-server \
   -p 1105:1105 \
   -e ENFYRA_MODE=server \
   -e DB_TYPE=postgres \
@@ -226,87 +87,283 @@ docker run -d \
   -e DB_REPLICA_URIS=postgresql://enfyra:secret@replica1:5432/enfyra,postgresql://enfyra:secret@replica2:5432/enfyra \
   -e DB_READ_FROM_MASTER=false \
   -e REDIS_URI=redis://my-redis:6379/0 \
-  -e ENFYRA_SERVER_WORKERS=4 \
   dothinh115/enfyra:latest
 ```
 
-#### 4. Run app only (frontend only)
+### Server with embedded services:
 
 ```bash
 docker run -d \
-  -p 3000:3000 \
-  -e ENFYRA_MODE=app \
-  -e API_URL=https://api.my-domain.com/ \
+  --name enfyra-server \
+  -p 1105:1105 \
+  -e ENFYRA_MODE=server \
+  -e DB_TYPE=postgres \
+  -v enfyra-server-data:/app/data \
   dothinh115/enfyra:latest
 ```
 
-## 🏗️ Architecture
+**Note**: When `ENFYRA_MODE=server`, app will not be started, only backend API.
 
-This image contains:
-- **Server**: NestJS backend (port 1105)
-- **App**: Nuxt frontend (port 3000)
-- **Redis**: Embedded Redis server (port 6379, internal - expose with `-p 6379:6379` if needed)
-- **PostgreSQL**: Embedded database (port 5432, internal - expose with `-p 5432:5432` if needed)
-- **MySQL**: Embedded database (port 3306, internal - expose with `-p 3306:3306` if needed)
+---
 
-All managed by **supervisor** in a single container.
+##  3. Run App Only (Frontend)
 
-### Default Credentials
+### Run app only, requires API_URL pointing to external server:
 
-When using embedded database, default credentials:
-- **PostgreSQL/MySQL**:
-  - Username: `enfyra`
-  - Password: `enfyra_password_123`
-  - Database: `enfyra`
-- **Admin User** (auto-created):
-  - Email: `enfyra@admin.com`
-  - Password: `1234`
-
-## 📝 Notes
-
-- **Data persistence**: Use volume to persist embedded DB/Redis data:
-  ```bash
-  -v enfyra-data:/app/data
-  ```
-
-- **Production**: Recommended to use external database and Redis for production for better HA and backup.
-
-- **Cluster**: Set `ENFYRA_SERVER_WORKERS > 1` to run backend cluster in container, or scale multiple containers with `ENFYRA_MODE=server`.
-
-- **Environment Files**: `.env` files are automatically generated for both server and app based on `env_example` files. All env vars have reasonable defaults, but you can override by setting env vars when `docker run`.
-
-- **Embedded Ports**: Embedded services use default ports. Expose them when running if you need external access:
-  ```bash
-  -p 5432:5432  # PostgreSQL
-  -p 3306:3306  # MySQL
-  -p 6379:6379  # Redis
-  ```
-  
-  **Note**: If you already have these services running on your host, either:
-  - Use external services (set `DB_URI` or `DB_HOST`, `REDIS_URI`)
-  - Use different host ports: `-p 5433:5432` (maps host 5433 to container 5432)
-
-## 🔧 Build Requirements
-
-- Docker installed and running
-- Logged in to Docker Hub: `docker login`
-- Access to `server/` and `app/` directories
-- Stable internet connection (for pulling base images)
-
-### Troubleshooting Build Issues
-
-**Network timeout when pulling base images:**
 ```bash
-# Pre-pull base image to avoid timeout
-docker pull node:20-alpine
-
-# Then retry build
-./build-and-push.sh
+docker run -d \
+  --name enfyra-app \
+  -p 3000:3000 \
+  -e ENFYRA_MODE=app \
+  -e API_URL=http://your-server-host:1105/ \
+  dothinh115/enfyra:latest
 ```
 
-**If build still fails:**
-- Check your internet connection
-- Try again later (Docker Hub might be slow)
-- The build script has automatic retry (3 attempts)
+### App with HTTPS backend:
 
+```bash
+docker run -d \
+  --name enfyra-app \
+  -p 3000:3000 \
+  -e ENFYRA_MODE=app \
+  -e API_URL=https://api.your-domain.com/ \
+  dothinh115/enfyra:latest
+```
+
+**Note**: 
+- When `ENFYRA_MODE=app`, **must** set `API_URL`
+- Server and embedded services will not be started
+
+---
+
+##  Mode Comparison
+
+| Mode | Server | App | Embedded Redis | Embedded DB | Use Case |
+|------|--------|-----|----------------|-------------|----------|
+| `all` (default) |  |  |  (if no REDIS_URI) |  (if no DB config) | Single container, simple |
+| `server` |  |  |  (if no REDIS_URI) |  (if no DB config) | Backend API only, cluster |
+| `app` |  |  |  |  | Frontend only, scale separately |
+
+---
+
+##  Scaling with Multiple Containers
+
+### Scale Server (Backend cluster):
+
+```bash
+# Server node 1
+docker run -d \
+  --name enfyra-server-1 \
+  -p 1105:1105 \
+  -e ENFYRA_MODE=server \
+  -e DB_TYPE=postgres \
+  -e DB_URI=postgresql://enfyra:secret@shared-postgres:5432/enfyra \
+  -e REDIS_URI=redis://shared-redis:6379/0 \
+  dothinh115/enfyra:latest
+
+# Server node 2
+docker run -d \
+  --name enfyra-server-2 \
+  -p 1106:1105 \
+  -e ENFYRA_MODE=server \
+  -e DB_TYPE=postgres \
+  -e DB_URI=postgresql://enfyra:secret@shared-postgres:5432/enfyra \
+  -e REDIS_URI=redis://shared-redis:6379/0 \
+  dothinh115/enfyra:latest
+
+# App (pointing to load balancer or server nodes)
+docker run -d \
+  --name enfyra-app \
+  -p 3000:3000 \
+  -e ENFYRA_MODE=app \
+  -e API_URL=http://load-balancer:1105/ \
+  dothinh115/enfyra:latest
+```
+
+---
+
+##  Environment Variables Reference
+
+### Required
+- `DB_TYPE`: `postgres`, `mysql`, or `mongodb` (default: `postgres`)
+
+### Mode
+- `ENFYRA_MODE`: `all`, `server`, or `app` (default: `all`)
+
+### Database (if not set  uses embedded)
+
+**Primary (Prisma-style URI - Recommended):**
+- `DB_URI`: Database connection URI
+  - PostgreSQL: `postgresql://user:password@host:port/database`
+  - MySQL: `mysql://user:password@host:port/database`
+  - Example: `postgresql://enfyra:secret@my-postgres:5432/enfyra`
+  - **Note**: URL-encode special characters in password if needed (`@`  `%40`, `:`  `%3A`, `/`  `%2F`, `%`  `%25`, `#`  `%23`, `?`  `%3F`, `&`  `%26`)
+
+**Replica Configuration (Optional):**
+- `DB_REPLICA_URIS`: Comma-separated replica URIs
+  - Example: `postgresql://user:pass@replica1:5432/db,postgresql://user:pass@replica2:5432/db`
+- `DB_READ_FROM_MASTER`: Include master in read pool (`true`/`false`, default: `false`)
+  - `false`: Read queries only use replicas (master only for writes)
+  - `true`: Read queries use master + replicas (round-robin)
+
+**MongoDB:**
+- `MONGO_URI` (only when `DB_TYPE=mongodb`)
+  - Format: `mongodb://user:password@host:port/database?authSource=admin`
+
+**Connection Pool (Optional):**
+- `DB_POOL_MIN_SIZE`: Minimum pool size (default: `2`)
+- `DB_POOL_MAX_SIZE`: Maximum pool size (default: `100`)
+- `DB_POOL_MASTER_RATIO`: Master pool ratio 0.0-1.0 (default: `0.6`)
+  - Example: `DB_POOL_MAX_SIZE=100`, `DB_POOL_MASTER_RATIO=0.6`, 1 master + 2 replicas
+  -  Master: 60 connections, Each replica: 20 connections
+- `DB_ACQUIRE_TIMEOUT`: Connection acquisition timeout in ms (default: `60000`)
+- `DB_IDLE_TIMEOUT`: Idle connection timeout in ms (default: `30000`)
+
+### Redis (if not set  uses embedded)
+- `REDIS_URI`: Redis connection string
+  - Format: `redis://user:pass@host:port/db` or `redis://host:port/db`
+- `DEFAULT_TTL`: Default TTL for cache entries in seconds (default: `5`)
+
+### Server
+- `PORT`: Server port (default: `1105`)
+- `ENFYRA_SERVER_WORKERS`: Number of workers for cluster (default: `1`)
+- `SECRET_KEY`: JWT secret key (default: `enfyra_secret_key_change_in_production`)
+- `BACKEND_URL`: Backend URL for Swagger/docs (default: `http://localhost:1105`)
+- `NODE_NAME`: Node instance name for logs/cluster (default: `enfyra_docker`)
+- `DEFAULT_HANDLER_TIMEOUT`: Handler execution timeout in ms (default: `20000`)
+- `DEFAULT_PREHOOK_TIMEOUT`: Prehook timeout in ms (default: `20000`)
+- `DEFAULT_AFTERHOOK_TIMEOUT`: Afterhook timeout in ms (default: `20000`)
+
+### Auth (Optional)
+- `SALT_ROUNDS`: bcrypt salt rounds (default: `10`)
+- `ACCESS_TOKEN_EXP`: Access token expiration (default: `15m`)
+- `REFRESH_TOKEN_NO_REMEMBER_EXP`: Refresh token expiration without remember (default: `1d`)
+- `REFRESH_TOKEN_REMEMBER_EXP`: Refresh token expiration with remember (default: `7d`)
+
+### App
+- `ENFYRA_APP_PORT`: App port (default: `3000`)
+- `API_URL`: Backend API URL (automatically set if `ENFYRA_MODE=all`)
+
+### Handler Executor (Optional)
+- `HANDLER_EXECUTOR_MAX_MEMORY`: Max memory per child process in MB (default: `512`)
+- `HANDLER_EXECUTOR_POOL_MIN`: Minimum pool size (default: `2`)
+- `HANDLER_EXECUTOR_POOL_MAX`: Maximum pool size (default: `4`)
+
+### Package Manager (Optional)
+- `PACKAGE_MANAGER`: Package manager `yarn`, `npm`, or `pnpm` (default: `yarn`)
+
+### Environment
+- `NODE_ENV`: Environment `development`, `production`, or `test` (default: `production`)
+
+---
+
+##  Tips
+
+1. **Data persistence**: Always use volume to persist data:
+   ```bash
+   -v enfyra-data:/app/data
+   ```
+
+2. **Production**: Recommended to use external DB and Redis for production
+
+3. **Development**: Can use embedded services for quick testing
+
+4. **Port Conflict**: 
+   - Container will automatically check port before starting embedded services
+   - If port is already in use, will show warning but continue
+   - **Solution**: Set `REDIS_URI` or `DB_HOST` to use external service
+   - **Note**: If using `--network host`, port conflict may occur with host
+
+5. **Connect to Embedded Database from DBeaver/External Tools**:
+   
+   **PostgreSQL** (port 5432):
+   ```bash
+   docker run -d \
+     --name enfyra \
+     -p 3000:3000 \
+     -p 5432:5432 \  # ← Expose PostgreSQL port
+     -e DB_TYPE=postgres \
+     -v enfyra-data:/app/data \
+     dothinh115/enfyra:latest
+   ```
+   
+   Then connect with DBeaver:
+   - **Host**: `localhost`
+   - **Port**: `5432`
+   - **Database**: `enfyra`
+   - **Username**: `enfyra`
+   - **Password**: `enfyra_password_123`
+   
+   **MySQL** (port 3306):
+   ```bash
+   docker run -d \
+     --name enfyra \
+     -p 3000:3000 \
+     -p 3306:3306 \  # ← Expose MySQL port
+     -e DB_TYPE=mysql \
+     -v enfyra-data:/app/data \
+     dothinh115/enfyra:latest
+   ```
+   
+   Then connect with DBeaver:
+   - **Host**: `localhost`
+   - **Port**: `3306`
+   - **Database**: `enfyra`
+   - **Username**: `enfyra`
+   - **Password**: `enfyra_password_123`
+   
+   **Redis** (port 6379):
+   ```bash
+   docker run -d \
+     --name enfyra \
+     -p 3000:3000 \
+     -p 6379:6379 \  # ← Expose Redis port
+     -e DB_TYPE=postgres \
+     -v enfyra-data:/app/data \
+     dothinh115/enfyra:latest
+   ```
+   
+   **Default Admin User** (auto-created on init):
+   - **Email**: `enfyra@admin.com`
+   - **Password**: `1234`
+
+6. **Logs**: View logs for each service:
+   ```bash
+   docker exec enfyra cat /var/log/supervisor/server.log
+   docker exec enfyra cat /var/log/supervisor/app.log
+   docker exec enfyra cat /var/log/supervisor/redis.log
+   docker exec enfyra cat /var/log/supervisor/postgres.log
+   ```
+
+##  Troubleshooting
+
+### Port Conflict Warning
+
+If you see a warning about port conflict:
+
+```
+  WARNING: Port 6379 is already in use!
+   This may cause conflicts when starting embedded Redis.
+```
+
+**Solutions:**
+1. **Use external service** (recommended):
+   ```bash
+   -e REDIS_URI=redis://your-redis-host:6379/0
+   -e DB_URI=postgresql://user:pass@your-db-host:5432/dbname
+   # Or legacy vars:
+   -e DB_HOST=your-db-host
+   ```
+
+2. **Stop service on host** (if not needed):
+   ```bash
+   # Stop local Redis
+   sudo systemctl stop redis
+   
+   # Stop local PostgreSQL
+   sudo systemctl stop postgresql
+   ```
+
+3. **Use different port** (not recommended, as embedded services use fixed ports):
+   - Should use external service instead of changing port
 

@@ -82,7 +82,7 @@ docker run -d \
   dothinh115/enfyra:latest
 ```
 
-> **Note**: If your password contains special characters, URL-encode them. Example: password `p@ssw0rd` → use `p%40ssw0rd` in the URI.
+> **Note**: If your password contains special characters, URL-encode them. Example: password `p@ssw0rd`  use `p%40ssw0rd` in the URI.
 
 #### Docker Modes
 
@@ -104,7 +104,7 @@ docker run -d \
   dothinh115/enfyra:latest
 ```
 
-> **Note**: If your password contains special characters like `@`, `:`, `/`, etc., URL-encode them in the URI (e.g., `p@ssw0rd` → `p%40ssw0rd`).
+> **Note**: If your password contains special characters like `@`, `:`, `/`, etc., URL-encode them in the URI (e.g., `p@ssw0rd`  `p%40ssw0rd`).
 
 Example - App only:
 ```bash
@@ -203,8 +203,8 @@ the CLI will ask you a series of configuration questions. Enter the values that 
 > **Note**: The CLI will generate a `DB_URI` connection string in your `.env` file (e.g., `mysql://user:pass@host:port/database`). You can also manually set `DB_URI` instead of using separate host/port/username/password/name fields.
 
 > **Important - Password with Special Characters**: If your database password contains special characters (such as `@`, `:`, `/`, `%`, `#`, `?`, `&`), you must URL-encode them in the `DB_URI`. For example:
-> - Password `p@ssw0rd` → Use `p%40ssw0rd` in URI
-> - Password `pass:word` → Use `pass%3Aword` in URI
+> - Password `p@ssw0rd`  Use `p%40ssw0rd` in URI
+> - Password `pass:word`  Use `pass%3Aword` in URI
 > - Common encodings: `@` = `%40`, `:` = `%3A`, `/` = `%2F`, `%` = `%25`, `#` = `%23`, `?` = `%3F`, `&` = `%26`
 
 > **Database Replication (Optional)**: To enable read replicas, add `DB_REPLICA_URIS` (comma-separated) to your `.env`. Connection pool is automatically distributed between master and replicas. Read queries use round-robin routing across replicas. Set `DB_READ_FROM_MASTER=true` to include master in the round-robin pool for reads.
