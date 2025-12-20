@@ -4,6 +4,8 @@ This section covers everything that runs in the Enfyra **admin app (port 3000)**
 
 The app is a **pure API client**: it never connects directly to your database. All data comes from the **Enfyra Server (port 1105)** via HTTP APIs.
 
+> **New to Enfyra?** Start with the [Installation Guide](../getting-started/installation.md) to set up your backend and frontend.
+
 ## Quick Navigation
 
 - **API Integration**  
@@ -56,7 +58,7 @@ If you are **building on top of the Enfyra App UI**, this is a suggested order:
 4. **Secure and control the UI**  
    - **[Permission Builder](./permission-builder.md)** – Define permission rules  
    - **[Permission Components](./permission-components.md)** – Hide/show UI based on permissions  
-   - **[Server Permission System](../server/permission-system.md)** – Backend permission evaluation
+   - **[Permission Builder](./permission-builder.md)** – Backend permission evaluation (see Permission Builder for details)
 
 5. **Go deeper into backend customization (from the app UI)**  
    - **[Hooks](hooks-handlers/hooks.md)** – Configure hooks that run on the server  

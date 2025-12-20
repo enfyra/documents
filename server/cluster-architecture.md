@@ -117,9 +117,14 @@ To run Enfyra in a cluster:
 
 2. **Shared Database**: All instances must connect to the same database
    ```
-   DB_HOST=your-database-host
-   DB_NAME=enfyra
+   DB_URI=mysql://user:password@your-database-host:3306/enfyra
+   # Or for PostgreSQL:
+   # DB_URI=postgresql://user:password@your-database-host:5432/enfyra
    ```
+   
+   > **Note**: If your password contains special characters (`@`, `:`, `/`, `%`, `#`, `?`, `&`), URL-encode them in the URI. For example, password `p@ssw0rd` should be written as `p%40ssw0rd` in the URI.
+
+   **Optional - Read Replicas**: Add `DB_REPLICA_URIS` (comma-separated) to distribute read queries across replicas. Connection pool is automatically distributed between master and replicas. Read queries use round-robin routing. Set `DB_READ_FROM_MASTER=true` to include master in the round-robin pool.
 
 3. **Node Names** (optional): Set unique node names for instances on different physical machines
    ```

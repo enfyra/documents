@@ -250,18 +250,18 @@ enfyra-docs/
 5. **[Enfyra Configuration](./getting-started/enfyra-config.md)** - Configure application settings including Rich Text Editor
 
 ###  Phase 2: Frontend Mastery (2-3 hours)
-5. **[Form System](./frontend/form-system.md)** - Understand how forms work with your data
-6. **[Filter System](./frontend/filter-system.md)** - Master data filtering and searching  
-7. **[Permission Builder](./frontend/permission-builder.md)** - Set up access control rules
-8. **[Menu Management](./frontend/menu-management.md)** - Customize navigation and user interface
-9. **[Storage Management](./frontend/storage-management.md)** - Upload and manage files, folders, and storage configurations
+5. **[Form System](./app/form-system.md)** - Understand how forms work with your data
+6. **[Filter System](./app/filter-system.md)** - Master data filtering and searching  
+7. **[Permission Builder](./app/permission-builder.md)** - Set up access control rules
+8. **[Menu Management](./app/menu-management.md)** - Customize navigation and user interface
+9. **[Storage Management](./app/storage-management.md)** - Upload and manage files, folders, and storage configurations
 
 ###  Phase 3: Customization (3-4 hours)
-10. **[API Integration](./frontend/api-integration.md)** - Learn to fetch and manipulate data programmatically
-11. **[Package Management](./frontend/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
-12. **[Extension System](./frontend/extension-system.md)** - Build custom pages and functionality
-13. **[Header Actions](./frontend/header-actions.md)** - Inject custom buttons and widgets into the app interface
-14. **[Custom Handlers](./frontend/custom-handlers.md)** - Override default API behavior with business logic
+10. **[API Integration](./app/api-integration.md)** - Learn to fetch and manipulate data programmatically
+11. **[Package Management](./app/hooks-handlers/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
+12. **[Extension System](./app/extension-system.md)** - Build custom pages and functionality
+13. **[Header Actions](./app/header-actions.md)** - Inject custom buttons and widgets into the app interface
+14. **[Custom Handlers](./app/hooks-handlers/custom-handlers.md)** - Override default API behavior with business logic
 
 ###  Phase 4: Advanced Development (4-5 hours)
 15. **[Repository Methods](./server/repository-methods/)** - Master database operations with find, create, update, delete
@@ -282,11 +282,11 @@ enfyra-docs/
 
 -  **Building an MVP?**  Phases 1-2 (4-5 hours total)
 -  **Need custom functionality?**  Focus on Phase 3: API Integration + Extensions
--  **Building a dashboard?**  [Extension System](./frontend/extension-system.md) + [API Integration](./frontend/api-integration.md)
--  **Need role-based access?**  [Permission Builder](./frontend/permission-builder.md)
--  **Complex business logic?**  [Custom Handlers](./frontend/custom-handlers.md) + [Context Reference](./server/context-reference/) + [Hooks and Handlers](./server/hooks-handlers/)
+-  **Building a dashboard?**  [Extension System](./app/extension-system.md) + [API Integration](./app/api-integration.md)
+-  **Need role-based access?**  [Permission Builder](./app/permission-builder.md)
+-  **Complex business logic?**  [Custom Handlers](./app/hooks-handlers/custom-handlers.md) + [Context Reference](./server/context-reference/) + [Hooks and Handlers](./server/hooks-handlers/)
 -  **Enterprise deployment?**  [Cluster Architecture](./server/cluster-architecture.md) + [Cache Operations](./server/cache-operations.md)
--  **Application initialization?**  [Repository Methods](./server/repository-methods/) + [API Integration](./frontend/api-integration.md)
+-  **Application initialization?**  [Repository Methods](./server/repository-methods/) + [API Integration](./app/api-integration.md)
 
 ---
 
@@ -303,21 +303,21 @@ enfyra-docs/
 - **[Enfyra Configuration](./getting-started/enfyra-config.md)** - Application configuration guide (Rich Text Editor, etc.)
 
 ** Frontend (User Interface)**
-- **[API Integration](./frontend/api-integration.md)** - API integration with Enfyra SDK and examples for extensions
-- **[Filter System](./frontend/filter-system.md)** - Interactive UI filtering for data tables and forms
-- **[Relation Picker](./frontend/relation-picker.md)** - Working with related data in forms (powered by Filter System)
-- **[Routing Management](./frontend/routing-management.md)** - UI guide for creating custom API endpoints and route permissions
-- **[Custom Handlers](./frontend/custom-handlers.md)** - UI guide for creating custom business logic handlers
-- **[Hooks](./frontend/hooks.md)** - UI guide for creating lightweight request/response hooks
-- **[Package Management](./frontend/package-management.md)** - Install and manage NPM packages for handlers and hooks
-- **[Menu Management](./frontend/menu-management.md)** - UI guide for creating custom navigation menus
-- **[Extension System](./frontend/extension-system.md)** - Create custom pages with Vue.js components (linked to menus)
-- **[Header Actions](./frontend/header-actions.md)** - Inject custom actions into header and sub-header areas
-- **[Page Header](./frontend/page-header.md)** - Register custom page headers with stats and gradients
-- **[Permission Builder](./frontend/permission-builder.md)** - Visual interface for creating complex permission rules
-- **[Permission Components](./frontend/permission-components.md)** - PermissionGate and usePermissions for UI control
-- **[Storage Management](./frontend/storage-management.md)** - Upload and manage files, folders, and storage configurations
-- **[Form System](./frontend/form-system.md)** - Dynamic form generation with validation and relations
+- **[API Integration](./app/api-integration.md)** - API integration with Enfyra SDK and examples for extensions
+- **[Filter System](./app/filter-system.md)** - Interactive UI filtering for data tables and forms
+- **[Relation Picker](./app/relation-picker.md)** - Working with related data in forms (powered by Filter System)
+- **[Routing Management](./app/routing-management.md)** - UI guide for creating custom API endpoints and route permissions
+- **[Custom Handlers](./app/hooks-handlers/custom-handlers.md)** - UI guide for creating custom business logic handlers
+- **[Hooks](./app/hooks-handlers/hooks.md)** - UI guide for creating lightweight request/response hooks
+- **[Package Management](./app/hooks-handlers/package-management.md)** - Install and manage NPM packages for handlers and hooks
+- **[Menu Management](./app/menu-management.md)** - UI guide for creating custom navigation menus
+- **[Extension System](./app/extension-system.md)** - Create custom pages with Vue.js components (linked to menus)
+- **[Header Actions](./app/header-actions.md)** - Inject custom actions into header and sub-header areas
+- **[Page Header](./app/page-header.md)** - Register custom page headers with stats and gradients
+- **[Permission Builder](./app/permission-builder.md)** - Visual interface for creating complex permission rules
+- **[Permission Components](./app/permission-components.md)** - PermissionGate and usePermissions for UI control
+- **[Storage Management](./app/storage-management.md)** - Upload and manage files, folders, and storage configurations
+- **[Form System](./app/form-system.md)** - Dynamic form generation with validation and relations
 
 ** Backend (Developer Integration)**
 - **[Server Documentation](./server/)** -  Complete server documentation overview
@@ -361,7 +361,7 @@ We welcome contributions! Please feel free to submit a Pull Request. For major c
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## Support
 

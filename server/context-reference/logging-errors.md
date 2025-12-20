@@ -94,7 +94,7 @@ if ($ctx.$api.error) {
 
 ## Next Steps
 
-- See [Error Handling](./error-handling.md) for complete error handling guide
+- See [Error Handling](../error-handling.md) for complete error handling guide
 - Check [Advanced Features](./advanced.md) for API information and error details
 - Learn about [Hooks and Handlers](../hooks-handlers/) for using logging in hooks
 

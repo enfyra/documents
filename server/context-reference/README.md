@@ -21,5 +21,5 @@ The `$ctx` (context) object is available in all hooks and handlers. It provides 
 ## Next Steps
 
 - See [Repository Methods](../repository-methods/) for database operations
-- Check [API Lifecycle](./api-lifecycle.md) to understand when context is available
+- Check [API Lifecycle](../api-lifecycle.md) to understand when context is available
 - Learn about [Hooks and Handlers](../hooks-handlers/) for using context in custom code
