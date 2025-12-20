@@ -48,5 +48,5 @@ const mainRepo = $ctx.$repos.main;
 ## Next Steps
 
 - Learn about the [Context Object ($ctx)](../context-reference/) to understand all available properties
-- See [Query Filtering](./query-filtering.md) for advanced filtering patterns
-- Check [API Lifecycle](./api-lifecycle.md) to understand how repositories fit into the request flow
+- See [Query Filtering](../query-filtering.md) for advanced filtering patterns
+- Check [API Lifecycle](../api-lifecycle.md) to understand how repositories fit into the request flow

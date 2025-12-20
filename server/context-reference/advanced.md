@@ -215,7 +215,7 @@ if ($ctx.$api.error) {
 
 ## Next Steps
 
-- See [File Handling](./file-handling.md) for complete file upload guide
-- Check [Cache Operations](./cache-operations.md) for detailed cache patterns
-- Learn about [Error Handling](./error-handling.md) for error handling patterns
+- See [File Handling](../file-handling.md) for complete file upload guide
+- Check [Cache Operations](../cache-operations.md) for detailed cache patterns
+- Learn about [Error Handling](../error-handling.md) for error handling patterns
 

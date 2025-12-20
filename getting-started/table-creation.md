@@ -2,6 +2,8 @@
 
 This guide walks you through creating your first table in Enfyra, from basic setup to understanding what happens after creation.
 
+> **Prerequisites**: Make sure you've completed [Installation](./installation.md) and are familiar with the [Getting Started Guide](./getting-started.md).
+
 ## Accessing Table Creation
 
 1. Click on **Collections** in the sidebar
@@ -107,7 +109,7 @@ You can change the id field type to `uuid` if you prefer UUID identifiers, but `
   - **isNullable** - Toggle to allow null relations
   - **description** - Relation documentation with rich text editor
 - Relations list shows: property name, type badge, target table badge ( TargetTable), nullable badge if applicable
-- **Note**: Once created, these relations will appear as fields with pencil icons in forms - see [Relation Picker System](../frontend/relation-picker.md) for how to use them
+- **Note**: Once created, these relations will appear as fields with pencil icons in forms - see [Relation Picker System](../app/relation-picker.md) for how to use them
 
 #### onDelete (cascade behavior)
 
@@ -158,7 +160,7 @@ When configuring relations that create foreign keys (one-to-one, one-to-many, ma
 - When you **update or delete** a relation after creating it, **all relation data will be dropped** from your records
 - This includes both the relation field AND the inverse field
 - You will need to re-populate the data after changing relation metadata
-- **See [MongoDB Relations Guide](../server/mongodb-relations.md) for details on why this happens and how to handle it**
+- **Note**: MongoDB relations work differently than SQL relations. See [Query Filtering](../server/query-filtering.md) for details on querying related data.
 
 ## Saving Your Table
 
@@ -194,8 +196,8 @@ Once saved, Enfyra automatically sets up several things for your new table:
 
 - Navigate to **Data**  **[Your Table Name]** to start adding records - see [Data Management](./data-management.md) for complete guide
 - **Remember**: All data operations flow through backend APIs, frontend never touches database directly
-- Use the [Relation Picker System](../frontend/relation-picker.md) when working with relation fields
-- Use the [Filter System](../frontend/filter-system.md) to search and filter your data
+- Use the [Relation Picker System](../app/relation-picker.md) when working with relation fields
+- Use the [Filter System](../app/filter-system.md) to search and filter your data
 
 ## Best Practices
 
@@ -276,7 +278,7 @@ Table: posts (create after categories)
 ## Related Documentation
 
 - **[Data Management](./data-management.md)** - Working with records in your tables
-- **[Relation Picker System](../frontend/relation-picker.md)** - Using relation fields in forms
-- **[Filter System](../frontend/filter-system.md)** - Searching and filtering data
-- **[Form System](../frontend/form-system.md)** - How forms are generated from tables
-- **[API Querying](../server/api-querying.md)** - Advanced querying capabilities
+- **[Relation Picker System](../app/relation-picker.md)** - Using relation fields in forms
+- **[Filter System](../app/filter-system.md)** - Searching and filtering data
+- **[Form System](../app/form-system.md)** - How forms are generated from tables
+- **[Query Filtering](../server/query-filtering.md)** - Advanced querying capabilities

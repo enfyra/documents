@@ -2,6 +2,10 @@
 
 Data Management is where you create, view, edit, and delete records in your tables. After creating tables, you can access your data through **Data** in the sidebar, then select your table.
 
+> **Prerequisites**: 
+> - Complete [Installation](./installation.md) and [Getting Started Guide](./getting-started.md)
+> - Create at least one table using the [Table Creation Guide](./table-creation.md)
+
 ## How Data Operations Work
 
 **Important**: All data operations happen through backend APIs:
@@ -31,7 +35,7 @@ Data Management is where you create, view, edit, and delete records in your tabl
 ### Filter Button
 - Shows **"Filter"** when no filters are active
 - Changes to **"Filters (N)"** when filters are applied
-- Click to open the filter drawer - see [Filter System](../frontend/filter-system.md)
+- Click to open the filter drawer - see [Filter System](../app/filter-system.md)
 - Active filters show as a badge above the table with a "Clear" button
 
 ### Create Button
@@ -78,7 +82,7 @@ Data Management is where you create, view, edit, and delete records in your tabl
 1. Opens the creation form page
 2. Form shows all fields based on your table schema
 3. Required fields are marked with asterisks
-4. Relation fields show with pencil icons - see [Relation Picker](../frontend/relation-picker.md)
+4. Relation fields show with pencil icons - see [Relation Picker](../app/relation-picker.md)
 
 **Form Behavior:**
 - Fields appear based on column configuration
@@ -139,7 +143,7 @@ Data Management is where you create, view, edit, and delete records in your tabl
 - Show with a pencil icon
 - Click to open the relation picker
 - Select related records from other tables
-- See [Relation Picker System](../frontend/relation-picker.md) for details
+- See [Relation Picker System](../app/relation-picker.md) for details
 
 **Viewing Relations:**
 - Related data may show as IDs or names in the table

@@ -43,4 +43,4 @@ All hooks and handlers have access to the same `$ctx` object, so changes in one 
 
 - Learn about [Repository Methods](../repository-methods/) for database operations
 - See [Context Reference](../context-reference/) for all available properties
-- Check [API Lifecycle](./api-lifecycle.md) to understand execution order
+- Check [API Lifecycle](../api-lifecycle.md) to understand execution order

@@ -164,5 +164,5 @@ await $ctx.$cache.deleteKey('user:123');
 
 - See [Logging & Error Handling](./logging-errors.md) for logging and error throwing
 - Check [Advanced Features](./advanced.md) for file uploads and more
-- Learn about [Cache Operations](./cache-operations.md) for detailed cache patterns
+- Learn about [Cache Operations](../cache-operations.md) for detailed cache patterns
 

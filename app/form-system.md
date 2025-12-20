@@ -118,7 +118,7 @@ Forms respect user permissions automatically:
 3. **Menus hide** options user cannot access
 4. **Forms disable** fields user cannot edit
 
-**See [Permission System](../server/permission-system.md) for technical details**
+**See [Permission Builder](./permission-builder.md) for technical details**
 
 ## Special Form Features
 
@@ -476,7 +476,7 @@ const fieldMap = computed(() => ({
 | `type` | `string` | Override field input type (richtext, code, etc.) |
 | `disabled` | `boolean` | Make field read-only |
 | `placeholder` | `string` | Custom placeholder text |
-| `permission` | `PermissionCondition` | Control field visibility based on user permissions (see [Permission System](../server/permission-system.md)) |
+| `permission` | `PermissionCondition` | Control field visibility based on user permissions (see [Permission Builder](./permission-builder.md)) |
 | `excludedOptions` | `string[]` | Hide these options from enum/array-select dropdowns |
 | `includedOptions` | `string[]` | Show only these options in enum/array-select dropdowns |
 | `fieldProps` | `object` | Additional props for field wrapper (e.g., `class: 'col-span-2'`) |

@@ -299,5 +299,5 @@ try {
 
 - See [find() method](./find.md) for querying records
 - Learn about [Common Patterns](./patterns.md) for best practices
-- Check [Error Handling](./error-handling.md) for proper error handling
+- Check [Error Handling](../error-handling.md) for proper error handling
 

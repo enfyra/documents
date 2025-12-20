@@ -974,7 +974,7 @@ onMounted(() => {
 - **[Extension System](./extension-system.md)** - Using API in extensions and widgets
 - **[Form System](./form-system.md)** - How forms integrate with backend APIs  
 - **[Permission Components](./permission-components.md)** - Controlling UI access around API calls  
-- **[Permission System (Server)](../server/permission-system.md)** - How permissions are evaluated on the backend
+- **[Permission Builder](./permission-builder.md)** - How permissions are evaluated and configured
 - **[Server Documentation](../server/README.md)** - Overview of backend APIs and context
 
 The `useApi` composable provides everything you need for robust API integration with error handling, TypeScript support, and MongoDB compatibility.

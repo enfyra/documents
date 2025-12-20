@@ -1,6 +1,8 @@
 # Architecture Overview
 
-This diagram shows how Enfyra's two-component system works:
+This diagram shows how Enfyra's two-component system works.
+
+> **New to Enfyra?** Start with the [Installation Guide](./getting-started/installation.md) to set up your backend and frontend.
 
 ## System Architecture Diagram
 

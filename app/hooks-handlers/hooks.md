@@ -124,7 +124,7 @@ $ctx.$response.data.forEach(record => {
 
 For detailed information about writing JavaScript code within hooks, including the context object (`$ctx`), available functions, and comprehensive examples, see:
 
-**[Hook Development Guide](../../server/hook-development.md)**
+**[Hooks and Handlers Guide](../../server/hooks-handlers/)** - Complete guide to preHooks and afterHooks
 
 This covers:
 - Hook context and available variables

@@ -254,5 +254,5 @@ const filteredCount = result.meta.filterCount;
 
 - See [create(), update(), delete() methods](./create-update-delete.md)
 - Learn about [Common Patterns](./patterns.md)
-- Check [Query Filtering](./query-filtering.md) for more filtering examples
+- Check [Query Filtering](../query-filtering.md) for more filtering examples
 

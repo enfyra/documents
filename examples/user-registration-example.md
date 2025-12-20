@@ -13,7 +13,7 @@ This example demonstrates how to create a custom `/register` endpoint using Enfy
 
 ## Step 1: Create the Route
 
-1. Navigate to **Settings  Routes**  [ Routing Management Guide](../frontend/routing-management.md)
+1. Navigate to **Settings  Routes**  [ Routing Management Guide](../app/routing-management.md)
 2. Click **"Create New Route"**
 3. Configure:
    - **Route**: `/register`
@@ -24,7 +24,7 @@ This example demonstrates how to create a custom `/register` endpoint using Enfy
 
 ## Step 2: Create the Custom Handler
 
-1. Navigate to **Settings  Handlers**  [ Custom Handlers Guide](../frontend/custom-handlers.md)
+1. Navigate to **Settings  Handlers**  [ Custom Handlers Guide](../app/hooks-handlers/custom-handlers.md)
 2. Click **"Create New Handler"**
 3. Configure:
    - **Route**: Click relation picker  Select `/register` route
@@ -112,7 +112,7 @@ return {
 
 ## Step 3: Install Nodemailer Package
 
-1. Navigate to **Settings  Packages**  [ Package Management Guide](../frontend/package-management.md)
+1. Navigate to **Settings  Packages**  [ Package Management Guide](../app/hooks-handlers/package-management.md)
 2. Click **"Install Package"**
 3. Select **"Backend Package"** type
 4. Search for `nodemailer`
@@ -121,7 +121,7 @@ return {
 
 ## Step 4: Create Registration Hook (PreHook + AfterHook)
 
-1. Navigate to **Settings  Hooks**  [ Hooks System Guide](../frontend/hooks.md)
+1. Navigate to **Settings  Hooks**  [ Hooks System Guide](../app/hooks-handlers/hooks.md)
 2. Click **"Create New Hook"**
 3. Configure:
    - **Route**: Click relation picker  Select `/register` route

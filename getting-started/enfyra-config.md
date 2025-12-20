@@ -2,6 +2,8 @@
 
 The `enfyra.config.ts` file is the central configuration file for your Enfyra application. It allows you to customize various aspects of the application, including the Rich Text Editor, and can be extended with additional configuration options as needed.
 
+> **Prerequisites**: Complete [Installation](./installation.md) and [Getting Started Guide](./getting-started.md) before configuring advanced settings.
+
 ## File Location
 
 The configuration file is located at the root of your Enfyra app:

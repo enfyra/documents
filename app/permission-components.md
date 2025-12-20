@@ -386,7 +386,7 @@ console.log('Condition result:', hasAccess);
 
 ## Related Documentation
 
-- **[Permission System](../server/permission-system.md)** - Backend permission architecture
+- **[Permission Builder](./permission-builder.md)** - Backend permission architecture
 - **[Permission Builder](./permission-builder.md)** - Visual permission configuration
 - **[Menu Management](./menu-management.md)** - How menus use permissions
 - **[Form System](./form-system.md)** - Permission integration in forms
