@@ -117,8 +117,7 @@ docker run -d \
 ```
 
 For detailed Docker documentation, see:
-- [Docker README](../docker/README.md) - Complete Docker setup guide with all configuration options
-- [Docker Usage Guide](../docker/USAGE.md) - Detailed usage examples for all Docker modes
+- [Docker](../docker/README.md) - Complete Docker setup guide with all configuration options
 
 > **Next Steps**: After installation, see [Getting Started Guide](./getting-started.md) to learn how to create your first table and manage data.
 
