@@ -81,7 +81,7 @@ Locks are stored as Redis keys with specific prefixes and include instance IDs t
 
 Each instance can have a node name configured via the `NODE_NAME` environment variable. Redis channels are decorated with the node name, allowing instances on the same physical node to have isolated channels while still participating in the cluster.
 
-If no node name is set, channels use their base names and all instances communicate on the same channels.
+If no node name is set, a UUID is automatically generated to ensure 100% uniqueness across nodes. This prevents conflicts when multiple instances are running without explicit node names.
 
 ## Fault Tolerance
 
@@ -126,13 +126,15 @@ To run Enfyra in a cluster:
 
    **Optional - Read Replicas**: Add `DB_REPLICA_URIS` (comma-separated) to distribute read queries across replicas. Connection pool is automatically distributed between master and replicas. Read queries use round-robin routing. Set `DB_READ_FROM_MASTER=true` to include master in the round-robin pool.
 
-3. **Node Names** (optional): Set unique node names for instances on different physical machines
+3. **Node Names** (optional): Set unique node names for instances on different physical machines. If not set, a UUID is automatically generated to ensure uniqueness.
    ```
    # Instance on Node 1
    NODE_NAME=production-node-1
    
    # Instance on Node 2
    NODE_NAME=production-node-2
+   
+   # If not set, UUID is auto-generated (e.g., 550e8400-e29b-41d4-a716-446655440000)
    ```
 
 4. **Same Configuration**: All instances should use the same configuration values for consistency

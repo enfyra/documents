@@ -267,7 +267,7 @@ enfyra-docs/
 15. **[Repository Methods](./server/repository-methods/)** - Master database operations with find, create, update, delete
 16. **[Context Reference](./server/context-reference/)** - Complete reference for $ctx object in hooks and handlers
 17. **[Hooks and Handlers](./server/hooks-handlers/)** - Create sophisticated preHooks, afterHooks, and custom handlers
-18. **[Query Filtering](./server/query-filtering.md)** - Master MongoDB-like query filtering for complex data retrieval
+18. **[Query Filtering](./server/query-filtering.md)** - Master MongoDB-like query filtering, including Deep Queries for nested relations
 19. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
 20. **[Error Handling](./server/error-handling.md)** - Handle errors properly with best practices
 
@@ -325,7 +325,7 @@ enfyra-docs/
 - **[Context Reference](./server/context-reference/)** -  Complete $ctx object reference for hooks and handlers
 - **[Hooks and Handlers](./server/hooks-handlers/)** -  PreHooks, afterHooks, and custom handlers guide
 - **[API Lifecycle](./server/api-lifecycle.md)** -  Request lifecycle, hook system, and context sharing
-- **[Query Filtering](./server/query-filtering.md)** -  MongoDB-like query filtering operators and examples
+- **[Query Filtering](./server/query-filtering.md)** -  MongoDB-like query filtering, Deep Queries for nested relations
 - **[Error Handling](./server/error-handling.md)** -  Error handling patterns and best practices
 - **[Cache Operations](./server/cache-operations.md)** -  Distributed caching and locking operations
 - **[File Handling](./server/file-handling.md)** -  File upload handling and management

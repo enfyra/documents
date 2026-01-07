@@ -14,11 +14,10 @@ Routing Management lets you create custom API endpoints that are served by your 
 - **System Route**: Indicates if this is a core system route
 
 ### Advanced Configuration
-- **Main Table**: The primary table this route serves
-- **Target Tables**: Additional tables this route can access (also provides automatic CRUD operations)
+- **Main Table**: The primary table this route serves (see below for details)
 - **Route Permissions**: Access control rules for this endpoint
 - **Handlers**: Custom request processing logic (see [Custom Handlers](hooks-handlers/custom-handlers.md))
-- **Hooks**: Lifecycle events and custom processing
+- **Hooks**: Lifecycle events and custom processing (Pre-Hooks and Post-Hooks)
 - **Published Methods**: Defines which HTTP methods are public (no authentication required) vs private (role-protected)
 
 ## Creating Custom Routes
@@ -56,7 +55,84 @@ See [Relation Picker System](relation-picker.md) for detailed usage of the relat
 3. All data management pages automatically use the new endpoint
 4. API calls throughout the system switch to the custom path
 
-### Step 5: Configure Route Permissions (Optional)
+### Step 5: Configure Execution Flow (Handlers & Hooks)
+
+After creating a route, you can configure the execution flow with handlers and hooks. The **Execution Flow Visualization** section provides a visual representation of how requests are processed for each HTTP method.
+
+#### Understanding Execution Flow
+
+The execution flow shows the sequence of:
+1. **Pre-Hooks** (executed before the handler, in priority order)
+2. **Handler** (the main processing logic, or default CRUD if no custom handler)
+3. **Post-Hooks** (executed after the handler, in priority order)
+
+#### Main Table and Default Handler
+
+When a route has a **Main Table** configured:
+- If no custom handler exists for a specific HTTP method, the system automatically uses the **default handler** that provides standard CRUD operations
+- The default handler appears in the execution flow visualization for all methods that don't have a custom handler
+- You can click on the default handler to create a custom handler for that method
+
+#### Adding Handlers
+
+1. In the route detail page, scroll to the **Execution Flow** section
+2. Click **"Add Handler"** button
+3. Configure the handler:
+   - **Name**: Descriptive name for the handler
+   - **Method**: Select the HTTP method this handler processes (GET, POST, PUT, PATCH, DELETE, or ALL)
+   - **Logic**: Write your custom JavaScript code
+   - **Is Enabled**: Toggle to activate/deactivate
+4. Click **Save** to create the handler
+
+**Note**: When a custom handler exists for a method, it replaces the default CRUD handler for that specific method.
+
+#### Adding Hooks
+
+Hooks allow you to add processing logic before (Pre-Hooks) or after (Post-Hooks) the handler execution.
+
+**Pre-Hooks** - Execute before the handler:
+1. Click **"Add Pre-Hook"** button
+2. Configure the hook:
+   - **Name**: Descriptive name
+   - **Is Global**: Check this to apply the hook to all routes (not just this route)
+   - **Methods**: Select which HTTP methods this hook applies to (can select multiple, or leave empty for ALL methods)
+   - **Priority**: Lower numbers execute first (e.g., 1 executes before 2)
+   - **Logic**: Write your JavaScript code
+   - **Is Enabled**: Toggle to activate/deactivate
+3. Click **Save**
+
+**Post-Hooks** - Execute after the handler:
+1. Click **"Add Post-Hook"** button
+2. Configure the same fields as Pre-Hooks
+3. Click **Save**
+
+**Global Hooks**:
+- When **Is Global** is enabled, the hook applies to **all routes** in the system
+- Global hooks appear in the execution flow for **all HTTP methods** (including ALL)
+- Use global hooks for cross-cutting concerns like logging, authentication checks, or notifications that should run for every request
+
+#### Visual Execution Flow
+
+The execution flow visualization:
+- Groups execution by HTTP method (GET, POST, PUT, PATCH, DELETE, ALL)
+- Shows the sequence of Pre-Hooks  Handler  Post-Hooks for each method
+- Displays hook priority numbers
+- Allows clicking on any node to edit it
+- Shows enabled/disabled status
+
+**Hook Display Rules**:
+- **Global hooks** (isGlobal = true) appear for **all methods** (including ALL)
+- **Method-specific hooks** appear only for their selected methods
+- **Default handler** appears for all methods that don't have a custom handler (when Main Table is configured)
+
+#### Editing and Managing
+
+- **Click any node** in the visualization to edit it
+- **Delete nodes** directly from the edit interface
+- **Enable/Disable** hooks without editing them
+- Changes take effect immediately
+
+### Step 6: Configure Route Permissions (Optional)
 After creating the route, you can set up fine-grained access control:
 
 1. **Access the edit page** of your newly created route
@@ -159,7 +235,7 @@ The **Published Methods** field controls the authentication requirements for eac
 ## Custom Route Behavior
 
 ### Default CRUD Operations
-When you create a route and link it to targetTables, Enfyra automatically provides standard CRUD operations:
+When you create a route and link it to a Main Table, Enfyra automatically provides standard CRUD operations:
 
 **REST API:**
 - `GET /your-route` - List records
@@ -176,8 +252,8 @@ When you create a route and link it to targetTables, Enfyra automatically provid
 ### Custom Handlers Override
 You can replace any of these default operations with custom business logic by creating handlers:
 
-1. **Create the route** with targetTables configured
-2. **Add custom handlers** via **Settings  Handlers** to override specific HTTP methods
+1. **Create the route** with Main Table configured
+2. **Add custom handlers** via the Execution Flow section to override specific HTTP methods
 3. **Handler takes precedence** - when a handler exists for a route+method, it executes instead of default CRUD
 
 For detailed handler creation and examples, see [Custom Handlers](hooks-handlers/custom-handlers.md).
@@ -230,6 +306,13 @@ Changes to routes take effect immediately without requiring application restart.
 - Ensure route permissions align with table permissions
 - Test custom routes with different user roles
 - Consider the security implications of custom paths
+
+### Execution Flow Organization
+- Use **Pre-Hooks** for validation, authentication checks, or data preparation
+- Use **Handlers** for the main business logic
+- Use **Post-Hooks** for logging, notifications, or cleanup
+- Set appropriate **priority** values to control execution order
+- Use **Global Hooks** sparingly for cross-cutting concerns that apply to all routes
 
 ## Related Documentation
 

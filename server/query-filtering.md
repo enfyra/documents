@@ -358,7 +358,92 @@ const result = await $ctx.$repos.orders.find({
 
 ## Filtering by Relations
 
-Filter records based on related table data.
+Filter records based on related table data. You can filter relations in two ways:
+
+### Method 1: Filter by Relation ID Directly
+
+Filter directly on the relation using ID comparison operators. This is the simplest way to filter by relation ID.
+
+```javascript
+// Find menu items without a parent (parent is null)
+const result = await $ctx.$repos.menu_definition.find({
+  where: {
+    parent: { _is_null: true }
+  }
+});
+
+// Find menu items with a parent (parent is not null)
+const result = await $ctx.$repos.menu_definition.find({
+  where: {
+    parent: { _is_not_null: true }
+  }
+});
+
+// Find menu items where parent ID equals 3
+const result = await $ctx.$repos.menu_definition.find({
+  where: {
+    parent: { _eq: 3 }
+  }
+});
+
+// Find menu items where parent ID is in [3, 4, 5]
+const result = await $ctx.$repos.menu_definition.find({
+  where: {
+    parent: { _in: [3, 4, 5] }
+  }
+});
+
+// Find menu items where parent ID is not 3
+const result = await $ctx.$repos.menu_definition.find({
+  where: {
+    parent: { _neq: 3 }
+  }
+});
+
+// Find menu items where parent ID is not in [1, 2]
+const result = await $ctx.$repos.menu_definition.find({
+  where: {
+    parent: { _not_in: [1, 2] }
+  }
+});
+```
+
+### Method 2: Filter by Relation ID via id/_id Field
+
+You can also filter by explicitly specifying the `id` or `_id` field of the relation.
+
+```javascript
+// Find menu items where parent ID equals 3
+const result = await $ctx.$repos.menu_definition.find({
+  where: {
+    parent: {
+      id: { _eq: 3 }
+    }
+  }
+});
+
+// Find menu items without a parent
+const result = await $ctx.$repos.menu_definition.find({
+  where: {
+    parent: {
+      id: { _is_null: true }
+    }
+  }
+});
+
+// Find menu items where parent ID is in [3, 4, 5]
+const result = await $ctx.$repos.menu_definition.find({
+  where: {
+    parent: {
+      id: { _in: [3, 4, 5] }
+    }
+  }
+});
+```
+
+### Method 3: Filter by Relation Fields
+
+Filter by fields within the related table.
 
 ```javascript
 // Find products where category name is "Electronics"
@@ -379,6 +464,8 @@ const result = await $ctx.$repos.orders.find({
   }
 });
 ```
+
+**Note:** Both Method 1 and Method 2 achieve the same result when filtering by relation ID. Use Method 1 for simpler syntax, or Method 2 if you prefer explicit field specification.
 
 ## Using Filters in URL Queries
 
@@ -423,6 +510,228 @@ const result = await $ctx.$repos.products.find({
 3. **Use indexes** - Create database indexes on frequently filtered fields
 4. **Limit results** - Always use `limit` for queries that might return many records
 5. **Use text search carefully** - Text search can be slower, use it with other filters
+
+## Deep Queries (Nested Relations)
+
+Query multiple levels of related data in a single request using the `deep` parameter. This is particularly useful for fetching complex object graphs.
+
+### Basic Deep Query Syntax
+
+```javascript
+// Fetch users with their posts
+const result = await $ctx.$repos.users.find({
+  fields: 'id,name,email',
+  deep: {
+    posts: {
+      fields: 'id,title,content'
+    }
+  }
+});
+```
+
+### Multi-Level Nested Queries
+
+Fetch deeply nested relations across multiple tables:
+
+```javascript
+// Fetch users with posts, comments, and authors
+const result = await $ctx.$repos.users.find({
+  fields: 'id,name',
+  deep: {
+    posts: {
+      fields: 'id,title',
+      deep: {
+        comments: {
+          fields: 'id,content',
+          deep: {
+            author: {
+              fields: 'id,name,email'
+            }
+          }
+        }
+      }
+    }
+  }
+});
+```
+
+### Deep Query with Filter
+
+Filter nested relations at any level:
+
+```javascript
+// Fetch users with active posts only
+const result = await $ctx.$repos.users.find({
+  fields: 'id,name',
+  deep: {
+    posts: {
+      fields: 'id,title',
+      filter: {
+        isActive: { _eq: true }
+      }
+    }
+  }
+});
+
+// Nested filter at multiple levels
+const result = await $ctx.$repos.users.find({
+  fields: 'id,name',
+  deep: {
+    posts: {
+      fields: 'id,title',
+      filter: {
+        status: { _eq: 'published' }
+      },
+      deep: {
+        comments: {
+          fields: 'id,content',
+          filter: {
+            isApproved: { _eq: true }
+          }
+        }
+      }
+    }
+  }
+});
+```
+
+### Deep Query with Sort
+
+Sort nested relations at any level:
+
+```javascript
+// Fetch users with posts sorted by date
+const result = await $ctx.$repos.users.find({
+  fields: 'id,name',
+  deep: {
+    posts: {
+      fields: 'id,title,createdAt',
+      sort: '-createdAt'  // Latest posts first
+    }
+  }
+});
+
+// Multi-level sorting
+const result = await $ctx.$repos.users.find({
+  fields: 'id,name',
+  deep: {
+    posts: {
+      fields: 'id,title',
+      sort: '-createdAt',
+      deep: {
+        comments: {
+          fields: 'id,content',
+          sort: 'createdAt'  // Ascending for comments
+        }
+      }
+    }
+  }
+});
+```
+
+### Deep Query with Limit and Offset
+
+Limit the number of nested records returned:
+
+```javascript
+// Fetch users with their 5 most recent posts
+const result = await $ctx.$repos.users.find({
+  fields: 'id,name',
+  deep: {
+    posts: {
+      fields: 'id,title,createdAt',
+      sort: '-createdAt',
+      limit: 5
+    }
+  }
+});
+
+// Pagination for nested relations
+const result = await $ctx.$repos.users.find({
+  fields: 'id,name',
+  deep: {
+    posts: {
+      fields: 'id,title',
+      page: 2,      // Page 2
+      limit: 10     // 10 items per page
+    }
+  }
+});
+```
+
+### Combining All Deep Options
+
+Combine filter, sort, and pagination in deep queries:
+
+```javascript
+// Complex deep query example
+const result = await $ctx.$repos.users.find({
+  fields: 'id,name',
+  deep: {
+    posts: {
+      fields: 'id,title,createdAt',
+      filter: {
+        status: { _eq: 'published' }
+      },
+      sort: '-createdAt',
+      limit: 10,
+      deep: {
+        comments: {
+          fields: 'id,content,createdAt',
+          filter: {
+            isApproved: { _eq: true }
+          },
+          sort: 'createdAt',
+          limit: 5
+        }
+      }
+    }
+  }
+});
+```
+
+### URL Examples
+
+Deep queries work in REST API URLs:
+
+```http
+# Single level deep
+GET /users?fields=id,name&deep={"posts":{"fields":"id,title"}}
+
+# Multi-level deep
+GET /users?fields=id,name&deep={"posts":{"fields":"id,title","deep":{"comments":{"fields":"id,content"}}}}
+
+# Deep with filter
+GET /users?fields=id,name&deep={"posts":{"fields":"id,title","filter":{"status":{"_eq":"published"}}}}
+
+# Deep with sort and limit
+GET /users?fields=id,name&deep={"posts":{"fields":"id,title","sort":"-createdAt","limit":5}}
+
+# Complete deep query
+GET /users?fields=id,name&deep={"posts":{"fields":"id,title,createdAt","filter":{"isActive":{"_eq":true}},"sort":"-createdAt","limit":10}}
+```
+
+### Performance Considerations
+
+1. **Limit nested results** - Always use `limit` on one-to-many and many-to-many relations
+2. **Filter at the right level** - Apply filters as early as possible to reduce data transfer
+3. **Select only needed fields** - Specify exact fields in `fields` parameter instead of using `*`
+4. **Avoid excessive nesting** - Deep queries with many levels can impact performance
+5. **Use pagination** - For large nested datasets, use `page` and `limit` instead of fetching all
+
+### SQL vs MongoDB
+
+**SQL Databases (PostgreSQL, MySQL):**
+- Uses CTE (Common Table Expressions) for optimization
+- Generates efficient subqueries for each nested level
+- Automatically adds WHERE clauses to join related tables correctly
+
+**MongoDB:**
+- Uses aggregation pipeline with $lookup operations
+- Automatically determines localField and foreignField from metadata
+- Preserves type handling (ObjectId conversion)
+
+Both database types handle the same deep query syntax transparently.
 
 ## Next Steps
 

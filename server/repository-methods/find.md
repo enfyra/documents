@@ -95,6 +95,47 @@ const result = await $ctx.$repos.products.find({
 });
 ```
 
+### Deep Queries (Nested Relations)
+
+For complex nested queries across multiple levels, use the `deep` parameter:
+
+```javascript
+// Fetch products with category, and category's parent category
+const result = await $ctx.$repos.products.find({
+  fields: 'id,name',
+  deep: {
+    category: {
+      fields: 'id,name',
+      deep: {
+        parent: {
+          fields: 'id,name'
+        }
+      }
+    }
+  }
+});
+
+// With filter, sort, and pagination
+const result = await $ctx.$repos.products.find({
+  fields: 'id,name',
+  deep: {
+    category: {
+      fields: 'id,name',
+      filter: { isActive: { _eq: true } },
+      sort: 'name',
+      limit: 10
+    }
+  }
+});
+```
+
+**For comprehensive deep query documentation**, see [Deep Queries Guide](../query-filtering.md#deep-queries-nested-relations) with:
+- Multi-level nesting examples
+- Filtering nested relations
+- Sorting and pagination per level
+- Performance best practices
+- URL query examples
+
 ## Sorting
 
 ### Sort ascending

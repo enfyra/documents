@@ -229,7 +229,7 @@ docker run -d \
 - `ENFYRA_SERVER_WORKERS`: Number of workers for cluster (default: `1`)
 - `SECRET_KEY`: JWT secret key (default: `enfyra_secret_key_change_in_production`)
 - `BACKEND_URL`: Backend URL for Swagger/docs (default: `http://localhost:1105`)
-- `NODE_NAME`: Node instance name for logs/cluster (default: `enfyra_docker`)
+- `NODE_NAME`: Node instance name for logs/cluster (default: auto-generated UUID - ensures 100% uniqueness across nodes)
 - `DEFAULT_HANDLER_TIMEOUT`: Handler execution timeout in ms (default: `20000`)
 - `DEFAULT_PREHOOK_TIMEOUT`: Prehook timeout in ms (default: `20000`)
 - `DEFAULT_AFTERHOOK_TIMEOUT`: Afterhook timeout in ms (default: `20000`)
