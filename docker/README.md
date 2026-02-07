@@ -240,6 +240,22 @@ docker run -d \
 - `REFRESH_TOKEN_NO_REMEMBER_EXP`: Refresh token expiration without remember (default: `1d`)
 - `REFRESH_TOKEN_REMEMBER_EXP`: Refresh token expiration with remember (default: `7d`)
 
+### Admin Account (Optional)
+- `ADMIN_EMAIL`: Default admin email (default: `enfyra@admin.com`)
+- `ADMIN_PASSWORD`: Default admin password (default: `1234`)
+
+**Example:**
+```bash
+docker run -d \
+  --name enfyra \
+  -p 3000:3000 \
+  -e DB_TYPE=postgres \
+  -e ADMIN_EMAIL=myadmin@example.com \
+  -e ADMIN_PASSWORD=secure_password_123 \
+  -v enfyra-data:/app/data \
+  dothinh115/enfyra:latest
+```
+
 ### App
 - `ENFYRA_APP_PORT`: App port (default: `3000`)
 - `API_URL`: Backend API URL (automatically set if `ENFYRA_MODE=all`)

@@ -17,6 +17,7 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 - **[Error Handling](./error-handling.md)** - Throwing errors and handling exceptions
 
 ### Advanced Topics
+- **[WebSocket Guide](./websocket.md)** - Real-time WebSocket communication
 - **[Cache Operations](./cache-operations.md)** - Distributed caching and locking
 - **[File Handling](./file-handling.md)** - File uploads and management
 - **[Cluster Architecture](./cluster-architecture.md)** - Multi-instance coordination
@@ -73,6 +74,9 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 
 ### "I want to upload files"
  See [File Handling](./file-handling.md)
+
+### "I need real-time WebSocket communication"
+ See [WebSocket Guide](./websocket.md)
 
 ### "How do repositories work?"
  See [Repository Methods](repository-methods/find.md)

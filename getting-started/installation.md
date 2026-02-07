@@ -46,6 +46,18 @@ This single command will:
 - Admin Email: `enfyra@admin.com`
 - Admin Password: `1234`
 
+**Customize admin credentials:**
+```bash
+docker run -d \
+  --name enfyra \
+  -p 3000:3000 \
+  -e DB_TYPE=postgres \
+  -e ADMIN_EMAIL=myadmin@example.com \
+  -e ADMIN_PASSWORD=secure_password_123 \
+  -v enfyra-data:/app/data \
+  dothinh115/enfyra:latest
+```
+
 **Expose embedded services (optional):**
 If you need to connect to the embedded database or Redis from external tools:
 ```bash
