@@ -21,15 +21,15 @@ WebSocket enables real-time, bidirectional communication between server and clie
 
 Enfyra WebSocket system provides:
 
-- ✅ **Dynamic Gateway Management** - Define WebSocket routes from database
-- ✅ **Event Handler System** - Custom event handlers via code scripts
-- ✅ **Authentication Support** - JWT token verification, cookies, query params
-- ✅ **Multi-Instance Coordination** - Redis pub/sub for cross-instance messaging
-- ✅ **User-Specific Messaging** - Send messages to specific users across instances
-- ✅ **Broadcast Support** - Send to all connected clients on a path
-- ✅ **Target Tables** - Specify which tables/repositories are accessible
-- ✅ **Connection Handlers** - Run custom scripts when clients connect
-- ✅ **Template Syntax** - Use `@SOCKET` shorthand in handlers
+-  **Dynamic Gateway Management** - Define WebSocket routes from database
+-  **Event Handler System** - Custom event handlers via code scripts
+-  **Authentication Support** - JWT token verification, cookies, query params
+-  **Multi-Instance Coordination** - Redis pub/sub for cross-instance messaging
+-  **User-Specific Messaging** - Send messages to specific users across instances
+-  **Broadcast Support** - Send to all connected clients on a path
+-  **Target Tables** - Specify which tables/repositories are accessible
+-  **Connection Handlers** - Run custom scripts when clients connect
+-  **Template Syntax** - Use `@SOCKET` shorthand in handlers
 
 ### WebSocket Lifecycle
 
@@ -514,10 +514,10 @@ if (@SOCKET.readyState === 1) {
 // Connection handlers run async via HandlerQueue
 // Use for initialization, not for blocking operations
 
-// ✅ Good: Send initial data
+//  Good: Send initial data
 @SOCKET.send('connected', { userId: @USER.id });
 
-// ❌ Bad: Long-running operations
+//  Bad: Long-running operations
 // Don't do heavy processing here, use event handlers instead
 ```
 
@@ -736,7 +736,7 @@ onUnmounted(() => {
 
 ### Message Format
 
-**Client → Server:**
+**Client  Server:**
 ```json
 {
   "event": "message",
@@ -747,7 +747,7 @@ onUnmounted(() => {
 }
 ```
 
-**Server → Client:**
+**Server  Client:**
 ```json
 {
   "event": "newMessage",
