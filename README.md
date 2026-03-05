@@ -183,10 +183,18 @@ enfyra-docs/
 │   ├── data-management.md       # Complete guide to managing records in your tables
 │   └── enfyra-config.md         # Application configuration guide (Rich Text Editor, etc.)
 │
+├──  api-reference/              # REST API endpoints (use {appUrl}/api/...)
+│   ├── README.md                # API overview and base URL
+│   ├── overview.md              # Headers, auth, response format
+│   ├── authentication.md        # Login, logout, refresh, OAuth, /me
+│   ├── crud-operations.md       # GET, POST, PATCH, DELETE for tables
+│   ├── query-parameters.md      # filter, fields, sort, limit, page
+│   └── file-storage.md          # Files, folders, assets
+│
 ├──  examples/
 │   └── user-registration-example.md # Complete end-to-end example with template syntax
 │
-├──  frontend/
+├──  app/
 │   ├── api-integration.md        # API integration with Enfyra SDK and examples for extensions
 │   ├── filter-system.md         # Interactive UI filtering for data tables and forms
 │   ├── relation-picker.md       # Working with related data in forms (powered by Filter System)
@@ -298,6 +306,9 @@ enfyra-docs/
 
 ** Architecture Overview**
 - **[Architecture Overview](./architecture-overview.md)** - System architecture diagram and component responsibilities
+
+** API Reference**
+- **[API Reference](./api-reference/README.md)** - REST API endpoints (use `{appUrl}/api/...`)
 
 ** Getting Started**
 - **[Installation](./getting-started/installation.md)** - Setup guide for backend and app
