@@ -1,8 +1,8 @@
-# Hooks and Handlers - afterHooks
+# Hooks and Handlers - postHooks
 
-afterHooks execute after the handler. Use them for response transformation, audit logging, and side effects.
+postHooks execute after the handler. Use them for response transformation, audit logging, and side effects.
 
-## When to Use afterHooks
+## When to Use postHooks
 
 - Transform response data
 - Add computed fields to response
@@ -11,7 +11,7 @@ afterHooks execute after the handler. Use them for response transformation, audi
 - Handle errors that occurred in handler
 - Add metadata to response
 
-## Basic afterHook Example
+## Basic postHook Example
 
 ```javascript
 // Transform response
@@ -65,11 +65,11 @@ if (!$ctx.$api.error && $ctx.$data) {
 ## Error Handling
 
 ```javascript
-// Handle errors in afterHook
+// Handle errors in postHook
 if ($ctx.$api.error) {
   // Error occurred
   $ctx.$logs(`Error: ${$ctx.$api.error.message}`);
-  
+
   // Log to audit system
   await $ctx.$repos.error_logs.create({
     data: {
@@ -80,7 +80,7 @@ if ($ctx.$api.error) {
       timestamp: new Date()
     }
   });
-  
+
   // Optionally modify error response
   // (though usually you'd want to handle this in error handlers)
 } else {
@@ -94,4 +94,3 @@ if ($ctx.$api.error) {
 - See [preHooks](./prehooks.md) for pre-handler operations
 - Learn about [Custom Handlers](./custom-handlers.md) for custom business logic
 - Check [Common Patterns](./patterns.md) for best practices
-

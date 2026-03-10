@@ -63,9 +63,9 @@ Sort order. Comma-separated fields. Prefix with `-` for descending.
 
 **Examples:**
 ```
-?sort=name           → name ascending
-?sort=-createdAt     → createdAt descending
-?sort=category,-price → category asc, then price desc
+?sort=name            name ascending
+?sort=-createdAt      createdAt descending
+?sort=category,-price  category asc, then price desc
 ```
 
 ---
@@ -77,7 +77,7 @@ Maximum number of records to return. Default is 10.
 **Examples:**
 ```
 ?limit=20
-?limit=0   → No limit (return all matching records)
+?limit=0    No limit (return all matching records)
 ```
 
 ---
@@ -88,7 +88,7 @@ Page number for pagination (1-based). Use with `limit`.
 
 **Example:**
 ```
-?page=2&limit=20  → Records 21–40
+?page=2&limit=20   Records 21–40
 ```
 
 ---

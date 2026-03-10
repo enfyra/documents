@@ -37,7 +37,7 @@ if ($ctx.$user.role !== 'admin') {
 ### Pattern 3: Response Enhancement
 
 ```javascript
-// afterHook
+// postHook
 if ($ctx.$data && Array.isArray($ctx.$data.data)) {
   $ctx.$data.data = $ctx.$data.data.map(item => ({
     ...item,
@@ -50,7 +50,7 @@ if ($ctx.$data && Array.isArray($ctx.$data.data)) {
 ### Pattern 4: Audit Trail
 
 ```javascript
-// afterHook
+// postHook
 if (!$ctx.$api.error) {
   await $ctx.$repos.audit_logs.create({
     data: {
@@ -70,7 +70,7 @@ if (!$ctx.$api.error) {
 $ctx.$share.processStartTime = Date.now();
 $ctx.$share.userId = $ctx.$user.id;
 
-// afterHook
+// postHook
 if ($ctx.$share.processStartTime) {
   const processingTime = Date.now() - $ctx.$share.processStartTime;
   $ctx.$data.processingTime = processingTime;
@@ -80,7 +80,7 @@ if ($ctx.$share.processStartTime) {
 ### Pattern 6: Error Recovery
 
 ```javascript
-// afterHook
+// postHook
 if ($ctx.$api.error) {
   // Log error
   $ctx.$logs(`Error occurred: ${$ctx.$api.error.message}`);
@@ -113,14 +113,14 @@ if ($ctx.$api.error) {
 
 1. **Validate early** in preHooks
 2. **Transform data** in preHooks before handler
-3. **Enhance responses** in afterHooks after handler
+3. **Enhance responses** in postHooks after handler
 4. **Use shared context** to pass data between hooks
 5. **Log important steps** for debugging
 
 ### Error Handling
 
 1. **Throw errors early** in preHooks for fast failure
-2. **Handle errors gracefully** in afterHooks
+2. **Handle errors gracefully** in postHooks
 3. **Provide meaningful error messages**
 4. **Use appropriate HTTP status codes**
 
@@ -134,7 +134,7 @@ if ($ctx.$api.error) {
 ## Next Steps
 
 - See [preHooks](./prehooks.md) for pre-handler operations
-- Learn about [afterHooks](./afterhooks.md) for post-handler operations
+- Learn about [postHooks](./posthooks.md) for post-handler operations
 - Check [Custom Handlers](./custom-handlers.md) for custom business logic
 - Learn about [Repository Methods](../repository-methods/) for database operations
 - See [Context Reference](../context-reference/) for all available properties

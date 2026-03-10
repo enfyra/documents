@@ -2,7 +2,7 @@
 
 This section covers everything you configure from the admin app that affects **server-side hooks and handlers**:
 
-- **[Hooks](./hooks.md)** – Hooks System UI (preHooks and afterHooks)
+- **[Hooks](./hooks.md)** – Hooks System UI (preHooks and postHooks)
 - **[Custom Handlers](./custom-handlers.md)** – Custom Handlers UI for replacing default CRUD
 - **[Package Management](./package-management.md)** – Installing NPM packages for use in hooks and handlers
 

@@ -12,7 +12,7 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 - **[API Lifecycle](./api-lifecycle.md)** - How requests flow through the system
 
 ### Core Concepts
-- **[Hooks and Handlers](hooks-handlers/prehooks.md)** - Creating preHooks, afterHooks, and custom handlers
+- **[Hooks and Handlers](hooks-handlers/prehooks.md)** - Creating preHooks, postHooks, and custom handlers
 - **[Query Filtering](./query-filtering.md)** - MongoDB-like filtering operators and examples
 - **[Error Handling](./error-handling.md)** - Throwing errors and handling exceptions
 
@@ -58,7 +58,7 @@ This documentation covers the Enfyra server architecture, APIs, and development 
  See [Hooks and Handlers - preHooks](./hooks-handlers/prehooks.md)
 
 ### "I need to modify response data"
- See [Hooks and Handlers - afterHooks](./hooks-handlers/afterhooks.md)
+ See [Hooks and Handlers - postHooks](./hooks-handlers/posthooks.md)
 
 ### "I want to write custom business logic"
  See [Hooks and Handlers - Custom Handlers](./hooks-handlers/custom-handlers.md)
@@ -129,10 +129,10 @@ Every API request follows this flow:
 2. **Context Setup** - Creates `$ctx` with repositories and helpers
 3. **preHooks Execution** - Runs all matching preHooks sequentially
 4. **Handler Execution** - Custom handler or default CRUD operation
-5. **afterHooks Execution** - Runs all matching afterHooks sequentially
+5. **postHooks Execution** - Runs all matching postHooks sequentially
 6. **Response** - Returns processed data
 
-The same `$ctx` object flows through all phases, so modifications in preHooks are visible to handlers and afterHooks.
+The same `$ctx` object flows through all phases, so modifications in preHooks are visible to handlers and postHooks.
 
 See [API Lifecycle](./api-lifecycle.md) for complete details.
 

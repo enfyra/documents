@@ -8,7 +8,7 @@ Hooks are a powerful feature that allows you to inject custom code at specific p
 
 Hooks execute JavaScript code at two key moments:
 - **PreHook**: Runs **before** the main operation (before database operations)
-- **AfterHook**: Runs **after** the main operation (after database operations)
+- **postHook**: Runs **after** the main operation (after database operations)
 
 **Key Advantage**: Hooks share the same context throughout the entire request lifecycle, making them perfect for lightweight modifications without replacing the entire handler.
 
@@ -71,7 +71,7 @@ $ctx = {
 };
 ```
 
-**Important:** The `$ctx` object is the **same reference** across all hooks and handlers in a request. Changes made in preHooks affect afterHooks and handlers.
+**Important:** The `$ctx` object is the **same reference** across all hooks and handlers in a request. Changes made in preHooks affect postHooks and handlers.
 
 ## Creating Hooks
 
@@ -84,7 +84,7 @@ You'll see the hook creation form with these fields:
 
 - **Name**: Descriptive name for the hook
 - **PreHook**: JavaScript code that runs before the operation
-- **AfterHook**: JavaScript code that runs after the operation  
+- **postHook**: JavaScript code that runs after the operation  
 - **Priority**: Execution order (0 = highest priority)
 - **IsEnabled**: Toggle to activate/deactivate the hook
 - **Description**: Documentation for the hook's purpose
@@ -110,7 +110,7 @@ if (!_.isObject($ctx.$body) || _.isEmpty($ctx.$body)) {
   throw new Error('Request body must be a non-empty object');
 }
 
-// AfterHook example - Using moment for timestamps
+// postHook example - Using moment for timestamps
 const moment = $ctx.$pkgs.moment;
 
 $ctx.$response.data.forEach(record => {
@@ -124,18 +124,18 @@ $ctx.$response.data.forEach(record => {
 
 For detailed information about writing JavaScript code within hooks, including the context object (`$ctx`), available functions, and comprehensive examples, see:
 
-**[Hooks and Handlers Guide](../../server/hooks-handlers/)** - Complete guide to preHooks and afterHooks
+**[Hooks and Handlers Guide](../../server/hooks-handlers/)** - Complete guide to preHooks and postHooks
 
 This covers:
 - Hook context and available variables
-- PreHook and AfterHook code examples
+- PreHook and postHook code examples
 - Database access and utility functions
 - Execution flow and priority system
 - Best practices and debugging techniques
 
 ## Practical Examples
 
-**[User Registration Example](../../examples/user-registration-example.md)** - See hooks in action with welcome email AfterHook using nodemailer package.
+**[User Registration Example](../../examples/user-registration-example.md)** - See hooks in action with welcome email postHook using nodemailer package.
 
 Hooks provide the perfect balance between simplicity and power, allowing you to customize API behavior without the complexity of full custom handlers.
 

@@ -61,7 +61,7 @@ const responseTime = $ctx.$api.response.responseTime;  // Response time in ms
 const timestamp = $ctx.$api.response.timestamp;    // Response timestamp
 ```
 
-### Error Information (AfterHook Only)
+### Error Information (postHook Only)
 
 ```javascript
 if ($ctx.$api.error) {
@@ -88,7 +88,7 @@ $ctx.$share.validationPassed = true;
 $ctx.$share.processStartTime = Date.now();
 $ctx.$share.userId = $ctx.$user.id;
 
-// In afterHook - access shared data
+// In postHook - access shared data
 if ($ctx.$share.validationPassed) {
   const processingTime = Date.now() - $ctx.$share.processStartTime;
   $ctx.$data.processingTime = processingTime;
@@ -160,7 +160,7 @@ if ($ctx.$user.role !== 'admin') {
 $ctx.$share.userId = $ctx.$user.id;
 $ctx.$share.validationData = { passed: true };
 
-// In afterHook
+// In postHook
 const userId = $ctx.$share.userId;
 if ($ctx.$share.validationData.passed) {
   // Use validation result
@@ -188,10 +188,10 @@ if (!user) {
 }
 ```
 
-### Pattern 5: Handle Errors in AfterHook
+### Pattern 5: Handle Errors in postHook
 
 ```javascript
-// In afterHook
+// In postHook
 if ($ctx.$api.error) {
   // Log error
   $ctx.$logs(`Error: ${$ctx.$api.error.message}`);

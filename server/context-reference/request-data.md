@@ -72,10 +72,10 @@ const userAgent = $ctx.$req.headers['user-agent'];
 
 ## $ctx.$data
 
-Response data (available in afterHook and handlers).
+Response data (available in postHook and handlers).
 
 ```javascript
-// In afterHook - modify response data
+// In postHook - modify response data
 if ($ctx.$data && Array.isArray($ctx.$data.data)) {
   $ctx.$data.data = $ctx.$data.data.map(item => ({
     ...item,

@@ -6,7 +6,7 @@ Hooks and handlers allow you to customize API behavior at different points in th
 
 - [Overview](#overview) - What are hooks and handlers
 - [preHooks](./prehooks.md) - Execute before handler
-- [afterHooks](./afterhooks.md) - Execute after handler
+- [postHooks](./posthooks.md) - Execute after handler
 - [Custom Handlers](./custom-handlers.md) - Replace default CRUD
 - [Common Patterns](./patterns.md) - Real-world examples and best practices
 
@@ -16,7 +16,7 @@ Hooks and handlers allow you to customize API behavior at different points in th
 
 Hooks are code snippets that run at specific points in the request lifecycle:
 - **preHooks**: Execute before the handler
-- **afterHooks**: Execute after the handler
+- **postHooks**: Execute after the handler
 
 ### Handlers
 
@@ -27,7 +27,7 @@ Handlers contain the main business logic:
 ### Execution Flow
 
 ```
-preHook #1  preHook #2  Handler  afterHook #1  afterHook #2
+preHook #1  preHook #2  Handler  postHook #1  postHook #2
 ```
 
 All hooks and handlers have access to the same `$ctx` object, so changes in one phase are visible to all subsequent phases.
@@ -35,7 +35,7 @@ All hooks and handlers have access to the same `$ctx` object, so changes in one 
 ## Documentation
 
 - **[preHooks](./prehooks.md)** - Validation, data transformation, and permission checks
-- **[afterHooks](./afterhooks.md)** - Response transformation, audit logging, and side effects
+- **[postHooks](./posthooks.md)** - Response transformation, audit logging, and side effects
 - **[Custom Handlers](./custom-handlers.md)** - Custom business logic and hook types
 - **[Common Patterns](./patterns.md)** - Best practices and real-world examples
 

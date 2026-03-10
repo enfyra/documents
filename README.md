@@ -167,7 +167,7 @@ Database  Backend (API Server)  Frontend (Admin App)
 ###  Developer Experience
 - **Flexible Code Syntax** - Choose between traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name`
 - **Built-in Authentication** - System tables like `user_definition` for immediate user management
-- **Hook System** - PreHook and AfterHook support for custom business logic
+- **Hook System** - PreHook and postHook support for custom business logic
 - **Custom Handlers** - Override default CRUD operations with your own code
 - **Request Context** - Full `$ctx` object with repositories, helpers, packages, and more
 
@@ -235,7 +235,7 @@ enfyra-docs/
     └── hooks-handlers/          #  Hooks and handlers guide
         ├── README.md            # Overview and execution flow
         ├── prehooks.md          # Pre-handler operations
-        ├── afterhooks.md        # Post-handler operations
+        ├── posthooks.md         # Post-handler operations
         ├── custom-handlers.md   # Custom business logic
         └── patterns.md          # Common patterns and best practices
 ```
@@ -296,7 +296,7 @@ enfyra-docs/
 -  **Building a dashboard?**  [Extension System](./app/extension-system.md) + [API Integration](./app/api-integration.md)
 -  **Need role-based access?**  [Permission Builder](./app/permission-builder.md)
 -  **Complex business logic?**  [Custom Handlers](./app/hooks-handlers/custom-handlers.md) + [Context Reference](./server/context-reference/) + [Hooks and Handlers](./server/hooks-handlers/)
--  **Real-time features?**  [WebSocket Guide](./server/websocket.md) + [useEnfyraWebSocket](https://github.com/enfyra/sdk-nuxt) SDK
+-  **Real-time features?**  [WebSocket Guide](./server/websocket.md)
 -  **Enterprise deployment?**  [Cluster Architecture](./server/cluster-architecture.md) + [Cache Operations](./server/cache-operations.md)
 -  **Application initialization?**  [Repository Methods](./server/repository-methods/) + [API Integration](./app/api-integration.md)
 
@@ -338,7 +338,7 @@ enfyra-docs/
 - **[Server Documentation](./server/)** -  Complete server documentation overview
 - **[Repository Methods](./server/repository-methods/)** -  Database operations: find, create, update, delete with filtering and patterns
 - **[Context Reference](./server/context-reference/)** -  Complete $ctx object reference for hooks and handlers
-- **[Hooks and Handlers](./server/hooks-handlers/)** -  PreHooks, afterHooks, and custom handlers guide
+- **[Hooks and Handlers](./server/hooks-handlers/)** -  PreHooks, postHooks, and custom handlers guide
 - **[API Lifecycle](./server/api-lifecycle.md)** -  Request lifecycle, hook system, and context sharing
 - **[Query Filtering](./server/query-filtering.md)** -  MongoDB-like query filtering, Deep Queries for nested relations
 - **[Error Handling](./server/error-handling.md)** -  Error handling patterns and best practices

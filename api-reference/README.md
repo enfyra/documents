@@ -45,7 +45,7 @@ curl "http://localhost:3000/api/products?limit=10" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
-### JavaScript / fetch
+### JavaScript / fetch (Token-Based)
 
 ```javascript
 const appUrl = 'http://localhost:3000';
@@ -65,16 +65,29 @@ const products = await fetch(`${appUrl}/api/products?limit=20`, {
 }).then(r => r.json());
 ```
 
-### Enfyra SDK (Nuxt / Next.js)
+### JavaScript / fetch (Cookie-Based)
 
-When using `@enfyra/sdk-nuxt` or `@enfyra/sdk-next`, the composables handle the base URL and authentication:
+Cookie-based authentication automatically handles tokens via HTTP-only cookies for enhanced security:
 
-```vue
-<script setup>
-const { data, execute } = useApi('/products', { query: { limit: 20 } });
-onMounted(() => execute());
-</script>
+```javascript
+const appUrl = 'http://localhost:3000';
+
+// Login - cookies are automatically set by server
+const response = await fetch(`${appUrl}/api/login`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ email: 'user@example.com', password: 'password' })
+});
+
+// Fetch your data - browser automatically sends cookies
+const products = await fetch(`${appUrl}/api/products?limit=20`).then(r => r.json());
 ```
+
+**Cookie-Based Benefits:**
+- **Enhanced Security**: HTTP-only cookies cannot be accessed by JavaScript
+- **CSRF Protection**: Built-in protection with SameSite attribute
+- **Automatic Refresh**: Server handles token refresh automatically
+- **Simple**: No manual cookie handling needed - browser does it automatically
 
 ## What You Get
 
