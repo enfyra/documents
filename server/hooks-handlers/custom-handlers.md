@@ -161,12 +161,12 @@ Hooks execute in this order:
 
 **Example for `POST /users`:**
 ```
-Global preHook (all)  Global preHook (POST)  Route preHook (all)  Route preHook (POST)  Handler  afterHooks in reverse order
+Global preHook (all)  Global preHook (POST)  Route preHook (all)  Route preHook (POST)  Handler  postHooks in reverse order
 ```
 
 ## Next Steps
 
 - See [preHooks](./prehooks.md) for pre-handler operations
-- Learn about [afterHooks](./afterhooks.md) for post-handler operations
+- Learn about [postHooks](./posthooks.md) for post-handler operations
 - Check [Common Patterns](./patterns.md) for best practices
 

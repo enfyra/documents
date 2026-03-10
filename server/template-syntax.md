@@ -586,4 +586,4 @@ if (!user) {
 - [File Handling](./file-handling.md) - File upload and response streaming guide
 - [Custom Handlers](./hooks-handlers/custom-handlers.md) - Using templates in handlers
 - [PreHooks](./hooks-handlers/prehooks.md) - Using templates in prehooks
-- [AfterHooks](./hooks-handlers/afterhooks.md) - Using templates in afterhooks
+- [postHooks](./hooks-handlers/posthooks.md) - Using templates in postHooks

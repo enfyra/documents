@@ -8,8 +8,8 @@ The app is a **pure API client**: it never connects directly to your database. A
 
 ## Quick Navigation
 
-- **API Integration**  
-  - **[API Integration](./api-integration.md)** – How the app calls backend APIs using the official Enfyra SDKs (`@enfyra/sdk-nuxt`, `@enfyra/sdk-next`), `useApi`, and `useEnfyraApi`
+- **API Integration**
+  - **[API Integration](./api-integration.md)** – How to call backend APIs directly using `fetch` through `appUrl/api/` (e.g., `http://localhost:3000/api/user_definition`)
 
 - **Extensions & Widgets**  
   - **[Extension System](./extension-system.md)** – Create custom pages and widgets with Vue components  

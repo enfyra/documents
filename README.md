@@ -126,6 +126,7 @@ Database  Backend (API Server)  Frontend (Admin App)
 - **Backend (Port 1105)**: Generates & serves all REST & GraphQL APIs from your database schema
 - **Frontend (Port 3000)**: Pure client application consuming APIs from backend URL
 - **All API endpoints**: Originate from backend server, frontend makes HTTP requests
+- **WebSocket Support**: Real-time bidirectional communication with event-based messaging
 
 ###  Built With Modern Technology
 
@@ -166,7 +167,7 @@ Database  Backend (API Server)  Frontend (Admin App)
 ###  Developer Experience
 - **Flexible Code Syntax** - Choose between traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name`
 - **Built-in Authentication** - System tables like `user_definition` for immediate user management
-- **Hook System** - PreHook and AfterHook support for custom business logic
+- **Hook System** - PreHook and postHook support for custom business logic
 - **Custom Handlers** - Override default CRUD operations with your own code
 - **Request Context** - Full `$ctx` object with repositories, helpers, packages, and more
 
@@ -182,10 +183,18 @@ enfyra-docs/
 │   ├── data-management.md       # Complete guide to managing records in your tables
 │   └── enfyra-config.md         # Application configuration guide (Rich Text Editor, etc.)
 │
+├──  api-reference/              # REST API endpoints (use {appUrl}/api/...)
+│   ├── README.md                # API overview and base URL
+│   ├── overview.md              # Headers, auth, response format
+│   ├── authentication.md        # Login, logout, refresh, OAuth, /me
+│   ├── crud-operations.md       # GET, POST, PATCH, DELETE for tables
+│   ├── query-parameters.md      # filter, fields, sort, limit, page
+│   └── file-storage.md          # Files, folders, assets
+│
 ├──  examples/
 │   └── user-registration-example.md # Complete end-to-end example with template syntax
 │
-├──  frontend/
+├──  app/
 │   ├── api-integration.md        # API integration with Enfyra SDK and examples for extensions
 │   ├── filter-system.md         # Interactive UI filtering for data tables and forms
 │   ├── relation-picker.md       # Working with related data in forms (powered by Filter System)
@@ -209,6 +218,7 @@ enfyra-docs/
     ├── error-handling.md        #  Error handling patterns and best practices
     ├── cache-operations.md      #  Distributed caching and locking operations
     ├── file-handling.md         #  File upload handling and management
+    ├── websocket.md             #  Real-time WebSocket communication guide
     ├── cluster-architecture.md  #  Multi-instance coordination and distributed synchronization
     ├── repository-methods/      #  Complete guide to database operations
     │   ├── README.md            # Overview and quick reference
@@ -225,7 +235,7 @@ enfyra-docs/
     └── hooks-handlers/          #  Hooks and handlers guide
         ├── README.md            # Overview and execution flow
         ├── prehooks.md          # Pre-handler operations
-        ├── afterhooks.md        # Post-handler operations
+        ├── posthooks.md         # Post-handler operations
         ├── custom-handlers.md   # Custom business logic
         └── patterns.md          # Common patterns and best practices
 ```
@@ -267,14 +277,15 @@ enfyra-docs/
 15. **[Repository Methods](./server/repository-methods/)** - Master database operations with find, create, update, delete
 16. **[Context Reference](./server/context-reference/)** - Complete reference for $ctx object in hooks and handlers
 17. **[Hooks and Handlers](./server/hooks-handlers/)** - Create sophisticated preHooks, afterHooks, and custom handlers
-18. **[Query Filtering](./server/query-filtering.md)** - Master MongoDB-like query filtering for complex data retrieval
+18. **[Query Filtering](./server/query-filtering.md)** - Master MongoDB-like query filtering, including Deep Queries for nested relations
 19. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
 20. **[Error Handling](./server/error-handling.md)** - Handle errors properly with best practices
 
 ###  Phase 5: Production & Scale (2-3 hours)
-21. **[Cache Operations](./server/cache-operations.md)** - Implement distributed caching and locking
-22. **[File Handling](./server/file-handling.md)** - Handle file uploads and management
-23. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
+21. **[WebSocket Guide](./server/websocket.md)** - Build real-time features with WebSocket
+22. **[Cache Operations](./server/cache-operations.md)** - Implement distributed caching and locking
+23. **[File Handling](./server/file-handling.md)** - Handle file uploads and management
+24. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
 
 ###  Goal-Oriented Paths
 
@@ -285,6 +296,7 @@ enfyra-docs/
 -  **Building a dashboard?**  [Extension System](./app/extension-system.md) + [API Integration](./app/api-integration.md)
 -  **Need role-based access?**  [Permission Builder](./app/permission-builder.md)
 -  **Complex business logic?**  [Custom Handlers](./app/hooks-handlers/custom-handlers.md) + [Context Reference](./server/context-reference/) + [Hooks and Handlers](./server/hooks-handlers/)
+-  **Real-time features?**  [WebSocket Guide](./server/websocket.md)
 -  **Enterprise deployment?**  [Cluster Architecture](./server/cluster-architecture.md) + [Cache Operations](./server/cache-operations.md)
 -  **Application initialization?**  [Repository Methods](./server/repository-methods/) + [API Integration](./app/api-integration.md)
 
@@ -294,6 +306,9 @@ enfyra-docs/
 
 ** Architecture Overview**
 - **[Architecture Overview](./architecture-overview.md)** - System architecture diagram and component responsibilities
+
+** API Reference**
+- **[API Reference](./api-reference/README.md)** - REST API endpoints (use `{appUrl}/api/...`)
 
 ** Getting Started**
 - **[Installation](./getting-started/installation.md)** - Setup guide for backend and app
@@ -323,12 +338,13 @@ enfyra-docs/
 - **[Server Documentation](./server/)** -  Complete server documentation overview
 - **[Repository Methods](./server/repository-methods/)** -  Database operations: find, create, update, delete with filtering and patterns
 - **[Context Reference](./server/context-reference/)** -  Complete $ctx object reference for hooks and handlers
-- **[Hooks and Handlers](./server/hooks-handlers/)** -  PreHooks, afterHooks, and custom handlers guide
+- **[Hooks and Handlers](./server/hooks-handlers/)** -  PreHooks, postHooks, and custom handlers guide
 - **[API Lifecycle](./server/api-lifecycle.md)** -  Request lifecycle, hook system, and context sharing
-- **[Query Filtering](./server/query-filtering.md)** -  MongoDB-like query filtering operators and examples
+- **[Query Filtering](./server/query-filtering.md)** -  MongoDB-like query filtering, Deep Queries for nested relations
 - **[Error Handling](./server/error-handling.md)** -  Error handling patterns and best practices
 - **[Cache Operations](./server/cache-operations.md)** -  Distributed caching and locking operations
 - **[File Handling](./server/file-handling.md)** -  File upload handling and management
+- **[WebSocket Guide](./server/websocket.md)** -  Real-time WebSocket communication with event handlers
 - **[Cluster Architecture](./server/cluster-architecture.md)** -  Multi-instance coordination and distributed synchronization
 
 ** Examples & Templates**

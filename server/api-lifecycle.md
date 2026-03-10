@@ -15,7 +15,7 @@ Understanding how API requests flow through Enfyra helps you build effective hoo
 Every API request in Enfyra follows this lifecycle:
 
 ```
-HTTP Request  Route Detection  Context Setup  preHooks  Handler  afterHooks  Response
+HTTP Request  Route Detection  Context Setup  preHooks  Handler  postHooks  Response
 ```
 
 ### Visual Flow
@@ -31,7 +31,7 @@ HTTP Request  Route Detection  Context Setup  preHooks  Handler  afterHooks  Res
    ↓
 5. Handler executes (custom handler or default CRUD)
    ↓
-6. All matching afterHooks execute sequentially
+6. All matching postHooks execute sequentially
    ↓
 7. Response is sent back to client
 ```
@@ -122,17 +122,17 @@ const result = await $ctx.$repos.products.create({
 return result;
 ```
 
-### Phase 5: afterHooks Execution
+### Phase 5: postHooks Execution
 
-All matching afterHooks execute sequentially after the handler.
+All matching postHooks execute sequentially after the handler.
 
 **Execution order:**
-1. Global afterHooks (all routes, all methods)
-2. Global afterHooks (all routes, specific method)
-3. Route-specific afterHooks (specific route, all methods)
-4. Route-specific afterHooks (specific route, specific method)
+1. Global postHooks (all routes, all methods)
+2. Global postHooks (all routes, specific method)
+3. Route-specific postHooks (specific route, all methods)
+4. Route-specific postHooks (specific route, specific method)
 
-**What afterHooks can do:**
+**What postHooks can do:**
 - Transform response data
 - Add computed fields
 - Log audit trails
@@ -142,7 +142,7 @@ All matching afterHooks execute sequentially after the handler.
 
 **Example:**
 ```javascript
-// afterHook: Transform response
+// postHook: Transform response
 if ($ctx.$data && Array.isArray($ctx.$data.data)) {
   $ctx.$data.data = $ctx.$data.data.map(item => ({
     ...item,
@@ -156,7 +156,7 @@ if ($ctx.$data && Array.isArray($ctx.$data.data)) {
 The processed response is sent back to the client.
 
 **Response includes:**
-- Data from handler (possibly modified by afterHooks)
+- Data from handler (possibly modified by postHooks)
 - Logs collected from all phases
 - HTTP status code
 - Headers
@@ -184,7 +184,7 @@ if ($ctx.$share.validationPassed) {
   // Validation already passed
 }
 
-// afterHook gets final state
+// postHook gets final state
 $ctx.$data.email = $ctx.$body.email;  // Use normalized email
 ```
 
@@ -211,14 +211,14 @@ $ctx.$cache        // Cache operations
 $ctx.$logs()       // Logging function
 $ctx.$throw        // Error throwing
 
-// Response data (available in handler and afterHook)
+// Response data (available in handler and postHook)
 $ctx.$data         // Response data from handler
 $ctx.$statusCode   // HTTP status code
 
 // Shared context (persists across all phases)
 $ctx.$share        // Shared data container
 
-// API information (available in afterHook)
+// API information (available in postHook)
 $ctx.$api          // Request/response/error details
 ```
 
@@ -245,7 +245,7 @@ For a `POST /users` request with these hooks:
 
 **Execution sequence:**
 ```
-[Global preHook - all]  [Global preHook - POST]  [Route preHook - all]  [Route preHook - POST]  [Handler]  [afterHooks in same order]
+[Global preHook - all]  [Global preHook - POST]  [Route preHook - all]  [Route preHook - POST]  [Handler]  [postHooks in same order]
 ```
 
 ### Sequential Execution
@@ -287,10 +287,10 @@ $ctx.$body.createdBy = $ctx.$user.id;
 $ctx.$body.createdAt = new Date();
 ```
 
-### Pattern 3: Response Enhancement in afterHook
+### Pattern 3: Response Enhancement in postHook
 
 ```javascript
-// afterHook: Add metadata to response
+// postHook: Add metadata to response
 if ($ctx.$data && Array.isArray($ctx.$data.data)) {
   $ctx.$data.data = $ctx.$data.data.map(item => ({
     ...item,
@@ -312,17 +312,17 @@ $ctx.$data.meta = {
 $ctx.$share.processStartTime = Date.now();
 $ctx.$share.userId = $ctx.$user.id;
 
-// afterHook: Use shared data
+// postHook: Use shared data
 if ($ctx.$share.processStartTime) {
   const processingTime = Date.now() - $ctx.$share.processStartTime;
   $ctx.$data.processingTime = processingTime;
 }
 ```
 
-### Pattern 5: Error Handling in afterHook
+### Pattern 5: Error Handling in postHook
 
 ```javascript
-// afterHook: Handle errors
+// postHook: Handle errors
 if ($ctx.$api.error) {
   // Error occurred
   $ctx.$logs(`Error: ${$ctx.$api.error.message}`);
@@ -378,7 +378,7 @@ if (resource.data[0].userId !== $ctx.$user.id && $ctx.$user.role !== 'admin') {
 
 1. **Use descriptive names** for custom properties in `$ctx.$share`
 2. **Check existence** before accessing nested properties
-3. **Clean up** temporary properties in afterHooks if needed
+3. **Clean up** temporary properties in postHooks if needed
 4. **Log important changes** for debugging
 
 ### Hook Organization
@@ -400,7 +400,7 @@ if (resource.data[0].userId !== $ctx.$user.id && $ctx.$user.role !== 'admin') {
 1. **Validate early** in preHooks to fail fast
 2. **Provide meaningful error messages**
 3. **Use `$ctx.$logs()`** for debugging information
-4. **Handle errors gracefully** in afterHooks when possible
+4. **Handle errors gracefully** in postHooks when possible
 
 ## Next Steps
 

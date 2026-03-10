@@ -94,7 +94,7 @@ if ($ctx.$user.role !== 'admin') {
 
 ## Next Steps
 
-- See [afterHooks](./afterhooks.md) for post-handler operations
+- See [postHooks](./posthooks.md) for post-handler operations
 - Learn about [Custom Handlers](./custom-handlers.md) for custom business logic
 - Check [Common Patterns](./patterns.md) for best practices
 

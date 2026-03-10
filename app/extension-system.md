@@ -20,6 +20,7 @@ The Extension System allows you to create custom pages and widgets using Vue.js 
 - [Header Actions Integration](#header-actions-integration)
 - [Widget System](#widget-system)
 - [File Upload Support](#file-upload-support)
+- [Using NPM Packages in Extensions](#using-npm-packages-in-extensions)
 - [Extension Management](#extension-management)
 - [Best Practices](#best-practices)
 - [Common Issues and Solutions](#common-issues-and-solutions)
@@ -959,6 +960,185 @@ const handleFileUpload = async (event) => {
 };
 </script>
 ```
+
+## Using NPM Packages in Extensions
+
+Extensions can use npm packages to add powerful functionality like charts, utilities, and data processing.
+
+### Quick Start
+
+**1. Install Package**
+- Go to **Packages** in the sidebar
+- Click **Install Package**
+- Select **App Package** type
+- Search and install your package
+
+**2. Use in Extension**
+
+```vue
+<script setup>
+onMounted(async () => {
+  const { dayjs, lodash } = await getPackages();
+
+  const date = dayjs().format('YYYY-MM-DD');
+  const total = lodash.sum([1, 2, 3]);
+
+  console.log('Date:', date, 'Total:', total);
+});
+</script>
+```
+
+### Usage Patterns
+
+**Destructuring (Recommended)**
+```javascript
+const { chartjs, dayjs } = await getPackages();
+```
+
+**Array of Packages**
+```javascript
+const packages = await getPackages(['chartjs', 'dayjs']);
+```
+
+**All Packages**
+```javascript
+const allPackages = await getPackages();
+```
+
+### Complete Example: Date Utilities
+
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <h3>Date Utilities</h3>
+    </template>
+
+    <div class="space-y-4">
+      <div>
+        <UButton @click="formatDate">Format Current Date</UButton>
+      </div>
+
+      <div v-if="formattedDate">
+        <UBadge>{{ formattedDate }}</UBadge>
+      </div>
+
+      <div>
+        <UButton @click="addDays" variant="outline">Add 7 Days</UButton>
+      </div>
+
+      <div v-if="futureDate">
+        <UBadge color="green">{{ futureDate }}</UBadge>
+      </div>
+    </div>
+  </UCard>
+</template>
+
+<script setup>
+const formattedDate = ref(null);
+const futureDate = ref(null);
+
+const formatDate = async () => {
+  const { dayjs } = await getPackages();
+  formattedDate.value = dayjs().format('YYYY-MM-DD HH:mm:ss');
+};
+
+const addDays = async () => {
+  const { dayjs } = await getPackages();
+  futureDate.value = dayjs().add(7, 'day').format('YYYY-MM-DD');
+};
+</script>
+```
+
+### Complete Example: Chart with Data
+
+```vue
+<template>
+  <UCard>
+    <template #header>
+      <div class="flex items-center justify-between">
+        <h3>Revenue Chart</h3>
+        <UButton @click="loadData" :loading="loading" size="sm">
+          Refresh
+        </UButton>
+      </div>
+    </template>
+
+    <canvas ref="chartCanvas"></canvas>
+  </UCard>
+</template>
+
+<script setup>
+const chartCanvas = ref(null);
+const loading = ref(false);
+let chartInstance = null;
+
+const loadData = async () => {
+  loading.value = true;
+
+  const { Chart } = await getPackages(['chart.js']);
+  const ctx = chartCanvas.value.getContext('2d');
+
+  if (chartInstance) {
+    chartInstance.destroy();
+  }
+
+  chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      datasets: [{
+        label: 'Revenue',
+        data: [12000, 19000, 15000, 25000, 22000, 30000],
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  loading.value = false;
+};
+
+onMounted(() => {
+  loadData();
+});
+</script>
+```
+
+### Available Packages
+
+Any npm package can be installed. Popular choices:
+
+**Charts & Visualization**
+- `chart.js` - Charts and graphs
+- `echarts` - Enterprise charts
+- `apexcharts` - Modern charting
+
+**Utilities**
+- `dayjs` - Date manipulation
+- `lodash` - Utility functions
+- `axios` - HTTP requests
+
+**Data & Forms**
+- `vuedraggable` - Drag and drop
+- `sortablejs` - Sortable lists
+- `papaparse` - CSV parsing
+
+**For complete documentation, see [Package Management](./hooks-handlers/package-management.md#using-app-packages-in-extensions)**
 
 ## Extension Management
 

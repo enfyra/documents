@@ -34,7 +34,7 @@ $ctx.$logs('Validation started');
 // In handler
 $ctx.$logs('Creating user...');
 
-// In afterHook
+// In postHook
 $ctx.$logs('User created successfully');
 ```
 
@@ -69,9 +69,9 @@ $ctx.$throw['422']('Validation failed');
 $ctx.$throw['500']('Internal server error');
 ```
 
-### Error Handling in AfterHook
+### Error Handling in postHook
 
-In afterHook, you can check for errors that occurred during the request:
+In postHook, you can check for errors that occurred during the request:
 
 ```javascript
 // Check if error occurred
@@ -90,7 +90,7 @@ if ($ctx.$api.error) {
 }
 ```
 
-**Note:** `$ctx.$api.error` is only available in afterHook, not in preHook.
+**Note:** `$ctx.$api.error` is only available in postHook, not in preHook.
 
 ## Next Steps
 

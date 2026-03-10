@@ -6,7 +6,7 @@ Enfyra provides built-in error handling mechanisms for throwing HTTP errors and 
 
 - [Throwing Errors](#throwing-errors) - How to throw HTTP errors
 - [HTTP Status Codes](#http-status-codes) - Available status codes
-- [Error Handling in afterHook](#error-handling-in-afterhook) - Handling errors that occurred
+- [Error Handling in postHook](#error-handling-in-posthook) - Handling errors that occurred
 - [Common Patterns](#common-patterns) - Real-world error handling examples
 
 ## Throwing Errors
@@ -160,14 +160,14 @@ try {
 }
 ```
 
-## Error Handling in afterHook
+## Error Handling in postHook
 
-In afterHook, you can check if an error occurred during the request and handle it appropriately.
+In postHook, you can check if an error occurred during the request and handle it appropriately.
 
 ### Checking for Errors
 
 ```javascript
-// In afterHook
+// In postHook
 if ($ctx.$api.error) {
   // Error occurred
   // $ctx.$api.error contains error details
@@ -180,7 +180,7 @@ if ($ctx.$api.error) {
 }
 ```
 
-**Important:** `$ctx.$api.error` is only available in afterHook, not in preHook.
+**Important:** `$ctx.$api.error` is only available in postHook, not in preHook.
 
 ### Error Object Properties
 
@@ -198,7 +198,7 @@ if ($ctx.$api.error) {
 ### Logging Errors
 
 ```javascript
-// In afterHook
+// In postHook
 if ($ctx.$api.error) {
   $ctx.$logs(`Error occurred: ${$ctx.$api.error.message}`);
   $ctx.$logs(`Error status: ${$ctx.$api.error.statusCode}`);
@@ -209,7 +209,7 @@ if ($ctx.$api.error) {
 ### Creating Error Logs
 
 ```javascript
-// In afterHook
+// In postHook
 if ($ctx.$api.error) {
   // Log to audit system
   await $ctx.$repos.error_logs.create({
@@ -312,10 +312,10 @@ if (resource.data[0].userId !== $ctx.$user.id && $ctx.$user.role !== 'admin') {
 }
 ```
 
-### Pattern 5: Error Recovery in afterHook
+### Pattern 5: Error Recovery in postHook
 
 ```javascript
-// In afterHook
+// In postHook
 if ($ctx.$api.error) {
   // Log error
   $ctx.$logs(`Error: ${$ctx.$api.error.message}`);
@@ -384,7 +384,7 @@ if ($ctx.$body.price !== undefined) {
 2. **Use appropriate status codes** - Choose the right HTTP status code for each error type
 3. **Provide clear error messages** - Help users understand what went wrong
 4. **Log errors** - Use `$ctx.$logs()` to log errors for debugging
-5. **Handle errors gracefully** - Use afterHook to handle errors that occurred in handlers
+5. **Handle errors gracefully** - Use postHook to handle errors that occurred in handlers
 6. **Don't expose sensitive information** - Don't include internal details in error messages
 7. **Return early** - Use `return` after throwing errors to stop execution
 
