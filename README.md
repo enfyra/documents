@@ -180,8 +180,7 @@ enfyra-docs/
 │   ├── installation.md          # Setup guide for backend and app
 │   ├── getting-started.md       # First steps after installation and interface overview
 │   ├── table-creation.md        # Complete guide to creating tables with all field types
-│   ├── data-management.md       # Complete guide to managing records in your tables
-│   └── enfyra-config.md         # Application configuration guide (Rich Text Editor, etc.)
+│   └── data-management.md       # Complete guide to managing records in your tables
 │
 ├──  api-reference/              # REST API endpoints (use {appUrl}/api/...)
 │   ├── README.md                # API overview and base URL
@@ -257,7 +256,6 @@ enfyra-docs/
 2. **[Getting Started](./getting-started/getting-started.md)** - First login and interface overview
 3. **[Table Creation](./getting-started/table-creation.md)** - Create your first table with all field types and relations, including `onDelete` cascade behavior
 4. **[Data Management](./getting-started/data-management.md)** - Learn to manage records and relationships
-5. **[Enfyra Configuration](./getting-started/enfyra-config.md)** - Configure application settings including Rich Text Editor
 
 ###  Phase 2: Frontend Mastery (2-3 hours)
 5. **[Form System](./app/form-system.md)** - Understand how forms work with your data
@@ -315,7 +313,6 @@ enfyra-docs/
 - **[Getting Started](./getting-started/getting-started.md)** - First steps after installation and interface overview
 - **[Table Creation](./getting-started/table-creation.md)** - Complete guide to creating tables with all field types
 - **[Data Management](./getting-started/data-management.md)** - Complete guide to managing records in your tables
-- **[Enfyra Configuration](./getting-started/enfyra-config.md)** - Application configuration guide (Rich Text Editor, etc.)
 
 ** Frontend (User Interface)**
 - **[API Integration](./app/api-integration.md)** - API integration with Enfyra SDK and examples for extensions
