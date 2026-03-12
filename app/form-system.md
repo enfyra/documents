@@ -28,11 +28,88 @@ When you create a table in Enfyra, the system automatically generates forms for 
 
 | Field Type       | Input Component  | Description                          |
 | ---------------- | ---------------- | ------------------------------------ |
-| **richtext**     | Rich text editor | WYSIWYG editor with formatting tools |
+| **richtext**     | Rich text editor | WYSIWYG editor with formatting tools (configure via `column.metadata.richText`) |
 | **code**         | Code editor      | Syntax-highlighted code input        |
 | **simple-json**  | JSON editor      | JSON input with validation           |
 | **enum**         | Dropdown         | Single selection from options        |
 | **array-select** | Multi-select     | Multiple selections from options     |
+
+### Rich Text Editor (column.metadata.richText)
+
+For `richtext` columns, you can customize the editor by setting `metadata.richText` on the column. This is configured in the table schema (column metadata field as JSON).
+
+**Example column metadata:**
+```json
+{
+  "richText": {
+    "customButtons": [
+      { "name": "codeinline", "text": "Code", "tooltip": "Inline code", "format": "code" },
+      { "name": "codeblock", "text": "Code Block", "tooltip": "Code block", "format": "pre" }
+    ],
+    "formats": {
+      "code": {
+        "inline": true,
+        "tag": "code",
+        "css": {
+          "backgroundColor": "#2d2d2d",
+          "color": "#ccc",
+          "padding": "2px 4px",
+          "borderRadius": "3px",
+          "fontFamily": "monospace"
+        }
+      },
+      "pre": {
+        "block": true,
+        "tag": "pre",
+        "css": {
+          "light": {
+            "backgroundColor": "#e1e1e1",
+            "padding": "12px",
+            "borderRadius": "4px",
+            "overflow": "auto",
+            "fontFamily": "monospace",
+            "whiteSpace": "pre",
+            "color": "#333"
+          },
+          "dark": {
+            "backgroundColor": "#1e1e1e",
+            "padding": "12px",
+            "borderRadius": "4px",
+            "overflow": "auto",
+            "fontFamily": "monospace",
+            "whiteSpace": "pre",
+            "color": "#ccc"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### Format types
+
+| Property | Description |
+|----------|-------------|
+| `inline: true` | Inline element (e.g. `<code>`, `<span>`). Default `tag` is `span`. |
+| `block: true` or omit | Block element (e.g. `<pre>`, `<div>`). **Default** when neither inline nor wrapper is set. |
+| `wrapper: true` | Wrapper node that contains other blocks (e.g. `<blockquote>`). |
+| `tag` | HTML tag name (e.g. `"code"`, `"pre"`). Optional; uses format key if not specified. |
+
+#### Format properties
+
+- **`css`**: CSS styles injected as stylesheet (not inline). Supports:
+  - Flat object: applies to both light and dark themes
+  - `{ light: {...}, dark: {...} }`: theme-specific styles
+  - Function: `(theme: 'light' | 'dark') => Record<string, string>`
+- **`classes`**: CSS classes for the tag (string, array, or function)
+- **`attributes`**: HTML attributes for the element
+
+#### Toolbar
+
+Default toolbar: `clear | h1 h2 h3 h4 h5 h6 | bold italic underline strike | bullist numlist | alignleft aligncenter alignright alignjustify | link image table blockquote hr | codeblock`
+
+Add custom buttons via `customButtons` and reference them in `toolbar` string. Each custom button can use `format` to toggle a format (e.g. `format: "code"` toggles the `code` format).
 
 ### Special Field Types
 
