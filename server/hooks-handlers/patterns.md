@@ -84,7 +84,7 @@ if ($ctx.$share.processStartTime) {
 if ($ctx.$api.error) {
   // Log error
   $ctx.$logs(`Error occurred: ${$ctx.$api.error.message}`);
-  
+
   // Create error log
   await $ctx.$repos.error_logs.create({
     data: {
@@ -94,9 +94,56 @@ if ($ctx.$api.error) {
       url: $ctx.$req.url
     }
   });
-  
+
   // Optionally send notification
   // await sendErrorNotification($ctx.$api.error);
+}
+```
+
+### Pattern 7: Rate Limiting
+
+```javascript
+// preHook - Protect endpoints from abuse
+const result = await $ctx.$helpers.$rateLimit.byIp({
+  maxRequests: 100,
+  perSeconds: 60
+});
+
+if (!result.allowed) {
+  $ctx.$throw['429'](`Rate limit exceeded. Try again in ${result.retryAfter}s`);
+  return;
+}
+```
+
+### Pattern 8: Rate Limiting with Admin Skip
+
+```javascript
+// preHook - Skip rate limit for admin users
+if (!$ctx.$user?.isRootAdmin) {
+  const result = await $ctx.$helpers.$rateLimit.byUser({
+    maxRequests: 1000,
+    perSeconds: 3600
+  });
+
+  if (!result.allowed) {
+    $ctx.$throw['429']('API rate limit exceeded');
+    return;
+  }
+}
+```
+
+### Pattern 9: Login Attempt Rate Limiting
+
+```javascript
+// preHook - Protect login from brute force
+const result = await $ctx.$helpers.$rateLimit.byIp({
+  maxRequests: 5,
+  perSeconds: 60
+});
+
+if (!result.allowed) {
+  $ctx.$throw['429'](`Too many login attempts. Try again in ${result.retryAfter}s`);
+  return;
 }
 ```
 

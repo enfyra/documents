@@ -65,8 +65,14 @@ $ctx.$throw['409']('Email already exists');
 // Unprocessable Entity
 $ctx.$throw['422']('Validation failed');
 
+// Too Many Requests (Rate Limiting)
+$ctx.$throw['429']('Rate limit exceeded. Try again later');
+
 // Internal Server Error
 $ctx.$throw['500']('Internal server error');
+
+// Service Unavailable
+$ctx.$throw['503']('Service temporarily unavailable');
 ```
 
 ### Error Handling in postHook
