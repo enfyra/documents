@@ -40,8 +40,14 @@ $ctx.$throw['409']('Email already exists');
 // Unprocessable Entity (422)
 $ctx.$throw['422']('Validation failed');
 
+// Too Many Requests (429) - Rate Limiting
+$ctx.$throw['429']('Rate limit exceeded. Try again later');
+
 // Internal Server Error (500)
 $ctx.$throw['500']('Internal server error');
+
+// Service Unavailable (503)
+$ctx.$throw['503']('Service temporarily unavailable');
 ```
 
 ## HTTP Status Codes
@@ -143,6 +149,36 @@ if ($ctx.$body.password && $ctx.$body.password.length < 6) {
 if ($ctx.$body.age && ($ctx.$body.age < 0 || $ctx.$body.age > 120)) {
   $ctx.$throw['422']('Age must be between 0 and 120');
   return;
+}
+```
+
+### 429 Too Many Requests
+
+Use for rate limiting when client has exceeded allowed request count.
+
+```javascript
+// Using rate limit helper
+const result = await $ctx.$helpers.$rateLimit.byIp({
+  maxRequests: 100,
+  perSeconds: 60
+});
+
+if (!result.allowed) {
+  $ctx.$throw['429'](`Rate limit exceeded. Try again in ${result.retryAfter}s`);
+  return;
+}
+
+// Skip rate limit for admins
+if (!$ctx.$user?.isRootAdmin) {
+  const rateResult = await $ctx.$helpers.$rateLimit.byUser({
+    maxRequests: 1000,
+    perSeconds: 3600
+  });
+
+  if (!rateResult.allowed) {
+    $ctx.$throw['429']('API rate limit exceeded');
+    return;
+  }
 }
 ```
 
@@ -370,9 +406,48 @@ if ($ctx.$body.price !== undefined) {
     $ctx.$throw['400']('Price must be a number');
     return;
   }
-  
+
   if ($ctx.$body.price < 0) {
     $ctx.$throw['422']('Price cannot be negative');
+    return;
+  }
+}
+```
+
+### Pattern 8: Rate Limiting
+
+```javascript
+// In preHook - Rate limit by IP
+const result = await $ctx.$helpers.$rateLimit.byIp({
+  maxRequests: 100,
+  perSeconds: 60
+});
+
+if (!result.allowed) {
+  $ctx.$throw['429'](`Rate limit exceeded. Try again in ${result.retryAfter}s`);
+  return;
+}
+
+// In preHook - Rate limit login attempts
+const loginResult = await $ctx.$helpers.$rateLimit.byIp({
+  maxRequests: 5,
+  perSeconds: 60
+});
+
+if (!loginResult.allowed) {
+  $ctx.$throw['429'](`Too many login attempts. Try again in ${loginResult.retryAfter}s`);
+  return;
+}
+
+// In preHook - Skip rate limit for admins
+if (!$ctx.$user?.isRootAdmin) {
+  const apiResult = await $ctx.$helpers.$rateLimit.byUser({
+    maxRequests: 1000,
+    perSeconds: 3600
+  });
+
+  if (!apiResult.allowed) {
+    $ctx.$throw['429']('API rate limit exceeded');
     return;
   }
 }

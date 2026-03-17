@@ -207,10 +207,27 @@ $ctx.$logs(`Cache invalidated for product: ${productId}`);
 
 ### Pattern 3: Rate Limiting
 
-Use cache to implement rate limiting.
+Use the built-in rate limiting helper for robust API protection.
 
 ```javascript
-// Rate limit: max 10 requests per minute per user
+// Recommended: Use $helpers.$rateLimit for rate limiting
+const result = await $ctx.$helpers.$rateLimit.byUser({
+  maxRequests: 100,
+  perSeconds: 60
+});
+
+if (!result.allowed) {
+  $ctx.$throw['429'](`Rate limit exceeded. Try again in ${result.retryAfter}s`);
+  return;
+}
+
+$ctx.$logs(`Rate limit check passed. Remaining: ${result.remaining}`);
+```
+
+**Alternative: Manual rate limiting with cache** (for custom scenarios):
+
+```javascript
+// Manual rate limit: max 10 requests per minute per user
 const rateLimitKey = `rate-limit:${$ctx.$user.id}:${$ctx.$req.url}`;
 const currentCount = await $ctx.$cache.get(rateLimitKey) || 0;
 
@@ -223,6 +240,8 @@ if (currentCount >= 10) {
 await $ctx.$cache.set(rateLimitKey, currentCount + 1, 60000);
 $ctx.$logs(`Rate limit check passed for user: ${$ctx.$user.id}`);
 ```
+
+> **Note:** The `$helpers.$rateLimit` helper is recommended as it uses a Redis sliding window algorithm for more accurate rate limiting. See [Helpers & Cache - Rate Limiting](./context-reference/helpers-cache.md#rate-limiting) for full documentation.
 
 ### Pattern 4: Prevent Concurrent Modifications
 

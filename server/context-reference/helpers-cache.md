@@ -91,6 +91,130 @@ Delete files.
 await $ctx.$helpers.$deleteFile(fileId);
 ```
 
+### Rate Limiting
+
+Protect your API routes with flexible rate limiting using Redis sliding window algorithm.
+
+```javascript
+const result = await $ctx.$helpers.$rateLimit.byIp({
+  maxRequests: 100,
+  perSeconds: 60
+});
+
+if (!result.allowed) {
+  $ctx.$throw['429'](`Rate limit exceeded. Try again in ${result.retryAfter}s`);
+}
+```
+
+#### Rate Limit Templates
+
+| Method | Key Format | Description |
+|--------|------------|-------------|
+| `byIp(options)` | `ip:{ip}:{route}` | Rate limit by client IP per route |
+| `byUser(options)` | `user:{userId}:{route}` | Rate limit by authenticated user per route |
+| `byRoute(options)` | `route:{route}` | Rate limit globally per route (all users/IPs share limit) |
+| `byIpGlobal(options)` | `ip:{ip}` | Rate limit by IP across all routes |
+| `byUserGlobal(options)` | `user:{userId}` | Rate limit by user across all routes |
+| `check(key, options)` | Custom key | Rate limit with custom key |
+| `reset(key)` | - | Reset rate limit for a key |
+| `status(key, options)` | - | Check rate limit status without incrementing |
+
+#### Options
+
+```javascript
+{
+  maxRequests: 100,  // Maximum requests allowed in the window
+  perSeconds: 60     // Time window in seconds
+}
+```
+
+#### Result Object
+
+```javascript
+{
+  allowed: boolean,     // Whether the request is allowed
+  remaining: number,    // Remaining requests in window
+  resetAt: number,      // Unix timestamp when window resets
+  retryAfter: number,   // Seconds to wait before retry (0 if allowed)
+  limit: number,        // The max requests limit
+  window: number        // The window in seconds
+}
+```
+
+#### Examples
+
+**Rate Limit Login Attempts by IP:**
+```javascript
+// In preHook for POST /auth/login
+const result = await $ctx.$helpers.$rateLimit.byIp({
+  maxRequests: 5,
+  perSeconds: 60
+});
+
+if (!result.allowed) {
+  $ctx.$throw['429'](`Too many login attempts. Try again in ${result.retryAfter}s`);
+}
+```
+
+**Rate Limit API by User:**
+```javascript
+// In preHook for API routes
+const result = await $ctx.$helpers.$rateLimit.byUser({
+  maxRequests: 1000,
+  perSeconds: 3600  // 1 hour
+});
+
+if (!result.allowed) {
+  $ctx.$throw['429'](`API rate limit exceeded. Try again in ${result.retryAfter}s`);
+}
+```
+
+**Skip Rate Limit for Admins:**
+```javascript
+if (!$ctx.$user?.isRootAdmin) {
+  const result = await $ctx.$helpers.$rateLimit.byIp({
+    maxRequests: 100,
+    perSeconds: 60
+  });
+
+  if (!result.allowed) {
+    $ctx.$throw['429']('Rate limit exceeded');
+  }
+}
+```
+
+**Custom Key for Specific Resource:**
+```javascript
+const resourceId = $ctx.$params.id;
+const result = await $ctx.$helpers.$rateLimit.check(
+  `resource:${resourceId}:${$ctx.$user?.id || $ctx.$req.ip}`,
+  { maxRequests: 10, perSeconds: 60 }
+);
+
+if (!result.allowed) {
+  $ctx.$throw['429']('Too many requests to this resource');
+}
+```
+
+**Check Status Without Incrementing:**
+```javascript
+// Check if rate limited without counting the request
+const status = await $ctx.$helpers.$rateLimit.status(
+  `ip:${$ctx.$req.ip}:/api/expensive`,
+  { maxRequests: 5, perSeconds: 3600 }
+);
+
+if (!status.allowed) {
+  $ctx.$throw['429']('Daily limit reached');
+}
+```
+
+**Reset Rate Limit After Successful Action:**
+```javascript
+// In postHook after successful action
+await $ctx.$helpers.$rateLimit.reset(`ip:${$ctx.$req.ip}:/auth/forgot-password`);
+```
+
 ## Cache
 
 Distributed caching and locking operations. All cache functions require `await`.

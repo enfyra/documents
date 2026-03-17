@@ -106,7 +106,7 @@ const permissionAction = {
 ```vue
 <script setup>
 // Available globally in extensions
-// Pass action directly to the composable
+// Pass actions directly to the composable - no need for onMounted
 useHeaderActionRegistry([
   {
     id: 'save-report',
@@ -132,7 +132,7 @@ useHeaderActionRegistry([
 ```vue
 <script setup>
 // Available globally in extensions
-// Pass action directly to the composable
+// Pass actions directly to the composable - no need for onMounted
 useSubHeaderActionRegistry([
   {
     id: 'filter-toggle',
@@ -342,7 +342,6 @@ useHeaderActionRegistry([
 <template>
   <div class="p-6">
     <h2>Data Management</h2>
-    <!-- Extension content -->
   </div>
 </template>
 
@@ -357,10 +356,9 @@ const exportData = async () => {
       method: 'POST',
       body: { format: selectedFormat.value }
     });
-    
-    // Download file
+
     downloadFile(data.url);
-    
+
     toast.add({
       title: 'Export completed',
       description: `Data exported as ${selectedFormat.value.toUpperCase()}`,
@@ -377,65 +375,63 @@ const exportData = async () => {
   }
 };
 
-onMounted(() => {
-  // Export dropdown component
-  const ExportDropdown = {
-    template: `
-      <UDropdown :items="exportItems">
-        <UButton 
-          label="Export"
-         
-          :loading="loading"
-          variant="solid"
-          color="primary"
-        />
-      </UDropdown>
-    `,
-    setup() {
-      const exportItems = [
-        [
-          {
-            label: 'JSON',
-            click: () => {
-              selectedFormat.value = 'json';
-              exportData();
-            }
-          },
-          {
-            label: 'CSV',
-            click: () => {
-              selectedFormat.value = 'csv';
-              exportData();
-            }
-          },
-          {
-            label: 'PDF',
-            click: () => {
-              selectedFormat.value = 'pdf';
-              exportData();
-            }
+// Export dropdown component
+const ExportDropdown = {
+  template: `
+    <UDropdown :items="exportItems">
+      <UButton
+        label="Export"
+        :loading="loading"
+        variant="solid"
+        color="primary"
+      />
+    </UDropdown>
+  `,
+  setup() {
+    const exportItems = [
+      [
+        {
+          label: 'JSON',
+          click: () => {
+            selectedFormat.value = 'json';
+            exportData();
           }
-        ]
-      ];
-      
-      return {
-        exportItems,
-        loading: isExporting
-      };
-    }
-  };
+        },
+        {
+          label: 'CSV',
+          click: () => {
+            selectedFormat.value = 'csv';
+            exportData();
+          }
+        },
+        {
+          label: 'PDF',
+          click: () => {
+            selectedFormat.value = 'pdf';
+            exportData();
+          }
+        }
+      ]
+    ];
 
-  useHeaderActionRegistry([
-    {
-      id: 'export-dropdown',
-      component: ExportDropdown,
-      permission: {
-        route: '/data',
-        actions: ['read']
-      }
+    return {
+      exportItems,
+      loading: isExporting
+    };
+  }
+};
+
+// Register at top level - no onMounted needed
+useHeaderActionRegistry([
+  {
+    id: 'export-dropdown',
+    component: ExportDropdown,
+    permission: {
+      route: '/data',
+      actions: ['read']
     }
-  ]);
-});
+  }
+]);
 </script>
 ```
 
@@ -554,7 +550,6 @@ const watchConnection = () => {
 <template>
   <div class="admin-panel p-6">
     <h2>Administrative Tools</h2>
-    <!-- Admin content -->
   </div>
 </template>
 
@@ -562,69 +557,67 @@ const watchConnection = () => {
 const { me } = useEnfyraAuth();
 const userRole = computed(() => me.value?.role?.name);
 
-onMounted(() => {
-  // Different actions based on user role
-  const adminActions = [
-    {
-      id: 'system-settings',
-      label: 'System',
-      permission: {
-        route: '/admin',
-        actions: ['update']
-      },
-      onClick: () => navigateTo('/admin/system')
+// Define actions at top level - no onMounted needed
+const adminActions = [
+  {
+    id: 'system-settings',
+    label: 'System',
+    permission: {
+      route: '/admin',
+      actions: ['update']
     },
-    {
-      id: 'user-management',
-      label: 'Users',
-      permission: {
-        route: '/user_definition',
-        actions: ['create', 'update', 'delete']
-      },
-      onClick: () => navigateTo('/admin/users')
+    onClick: () => navigateTo('/admin/system')
+  },
+  {
+    id: 'user-management',
+    label: 'Users',
+    permission: {
+      route: '/user_definition',
+      actions: ['create', 'update', 'delete']
     },
-    {
-      id: 'audit-logs',
-      label: 'Audit',
-      permission: {
-        route: '/audit_log',
-        actions: ['read']
-      },
-      onClick: () => navigateTo('/admin/audit')
-    }
-  ];
-
-  // Super admin only actions
-  const superAdminActions = [
-    {
-      id: 'danger-zone',
-      label: 'Danger Zone',
-      color: 'error',
-      permission: {
-        and: [
-          { route: '/admin', actions: ['delete'] },
-          { allowedUsers: [me.value?.id] } // Only specific user
-        ]
-      },
-      onClick: () => openDangerZone()
-    }
-  ];
-
-  // Register actions based on permissions
-  useHeaderActionRegistry([...adminActions, ...superAdminActions]);
-
-  // Dynamic action based on user data
-  if (userRole.value === 'manager') {
-    useSubHeaderActionRegistry([
-      {
-        id: 'team-overview',
-        label: `Team Overview (${me.value.team?.memberCount || 0})`,
-        side: 'left',
-        onClick: () => showTeamOverview()
-      }
-    ]);
+    onClick: () => navigateTo('/admin/users')
+  },
+  {
+    id: 'audit-logs',
+    label: 'Audit',
+    permission: {
+      route: '/audit_log',
+      actions: ['read']
+    },
+    onClick: () => navigateTo('/admin/audit')
   }
-});
+];
+
+// Super admin only actions
+const superAdminActions = [
+  {
+    id: 'danger-zone',
+    label: 'Danger Zone',
+    color: 'error',
+    permission: {
+      and: [
+        { route: '/admin', actions: ['delete'] },
+        { allowedUsers: [me.value?.id] }
+      ]
+    },
+    onClick: () => openDangerZone()
+  }
+];
+
+// Register actions
+useHeaderActionRegistry([...adminActions, ...superAdminActions]);
+
+// Conditional registration based on user role
+if (userRole.value === 'manager') {
+  useSubHeaderActionRegistry([
+    {
+      id: 'team-overview',
+      label: `Team Overview (${me.value.team?.memberCount || 0})`,
+      side: 'left',
+      onClick: () => showTeamOverview()
+    }
+  ]);
+}
 </script>
 ```
 
@@ -678,12 +671,11 @@ const isProcessing = ref(false);
 { side: 'right', id: 'export-data' }
 ```
 
-### 5. Clean Up on Unmount
+### 5. Automatic Cleanup
 ```javascript
-onUnmounted(() => {
-  // Actions are automatically cleaned up on route change
-  // Only manual cleanup needed for global actions
-});
+// Actions are automatically cleaned up on route change
+// Only actions with global: true persist across routes
+// No manual cleanup needed in most cases
 ```
 
 ### 6. Cross-Reference Related Documentation

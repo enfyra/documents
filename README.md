@@ -103,6 +103,7 @@ const user = await #user_definition.create({
 | **Permission System** | Visual builder for complex access control                               |
 | **API Generation**    | Every table instantly becomes a full REST & GraphQL API                 |
 | **Custom Code**       | Execute business logic in isolated processes with full request context  |
+| **Rate Limiting**     | Built-in rate limiting helper with Redis sliding window algorithm       |
 | **Multi-Instance**    | Run multiple servers with automatic synchronization                     |
 | **Flexible Syntax**   | Traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name` patterns |
 | **Package Management**| Install NPM packages directly from UI for use in handlers and hooks     |
@@ -167,8 +168,9 @@ Database  Backend (API Server)  Frontend (Admin App)
 ###  Developer Experience
 - **Flexible Code Syntax** - Choose between traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name`
 - **Built-in Authentication** - System tables like `user_definition` for immediate user management
-- **Hook System** - PreHook and postHook support for custom business logic
+- **Hook System** - preHooks and postHooks support for custom business logic
 - **Custom Handlers** - Override default CRUD operations with your own code
+- **Rate Limiting** - Built-in `$helpers.$rateLimit` for API protection with flexible templates
 - **Request Context** - Full `$ctx` object with repositories, helpers, packages, and more
 
 ##  Documentation

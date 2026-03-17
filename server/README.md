@@ -69,6 +69,9 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 ### "How do I throw errors properly?"
  See [Error Handling](./error-handling.md)
 
+### "I want to protect my API from abuse"
+ See [Context Reference - Helpers & Cache](./context-reference/helpers-cache.md#rate-limiting) for rate limiting
+
 ### "I need to use Redis cache"
  See [Cache Operations](./cache-operations.md)
 
