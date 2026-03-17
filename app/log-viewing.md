@@ -19,11 +19,11 @@ The logs interface displays:
 
 | Icon | Type | Description |
 |------|------|-------------|
-| 💀 Skull | `crash-*.log` | Fatal crashes, uncaught exceptions |
-| ⚠️ Alert | `error-*.log` | Error-level logs (HTTP 500+) |
-| 🌐 Globe | `access-*.log` | Access logs |
-| 🐛 Bug | `debug-*.log` | Debug logs |
-| 📄 File | `app-*.log` | General application logs |
+|  Skull | `crash-*.log` | Fatal crashes, uncaught exceptions |
+|  Alert | `error-*.log` | Error-level logs (HTTP 500+) |
+|  Globe | `access-*.log` | Access logs |
+|  Bug | `debug-*.log` | Debug logs |
+|  File | `app-*.log` | General application logs |
 
 ## Viewing Log Content
 
@@ -35,11 +35,11 @@ The logs interface displays:
 
 | Action | Description |
 |--------|-------------|
-| 🔍 Search | Search by Log ID or Correlation ID |
-| 📋 Copy | Copy visible content to clipboard |
-| ⬇️ Download | Download last 10,000 lines |
-| 🔄 Reload | Refresh log content |
-| ✕ Close | Return to file list |
+|  Search | Search by Log ID or Correlation ID |
+|  Copy | Copy visible content to clipboard |
+| ⬇ Download | Download last 10,000 lines |
+|  Reload | Refresh log content |
+|  Close | Return to file list |
 
 ## Searching Logs
 
@@ -53,8 +53,8 @@ The search input automatically detects ID type:
 ### Examples
 
 ```
-log_mmtajhqm_003e_0n5p    → Find specific log entry
-req_1773672046211_abc123  → Find all logs for request
+log_mmtajhqm_003e_0n5p     Find specific log entry
+req_1773672046211_abc123   Find all logs for request
 ```
 
 ### Search Behavior
