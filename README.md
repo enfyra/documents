@@ -298,6 +298,7 @@ enfyra-docs/
 -  **Complex business logic?**  [Custom Handlers](./app/hooks-handlers/custom-handlers.md) + [Context Reference](./server/context-reference/) + [Hooks and Handlers](./server/hooks-handlers/)
 -  **Real-time features?**  [WebSocket Guide](./server/websocket.md)
 -  **Enterprise deployment?**  [Cluster Architecture](./server/cluster-architecture.md) + [Cache Operations](./server/cache-operations.md)
+-  **Multi-tenant SaaS?**  [Multi-Tenant RLS Example](./examples/multi-tenant-rls-example.md) - Complete guide with Pre-Hooks + Extensions
 -  **Application initialization?**  [Repository Methods](./server/repository-methods/) + [API Integration](./app/api-integration.md)
 
 ---
@@ -348,6 +349,7 @@ enfyra-docs/
 
 ** Examples & Templates**
 - **[User Registration](./examples/user-registration-example.md)** - Complete end-to-end example featuring template syntax, hooks, handlers, and package management
+- **[Multi-Tenant RLS](./examples/multi-tenant-rls-example.md)** - Build multi-tenant SaaS with row-level security, custom dashboards, and data isolation
 
 ## Installation
 

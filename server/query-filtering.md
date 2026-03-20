@@ -503,6 +503,11 @@ const result = await $ctx.$repos.products.find({
 });
 ```
 
+**Sort behavior:**
+- If no `sort` is specified, results are sorted by `id` ascending
+- Sort applies only to the parent table
+- Nested arrays are always sorted by `id` internally
+
 ## Best Practices
 
 1. **Use appropriate operators** - Choose the right operator for your use case
@@ -597,7 +602,7 @@ const result = await $ctx.$repos.users.find({
 
 ### Deep Query with Sort
 
-Sort nested relations at any level:
+Sort nested relations at any level using the `deep` parameter:
 
 ```javascript
 // Fetch users with posts sorted by date
@@ -606,7 +611,7 @@ const result = await $ctx.$repos.users.find({
   deep: {
     posts: {
       fields: 'id,title,createdAt',
-      sort: '-createdAt'  // Latest posts first
+      sort: '-createdAt'
     }
   }
 });
@@ -621,7 +626,7 @@ const result = await $ctx.$repos.users.find({
       deep: {
         comments: {
           fields: 'id,content',
-          sort: 'createdAt'  // Ascending for comments
+          sort: 'createdAt'
         }
       }
     }

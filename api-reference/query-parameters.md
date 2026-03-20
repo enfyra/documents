@@ -59,13 +59,23 @@ See [Query Filtering](../server/query-filtering.md) for full reference.
 
 ## sort
 
-Sort order. Comma-separated fields. Prefix with `-` for descending.
+Sort order for parent/root records. Comma-separated fields. Prefix with `-` for descending.
 
 **Examples:**
 ```
 ?sort=name            name ascending
 ?sort=-createdAt      createdAt descending
 ?sort=category,-price  category asc, then price desc
+```
+
+**Notes:**
+- If no `sort` is specified, results are sorted by `id` ascending
+- Sort applies only to the parent table, not nested relations
+- Nested arrays (one-to-many, many-to-many) are always sorted by `id` internally
+- To sort nested relations, use the `deep` parameter with a `sort` option:
+
+```
+GET /api/user_definition?fields=id,name&deep={"posts":{"fields":"id,title","sort":"-createdAt"}}
 ```
 
 ---
