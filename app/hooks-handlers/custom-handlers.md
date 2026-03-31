@@ -267,7 +267,7 @@ return {
 - **Method Specificity**: Create separate handlers for different HTTP methods
 
 ### Code Patterns
-- **Always Await**: All `$ctx.$helpers` and `$ctx.$cache` functions require `await` due to IPC bridge
+- **Always Await**: All `$ctx.$helpers` and `$ctx.$cache` functions require `await` as they are async operations
 - **Extract Results**: Store helper results in variables before using them
 - **Check Data Arrays**: Repository methods return `{data: []}`, always check `data.length`
 
@@ -296,7 +296,7 @@ return {
 
 **For complete best practices including cache operations and API filtering, see [Context Reference](../../server/context-reference/README.md#best-practices)**
 
-Custom Handlers provide unlimited flexibility while maintaining security through isolated execution and rich context access.
+Custom Handlers provide unlimited flexibility with rich context access. Execution uses Enfyra’s Node **`vm` sandbox** (restricted modules, same process)—not a separate machine or process; treat author trust and permissions accordingly.
 
 ## Related Documentation
 

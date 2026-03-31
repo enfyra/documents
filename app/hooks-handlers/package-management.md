@@ -9,7 +9,7 @@ Package Management lets you install NPM packages directly from the Enfyra interf
 - **Extend Functionality**: Add powerful libraries like axios, lodash, moment.js to your handlers
 - **No Configuration**: Packages are instantly available in your custom code without setup
 - **Visual Interface**: Search and install packages without touching package.json
-- **Isolated Environment**: Packages run safely in your custom handler execution context
+- **Sandboxed handler context**: Installed server packages are exposed to handlers via `$ctx.$pkgs` inside the same **`vm`** execution model as other script logic—strong module blocklists, but not full process or OS isolation.
 
 ## Installing a Package
 

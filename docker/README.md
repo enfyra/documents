@@ -228,7 +228,7 @@ docker run -d \
 - `PORT`: Server port (default: `1105`)
 - `ENFYRA_SERVER_WORKERS`: Number of workers for cluster (default: `1`)
 - `SECRET_KEY`: JWT secret key (default: `enfyra_secret_key_change_in_production`)
-- `BACKEND_URL`: Backend URL for Swagger/docs (default: `http://localhost:1105`)
+- `BACKEND_URL`: Backend URL (default: `http://localhost:1105`)
 - `NODE_NAME`: Node instance name for logs/cluster (default: auto-generated UUID - ensures 100% uniqueness across nodes)
 - `DEFAULT_HANDLER_TIMEOUT`: Handler execution timeout in ms (default: `20000`)
 - `DEFAULT_PREHOOK_TIMEOUT`: Prehook timeout in ms (default: `20000`)
@@ -259,11 +259,6 @@ docker run -d \
 ### App
 - `ENFYRA_APP_PORT`: App port (default: `3000`)
 - `API_URL`: Backend API URL (automatically set if `ENFYRA_MODE=all`)
-
-### Handler Executor (Optional)
-- `HANDLER_EXECUTOR_MAX_MEMORY`: Max memory per child process in MB (default: `512`)
-- `HANDLER_EXECUTOR_POOL_MIN`: Minimum pool size (default: `2`)
-- `HANDLER_EXECUTOR_POOL_MAX`: Maximum pool size (default: `4`)
 
 ### Package Manager (Optional)
 - `PACKAGE_MANAGER`: Package manager `yarn`, `npm`, or `pnpm` (default: `yarn`)

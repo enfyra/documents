@@ -1,4 +1,4 @@
-# Multi-Tenant Row-Level Security (RLS) Example
+# Row-Level Security Example
 
 > **Real-World Use Case:** Build a multi-tenant application where different teams share the same database tables but can only see and manage their own data.
 
