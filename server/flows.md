@@ -22,7 +22,7 @@ Flows are automated workflows that execute a sequence of steps based on triggers
 | Type | Config | Description |
 |------|--------|-------------|
 | `script` | `{"code": "..."}` | Execute custom JavaScript with full context |
-| `condition` | `{"code": "return ..."}` | Evaluate condition using JS truthy/falsy. Truthy → `"true"` branch, falsy → `"false"` branch |
+| `condition` | `{"code": "return ..."}` | Evaluate condition using JS truthy/falsy. Truthy  `"true"` branch, falsy  `"false"` branch |
 | `query` | `{"table": "...", "filter": {...}, "limit": 10}` | Query table data |
 | `create` | `{"table": "...", "data": {...}}` | Create a record |
 | `update` | `{"table": "...", "id": 1, "data": {...}}` | Update a record by ID |
@@ -118,9 +118,9 @@ POST /api/flow_step_definition
 Rules:
 - Steps with `parent: null` are root level — execute sequentially
 - Condition uses JS truthy/falsy: `return user` (object = truthy), `return null` (falsy), `return count > 0` (boolean)
-- Truthy → children with `branch: "true"` execute
-- Falsy → children with `branch: "false"` execute
-- After condition + branch children complete → next root step continues
+- Truthy  children with `branch: "true"` execute
+- Falsy  children with `branch: "false"` execute
+- After condition + branch children complete  next root step continues
 - Branch steps can have `onError: skip/stop/retry` independently
 
 ## Error Handling
@@ -242,7 +242,7 @@ Cron schedules are registered automatically via BullMQ Job Schedulers when the f
 | Feature | Detail |
 |---------|--------|
 | Max nesting depth | 10 (flow triggering flow via `trigger_flow` step or `$dispatch.trigger()`) |
-| Circular detection | Tracks visited flow IDs in chain — A→B→A rejected immediately |
+| Circular detection | Tracks visited flow IDs in chain — ABA rejected immediately |
 | HTTP timeout | 30s default, configurable via `config.timeout` per step |
 | Execution history | Auto-cleanup per flow via `maxExecutions` (default 100, oldest deleted) |
 | Step timeout | Per-step or inherited from flow `timeout` (default 5000ms) |

@@ -171,7 +171,7 @@ Database  Backend APIs (1105) ← Frontend App (3000)
 ```
 
 1. **Backend** generates REST & GraphQL APIs from your database schema
-2. **Frontend** connects to backend URL (`BACKEND_URL`) and makes HTTP requests
+2. **Frontend** uses **`API_URL`** (see `app/env_example`) as the backend API base and makes HTTP requests
 3. **All data operations** flow through: Frontend  Backend  Database
 
 **No API exists on the frontend** - it's purely a client consuming backend APIs.

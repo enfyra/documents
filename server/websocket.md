@@ -66,7 +66,31 @@ socket.on('backend_reconnected', () => {
 ```typescript
 socket.emit('message', {
   text: 'Hello!',
-  roomId: '123'
+  roomId: '123',
+});
+```
+
+### Recommended: ACK + async result events (better UX)
+
+Enfyra runs WebSocket event handlers asynchronously (queued). For the best developer experience:
+
+- Use Socket.IO **ack callback** to confirm the event is queued and receive a `requestId`.
+- Listen for `ws:result` / `ws:error` to get the handler outcome (including script logs).
+
+```typescript
+socket.emit('message', { text: 'Hello!', roomId: '123' }, (ack) => {
+  // ack = { queued: boolean, requestId: string, eventName: string, error?: { code, message } }
+  console.log('queued?', ack.queued, 'requestId', ack.requestId);
+});
+
+socket.on('ws:result', (payload) => {
+  // payload = { requestId, eventName, success: true, result: any, logs: any[] }
+  console.log('ws result', payload);
+});
+
+socket.on('ws:error', (payload) => {
+  // payload = { requestId, eventName, success: false, code, message, logs?: any[], details?: any }
+  console.error('ws error', payload);
 });
 ```
 
@@ -97,7 +121,8 @@ socket.on('newMessage', (data) => {
 | `userJoined` | User joined room | `{ userId: string, name: string }` |
 | `userLeft` | User left room | `{ userId: string }` |
 | `notification` | Push notification | `{ type: string, payload: any }` |
-| `error` | Server error | `{ message: string, code: string }` |
+| `ws:result` | Handler completed | `{ requestId, eventName, success: true, result, logs }` |
+| `ws:error` | Handler error / queue error | `{ requestId, eventName, success: false, code, message, logs?, details? }` |
 
 ### Remove Listener
 
@@ -221,6 +246,30 @@ class ChatService {
     console.log('User joined:', data);
   }
 }
+```
+
+## Testing WebSocket handlers (recommended)
+
+When developing WebSocket handler scripts, you can test them without building a client app.
+
+### `POST /admin/test/run` (kind: `websocket_event`)
+
+Send a test payload and a handler script; the server runs the script with a simulated `@SOCKET` and returns:
+- `result`: the handler return value
+- `logs`: script logs (`@LOGS(...)`)
+- `emitted`: events the script attempted to emit (socket/namespace/room)
+
+```bash
+curl -X POST "$API_URL/admin/test/run" \
+  -H "content-type: application/json" \
+  -d '{
+    "kind": "websocket_event",
+    "gatewayPath": "/chat",
+    "eventName": "message",
+    "timeoutMs": 5000,
+    "payload": { "text": "hello" },
+    "script": " @LOGS(\"received\", @BODY); @SOCKET.send(\"reply\", { ok: true }); return { ok: true }; "
+  }'
 ```
 
 ### Vue 3 Composition API

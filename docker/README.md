@@ -228,7 +228,6 @@ docker run -d \
 - `PORT`: Server port (default: `1105`)
 - `ENFYRA_SERVER_WORKERS`: Number of workers for cluster (default: `1`)
 - `SECRET_KEY`: JWT secret key (default: `enfyra_secret_key_change_in_production`)
-- `BACKEND_URL`: Backend URL (default: `http://localhost:1105`)
 - `NODE_NAME`: Node instance name for logs/cluster (default: auto-generated UUID - ensures 100% uniqueness across nodes)
 - `DEFAULT_HANDLER_TIMEOUT`: Handler execution timeout in ms (default: `20000`)
 - `DEFAULT_PREHOOK_TIMEOUT`: Prehook timeout in ms (default: `20000`)
@@ -258,10 +257,7 @@ docker run -d \
 
 ### App
 - `ENFYRA_APP_PORT`: App port (default: `3000`)
-- `API_URL`: Backend API URL (automatically set if `ENFYRA_MODE=all`)
-
-### Package Manager (Optional)
-- `PACKAGE_MANAGER`: Package manager `yarn`, `npm`, or `pnpm` (default: `yarn`)
+- `API_URL`: Backend API URL the Nuxt app calls (automatically set if `ENFYRA_MODE=all`)
 
 ### Environment
 - `NODE_ENV`: Environment `development`, `production`, or `test` (default: `production`)
