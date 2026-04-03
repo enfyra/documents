@@ -6,10 +6,10 @@ From the app's perspective, **all API calls go to the Enfyra Server (port 1105)*
 
 ## Backend Dependency
 
-**CRITICAL**: All API calls in the frontend connect to your **backend server URL** (typically `http://localhost:1105`). The `useApi()` composable internally makes HTTP requests to:
+**CRITICAL**: All API calls in the frontend use **`API_URL`** from the app environment (see `app/env_example`, typically `http://localhost:1105/`). The `useApi()` composable internally makes HTTP requests to:
 
 ```
-${BACKEND_URL}/api/${endpoint}
+${API_URL}/api/${endpoint}
 ```
 
 **No API exists on the frontend** - it's purely a client consuming backend APIs. When you create tables, APIs are generated on the backend server and consumed by frontend via HTTP requests.
@@ -29,7 +29,7 @@ The Enfyra app provides:
 ```vue
 <script setup>
 // Fetch data with custom error handling
-// This makes HTTP request to: ${BACKEND_URL}/enfyra/api/user_definition
+// This makes HTTP request to: ${API_URL}/enfyra/api/user_definition
 const { data, pending, error, refresh, execute } = useApi('/user_definition', {
   query: {
     limit: 10,
@@ -113,7 +113,7 @@ watch(currentPage, () => {
 const toast = useToast();
 
 // Create new record
-// POST request to: ${BACKEND_URL}/enfyra/api/user_definition
+// POST request to: ${API_URL}/enfyra/api/user_definition
 const createUser = async (userData) => {
   const { data, error, execute } = useApi('/user_definition', {
     method: 'post',
@@ -136,7 +136,7 @@ const createUser = async (userData) => {
 };
 
 // Update existing record
-// PATCH request to: ${BACKEND_URL}/enfyra/api/user_definition/${userId}
+// PATCH request to: ${API_URL}/enfyra/api/user_definition/${userId}
 const updateUser = async (userId, updates) => {
   const { data, error, execute } = useApi('/user_definition', {
     method: 'patch',
@@ -153,7 +153,7 @@ const updateUser = async (userId, updates) => {
 };
 
 // Delete record
-// DELETE request to: ${BACKEND_URL}/enfyra/api/user_definition/${userId}
+// DELETE request to: ${API_URL}/enfyra/api/user_definition/${userId}
 const deleteUser = async (userId) => {
   const { error, execute } = useApi('/user_definition', {
     method: 'delete'

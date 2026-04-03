@@ -653,4 +653,65 @@ While Enfyra uses single-page forms by default, you can:
 - Check network connectivity
 - Review API error messages
 
+## Field Map (Custom Field Config)
+
+Use `:field-map` prop on `FormEditorLazy` to customize individual fields.
+
+```vue
+<FormEditorLazy
+  v-model="form"
+  :table-name="'my_table'"
+  :field-map="{
+    name: { label: 'Full Name', description: 'Enter your full name' },
+    status: { hideDescription: true },
+    config: { component: MyCustomEditor, componentProps: { lang: 'json' } },
+    secret: { hideLabel: true },
+  }"
+/>
+```
+
+### Supported Config Options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `label` | string | Override field label |
+| `description` | string | Override field description text (below input) |
+| `hideLabel` | boolean | Hide label + description section entirely |
+| `hideDescription` | boolean | Hide only description, keep label |
+| `component` | string \| Component | Replace field with custom component (receives `v-model`) |
+| `componentProps` | object | Extra props passed to custom component |
+| `type` | string | Override field type (e.g. `'code'`, `'method-selector'`) |
+| `disabled` | boolean | Disable the field |
+| `placeholder` | string | Override placeholder text |
+| `permission` | object | Permission condition to show/hide field |
+| `fieldProps` | object | Extra props on the wrapper element |
+
+### Custom Component Example
+
+Create a component that accepts `modelValue` + emits `update:modelValue`:
+
+```vue
+<template>
+  <div>
+    <UInput :model-value="modelValue" @update:model-value="$emit('update:modelValue', $event)" />
+    <p>Custom UI here</p>
+  </div>
+</template>
+
+<script setup>
+defineProps(['modelValue']);
+defineEmits(['update:modelValue']);
+</script>
+```
+
+Then use in field-map:
+
+```javascript
+const MyEditor = resolveComponent('MyCustomEditor');
+
+const fieldMap = {
+  myField: { component: MyEditor, componentProps: { extra: 'prop' } }
+};
+```
+
 The form system provides everything needed for data entry while maintaining security, validation, and excellent user experience.

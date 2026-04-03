@@ -41,7 +41,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 ** Backend-First Architecture**
 
 - **API Generation**: All REST & GraphQL APIs are automatically generated and served by the backend server (port 1105)
-- **Frontend as Client**: The frontend app (port 3000) is purely a client that consumes APIs from your backend URL
+- **Frontend as Client**: The admin app (port 3000) runs in the browser; a Nuxt server layer proxies `/api` to the Nest backend—it never talks to the database directly.
 - **Single Source of Truth**: Backend generates APIs from database schema, frontend consumes them via HTTP requests
 
 ** Real-time Everything**
@@ -61,7 +61,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 
 - **Visual Permission Builder**: Create complex permission logic with AND/OR conditions and nested rules
 - **Dynamic Role System**: Permissions that adapt based on data relationships and user context
-- **Handler Isolation**: Custom code runs in isolated processes for security and stability
+- **Handler sandbox**: Custom handlers and hooks run in a Node.js **`vm` sandbox in the same process** with a restricted `require` allowlist—not OS-level or hardware VM isolation; combine RBAC and host hardening for untrusted code.
 
 ** Beyond Traditional CMS**
 
@@ -102,7 +102,7 @@ const user = await #user_definition.create({
 | **Schema Changes**    | Modify your data structure with zero downtime - APIs stay available     |
 | **Permission System** | Visual builder for complex access control                               |
 | **API Generation**    | Every table instantly becomes a full REST & GraphQL API                 |
-| **Custom Code**       | Execute business logic in isolated processes with full request context  |
+| **Custom Code**       | Execute business logic in a `vm` sandbox (same Node process) with full request context |
 | **Rate Limiting**     | Built-in rate limiting helper with Redis sliding window algorithm       |
 | **Multi-Instance**    | Run multiple servers with automatic synchronization                     |
 | **Flexible Syntax**   | Traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name` patterns |
