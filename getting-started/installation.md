@@ -218,7 +218,10 @@ the CLI will ask you a series of configuration questions. Enter the values that 
 > - Password `pass:word`  Use `pass%3Aword` in URI
 > - Common encodings: `@` = `%40`, `:` = `%3A`, `/` = `%2F`, `%` = `%25`, `#` = `%23`, `?` = `%3F`, `&` = `%26`
 
-> **Database Replication (Optional)**: To enable read replicas, add `DB_REPLICA_URIS` (comma-separated) to your `.env`. Connection pool is automatically distributed between master and replicas. Read queries use round-robin routing across replicas. Set `DB_READ_FROM_MASTER=true` to include master in the round-robin pool for reads.
+> **Database replication (optional, SQL only)**  
+> Add `DB_REPLICA_URIS` (comma-separated URIs) so read queries round-robin across healthy replicas. Writes still use `DB_URI` (master). Set `DB_READ_FROM_MASTER=true` if reads should also participate in round-robin against the master (default is replicas-only for reads).
+>
+> **Pool sizing and `DB_POOL_MASTER_RATIO`**: `DB_POOL_MIN_SIZE` and `DB_POOL_MAX_SIZE` are a **total budget** shared by master and replicas. The server splits it in `ReplicationManager`: the master pool gets about `total × DB_POOL_MASTER_RATIO`, and the **remaining** share is divided **evenly** across replica nodes. If `DB_POOL_MASTER_RATIO` is omitted, it defaults to **0.6** (60% master, 40% split across all replicas). Example: `DB_POOL_MAX_SIZE=100`, `DB_POOL_MASTER_RATIO=0.6`, 1 master + 2 replicas  master max ≈ 60, each replica max ≈ 20. Tune ratio upward if the master is write-heavy; downward if replicas should absorb more read connections.
 
 **The backend will run at http://localhost:1105 by default.**
 
