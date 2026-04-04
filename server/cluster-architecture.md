@@ -102,7 +102,7 @@ There is **no** `enfyra:ai-config-cache-sync` channel in the open-source server 
 
 Passwords with special characters in URIs must be URL-encoded (same as any JDBC/Redis URL).
 
-**Optional SQL read replicas:** `DB_REPLICA_URIS`, `DB_READ_FROM_MASTER`, `DB_POOL_MASTER_RATIO`—see [Installation](../../getting-started/installation.md) for pool split behavior.
+**Optional SQL read replicas:** `DB_REPLICA_URIS`, `DB_READ_FROM_MASTER`—see [Installation](../../getting-started/installation.md) for details.
 
 ## Benefits
 
