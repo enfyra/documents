@@ -210,15 +210,6 @@ docker run -d \
 - `MONGO_URI` (only when `DB_TYPE=mongodb`)
   - Format: `mongodb://user:password@host:port/database?authSource=admin`
 
-**Connection Pool (Optional):**
-- `DB_POOL_MIN_SIZE`: Minimum pool size (default: `2`)
-- `DB_POOL_MAX_SIZE`: Maximum pool size (default: `100`)
-- `DB_POOL_MASTER_RATIO`: Master pool ratio 0.0-1.0 (default: `0.6`)
-  - Example: `DB_POOL_MAX_SIZE=100`, `DB_POOL_MASTER_RATIO=0.6`, 1 master + 2 replicas
-  -  Master: 60 connections, Each replica: 20 connections
-- `DB_ACQUIRE_TIMEOUT`: Connection acquisition timeout in ms (default: `60000`)
-- `DB_IDLE_TIMEOUT`: Idle connection timeout in ms (default: `30000`)
-
 ### Redis (if not set  uses embedded)
 - `REDIS_URI`: Redis connection string
   - Format: `redis://user:pass@host:port/db` or `redis://host:port/db`
