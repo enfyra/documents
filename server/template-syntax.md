@@ -50,6 +50,7 @@ const bodyData = @BODY.name;
 | `@RES` | `$ctx.$res` | Express response object (handlers only) |
 | `@SHARE` | `$ctx.$share` | Shared data between hooks |
 | `@API` | `$ctx.$api` | API request/response information |
+| `@SOCKET` | `$ctx.$socket` | WebSocket operations (join, leave, reply, emitToUser, emitToRoom, emitToGateway, broadcast) |
 | `@UPLOADED_FILE` | `$ctx.$uploadedFile` | Uploaded file information |
 | `@PKGS` | `$ctx.$pkgs` | Installed npm packages for use in handlers |
 | `@THROW` | `$ctx.$throw` | Error throwing functions |

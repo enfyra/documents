@@ -201,6 +201,113 @@ socket.on('reconnect_failed', () => {
 });
 ```
 
+## Server-Side Handler Scripts (`@SOCKET` API)
+
+Handler scripts run in an isolated sandbox. Use the `@SOCKET` template macro (preferred over `$ctx.$socket`).
+
+### Available Methods
+
+#### WS context (connection handler + event handler)
+
+| Method | Description |
+|--------|-------------|
+| `@SOCKET.reply(event, data)` | Send to the triggering client only |
+| `@SOCKET.join(room)` | Join a room in the current namespace |
+| `@SOCKET.leave(room)` | Leave a room |
+| `@SOCKET.emitToUser(userId, event, data)` | Send to a specific user across all gateways |
+| `@SOCKET.emitToRoom(room, event, data)` | Send to a named room across all gateways |
+| `@SOCKET.emitToGateway(path, event, data)` | Broadcast to all connections on a namespace |
+| `@SOCKET.broadcast(event, data)` | Broadcast to all connections on all gateways |
+| `@SOCKET.disconnect()` | Force-disconnect the current socket from the gateway |
+
+#### HTTP context (handler / hook)
+
+Only `emitToUser`, `emitToRoom`, `emitToGateway`, and `broadcast` are available (no socket to reply/join/leave/disconnect).
+
+### Handler Script Examples
+
+**Join room** (event: `joinRoom`):
+
+```javascript
+const { roomId } = @BODY;
+if (!roomId) @THROW.badRequest('roomId is required');
+@SOCKET.join(`chat_${roomId}`);
+@SOCKET.emitToRoom(`chat_${roomId}`, 'userJoined', { userId: @USER.id });
+return { joined: roomId };
+```
+
+**Send message** (event: `message`):
+
+```javascript
+const { text, roomId } = @BODY;
+const msg = await #message.create({
+  body: { text, roomId, senderId: @USER.id }
+});
+@SOCKET.emitToRoom(`chat_${roomId}`, 'newMessage', msg);
+return { sent: true };
+```
+
+**Push notification to a user** (event: `notify`):
+
+```javascript
+const { targetUserId, message } = @BODY;
+@SOCKET.emitToUser(targetUserId, 'notification', {
+  from: @USER.id,
+  message,
+  timestamp: Date.now(),
+});
+return { notified: true };
+```
+
+**Leave room** (event: `leaveRoom`):
+
+```javascript
+const { roomId } = @BODY;
+@SOCKET.leave(`chat_${roomId}`);
+@SOCKET.emitToRoom(`chat_${roomId}`, 'userLeft', { userId: @USER.id });
+return { left: roomId };
+```
+
+**Kick user / reject connection** (event: `kickSelf` or connection handler):
+
+```javascript
+// Connection handler: reject if user is banned
+const banned = await #banned_user.findOne({ filter: { userId: { _eq: @USER.id } } });
+if (banned) {
+  @SOCKET.reply('kicked', { reason: 'You are banned' });
+  @SOCKET.disconnect();
+  return;
+}
+```
+
+```javascript
+// Event handler: admin kicks a user
+const user = await #user_definition.findOne({ filter: { id: { _eq: @USER.id } } });
+if (user.isSuspended) {
+  @SOCKET.reply('kicked', { reason: 'Account suspended' });
+  @SOCKET.disconnect();
+  return;
+}
+```
+
+**Connection handler** (`connectionHandlerScript`):
+
+```javascript
+@SOCKET.reply('connected', { message: 'Welcome!', userId: @USER.id });
+@LOGS('user connected', @USER.id);
+```
+
+**From HTTP handler/hook** (e.g., order status update):
+
+```javascript
+const order = await #order.update({
+  filter: { id: { _eq: @PARAMS.id } },
+  body: { status: 'shipped' }
+});
+@SOCKET.emitToUser(order.userId, 'orderUpdate', { orderId: order.id, status: 'shipped' });
+return order;
+```
+
 ## Examples
 
 ### Chat Application
@@ -257,7 +364,7 @@ When developing WebSocket handler scripts, you can test them without building a 
 Send a test payload and a handler script; the server runs the script with a simulated `@SOCKET` and returns:
 - `result`: the handler return value
 - `logs`: script logs (`@LOGS(...)`)
-- `emitted`: events the script attempted to emit (socket/namespace/room)
+- `emitted`: array of `{ method, args }` — each `@SOCKET` call captured (e.g. `{ method: 'reply', args: ['reply', { ok: true }] }`)
 
 ```bash
 curl -X POST "$API_URL/admin/test/run" \
@@ -268,7 +375,7 @@ curl -X POST "$API_URL/admin/test/run" \
     "eventName": "message",
     "timeoutMs": 5000,
     "payload": { "text": "hello" },
-    "script": " @LOGS(\"received\", @BODY); @SOCKET.send(\"reply\", { ok: true }); return { ok: true }; "
+    "script": " @LOGS(\"received\", @BODY); @SOCKET.reply(\"reply\", { ok: true }); return { ok: true }; "
   }'
 ```
 
