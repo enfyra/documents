@@ -27,8 +27,10 @@ Handlers contain the main business logic:
 ### Execution Flow
 
 ```
-preHook #1  preHook #2  Handler  postHook #1  postHook #2
+Pre-Auth Guards  Auth  Post-Auth Guards  preHook #1  preHook #2  Handler  postHook #1  postHook #2
 ```
+
+Guards run before hooks and handle IP blocking / rate limiting. Hooks run after guards and handle validation / business logic.
 
 All hooks and handlers have access to the same `$ctx` object, so changes in one phase are visible to all subsequent phases.
 

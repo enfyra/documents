@@ -8,6 +8,7 @@ The Page Header System allows you to register custom page headers that appear at
 - [Basic Usage](#basic-usage)
 - [Header Variants](#header-variants)
 - [Gradient Options](#gradient-options)
+- [Leading icon](#leading-icon)
 - [Stats Display](#stats-display)
 - [Advanced Features](#advanced-features)
 - [Real-World Examples](#real-world-examples)
@@ -18,9 +19,10 @@ The Page Header System allows you to register custom page headers that appear at
 
 Page headers provide:
 - **Title and Description**: Clear page context for users
+- **Leading icon**: Optional icon beside the title (or resolved from the sidebar menu for the current route)
 - **Stats Display**: Show key metrics at a glance
 - **Visual Variants**: Different layouts for different use cases
-- **Gradient Themes**: Purple, blue, cyan backgrounds
+- **Accent strip**: When `gradient` is not `none`, a subtle **horizontal tint** runs behind the header row (not a full-page background)
 - **Auto-Cleanup**: Headers automatically cleared on route change
 
 ## Basic Usage
@@ -98,25 +100,30 @@ registerPageHeader({
 
 ## Gradient Options
 
-Available gradients:
-- **purple**: Purple gradient background
-- **blue**: Blue gradient background
-- **cyan**: Cyan gradient background
-- **none**: No gradient (solid background)
+`gradient` controls two things: (1) a **light horizontal strip** behind the header row, and (2) **colors for the leading icon tile** when an icon is shown.
+
+- **purple** / **blue** / **cyan**: Tinted strip + matching icon shell
+- **none**: No strip; icon shell uses neutral surface styling
 
 ```vue
-// Purple gradient
+// Accent strip + icon shell (purple family)
 registerPageHeader({
   title: "Settings",
   gradient: "purple"
 });
 
-// No gradient
+// No accent strip (neutral icon tile if icon is shown)
 registerPageHeader({
   title: "Simple Page",
   gradient: "none"
 });
 ```
+
+## Leading icon
+
+- **`leadingIcon`**: Iconify / Nuxt UI icon name (e.g. `i-lucide-layout-dashboard`). Shown in a rounded tile next to the title.
+- **`hideLeadingIcon: true`**: Never show the icon tile (even if the menu has an icon for this path).
+- **Default**: If you omit `leadingIcon` and do not hide it, the app tries to use the **menu icon** registered for the current route (`useMenuRegistry` / `findMenuIconForPath`).
 
 ## Stats Display
 
@@ -135,7 +142,9 @@ registerPageHeader({
 });
 ```
 
-### Reactive Stats
+### Reactive stats
+
+Update the header whenever the underlying numbers change (same pattern as dynamic titles):
 
 ```vue
 <script setup>
@@ -144,15 +153,16 @@ const activeCount = ref(0);
 
 const { registerPageHeader } = usePageHeaderRegistry();
 
-registerPageHeader({
-  title: "Dashboard",
-  stats: computed(() => [
-    { label: "Total", value: totalCount.value },
-    { label: "Active", value: activeCount.value }
-  ])
-});
+watch([totalCount, activeCount], () => {
+  registerPageHeader({
+    title: "Dashboard",
+    stats: [
+      { label: "Total", value: totalCount.value },
+      { label: "Active", value: activeCount.value },
+    ],
+  });
+}, { immediate: true });
 
-// Update stats
 onMounted(async () => {
   const data = await fetchStats();
   totalCount.value = data.total;
@@ -180,18 +190,29 @@ if (route.name === 'dashboard') {
 </script>
 ```
 
-### Dynamic Titles
+### Dynamic titles and stats
+
+`registerPageHeader` stores a **plain snapshot** of the config (not reactive refs inside the object). When the title or stats depend on async data, use `watch` (or `watchEffect`) and call `registerPageHeader` again when values change.
 
 ```vue
 <script setup>
-const tableName = route.params.table;
+const route = useRoute();
+const tableName = computed(() => String(route.params.table ?? ""));
+const recordCount = ref(0);
+
 const { registerPageHeader } = usePageHeaderRegistry();
 
-registerPageHeader({
-  title: computed(() => `${tableName} Collection`),
-  description: `Manage ${tableName} records`,
-  gradient: "purple"
-});
+watch([tableName, recordCount], ([name, count]) => {
+  if (!name) return;
+  registerPageHeader({
+    title: `${name} data`,
+    description: "Browse and manage records",
+    gradient: "purple",
+    stats: [
+      { label: "Total", value: count },
+    ],
+  });
+}, { immediate: true });
 </script>
 ```
 
@@ -221,21 +242,29 @@ if (hasPageHeader.value) {
 
 <script setup>
 const route = useRoute();
-const tableName = route.params.table;
-const { data: records } = useApi(() => `/${tableName}`);
+const tableName = computed(() => String(route.params.table ?? ""));
+const { data: records } = useApi(() => `/${tableName.value}`);
 
 const { registerPageHeader } = usePageHeaderRegistry();
 
-registerPageHeader({
-  title: computed(() => `${tableName} Data`),
-  description: `Browse and manage ${tableName} records`,
-  variant: "default",
-  gradient: "blue",
-  stats: computed(() => [
-    { label: "Total Records", value: records.value?.meta?.totalCount || 0 },
-    { label: "Showing", value: records.value?.data?.length || 0 }
-  ])
-});
+watch(
+  [tableName, records],
+  () => {
+    const name = tableName.value;
+    if (!name) return;
+    registerPageHeader({
+      title: `${name} data`,
+      description: `Browse and manage ${name} records`,
+      variant: "default",
+      gradient: "blue",
+      stats: [
+        { label: "Total Records", value: records.value?.meta?.totalCount ?? 0 },
+        { label: "Showing", value: records.value?.data?.length ?? 0 },
+      ],
+    });
+  },
+  { immediate: true, deep: true },
+);
 </script>
 ```
 
@@ -277,17 +306,19 @@ const revenue = ref(0);
 
 const { registerPageHeader } = usePageHeaderRegistry();
 
-registerPageHeader({
-  title: "Analytics",
-  description: "Real-time analytics and insights",
-  variant: "stats-focus",
-  gradient: "cyan",
-  stats: computed(() => [
-    { label: "Total Users", value: totalUsers.value.toLocaleString() },
-    { label: "Active Now", value: activeUsers.value },
-    { label: "Revenue", value: `$${revenue.value.toLocaleString()}` }
-  ])
-});
+watch([totalUsers, activeUsers, revenue], () => {
+  registerPageHeader({
+    title: "Analytics",
+    description: "Real-time analytics and insights",
+    variant: "stats-focus",
+    gradient: "cyan",
+    stats: [
+      { label: "Total Users", value: totalUsers.value.toLocaleString() },
+      { label: "Active Now", value: activeUsers.value },
+      { label: "Revenue", value: `$${revenue.value.toLocaleString()}` },
+    ],
+  });
+}, { immediate: true });
 
 // Fetch analytics data
 onMounted(async () => {
@@ -372,7 +403,9 @@ interface PageHeaderConfig {
   description?: string;                    // Page description
   stats?: PageHeaderStat[];                // Statistics to display
   variant?: "default" | "minimal" | "stats-focus";  // Layout variant
-  gradient?: "purple" | "blue" | "cyan" | "none";   // Background gradient
+  gradient?: "purple" | "blue" | "cyan" | "none";   // Header strip + leading icon tint
+  leadingIcon?: string;                    // Icon name; if omitted, menu icon for route may be used
+  hideLeadingIcon?: boolean;               // If true, no leading icon tile
 }
 ```
 
@@ -409,10 +442,10 @@ The Page Header System provides:
 
  **Consistent page headers** across the application
  **Multiple layout variants** for different page types
- **Gradient themes** for visual variety
+ **Accent strip + optional leading icon** (menu-driven or explicit)
  **Stats display** for key metrics
  **Auto-cleanup** on route changes
- **Reactive support** for dynamic content
+ **Update via `watch`** when title or stats change
 
 **Related Documentation:**
 - **[Header Actions](./header-actions.md)** - Adding actions to headers

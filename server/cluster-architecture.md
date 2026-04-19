@@ -78,6 +78,8 @@ Defined in server `src/shared/utils/constant.ts` (remember the `NODE_NAME` suffi
 | `enfyra:websocket-cache-sync` | Websocket gateway/event definitions |
 | `enfyra:flow-cache-sync` | Flow definitions for scheduler/dispatch |
 | `enfyra:folder-tree-cache-sync` | Folder tree cache |
+| `enfyra:guard-cache-sync` | Guard definitions and rules |
+| `enfyra:setting-cache-sync` | System settings (maxQueryDepth, etc.) |
 
 GraphQL schema reload is driven by the same metadata/route invalidation pipeline and `GraphqlService.reloadSchema()`—there is **no** separate `enfyra:graphql-*` Pub/Sub channel in constants.
 
@@ -85,7 +87,7 @@ There is **no** `enfyra:ai-config-cache-sync` channel in the open-source server 
 
 ## Invalidation  which cache reloads
 
-`CACHE_INVALIDATION_MAP` in `src/shared/utils/cache-events.constants.ts` maps metadata tables to affected caches (metadata, route, GraphQL, storage, websocket, package, bootstrap, OAuth, folder tree, flow). After a qualifying write, the instance emits internal events and affected caches reload and publish `RELOAD_SIGNAL` to peers.
+`CACHE_INVALIDATION_MAP` in `src/shared/utils/cache-events.constants.ts` maps metadata tables to affected caches (metadata, route, GraphQL, storage, websocket, package, bootstrap, OAuth, folder tree, flow, guard, setting). After a qualifying write, the instance emits internal events and affected caches reload and publish `RELOAD_SIGNAL` to peers.
 
 ## Fault tolerance (realistic)
 

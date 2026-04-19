@@ -50,7 +50,7 @@ You can change the id field type to `uuid` if you prefer UUID identifiers, but `
 - **isNullable** - Toggle to allow empty/null values
 - **isUpdatable** - Toggle to allow field updates after creation
 - **isGenerated** - Auto-set for `uuid` type (system managed)
-- **isHidden** - Hide field from API responses
+- **isPublished** - Visibility baseline (default: true). Set to false to block access by default — use field permission rules to grant access to specific roles/users
 
 **Display & UX:**
 - **description** - Field documentation with rich text editor (displays as help text under field labels in forms)
@@ -110,6 +110,8 @@ You can change the id field type to `uuid` if you prefer UUID identifiers, but `
   - **description** - Relation documentation with rich text editor
 - Relations list shows: property name, type badge, target table badge ( TargetTable), nullable badge if applicable
 - **Note**: Once created, these relations will appear as fields with pencil icons in forms - see [Relation Picker System](../app/relation-picker.md) for how to use them
+
+**Incoming relations (other tables pointing here):** If another table already has a relation toward this table but you have not yet created the reverse property on *this* table, those links appear as dashed rows labeled **incoming**, with the source shown as `SourceTable.propertyName`. Use **Create Inverse** to open the dialog, choose a **property name** for the new relation on the current table, and save the table schema. After that, the relation behaves like any other row in the list; relations that are the inverse side of another definition show an **inverse** badge.
 
 #### onDelete (cascade behavior)
 
@@ -278,6 +280,7 @@ Table: posts (create after categories)
 ## Related Documentation
 
 - **[Data Management](./data-management.md)** - Working with records in your tables
+- **[Schema migration preview](../server/schema-migration-preview.md)** - Confirmed PATCH when removing columns/relations
 - **[Relation Picker System](../app/relation-picker.md)** - Using relation fields in forms
 - **[Filter System](../app/filter-system.md)** - Searching and filtering data
 - **[Form System](../app/form-system.md)** - How forms are generated from tables

@@ -554,7 +554,7 @@ const watchConnection = () => {
 </template>
 
 <script setup>
-const { me } = useEnfyraAuth();
+const { me } = useAuth();
 const userRole = computed(() => me.value?.role?.name);
 
 // Define actions at top level - no onMounted needed

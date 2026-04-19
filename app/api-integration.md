@@ -231,7 +231,7 @@ const navigateToFolder = (folder) => {
 ```vue
 <script setup>
 // Authentication composable
-const { me, isLoggedIn, login, logout } = useEnfyraAuth();
+const { me, isLoggedIn, login, logout } = useAuth();
 
 // Login function
 const handleLogin = async (credentials) => {

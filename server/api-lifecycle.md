@@ -15,7 +15,7 @@ Understanding how API requests flow through Enfyra helps you build effective hoo
 Every API request in Enfyra follows this lifecycle:
 
 ```
-HTTP Request  Route Detection  Context Setup  preHooks  Handler  postHooks  Response
+HTTP Request  Route Detection  Pre-Auth Guards  Context Setup  JWT Auth  Role Check  Post-Auth Guards  preHooks  Handler  postHooks  Response
 ```
 
 ### Visual Flow
@@ -25,15 +25,23 @@ HTTP Request  Route Detection  Context Setup  preHooks  Handler  postHooks  Resp
    ↓
 2. System detects route and matches to route definition
    ↓
-3. Context ($ctx) is created with repositories and helpers
+3. Pre-Auth Guards execute (IP blocking, global rate limiting)
+   ↓                          ↓ (rejected)
+4. Context ($ctx) is created    403/429 returned
    ↓
-4. All matching preHooks execute sequentially
-   ↓
-5. Handler executes (custom handler or default CRUD)
-   ↓
-6. All matching postHooks execute sequentially
-   ↓
-7. Response is sent back to client
+5. JWT Authentication
+   ↓                          ↓ (no token)
+6. Role/Permission check        401 returned
+   ↓                          ↓ (no permission)
+7. Post-Auth Guards execute     403 returned
+   ↓                          ↓ (rejected)
+8. All matching preHooks execute 403/429 returned
+   ↓                          ↓ (error)
+9. Handler executes             skip handler
+   ↓                          ↓
+10. postHooks execute           postHooks still execute (@ERROR populated)
+   ↓                          ↓
+11. Response sent               Error thrown (original error)
 ```
 
 ## Phase Breakdown
@@ -54,7 +62,18 @@ The system automatically matches the incoming request to a route definition.
 - Routes are defined in the database
 - System handles all matching logic
 
-### Phase 2: Context Setup
+### Phase 2: Pre-Auth Guards
+
+Guards configured with `position: pre_auth` run before authentication. Only the client IP is available.
+
+**What happens:**
+- IP whitelist/blacklist rules are checked
+- IP-based and route-based rate limits are enforced
+- Rejected requests return 403 (IP rules) or 429 (rate limits)
+
+**See [Guards](./guards.md) for configuration.**
+
+### Phase 3: Context Setup
 
 The `$ctx` (context) object is created and initialized.
 
@@ -68,7 +87,28 @@ The `$ctx` (context) object is created and initialized.
 
 **Important:** The same `$ctx` object reference is used throughout the entire request lifecycle.
 
-### Phase 3: preHooks Execution
+### Phase 4: Authentication & Authorization
+
+JWT authentication and role-based access control.
+
+**What happens:**
+- JWT token is verified
+- User is loaded with their role
+- Route permissions are checked (published methods skip auth)
+- Root admin bypasses all permission checks
+
+### Phase 5: Post-Auth Guards
+
+Guards configured with `position: post_auth` run after authentication. Both client IP and user ID are available.
+
+**What happens:**
+- User-specific rate limits are enforced
+- Combined IP + user rules are evaluated
+- Rejected requests return 403 or 429
+
+**See [Guards](./guards.md) for configuration.**
+
+### Phase 6: preHooks Execution
 
 All matching preHooks execute sequentially before the handler.
 
@@ -98,7 +138,7 @@ $ctx.$body.email = $ctx.$body.email.toLowerCase();
 $ctx.$share.validationPassed = true;
 ```
 
-### Phase 4: Handler Execution
+### Phase 7: Handler Execution
 
 The handler executes the main business logic.
 
@@ -122,9 +162,9 @@ const result = await $ctx.$repos.products.create({
 return result;
 ```
 
-### Phase 5: postHooks Execution
+### Phase 8: postHooks Execution
 
-All matching postHooks execute sequentially after the handler.
+All matching postHooks execute sequentially. **postHooks always run**, even when a preHook or handler throws an error.
 
 **Execution order:**
 1. Global postHooks (all routes, all methods)
@@ -132,26 +172,39 @@ All matching postHooks execute sequentially after the handler.
 3. Route-specific postHooks (specific route, all methods)
 4. Route-specific postHooks (specific route, specific method)
 
+**On success path:**
+- `@DATA` contains the handler result
+- `@STATUS` is `200`
+- `@ERROR` is `undefined`
+
+**On error path:**
+- `@DATA` is `null`
+- `@STATUS` is the error status code (e.g. `400`, `500`)
+- `@ERROR` contains `{ message, name, statusCode, details, timestamp }`
+- The original error is **always re-thrown** after all postHooks complete
+- If one postHook fails, other postHooks still run
+
 **What postHooks can do:**
-- Transform response data
-- Add computed fields
-- Log audit trails
+- Transform response data (success path)
+- Log audit trails (both success and error)
 - Trigger side effects (emails, notifications)
-- Handle errors that occurred in handler
-- Access `$ctx.$data` with handler response
+- Log/monitor errors via `@ERROR`
 
 **Example:**
 ```javascript
-// postHook: Transform response
-if ($ctx.$data && Array.isArray($ctx.$data.data)) {
-  $ctx.$data.data = $ctx.$data.data.map(item => ({
-    ...item,
-    fullName: `${item.firstName} ${item.lastName}`
-  }));
-}
+// postHook: Audit logging on both success and error
+await #audit_logs.create({
+  data: {
+    action: `${@API.request.method} ${@API.request.url}`,
+    userId: @USER?.id,
+    statusCode: @STATUS,
+    error: @ERROR ? @ERROR.message : null,
+    timestamp: new Date()
+  }
+});
 ```
 
-### Phase 6: Response Delivery
+### Phase 9: Response Delivery
 
 The processed response is sent back to the client.
 
@@ -211,9 +264,10 @@ $ctx.$cache        // Cache operations
 $ctx.$logs()       // Logging function
 $ctx.$throw        // Error throwing
 
-// Response data (available in handler and postHook)
-$ctx.$data         // Response data from handler
-$ctx.$statusCode   // HTTP status code
+// Response data (available in postHook)
+$ctx.$data         // Response data from handler (null on error)
+$ctx.$statusCode   // HTTP status code (200 on success, error code on failure)
+$ctx.$error        // Error context (undefined on success, {message, name, statusCode, details, timestamp} on error)
 
 // Shared context (persists across all phases)
 $ctx.$share        // Shared data container
@@ -280,7 +334,7 @@ $ctx.$share.validationPassed = true;
 ```javascript
 // preHook: Normalize and enrich data
 $ctx.$body.email = $ctx.$body.email.toLowerCase().trim();
-$ctx.$body.slug = await $ctx.$helpers.autoSlug($ctx.$body.title);
+$ctx.$body.slug = $ctx.$helpers.autoSlug($ctx.$body.title);
 
 // Add computed fields
 $ctx.$body.createdBy = $ctx.$user.id;
@@ -322,23 +376,20 @@ if ($ctx.$share.processStartTime) {
 ### Pattern 5: Error Handling in postHook
 
 ```javascript
-// postHook: Handle errors
-if ($ctx.$api.error) {
-  // Error occurred
-  $ctx.$logs(`Error: ${$ctx.$api.error.message}`);
+// postHook: runs on both success and error
+if (@ERROR) {
+  @LOGS(`Error: ${@ERROR.message}`);
   
-  // Log to audit system
-  await $ctx.$repos.audit_logs.create({
+  await #error_logs.create({
     data: {
       action: 'error_occurred',
-      errorMessage: $ctx.$api.error.message,
-      statusCode: $ctx.$api.error.statusCode,
-      userId: $ctx.$user?.id
+      errorMessage: @ERROR.message,
+      statusCode: @ERROR.statusCode,
+      userId: @USER?.id
     }
   });
 } else {
-  // Success
-  $ctx.$logs('Operation completed successfully');
+  @LOGS('Operation completed successfully');
 }
 ```
 

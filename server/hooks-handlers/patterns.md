@@ -50,17 +50,16 @@ if ($ctx.$data && Array.isArray($ctx.$data.data)) {
 ### Pattern 4: Audit Trail
 
 ```javascript
-// postHook
-if (!$ctx.$api.error) {
-  await $ctx.$repos.audit_logs.create({
-    data: {
-      action: `${$ctx.$req.method} ${$ctx.$req.url}`,
-      userId: $ctx.$user?.id,
-      statusCode: $ctx.$statusCode,
-      timestamp: new Date()
-    }
-  });
-}
+// postHook — runs on both success and error
+await #audit_logs.create({
+  data: {
+    action: `${@API.request.method} ${@API.request.url}`,
+    userId: @USER?.id,
+    statusCode: @STATUS,
+    error: @ERROR ? @ERROR.message : null,
+    timestamp: new Date()
+  }
+});
 ```
 
 ### Pattern 5: Shared Context
@@ -77,26 +76,21 @@ if ($ctx.$share.processStartTime) {
 }
 ```
 
-### Pattern 6: Error Recovery
+### Pattern 6: Error Logging
 
 ```javascript
-// postHook
-if ($ctx.$api.error) {
-  // Log error
-  $ctx.$logs(`Error occurred: ${$ctx.$api.error.message}`);
+// postHook — runs even when preHook/handler throws
+if (@ERROR) {
+  @LOGS(`Error occurred: ${@ERROR.message}`);
 
-  // Create error log
-  await $ctx.$repos.error_logs.create({
+  await #error_logs.create({
     data: {
-      errorMessage: $ctx.$api.error.message,
-      statusCode: $ctx.$api.error.statusCode,
-      userId: $ctx.$user?.id,
-      url: $ctx.$req.url
+      errorMessage: @ERROR.message,
+      statusCode: @ERROR.statusCode,
+      userId: @USER?.id,
+      url: @API.request.url
     }
   });
-
-  // Optionally send notification
-  // await sendErrorNotification($ctx.$api.error);
 }
 ```
 

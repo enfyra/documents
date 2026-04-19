@@ -4,7 +4,7 @@
 
 - **Node.js** >= 20.0.0
 - **Package manager** (npm ≥8.0.0, yarn ≥1.22.0, or bun ≥1.0.0)
-- **Database server** (MySQL, MariaDB, PostgreSQL, or MongoDB)
+- **Database server** (MySQL, PostgreSQL, MongoDB, or SQLite — MariaDB works via the `mysql://` protocol)
 - **Redis server**
 
 **OR** use Docker for a complete all-in-one setup (recommended for quick start)
@@ -16,7 +16,7 @@
 ### Option 1: Docker (Recommended for Quick Start)
 
 The easiest way to get started with Enfyra is using the all-in-one Docker image, which includes:
-- Backend server (NestJS)
+- Backend server (Awilix + Express 5)
 - Frontend app (Nuxt)
 - Embedded PostgreSQL/MySQL (optional)
 - Embedded Redis (optional)
@@ -27,7 +27,6 @@ The easiest way to get started with Enfyra is using the all-in-one Docker image,
 docker run -d \
   --name enfyra \
   -p 3000:3000 \
-  -e DB_TYPE=postgres \
   -v enfyra-data:/app/data \
   dothinh115/enfyra:latest
 ```
@@ -51,7 +50,6 @@ This single command will:
 docker run -d \
   --name enfyra \
   -p 3000:3000 \
-  -e DB_TYPE=postgres \
   -e ADMIN_EMAIL=myadmin@example.com \
   -e ADMIN_PASSWORD=secure_password_123 \
   -v enfyra-data:/app/data \
@@ -66,18 +64,17 @@ docker run -d \
   -p 3000:3000 \
   -p 5432:5432 \  # PostgreSQL
   -p 6379:6379 \  # Redis
-  -e DB_TYPE=postgres \
   -v enfyra-data:/app/data \
   dothinh115/enfyra:latest
 ```
 
-#### Docker with MySQL
+#### Docker with MySQL (Embedded)
 
 ```bash
 docker run -d \
   --name enfyra \
   -p 3000:3000 \
-  -e DB_TYPE=mysql \
+  -e EMBEDDED_DB=mysql \
   -v enfyra-data:/app/data \
   dothinh115/enfyra:latest
 ```
@@ -88,7 +85,6 @@ docker run -d \
 docker run -d \
   --name enfyra \
   -p 3000:3000 \
-  -e DB_TYPE=postgres \
   -e DB_URI=postgresql://enfyra:secret@my-postgres-host:5432/enfyra \
   -e REDIS_URI=redis://my-redis:6379/0 \
   dothinh115/enfyra:latest
@@ -110,7 +106,6 @@ docker run -d \
   --name enfyra-server \
   -p 1105:1105 \
   -e ENFYRA_MODE=server \
-  -e DB_TYPE=postgres \
   -e DB_URI=postgresql://user:password@my-postgres:5432/enfyra \
   -e REDIS_URI=redis://my-redis:6379/0 \
   dothinh115/enfyra:latest
@@ -197,7 +192,7 @@ the CLI will ask you a series of configuration questions. Enter the values that 
 | ------------------------------------- | ------------------------------------------------------------------- |
 | **Package manager**                   | Select the package manager you want to use (`npm`, `yarn`, `bun`)   |
 | **Project name**                      | Name of the backend project (if not passed as a CLI argument)       |
-| **Database type**                     | Type of database (`MySQL`, `PostgreSQL`, `MariaDB`, `MongoDB`)      |
+| **Database type**                     | Type of database (`MySQL`, `PostgreSQL`, `MongoDB`, `SQLite`). MariaDB users select `MySQL`. |
 | **Database host**                     | Hostname or IP address of your database                             |
 | **Database port**                     | Port number of your database (e.g. `3306` for MySQL)                |
 | **Database username**                 | Database user account                                               |
@@ -236,7 +231,7 @@ Then run your new backend:
 cd <project-name>
 npm run start
 ```
-(or use `yarn start:dev` / `bun run start:dev` depending on the package manager you selected.)
+(or use `yarn dev` / `bun run dev` depending on the package manager you selected. Use `yarn debug` for Node inspector mode.)
 
 > **Next Steps**: 
 > - [Getting Started Guide](./getting-started.md) - Learn the interface and create your first table

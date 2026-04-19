@@ -35,7 +35,7 @@ The editor page has three sections:
 
 Edit flow name, description, trigger type, trigger config, and timeout. The trigger config section changes dynamically:
 - **Schedule**: Cron expression input + timezone dropdown
-- **Manual**: No config needed. Trigger via "Run Now", API, or `@DISPATCH.trigger()` from handlers/hooks
+- **Manual**: No config needed. Trigger via "Run Now", API, or `@TRIGGER()` from handlers/hooks
 
 Click **Save** in the header to persist changes.
 
@@ -76,7 +76,7 @@ Opens when clicking a step node or "Add Step". Fields:
 - **Timeout** — per-step timeout in ms
 - **Type** — select step type (each shows different config fields)
 - **Config** — type-specific form:
-  - **Script/Condition**: Code editor (JavaScript) — use template syntax: `@PAYLOAD`, `@LAST`, `@FLOW.<key>`, `#table_name`, `@HELPERS`
+  - **Script/Condition**: Code editor (JavaScript) — use template syntax: `@FLOW_PAYLOAD`, `@FLOW_LAST`, `@FLOW.<key>`, `#table_name`, `@HELPERS`
   - **Query**: Table picker (autocomplete) + Filter Builder (visual) + Limit + Fields
   - **Create**: Table picker + Data JSON
   - **Update**: Table picker + Record ID + Data JSON
@@ -124,14 +124,14 @@ Use these macros in Script and Condition step code. They are auto-transpiled to 
 
 | Write this | Gets converted to |
 |-----------|-------------------|
-| `@PAYLOAD` | `$ctx.$flow.$payload` |
-| `@DISPATCH` | `$ctx.$dispatch` (trigger flows from handlers) |
-| `@LAST` | `$ctx.$flow.$last` |
+| `@FLOW_PAYLOAD` | `$ctx.$flow.$payload` |
+| `@TRIGGER` | `$ctx.$trigger` (trigger flows from handlers) |
+| `@FLOW_LAST` | `$ctx.$flow.$last` |
 | `@FLOW.step_key` | `$ctx.$flow.step_key` |
-| `@META` | `$ctx.$flow.$meta` |
+| `@FLOW_META` | `$ctx.$flow.$meta` |
 | `#user_definition` | `$ctx.$repos.user_definition` |
 | `@HELPERS` | `$ctx.$helpers` |
-| `@DISPATCH.trigger(...)` | Trigger another flow from handler |
+| `@TRIGGER(...)` | Trigger another flow from handler |
 | `@USER` | `$ctx.$user` |
 | `@THROW404(msg)` | `$ctx.$throw['404'](msg)` |
 | `%dayjs` | `$ctx.$pkgs.dayjs` |
@@ -141,7 +141,7 @@ Use these macros in Script and Condition step code. They are auto-transpiled to 
 ```javascript
 // In a script step:
 const user = await #user_definition.find({
-  filter: { email: { _eq: @PAYLOAD.email } },
+  filter: { email: { _eq: @FLOW_PAYLOAD.email } },
   limit: 1
 });
 if (!user.data[0]) @THROW404('User not found');

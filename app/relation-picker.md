@@ -2,6 +2,8 @@
 
 The Relation Picker lets you select related records when working with forms. When you see a **pencil icon** next to a form field, that's a relation field that connects to records in another table. Instead of typing IDs, the Relation Picker provides a user-friendly way to browse and select related data.
 
+**Schema vs. forms:** The picker is for **choosing related rows in create/edit forms**. Defining relations, **incoming** links from other tables, and **Create Inverse** (reverse property name on the current table) are done in **table schema  Relations** — see [Table Creation Guide](../getting-started/table-creation.md#relations-setup).
+
 ## How to Use Relation Fields
 
 **Select Related Records:**

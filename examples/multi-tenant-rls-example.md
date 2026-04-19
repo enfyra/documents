@@ -169,7 +169,7 @@ if (!userProject) {
 }
 
 // Apply RLS based on HTTP method
-const method = @API.method;
+const method = @API.request.method;
 
 switch (method) {
   // === READ OPERATIONS ===
@@ -189,13 +189,12 @@ switch (method) {
 
   // === CREATE OPERATIONS ===
   case 'POST':
-    // Auto-assign project_id (prevent user from choosing)
-    @BODY.project_id = userProject;
-
-    // If user tried to set different project_id, reject
+    // Reject if user tried to target another project
     if (@BODY.project_id && @BODY.project_id !== userProject) {
       throw new Error('Cannot create records for another project');
     }
+    // Auto-assign project_id
+    @BODY.project_id = userProject;
     break;
 
   // === UPDATE OPERATIONS ===
@@ -255,7 +254,7 @@ if (!userProject) {
   throw new Error('User project_id not set');
 }
 
-const method = @API.method;
+const method = @API.request.method;
 
 if (method === 'GET') {
   @QUERY.filter = {
@@ -265,8 +264,10 @@ if (method === 'GET') {
     ]
   };
 } else if (method === 'POST') {
+  if (@BODY.project_id && @BODY.project_id !== userProject) {
+    throw new Error('Cannot create records for another project');
+  }
   @BODY.project_id = userProject;
-  delete @BODY.project_id; // Prevent manual override
 } else if (method === 'PUT' || method === 'PATCH') {
   delete @BODY.project_id;
 }
@@ -469,7 +470,7 @@ if (method === 'GET') {
 // ==========================================
 
 const toast = useToast();
-const { me } = useEnfyraAuth();
+const { me } = useAuth();
 const confirm = useConfirm();
 
 // State

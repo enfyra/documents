@@ -1,22 +1,30 @@
 # Hooks and Handlers - postHooks
 
-postHooks execute after the handler. Use them for response transformation, audit logging, and side effects.
+postHooks execute after the handler (or after a preHook/handler error). Use them for response transformation, audit logging, and side effects.
+
+## Execution Behavior
+
+- postHooks **always run**, even when preHook or handler throws an error
+- On error path: `@ERROR` is populated, `@DATA` is `null`, `@STATUS` is the error status code
+- On success path: `@ERROR` is `undefined`, `@DATA` is the handler result, `@STATUS` is `200`
+- postHooks run as **side effects** — on error path, the original error is always thrown after all postHooks complete
+- If one postHook fails, other postHooks still run (individual try/catch per postHook)
 
 ## When to Use postHooks
 
-- Transform response data
+- Transform response data (success path)
 - Add computed fields to response
-- Log audit trails
+- Log audit trails (both success and error)
 - Trigger side effects (emails, notifications)
-- Handle errors that occurred in handler
+- Handle/log errors that occurred in preHook or handler
 - Add metadata to response
 
 ## Basic postHook Example
 
 ```javascript
-// Transform response
-if ($ctx.$data && Array.isArray($ctx.$data.data)) {
-  $ctx.$data.data = $ctx.$data.data.map(item => ({
+// Transform response (success path only)
+if (@DATA && Array.isArray(@DATA.data)) {
+  @DATA.data = @DATA.data.map(item => ({
     ...item,
     fullName: `${item.firstName} ${item.lastName}`
   }));
@@ -27,17 +35,17 @@ if ($ctx.$data && Array.isArray($ctx.$data.data)) {
 
 ```javascript
 // Add metadata
-if ($ctx.$data) {
-  $ctx.$data.meta = {
+if (@DATA) {
+  @DATA.meta = {
     processedAt: new Date(),
-    processedBy: $ctx.$user?.id,
+    processedBy: @USER?.id,
     version: '1.0'
   };
 }
 
 // Add computed fields to each item
-if ($ctx.$data && Array.isArray($ctx.$data.data)) {
-  $ctx.$data.data = $ctx.$data.data.map(item => ({
+if (@DATA && Array.isArray(@DATA.data)) {
+  @DATA.data = @DATA.data.map(item => ({
     ...item,
     isActive: item.status === 'active',
     displayName: item.nickname || item.name
@@ -48,46 +56,60 @@ if ($ctx.$data && Array.isArray($ctx.$data.data)) {
 ## Audit Logging
 
 ```javascript
-// Log successful operations
-if (!$ctx.$api.error && $ctx.$data) {
-  await $ctx.$repos.audit_logs.create({
-    data: {
-      action: `${$ctx.$req.method} ${$ctx.$req.url}`,
-      userId: $ctx.$user?.id,
-      resourceId: $ctx.$params.id,
-      statusCode: $ctx.$statusCode,
-      timestamp: new Date()
-    }
-  });
-}
+// Log all operations (success and error)
+await #audit_logs.create({
+  data: {
+    action: `${@API.request.method} ${@API.request.url}`,
+    userId: @USER?.id,
+    resourceId: @PARAMS.id,
+    statusCode: @STATUS,
+    error: @ERROR ? @ERROR.message : null,
+    timestamp: new Date()
+  }
+});
 ```
 
 ## Error Handling
 
-```javascript
-// Handle errors in postHook
-if ($ctx.$api.error) {
-  // Error occurred
-  $ctx.$logs(`Error: ${$ctx.$api.error.message}`);
+postHooks receive error context via `@ERROR` (or `$ctx.$error`). On error path, the error is always re-thrown after postHooks complete — postHooks cannot override the error.
 
-  // Log to audit system
-  await $ctx.$repos.error_logs.create({
+```javascript
+// Log errors for monitoring
+if (@ERROR) {
+  @LOGS(`Error: ${@ERROR.message}`);
+
+  await #error_logs.create({
     data: {
-      errorMessage: $ctx.$api.error.message,
-      statusCode: $ctx.$api.error.statusCode,
-      userId: $ctx.$user?.id,
-      url: $ctx.$req.url,
+      errorMessage: @ERROR.message,
+      statusCode: @ERROR.statusCode,
+      userId: @USER?.id,
+      url: @API.request.url,
       timestamp: new Date()
     }
   });
 
-  // Optionally modify error response
-  // (though usually you'd want to handle this in error handlers)
-} else {
-  // Success case
-  $ctx.$logs('Operation completed successfully');
+  // Send notification on critical errors
+  if (@ERROR.statusCode >= 500) {
+    await @SOCKET.emitToRoom('admin', 'server-error', {
+      message: @ERROR.message,
+      url: @API.request.url
+    });
+  }
 }
 ```
+
+## Available Context in postHooks
+
+| Variable | Success Path | Error Path |
+|----------|-------------|------------|
+| `@DATA` | Handler result | `null` |
+| `@STATUS` | `200` | Error status code (e.g. `400`, `500`) |
+| `@ERROR` | `undefined` | `{ message, name, statusCode, details, timestamp }` |
+| `@API.error` | `undefined` | Same as `@ERROR` |
+| `@API.response` | `undefined` | `{ statusCode, responseTime, timestamp }` |
+| `@USER` | Current user | Current user |
+| `@SHARE` | Shared data from preHooks | Shared data from preHooks |
+| `@LOGS(...)` | Available | Available |
 
 ## Next Steps
 

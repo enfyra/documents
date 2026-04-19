@@ -22,7 +22,6 @@ All from the **same image**, just different environment variables!
 docker run -d \
   --name enfyra \
   -p 3000:3000 \
-  -e DB_TYPE=postgres \
   -v enfyra-data:/app/data \
   dothinh115/enfyra:latest
 ```
@@ -33,13 +32,13 @@ docker run -d \
 - **Embedded PostgreSQL** (if no DB config)
 - **Embedded Redis** (if no REDIS_URI)
 
-### With MySQL:
+### With MySQL (Embedded):
 
 ```bash
 docker run -d \
   --name enfyra \
   -p 3000:3000 \
-  -e DB_TYPE=mysql \
+  -e EMBEDDED_DB=mysql \
   -v enfyra-data:/app/data \
   dothinh115/enfyra:latest
 ```
@@ -50,13 +49,12 @@ docker run -d \
 docker run -d \
   --name enfyra \
   -p 3000:3000 \
-  -e DB_TYPE=postgres \
   -e DB_URI=postgresql://enfyra:secret@my-postgres-host:5432/enfyra \
   -e REDIS_URI=redis://my-redis:6379/0 \
   dothinh115/enfyra:latest
 ```
 
-**Or with legacy vars (backward compatible):**
+> **Note:** The database engine is auto-detected from the `DB_URI` protocol prefix (`mysql://`, `postgres://`, `mongodb://`, `sqlite://`). No separate `DB_TYPE` env var is needed.
 
 ---
 
@@ -69,7 +67,6 @@ docker run -d \
   --name enfyra-server \
   -p 1105:1105 \
   -e ENFYRA_MODE=server \
-  -e DB_TYPE=postgres \
   -e DB_URI=postgresql://enfyra:secret@my-postgres:5432/enfyra \
   -e REDIS_URI=redis://my-redis:6379/0 \
   dothinh115/enfyra:latest
@@ -82,7 +79,6 @@ docker run -d \
   --name enfyra-server \
   -p 1105:1105 \
   -e ENFYRA_MODE=server \
-  -e DB_TYPE=postgres \
   -e DB_URI=postgresql://enfyra:secret@master-postgres:5432/enfyra \
   -e DB_REPLICA_URIS=postgresql://enfyra:secret@replica1:5432/enfyra,postgresql://enfyra:secret@replica2:5432/enfyra \
   -e DB_READ_FROM_MASTER=false \
@@ -97,7 +93,6 @@ docker run -d \
   --name enfyra-server \
   -p 1105:1105 \
   -e ENFYRA_MODE=server \
-  -e DB_TYPE=postgres \
   -v enfyra-server-data:/app/data \
   dothinh115/enfyra:latest
 ```
@@ -156,7 +151,6 @@ docker run -d \
   --name enfyra-server-1 \
   -p 1105:1105 \
   -e ENFYRA_MODE=server \
-  -e DB_TYPE=postgres \
   -e DB_URI=postgresql://enfyra:secret@shared-postgres:5432/enfyra \
   -e REDIS_URI=redis://shared-redis:6379/0 \
   dothinh115/enfyra:latest
@@ -166,7 +160,6 @@ docker run -d \
   --name enfyra-server-2 \
   -p 1106:1105 \
   -e ENFYRA_MODE=server \
-  -e DB_TYPE=postgres \
   -e DB_URI=postgresql://enfyra:secret@shared-postgres:5432/enfyra \
   -e REDIS_URI=redis://shared-redis:6379/0 \
   dothinh115/enfyra:latest
@@ -184,18 +177,18 @@ docker run -d \
 
 ##  Environment Variables Reference
 
-### Required
-- `DB_TYPE`: `postgres`, `mysql`, or `mongodb` (default: `postgres`)
-
 ### Mode
 - `ENFYRA_MODE`: `all`, `server`, or `app` (default: `all`)
 
 ### Database (if not set  uses embedded)
 
-**Primary (Prisma-style URI - Recommended):**
-- `DB_URI`: Database connection URI
+- `EMBEDDED_DB`: Embedded database type when no `DB_URI` is set: `postgres` or `mysql` (default: `postgres`). Has no effect when `DB_URI` is provided.
+
+**Primary (Recommended):**
+- `DB_URI`: Database connection URI — the database type is **auto-detected** from the URI protocol, so `DB_TYPE` does not need to be set.
   - PostgreSQL: `postgresql://user:password@host:port/database`
   - MySQL: `mysql://user:password@host:port/database`
+  - MongoDB: `mongodb://user:password@host:port/database?authSource=admin`
   - Example: `postgresql://enfyra:secret@my-postgres:5432/enfyra`
   - **Note**: URL-encode special characters in password if needed (`@`  `%40`, `:`  `%3A`, `/`  `%2F`, `%`  `%25`, `#`  `%23`, `?`  `%3F`, `&`  `%26`)
 
@@ -205,10 +198,6 @@ docker run -d \
 - `DB_READ_FROM_MASTER`: Include master in read pool (`true`/`false`, default: `false`)
   - `false`: Read queries only use replicas (master only for writes)
   - `true`: Read queries use master + replicas (round-robin)
-
-**MongoDB:**
-- `MONGO_URI` (only when `DB_TYPE=mongodb`)
-  - Format: `mongodb://user:password@host:port/database?authSource=admin`
 
 ### Redis (if not set  uses embedded)
 - `REDIS_URI`: Redis connection string
@@ -236,7 +225,6 @@ docker run -d \
 docker run -d \
   --name enfyra \
   -p 3000:3000 \
-  -e DB_TYPE=postgres \
   -e ADMIN_EMAIL=myadmin@example.com \
   -e ADMIN_PASSWORD=secure_password_123 \
   -v enfyra-data:/app/data \
@@ -277,7 +265,6 @@ docker run -d \
      --name enfyra \
      -p 3000:3000 \
      -p 5432:5432 \  # ← Expose PostgreSQL port
-     -e DB_TYPE=postgres \
      -v enfyra-data:/app/data \
      dothinh115/enfyra:latest
    ```
@@ -295,7 +282,7 @@ docker run -d \
      --name enfyra \
      -p 3000:3000 \
      -p 3306:3306 \  # ← Expose MySQL port
-     -e DB_TYPE=mysql \
+     -e EMBEDDED_DB=mysql \
      -v enfyra-data:/app/data \
      dothinh115/enfyra:latest
    ```
@@ -313,7 +300,6 @@ docker run -d \
      --name enfyra \
      -p 3000:3000 \
      -p 6379:6379 \  # ← Expose Redis port
-     -e DB_TYPE=postgres \
      -v enfyra-data:/app/data \
      dothinh115/enfyra:latest
    ```
@@ -346,8 +332,6 @@ If you see a warning about port conflict:
    ```bash
    -e REDIS_URI=redis://your-redis-host:6379/0
    -e DB_URI=postgresql://user:pass@your-db-host:5432/dbname
-   # Or legacy vars:
-   -e DB_HOST=your-db-host
    ```
 
 2. **Stop service on host** (if not needed):
