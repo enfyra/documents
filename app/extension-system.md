@@ -226,7 +226,7 @@ This example demonstrates all features and can be pasted directly into the exten
 
 // Nuxt & Enfyra Composables - Available globally
 const toast = useToast();
-const { me } = useEnfyraAuth();
+const { me } = useAuth();
 const router = useRouter();
 const route = useRoute();
 
@@ -577,13 +577,12 @@ const handleClick = () => {
 
 **API & Data:**
 - `useApi()` - Custom API wrapper with error handling (recommended)
-- `useEnfyraApi()` - Direct SDK API calls
 - `useSchema()` - Schema validation and form generation
 - `useFilterQuery()` - Advanced filtering and querying  [Filter System Guide](./filter-system.md)
 - `useDataTableColumns()` - Data table column management
 
 **Authentication & Permissions:**
-- `useEnfyraAuth()` - Authentication state and methods
+- `useAuth()` - Authentication state and methods (`me`, `isLoggedIn`, `login`, `logout`)
 - `usePermissions()` - Permission checking and validation
 
 **UI & State Management:**
@@ -683,7 +682,7 @@ const { data } = await useApi('/extension_definition', {
 });
 
 // Authentication
-const { me, isLoggedIn, login, logout } = useEnfyraAuth();
+const { me, isLoggedIn, login, logout } = useAuth();
 
 // Permissions
 const { hasPermission } = usePermissions();
@@ -785,11 +784,11 @@ const { data: usersData, pending, error, refresh } = await useApi('/user_definit
   key: 'users-list'
 });
 
-// Or direct SDK access for advanced usage
-const { data: directData } = await useEnfyraApi('/user_definition', {
+// Or use the standard useApi() composable for any custom call
+const { data: directData, execute: loadDirect } = useApi('/user_definition', {
   query: { limit: 10 },
-  server: true // Server-side rendering option
 });
+await loadDirect();
 
 // Computed for easy access
 const users = computed(() => usersData.value?.data || []);

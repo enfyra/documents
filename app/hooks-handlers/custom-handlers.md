@@ -69,7 +69,7 @@ if (!categoryResult.data.length) {
 }
 
 // Create product with auto-generated slug
-const slug = await $ctx.$helpers.autoSlug($ctx.$body.name);
+const slug = $ctx.$helpers.autoSlug($ctx.$body.name);
 const productResult = await $ctx.$repos.products.create({
   data: {
   name: $ctx.$body.name,

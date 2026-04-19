@@ -40,7 +40,7 @@ $ctx.$body.name = $ctx.$body.name.trim();
 
 // Generate slug
 if ($ctx.$body.title) {
-  $ctx.$body.slug = await $ctx.$helpers.autoSlug($ctx.$body.title);
+  $ctx.$body.slug = $ctx.$helpers.autoSlug($ctx.$body.title);
 }
 
 // Add computed fields

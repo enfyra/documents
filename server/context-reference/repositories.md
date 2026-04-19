@@ -12,6 +12,11 @@ const usersRepo = $ctx.$repos.user_definition;
 // Access main table repository
 const mainRepo = $ctx.$repos.main;
 
+// Field permissions: main + explicit secure namespace
+// - `$repos.main` — main route table, field permissions enforced
+// - `$repos.secure.<tableName>` — same enforcement for any table name
+// - `$repos.<tableName>` — same data access without field-permission enforcement (use `secure` when rules must apply)
+
 // Check if repository exists
 if ($ctx.$repos.products) {
   const result = await $ctx.$repos.products.find({});

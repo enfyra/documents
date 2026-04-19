@@ -16,10 +16,11 @@ const products = result.data; // Array of product records
 
 ```javascript
 await $ctx.$repos.tableName.find({
-  where: { ... },        // Filter conditions (optional)
+  filter: { ... },       // Filter conditions (optional; same as `where`)
+  // where: { ... },     // Alias of `filter` — use one or the other
   fields: '...',         // Fields to return (optional)
   limit: 10,             // Max records to return (optional, default: 10)
-  sort: '...',           // Sort order (optional, default: 'id')
+  sort: '...',           // Sort order (optional, default: primary key field)
   meta: 'totalCount'     // Request metadata (optional)
 })
 ```

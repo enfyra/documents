@@ -32,6 +32,8 @@ const bodyData = @BODY.name;
 
 ** Template syntax is just syntactic sugar** - it gets automatically replaced with the full `$ctx.$property` syntax during execution. **Use whichever style you prefer - you can even mix all three in the same file!**
 
+In **`find()`** options, **`filter`** and **`where`** are the same object (REST list endpoints use the query parameter name **`filter`** only).
+
 ## Available Templates
 
 | Template | Replacement | Description |
@@ -39,10 +41,12 @@ const bodyData = @BODY.name;
 | `@CACHE` | `$ctx.$cache` | Cache operations and distributed locking |
 | `@REPOS` | `$ctx.$repos` | Database repository access |
 | `@HELPERS` | `$ctx.$helpers` | Utility functions and helpers |
+| `@FETCH` | `$ctx.$helpers.$fetch` | SSRF-hardened HTTP client (shorthand for `@HELPERS.$fetch`) |
 | `@LOGS` | `$ctx.$logs` | Logging functions |
 | `@BODY` | `$ctx.$body` | Request body data |
 | `@DATA` | `$ctx.$data` | Response data object |
-| `@STATUS` | `$ctx.$statusCode` | HTTP status code |
+| `@STATUS` | `$ctx.$statusCode` | HTTP status code (200 on success, error code on failure — available in postHooks) |
+| `@ERROR` | `$ctx.$error` | Error context in postHooks (`{ message, name, statusCode, details, timestamp }` — `undefined` on success) |
 | `@PARAMS` | `$ctx.$params` | Route parameters |
 | `@QUERY` | `$ctx.$query` | Query parameters |
 | `@USER` | `$ctx.$user` | Current user information |
@@ -50,7 +54,12 @@ const bodyData = @BODY.name;
 | `@RES` | `$ctx.$res` | Express response object (handlers only) |
 | `@SHARE` | `$ctx.$share` | Shared data between hooks |
 | `@API` | `$ctx.$api` | API request/response information |
-| `@SOCKET` | `$ctx.$socket` | WebSocket operations (join, leave, reply, emitToUser, emitToRoom, emitToGateway, broadcast) |
+| `@SOCKET` | `$ctx.$socket` | WebSocket operations (join, leave, reply, emitToUser, emitToRoom, emitToGateway, broadcast; `disconnect` only in connection handlers) |
+| `@TRIGGER` | `$ctx.$trigger` | Trigger a flow by id or name (`@TRIGGER(flowIdOrName, payload?)`) |
+| `@FLOW` | `$ctx.$flow` | Current flow context inside flow steps (payload, last step output, meta) |
+| `@FLOW_PAYLOAD` | `$ctx.$flow.$payload` | Original payload passed into the flow |
+| `@FLOW_LAST` | `$ctx.$flow.$last` | Output of the previous flow step |
+| `@FLOW_META` | `$ctx.$flow.$meta` | Flow execution metadata (id, name, runId, etc.) |
 | `@UPLOADED_FILE` | `$ctx.$uploadedFile` | Uploaded file information |
 | `@PKGS` | `$ctx.$pkgs` | Installed npm packages for use in handlers |
 | `@THROW` | `$ctx.$throw` | Error throwing functions |
@@ -213,11 +222,11 @@ await #user_definition.delete({ id: userId });
 ### Helper Functions
 
 ```javascript
-// Generate JWT token
-const token = @HELPERS.$jwt.sign({ userId: 123, role: 'admin' }, '1h');
+// Generate JWT token (call $jwt as a function: payload, expiresIn)
+const token = await @HELPERS.$jwt({ userId: 123, role: 'admin' }, '1h');
 
-// Hash password
-const hashedPassword = await @HELPERS.$bcrypt.hash('password123', 10);
+// Hash password (single argument; salt rounds are managed internally)
+const hashedPassword = await @HELPERS.$bcrypt.hash('password123');
 
 // Verify password
 const isValid = await @HELPERS.$bcrypt.compare('password123', hashedPassword);
@@ -452,7 +461,7 @@ async function registerUser(userData) {
   }
   
   // Hash password
-  const hashedPassword = await @HELPERS.$bcrypt.hash(userData.password, 10);
+  const hashedPassword = await @HELPERS.$bcrypt.hash(userData.password);
   
   // Create user
   const newUser = await #user_definition.create({ data: {
@@ -465,7 +474,7 @@ async function registerUser(userData) {
   await @CACHE.set(`user:${newUser.id}`, newUser, 1800000); // 30 minutes
   
   // Generate JWT token
-  const token = @HELPERS.$jwt.sign({ userId: newUser.id }, '24h');
+  const token = await @HELPERS.$jwt({ userId: newUser.id }, '24h');
   
   @LOGS('User registered successfully:', newUser.id);
   
@@ -491,7 +500,7 @@ const users = await #user_definition.find({...});
 
 // What actually runs (after replacement):
 const data = await $ctx.$cache.get('key');
-const users = await $ctx.$repos.users.find({...});
+const users = await $ctx.$repos.user_definition.find({...});
 ```
 
 ** The replacement is transparent** - you can mix all three syntaxes in the same file if you want!

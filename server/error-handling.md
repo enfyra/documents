@@ -198,7 +198,7 @@ try {
 
 ## Error Handling in postHook
 
-In postHook, you can check if an error occurred during the request and handle it appropriately.
+In postHook, you can check if an error occurred during the request and handle it appropriately. The same error details are available as **`@ERROR` / `$ctx.$error`** (template macro) and as **`$ctx.$api.error`** (nested under API metadata).
 
 ### Checking for Errors
 

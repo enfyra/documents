@@ -34,9 +34,10 @@ const usersRepo = $ctx.$repos.user_definition;
 const mainRepo = $ctx.$repos.main;
 ```
 
-**Important:** 
-- Tables must be configured in the route's "Target Tables" field to be accessible as repositories
-- The main table is always available as `$ctx.$repos.main`
+**Important:**
+- Repositories are resolved from **metadata** by **table `name` or `alias`** (see `RepoRegistryService`). You do not configure a per-route list for basic access.
+- **`$ctx.$repos.main`** is the current route’s main table (field permissions enforced).
+- **`$ctx.$repos.secure.<name>`** — same enforcement for another table; **`$ctx.$repos.<name>`** — no field-permission enforcement unless you use `main` / `secure`.
 - All repository methods are async and require `await`
 
 ## Documentation

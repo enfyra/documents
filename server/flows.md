@@ -1,6 +1,6 @@
 # Flows (Automated Workflows)
 
-Flows are automated workflows that execute a sequence of steps based on triggers. They support scheduled execution (cron) and manual triggers. For event-driven flows, use handlers/hooks with `@DISPATCH.trigger()`.
+Flows are automated workflows that execute a sequence of steps based on triggers. They support scheduled execution (cron) and manual triggers. For event-driven flows, use handlers/hooks with `@TRIGGER()`.
 
 ## Tables
 
@@ -15,14 +15,14 @@ Flows are automated workflows that execute a sequence of steps based on triggers
 | Type | Config Example | Description |
 |------|---------------|-------------|
 | `schedule` | `{"cron": "0 2 * * *", "timezone": "UTC"}` | Cron-based scheduling |
-| `manual` | `{}` | User-initiated via UI, API, or `@DISPATCH.trigger()` from handlers/hooks |
+| `manual` | `{}` | User-initiated via UI, API, or `@TRIGGER()` from handlers/hooks |
 
 ## Step Types
 
 | Type | Config | Description |
 |------|--------|-------------|
 | `script` | `{"code": "..."}` | Execute custom JavaScript with full context |
-| `condition` | `{"code": "return ..."}` | Evaluate condition using JS truthy/falsy. Truthy  `"true"` branch, falsy  `"false"` branch |
+| `condition` | `{"code": "return ..."}` | Evaluate condition using JS truthy/falsy. Truthy  branch `"true"`, falsy  branch `"false"` |
 | `query` | `{"table": "...", "filter": {...}, "limit": 10}` | Query table data |
 | `create` | `{"table": "...", "data": {...}}` | Create a record |
 | `update` | `{"table": "...", "id": 1, "data": {...}}` | Update a record by ID |
@@ -42,15 +42,15 @@ Flow steps support the same template macros as handlers/hooks, plus flow-specifi
 
 | Macro | Expands to | Description |
 |-------|-----------|-------------|
-| `@PAYLOAD` | `$ctx.$flow.$payload` | Input payload data |
-| `@DISPATCH` | `$ctx.$dispatch` | Trigger flow service (handlers/hooks) |
-| `@LAST` | `$ctx.$flow.$last` | Last step result |
+| `@FLOW_PAYLOAD` | `$ctx.$flow.$payload` | Input payload data |
+| `@TRIGGER` | `$ctx.$trigger` | Trigger flow from handlers/hooks |
+| `@FLOW_LAST` | `$ctx.$flow.$last` | Last step result |
 | `@FLOW` | `$ctx.$flow` | Full flow data chain |
-| `@META` | `$ctx.$flow.$meta` | Flow metadata (flowId, flowName, executionId, depth) |
+| `@FLOW_META` | `$ctx.$flow.$meta` | Flow metadata (flowId, flowName, executionId, depth) |
 | `#table_name` | `$ctx.$repos.table_name` | Table repository |
 | `@HELPERS` | `$ctx.$helpers` | Helpers (jwt, bcrypt, autoSlug) |
 | `@USER` | `$ctx.$user` | Current user (null for cron) |
-| `@THROW4xx` | `$ctx.$throw['4xx']` | Error helpers |
+| `@THROW400` … `@THROW503`, `@THROW` | `$ctx.$throw['400']`, …, `$ctx.$throw` | HTTP error helpers (use numeric keys, not `'4xx'`) |
 | `%package` | `$ctx.$pkgs.package` | Installed packages |
 
 ## Data Chain
@@ -59,9 +59,9 @@ Each flow execution maintains a shared context (`$ctx.$flow` / `@FLOW`) that pas
 
 ```
 @FLOW
-  ├── @PAYLOAD      // Input data passed to the flow
-  ├── @LAST         // Result of the most recent step
-  ├── @META         // { flowId, flowName, executionId, startedAt }
+  ├── @FLOW_PAYLOAD      // Input data passed to the flow
+  ├── @FLOW_LAST         // Result of the most recent step
+  ├── @FLOW_META         // { flowId, flowName, executionId, startedAt }
   ├── @FLOW.step_1  // Result of step with key "step_1"
   └── @FLOW.step_2  // Result of step with key "step_2"
 ```
@@ -70,9 +70,9 @@ Each flow execution maintains a shared context (`$ctx.$flow` / `@FLOW`) that pas
 
 ```javascript
 // Template syntax (recommended)
-const email = @PAYLOAD.email;
+const email = @FLOW_PAYLOAD.email;
 const user = @FLOW.find_user?.data?.[0];
-const prev = @LAST;
+const prev = @FLOW_LAST;
 const orders = await #order_definition.find({
   filter: { userId: { _eq: user.id } }
 });
@@ -141,8 +141,8 @@ Rules:
 ## Triggering Flows from Handlers
 
 ```javascript
-await @DISPATCH.trigger('send-welcome-email', { userId: @USER.id });
-await @DISPATCH.trigger(5, { orderId: @PARAMS.id, total: 100 });
+await @TRIGGER('send-welcome-email', { userId: @USER.id });
+await @TRIGGER(5, { orderId: @PARAMS.id, total: 100 });
 ```
 
 ## Execution History
@@ -176,7 +176,7 @@ POST /api/flow_definition
 
 Then trigger from a post-hook on `/order_definition`:
 ```javascript
-await @DISPATCH.trigger('process-order', { data: @DATA });
+await @TRIGGER('process-order', { data: @DATA });
 ```
 
 ### 2. Add steps
@@ -189,7 +189,7 @@ POST /api/flow_step_definition
   "stepOrder": 1,
   "type": "script",
   "config": {
-    "code": "const order = @PAYLOAD.data; const product = await #product_definition.find({ filter: { id: { _eq: order.productId } }, limit: 1 }); return { inStock: product.data[0]?.stock > order.quantity }"
+    "code": "const order = @FLOW_PAYLOAD.data; const product = await #product_definition.find({ filter: { id: { _eq: order.productId } }, limit: 1 }); return { inStock: product.data[0]?.stock > order.quantity }"
   },
   "timeout": 5000,
   "onError": "stop"
@@ -241,7 +241,7 @@ Cron schedules are registered automatically via BullMQ Job Schedulers when the f
 
 | Feature | Detail |
 |---------|--------|
-| Max nesting depth | 10 (flow triggering flow via `trigger_flow` step or `$dispatch.trigger()`) |
+| Max nesting depth | 10 (flow triggering flow via `trigger_flow` step or `$trigger()`) |
 | Circular detection | Tracks visited flow IDs in chain — ABA rejected immediately |
 | HTTP timeout | 30s default, configurable via `config.timeout` per step |
 | Execution history | Auto-cleanup per flow via `maxExecutions` (default 100, oldest deleted) |
@@ -250,11 +250,11 @@ Cron schedules are registered automatically via BullMQ Job Schedulers when the f
 
 ## Triggering Flows from Flow Steps
 
-Flow steps have `$dispatch.trigger()` available, same as handlers/hooks:
+Flow steps have `$trigger()` available, same as handlers/hooks:
 
 ```javascript
 // Inside a script step
-const result = await @DISPATCH.trigger('send-notification', { userId: @PAYLOAD.userId });
+const result = await @TRIGGER('send-notification', { userId: @FLOW_PAYLOAD.userId });
 ```
 
 This respects the same nesting depth and circular detection limits.

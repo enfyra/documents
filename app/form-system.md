@@ -395,7 +395,7 @@ async function handleReset() {
 1. **Always Confirm**: Use confirmation dialog for destructive actions
 2. **Clear Messaging**: Explain what will be lost
 3. **Positioning**: Place reset button on the left side
-4. 5. **State Management**: Always call `confirmChanges()` after reset
+4. **State Management**: Always call `confirmChanges()` after reset
 
 ### Disabled Fields
 
@@ -429,15 +429,46 @@ async function handleReset() {
 
 ### FieldMap System
 
-The `fieldMap` prop allows you to customize form behavior for specific fields without modifying the database schema. Pass it to `FormEditor` component:
+The `fieldMap` prop allows you to customize form behavior for specific fields without modifying the database schema. Pass it to **`FormEditor`** or **`FormEditorLazy`** (same props; lazy defers loading the heavy editor bundle — use in drawers and secondary views).
 
 ```typescript
-<FormEditor
+<FormEditorLazy
   v-model="form"
   :table-name="tableName"
   :field-map="fieldMap"
 />
 ```
+
+#### Sections (grouped fields)
+
+Pass **`sections`** to render fields in named blocks. Field **order within a section** follows the `fields` array. Any schema field not listed in a section is rendered after the sections (still ordered by the default schema rules).
+
+```typescript
+const sections = [
+  {
+    id: 'main',
+    title: 'General',
+    fields: ['name', 'slug', 'description'],
+  },
+  {
+    id: 'meta',
+    title: 'Metadata',
+    hideHeading: true,
+    class: 'surface-card rounded-xl p-4 ring-1 ring-[var(--surface-panel-ring)]',
+    fields: ['createdAt'],
+  },
+];
+```
+
+| Section field | Description |
+|---------------|-------------|
+| `id` | Stable key for the block |
+| `title` | Optional heading above the block |
+| `hideHeading` | If true, `title` is not shown |
+| `headingClass` | Override heading typography |
+| `class` | Wrapper around the section’s field grid (e.g. card panel) |
+| `rootClass` | Extra class on the outer section block |
+| `fields` | Ordered list of field names |
 
 #### Basic FieldMap Usage
 
@@ -449,11 +480,11 @@ const fieldMap = computed(() => ({
   }
 }));
 
-// Example: Span full width
+// Example: Span full width on desktop grid (layout="grid" uses md:grid-cols-2)
 const fieldMap = computed(() => ({
   content: {
     fieldProps: {
-      class: 'col-span-2'
+      class: 'md:col-span-2'
     }
   }
 }));
@@ -556,8 +587,13 @@ const fieldMap = computed(() => ({
 | `permission` | `PermissionCondition` | Control field visibility based on user permissions (see [Permission Builder](./permission-builder.md)) |
 | `excludedOptions` | `string[]` | Hide these options from enum/array-select dropdowns |
 | `includedOptions` | `string[]` | Show only these options in enum/array-select dropdowns |
-| `fieldProps` | `object` | Additional props for field wrapper (e.g., `class: 'col-span-2'`) |
-| `componentProps` | `object` | Additional props for input component |
+| `fieldProps` | `object` | Passed to the field row; use `class` for grid spans (e.g. `md:col-span-2` when `layout="grid"`) |
+| `booleanWrapperClass` | `string` | Replaces the default flex wrapper classes for **boolean** fields (label + toggle row) |
+| `fieldWrapperClass` | `string` | Extra classes on the outer wrapper for **non-boolean** fields |
+| `componentProps` | `object` | Merged into the control; `class` is merged with internal control classes |
+| `label` / `description` | `string` | Override column label / help HTML |
+| `hideLabel` / `hideDescription` | `boolean` | Hide label or description |
+| `component` | `Component` | Custom input component (`modelValue` / `update:modelValue`) |
 | `options` | `any[]` | Override all options (use with excludedOptions/includedOptions for filtering) |
 
 **Note:** `excludedOptions` and `includedOptions` work with the original enum options from your schema. They filter the options, not replace them.

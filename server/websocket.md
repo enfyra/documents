@@ -209,16 +209,16 @@ Handler scripts run in an isolated sandbox. Use the `@SOCKET` template macro (pr
 
 #### WS context (connection handler + event handler)
 
-| Method | Description |
-|--------|-------------|
-| `@SOCKET.reply(event, data)` | Send to the triggering client only |
-| `@SOCKET.join(room)` | Join a room in the current namespace |
-| `@SOCKET.leave(room)` | Leave a room |
-| `@SOCKET.emitToUser(userId, event, data)` | Send to a specific user across all gateways |
-| `@SOCKET.emitToRoom(room, event, data)` | Send to a named room across all gateways |
-| `@SOCKET.emitToGateway(path, event, data)` | Broadcast to all connections on a namespace |
-| `@SOCKET.broadcast(event, data)` | Broadcast to all connections on all gateways |
-| `@SOCKET.disconnect()` | Force-disconnect the current socket from the gateway |
+| Method | Description | Available in |
+|--------|-------------|--------------|
+| `@SOCKET.reply(event, data)` | Send to the triggering client only | connection + event |
+| `@SOCKET.join(room)` | Join a room in the current namespace | connection + event |
+| `@SOCKET.leave(room)` | Leave a room | connection + event |
+| `@SOCKET.emitToUser(userId, event, data)` | Send to a specific user across all gateways | connection + event |
+| `@SOCKET.emitToRoom(room, event, data)` | Send to a named room across all gateways | connection + event |
+| `@SOCKET.emitToGateway(path, event, data)` | Broadcast to all connections on a namespace | connection + event |
+| `@SOCKET.broadcast(event, data)` | Broadcast to all connections on all gateways | connection + event |
+| `@SOCKET.disconnect()` | Force-disconnect the current socket from the gateway | **connection handler only** |
 
 #### HTTP context (handler / hook)
 
@@ -241,7 +241,7 @@ return { joined: roomId };
 ```javascript
 const { text, roomId } = @BODY;
 const msg = await #message.create({
-  body: { text, roomId, senderId: @USER.id }
+  data: { text, roomId, senderId: @USER.id }
 });
 @SOCKET.emitToRoom(`chat_${roomId}`, 'newMessage', msg);
 return { sent: true };
@@ -272,8 +272,11 @@ return { left: roomId };
 
 ```javascript
 // Connection handler: reject if user is banned
-const banned = await #banned_user.findOne({ filter: { userId: { _eq: @USER.id } } });
-if (banned) {
+const bannedResult = await #banned_user.find({
+  filter: { userId: { _eq: @USER.id } },
+  limit: 1,
+});
+if (bannedResult.data.length > 0) {
   @SOCKET.reply('kicked', { reason: 'You are banned' });
   @SOCKET.disconnect();
   return;
@@ -281,11 +284,16 @@ if (banned) {
 ```
 
 ```javascript
-// Event handler: admin kicks a user
-const user = await #user_definition.findOne({ filter: { id: { _eq: @USER.id } } });
-if (user.isSuspended) {
-  @SOCKET.reply('kicked', { reason: 'Account suspended' });
-  @SOCKET.disconnect();
+// Event handler: notify a user that their account is suspended
+// Note: @SOCKET.disconnect() is NOT available in event handlers — only in connection handlers.
+const userResult = await #user_definition.find({
+  filter: { id: { _eq: @USER.id } },
+  fields: 'id,isSuspended',
+  limit: 1,
+});
+const user = userResult.data[0];
+if (user?.isSuspended) {
+  @SOCKET.reply('suspended', { reason: 'Account suspended' });
   return;
 }
 ```

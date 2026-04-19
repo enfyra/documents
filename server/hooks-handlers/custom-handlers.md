@@ -161,8 +161,10 @@ Hooks execute in this order:
 
 **Example for `POST /users`:**
 ```
-Global preHook (all)  Global preHook (POST)  Route preHook (all)  Route preHook (POST)  Handler  postHooks in reverse order
+Global preHook (all)  Global preHook (POST)  Route preHook (all)  Route preHook (POST)  Handler  Global postHook (all)  Global postHook (POST)  Route postHook (all)  Route postHook (POST)
 ```
+
+Post-hooks run in the same **global-then-route** grouping as pre-hooks (not reverse order). See [API Lifecycle – postHooks](../api-lifecycle.md#phase-8-posthooks-execution).
 
 ## Next Steps
 

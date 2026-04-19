@@ -287,7 +287,7 @@ Root admins bypass all permission checks:
 
 ```vue
 <script setup lang="ts">
-const { me } = useEnfyraAuth();
+const { me } = useAuth();
 
 // Root admin has all permissions automatically
 if (me.value?.isRootAdmin) {
@@ -354,7 +354,7 @@ Always use actual API endpoint paths:
 
 ```vue
 <script setup lang="ts">
-const { me } = useEnfyraAuth();
+const { me } = useAuth();
 const { hasPermission } = usePermissions();
 
 // Debug user permissions

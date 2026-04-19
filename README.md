@@ -131,21 +131,20 @@ Database  Backend (API Server)  Frontend (Admin App)
 
 ###  Built With Modern Technology
 
-**Backend**: NestJS + Express.js + Knex + Redis + GraphQL Yoga
+**Backend**: Awilix DI + Express 5 + Knex + Redis + GraphQL Yoga
 **Frontend**: Nuxt 4 + Vue 3 + TypeScript + TailwindCSS
-**Database**: MySQL, MariaDB, PostgreSQL, MongoDB (your choice)
+**Database**: MySQL, PostgreSQL, MongoDB, SQLite (your choice)
 **Extensions**: Dynamic Vue SFC compilation via Vite
 
 #### Technology Stack Details
 
-**NestJS + Express.js** - Enterprise Node.js framework built on Express with custom high-performance route engine that bypasses Express middleware stack for superior API performance
+**Awilix + Express 5** - Lightweight IoC container (Awilix) on top of Express 5 with a custom dynamic route engine that bypasses the standard middleware stack for superior API performance
 
 **Knex** - SQL query builder with comprehensive support for:
-- **MySQL** - Recommended for production environments
-- **MariaDB** - MySQL-compatible with full feature support
-- **PostgreSQL** - Advanced features and complex data types supported
-- **MongoDB** - NoSQL document database with full CRUD operations and query support
-- **SQLite** - Planned for future release (development and testing environments)
+- **MySQL** - Recommended for production environments. MariaDB users can use the `mysql://` protocol since the driver is wire-compatible.
+- **PostgreSQL** - Advanced features and complex data types supported (use `postgres://` or `postgresql://`)
+- **MongoDB** - NoSQL document database with full CRUD operations and query support (use `mongodb://`; SRV `mongodb+srv://` not supported)
+- **SQLite** - Lightweight file-based database for development and testing
 
 ## Features
 

@@ -44,10 +44,10 @@ const isValid = await $ctx.$helpers.$bcrypt.compare('myPassword123', hashedPassw
 Generate URL-friendly slugs from text.
 
 ```javascript
-const slug = await $ctx.$helpers.autoSlug(text);
+const slug = $ctx.$helpers.autoSlug(text);
 
 // Example
-const slug = await $ctx.$helpers.autoSlug('My Product Name');
+const slug = $ctx.$helpers.autoSlug('My Product Name');
 // Result: 'my-product-name'
 ```
 

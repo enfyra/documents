@@ -1,6 +1,9 @@
 # Query Filtering
 
-Enfyra provides MongoDB-like filtering operators for querying data. Use these operators in the `where` parameter of repository `find()` calls or in URL query strings.
+Enfyra provides MongoDB-like filtering operators for querying data.
+
+- **HTTP / REST:** pass the predicate as the **`filter`** query parameter (JSON in the query string).
+- **Handlers, hooks, flows (`$ctx.$repos.*.find`, `#table.find`, etc.):** pass the same predicate as **`filter`** or **`where`** — both are equivalent (`DynamicRepository` uses `filter ?? where`).
 
 ## Quick Navigation
 

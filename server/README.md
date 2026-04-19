@@ -13,14 +13,20 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 
 ### Core Concepts
 - **[Hooks and Handlers](hooks-handlers/prehooks.md)** - Creating preHooks, postHooks, and custom handlers
+- **[Guards](./guards.md)** - Declarative route protection (IP blocking, rate limiting)
 - **[Query Filtering](./query-filtering.md)** - MongoDB-like filtering operators and examples
 - **[Error Handling](./error-handling.md)** - Throwing errors and handling exceptions
+
+### Security & Access Control
+- **[Field Permissions](./field-permissions.md)** - Per-column and per-relation access control (isPublished baseline + rules)
+- **[Guards](./guards.md)** - Declarative route protection (IP blocking, rate limiting)
 
 ### Advanced Topics
 - **[WebSocket Guide](./websocket.md)** - Real-time WebSocket communication
 - **[Cache Operations](./cache-operations.md)** - Distributed caching and locking
 - **[File Handling](./file-handling.md)** - File uploads and management
 - **[Cluster Architecture](./cluster-architecture.md)** - Multi-instance coordination
+- **[Schema migration preview](./schema-migration-preview.md)** - Confirmed `table_definition` PATCH, hash, relation removal warnings
 
 ## Finding What You Need
 
@@ -69,8 +75,11 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 ### "How do I throw errors properly?"
  See [Error Handling](./error-handling.md)
 
+### "I want to control who can see specific columns"
+ See [Field Permissions](./field-permissions.md)
+
 ### "I want to protect my API from abuse"
- See [Context Reference - Helpers & Cache](./context-reference/helpers-cache.md#rate-limiting) for rate limiting
+ See [Guards](./guards.md) for declarative route protection, or [Context Reference - Helpers & Cache](./context-reference/helpers-cache.md#rate-limiting) for code-based rate limiting
 
 ### "I need to use Redis cache"
  See [Cache Operations](./cache-operations.md)
@@ -129,11 +138,14 @@ See [Context Reference](context-reference/request-data.md) for complete details.
 Every API request follows this flow:
 
 1. **Route Detection** - System matches request to route definition
-2. **Context Setup** - Creates `$ctx` with repositories and helpers
-3. **preHooks Execution** - Runs all matching preHooks sequentially
-4. **Handler Execution** - Custom handler or default CRUD operation
-5. **postHooks Execution** - Runs all matching postHooks sequentially
-6. **Response** - Returns processed data
+2. **Pre-Auth Guards** - IP blocking, global rate limiting
+3. **Context Setup** - Creates `$ctx` with repositories and helpers
+4. **Authentication** - JWT verification and role check
+5. **Post-Auth Guards** - User-specific rate limiting
+6. **preHooks Execution** - Runs all matching preHooks sequentially
+7. **Handler Execution** - Custom handler or default CRUD operation
+8. **postHooks Execution** - Runs all matching postHooks sequentially
+9. **Response** - Returns processed data
 
 The same `$ctx` object flows through all phases, so modifications in preHooks are visible to handlers and postHooks.
 
@@ -147,8 +159,9 @@ See [API Lifecycle](./api-lifecycle.md) for complete details.
 2. **[Context Reference](context-reference/request-data.md)** - Understand all available properties and methods in `$ctx`
 3. **[API Lifecycle](./api-lifecycle.md)** - Learn how requests flow through the system
 4. **[Hooks and Handlers](hooks-handlers/prehooks.md)** - Customize API behavior with hooks and handlers
-5. **[Query Filtering](./query-filtering.md)** - Master filtering and querying data
-6. **[Error Handling](./error-handling.md)** - Handle errors properly
+5. **[Guards](./guards.md)** - Protect routes with IP blocking and rate limiting
+6. **[Query Filtering](./query-filtering.md)** - Master filtering and querying data
+7. **[Error Handling](./error-handling.md)** - Handle errors properly
 
 **Advanced topics:**
 - [Cache Operations](./cache-operations.md) - Distributed caching and locking
