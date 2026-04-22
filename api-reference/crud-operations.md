@@ -136,6 +136,45 @@ curl -X DELETE "http://localhost:3000/api/user_definition/3" \
 
 ---
 
+## Body Validation (POST / PATCH)
+
+If the table has `validateBody = true` (default for new tables), the server validates the request body against the table's schema and any **column rules** attached to its columns. Validation runs before the handler executes.
+
+**What is checked, in order:**
+
+1. Column **type** (int, varchar, boolean, etc.)
+2. **Nullability** (`isNullable: false` columns reject `null`)
+3. **Length cap** for `varchar` (`options.length`)
+4. **Column rules** (min/max, minLength/maxLength, pattern, format, minItems/maxItems)
+5. **Strictness** — unknown top-level fields are rejected
+
+**Failure response (HTTP 400):**
+
+```json
+{
+  "statusCode": 400,
+  "message": [
+    "name: String must contain at least 3 character(s)",
+    "email: Invalid email",
+    "age: Number must be greater than or equal to 18"
+  ],
+  "error": "Bad Request"
+}
+```
+
+`message` is always an **array of strings** — one per violation. The prefix before `:` is the field name; clients can split on `:` to map errors back to form fields.
+
+**Notes:**
+
+- Cascade create payloads (e.g. `POST /post` with inline `comments: [...]`) validate child records too if the related table also has `validateBody = true`.
+- Connect-by-id shapes (`{ author: 5 }` or `{ author: { id: 5 } }`) skip nested validation.
+- Tables with `validateBody = false` only enforce database-level constraints at insert/update time; rules are not consulted.
+- Field-permission `deny` on `create`/`update` returns **403**, not 400 — that's not validation.
+
+To configure rules per column, see the admin app guide: [Column Rules](../app/column-rules.md).
+
+---
+
 ## Custom Routes
 
 You can add custom routes (e.g. `/register`, `/orders/:orderId/items`) in Enfyra Settings. Each route exposes the HTTP methods configured for it. Use the same base URL and authentication as for table routes.

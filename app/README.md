@@ -24,6 +24,9 @@ The app is a **pure API client**: it never connects directly to your database. A
   - **[Permission Builder](./permission-builder.md)** – Visual permission rule builder  
   - **[Permission Components](./permission-components.md)** – `PermissionGate` component and `usePermissions` composable
 
+- **Validation**
+  - **[Column Rules](./column-rules.md)** – Attach min/max, length, pattern, format constraints to columns; rules are enforced server-side on POST/PATCH
+
 - **Navigation & Layout**  
   - **[Menu Management](./menu-management.md)** – Sidebar and menu configuration  
   - **[Page Header](./page-header.md)** – Page headers with stats and gradients
