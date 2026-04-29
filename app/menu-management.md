@@ -4,7 +4,7 @@ Menu Management provides a visual interface for creating and organizing navigati
 
 ## Accessing Menu Management
 
-1. Navigate to **Settings  Menus** in the sidebar
+1. Navigate to **Settings > Menus** in the sidebar
 2. You'll see a visual tree representation of all menus
 3. System menus (like Dashboard, Settings) are protected and cannot be deleted
 
@@ -178,7 +178,7 @@ The menu system uses `PermissionGate` and `usePermissions` internally to automat
 3. Create **Menu** items with parent "User Management":
    - "User List" (`/settings/users`)
    - "User Roles" (`/settings/roles`)
-4. This creates: Settings  User Management  (User List, User Roles)
+4. This creates: Settings > User Management > (User List, User Roles)
 
 **Tip**: Use the visual editor to create the hierarchy first, then reorganize with drag-and-drop as needed.
 

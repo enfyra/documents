@@ -104,7 +104,7 @@ If you don't provide a custom handler, the system automatically performs CRUD op
 
 - **GET**: Query records using repository `find()`
 - **POST**: Create record using repository `create()`
-- **PATCH/PUT**: Update record using repository `update()`
+- **PATCH**: Update record using repository `update()`
 - **DELETE**: Delete record using repository `delete()`
 
 The default CRUD uses data from:
@@ -122,7 +122,7 @@ Global hooks run on all routes.
 
 **Configuration:**
 - Route: `null` (no specific route)
-- Methods: `[]` (all methods) or specific methods like `['POST', 'PUT']`
+- Methods: `[]` (all methods) or specific methods like `['POST', 'PATCH']`
 
 **Example:**
 ```javascript
@@ -171,4 +171,3 @@ Post-hooks run in the same **global-then-route** grouping as pre-hooks (not reve
 - See [preHooks](./prehooks.md) for pre-handler operations
 - Learn about [postHooks](./posthooks.md) for post-handler operations
 - Check [Common Patterns](./patterns.md) for best practices
-

@@ -38,14 +38,14 @@ This diagram shows how Enfyra's two-component system works.
 
 ### Backend Server (Port 1105)
 - **Database Management**: Direct connection to MySQL/PostgreSQL/MongoDB/SQLite
-- **API Generation**: Automatically creates REST & GraphQL APIs from database schema
+- **API Generation**: Automatically creates REST APIs from database metadata, with GraphQL available per table when enabled
 - **Business Logic**: Custom handlers, hooks, and validation
 - **Security**: Authentication, authorization, and permissions
 - **Schema Management**: Table creation, relationships, and migrations
 
 ### Frontend App (Port 3000)
 - **User Interface**: Admin panel, forms, tables, dashboards
-- **API Consumer**: Browser calls `/api/...` on the Nuxt app; Nitro proxies those requests to the Nest backend (`API_URL`, typically port 1105)
+- **API Consumer**: Browser calls `/api/...` on the Nuxt app; Nitro proxies those requests to the Enfyra backend (`API_URL`, typically port 1105)
 - **State Management**: Handles UI state, caching, and user sessions
 - **Extensions**: Custom Vue components and pages
 - **No Database Access**: Never directly connects to database
@@ -53,7 +53,7 @@ This diagram shows how Enfyra's two-component system works.
 ## Data Flow
 
 1. **User Action**: User interacts with frontend admin interface
-2. **HTTP Request**: Browser calls the admin origin (often `/api/...` on port 3000); Nitro proxies to the Nest backend unless you call the backend origin directly
+2. **HTTP Request**: Browser calls the admin origin (often `/api/...` on port 3000); Nitro proxies to the Enfyra backend unless you call the backend origin directly
 3. **Processing**: Backend processes request through hooks/handlers
 4. **Database Operation**: Backend performs database operation
 5. **Response**: Backend returns JSON response to frontend
@@ -61,7 +61,7 @@ This diagram shows how Enfyra's two-component system works.
 
 ## Key Points
 
-- **All APIs originate from backend**: The browser does not implement REST/GraphQL itself; Nuxt may run server routes (BFF) that forward to Nest.
+- **All APIs originate from backend**: The browser does not implement REST/GraphQL itself; Nuxt may run server routes that forward to the Enfyra backend.
 - **Single Database Connection**: Only backend connects to database
 - **SPA-first admin**: Default Nuxt setup is client-rendered (`ssr: false`); Nitro still provides proxy/login and packaging—not “zero server logic,” but **no direct DB** from the app tier.
 - **API-First Design**: Backend serves APIs, frontend consumes them

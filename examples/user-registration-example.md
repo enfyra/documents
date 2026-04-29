@@ -13,7 +13,7 @@ This example demonstrates how to create a custom `/register` endpoint using Enfy
 
 ## Step 1: Create the Route
 
-1. Navigate to **Settings  Routes**  [ Routing Management Guide](../app/routing-management.md)
+1. Navigate to **Settings > Routes** - [Routing Management Guide](../app/routing-management.md)
 2. Click **"Create New Route"**
 3. Configure:
    - **Route**: `/register`
@@ -24,7 +24,7 @@ This example demonstrates how to create a custom `/register` endpoint using Enfy
 
 ## Step 2: Create the Custom Handler
 
-1. Navigate to **Settings  Handlers**  [ Custom Handlers Guide](../app/hooks-handlers/custom-handlers.md)
+1. Open the route in **Settings > Routes** and add a handler in **Execution Flow** - [Custom Handlers Guide](../app/hooks-handlers/custom-handlers.md)
 2. Click **"Create New Handler"**
 3. Configure:
    - **Route**: Click relation picker  Select `/register` route
@@ -54,7 +54,7 @@ const userResult = await $ctx.$repos.user_definition.create({ data: {
   name: name || null, // Optional field
   isActive: true,
   createdAt: new Date().toISOString()
-});
+}});
 ```
 
 **Template Syntax (New Shortened Way):**
@@ -75,7 +75,7 @@ const userResult = await #user_definition.create({ data: {
   name: name || null, // Optional field
   isActive: true,
   createdAt: new Date().toISOString()
-});
+}});
 ```
 
 **Mixed Syntax (Use Both Ways):**
@@ -89,7 +89,7 @@ const userResult = await #user_definition.create({ data: {  // Direct table acce
   name: name || null,
   isActive: true,
   createdAt: new Date().toISOString()
-});
+}});
 
 // The create() method automatically calls .find() after insert
 // so userResult.data[0] contains the full record with ID, timestamps, etc.
@@ -112,7 +112,7 @@ return {
 
 ## Step 3: Install Nodemailer Package
 
-1. Navigate to **Settings  Packages**  [ Package Management Guide](../app/hooks-handlers/package-management.md)
+1. Navigate to **Packages > Server** or **Packages > Install** - [Package Management Guide](../app/hooks-handlers/package-management.md)
 2. Click **"Install Package"**
 3. Select **"Backend Package"** type
 4. Search for `nodemailer`
@@ -121,7 +121,7 @@ return {
 
 ## Step 4: Create Registration Hook (PreHook + AfterHook)
 
-1. Navigate to **Settings  Hooks**  [ Hooks System Guide](../app/hooks-handlers/hooks.md)
+1. Open the route in **Settings > Routes** and add a postHook in **Execution Flow** - [Hooks System Guide](../app/hooks-handlers/hooks.md)
 2. Click **"Create New Hook"**
 3. Configure:
    - **Route**: Click relation picker  Select `/register` route

@@ -24,6 +24,9 @@ The app is a **pure API client**: it never connects directly to your database. A
   - **[Permission Builder](./permission-builder.md)** – Visual permission rule builder  
   - **[Permission Components](./permission-components.md)** – `PermissionGate` component and `usePermissions` composable
 
+- **Validation**
+  - **[Column Rules](./column-rules.md)** – Attach min/max, length, pattern, format constraints to columns; rules are enforced server-side on POST/PATCH
+
 - **Navigation & Layout**  
   - **[Menu Management](./menu-management.md)** – Sidebar and menu configuration  
   - **[Page Header](./page-header.md)** – Page headers with stats and gradients
@@ -35,6 +38,10 @@ The app is a **pure API client**: it never connects directly to your database. A
 
 - **Storage & Files**  
   - **[Storage Management](./storage-management.md)** – File uploads, folders, and storage configurations
+
+- **Operations**
+  - **[Server Logs](./log-viewing.md)** – Read and tail backend logs from the admin app
+  - **[Runtime Monitor](./runtime-monitor.md)** – Process, database, queue, websocket, and Redis visibility
 
 ## Frontend Learning Path
 
@@ -74,4 +81,3 @@ When in doubt:
 
 - If you are asking **“Which endpoint / field / filter can I use?”** – go to the **server docs**.  
 - If you are asking **“How do I show this in the UI / extension?”** – stay in the **app docs**.
-

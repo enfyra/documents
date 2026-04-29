@@ -4,7 +4,7 @@
 
 ##  Overview
 
-The `dothinh115/enfyra` (or `enfyra/enfyra`) image can run in **3 different modes**:
+The `enfyra/enfyra` image can run in **3 different modes**:
 
 1. **`all`** (default) - Run both server + app + embedded services
 2. **`server`** - Run backend server only
@@ -23,7 +23,7 @@ docker run -d \
   --name enfyra \
   -p 3000:3000 \
   -v enfyra-data:/app/data \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 ```
 
  Runs with:
@@ -40,7 +40,7 @@ docker run -d \
   -p 3000:3000 \
   -e EMBEDDED_DB=mysql \
   -v enfyra-data:/app/data \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 ```
 
 ### With external database and Redis:
@@ -51,7 +51,7 @@ docker run -d \
   -p 3000:3000 \
   -e DB_URI=postgresql://enfyra:secret@my-postgres-host:5432/enfyra \
   -e REDIS_URI=redis://my-redis:6379/0 \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 ```
 
 > **Note:** The database engine is auto-detected from the `DB_URI` protocol prefix (`mysql://`, `postgres://`, `mongodb://`, `sqlite://`). No separate `DB_TYPE` env var is needed.
@@ -69,7 +69,7 @@ docker run -d \
   -e ENFYRA_MODE=server \
   -e DB_URI=postgresql://enfyra:secret@my-postgres:5432/enfyra \
   -e REDIS_URI=redis://my-redis:6379/0 \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 ```
 
 **With replica databases:**
@@ -83,7 +83,7 @@ docker run -d \
   -e DB_REPLICA_URIS=postgresql://enfyra:secret@replica1:5432/enfyra,postgresql://enfyra:secret@replica2:5432/enfyra \
   -e DB_READ_FROM_MASTER=false \
   -e REDIS_URI=redis://my-redis:6379/0 \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 ```
 
 ### Server with embedded services:
@@ -94,7 +94,7 @@ docker run -d \
   -p 1105:1105 \
   -e ENFYRA_MODE=server \
   -v enfyra-server-data:/app/data \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 ```
 
 **Note**: When `ENFYRA_MODE=server`, app will not be started, only backend API.
@@ -111,7 +111,7 @@ docker run -d \
   -p 3000:3000 \
   -e ENFYRA_MODE=app \
   -e API_URL=http://your-server-host:1105/ \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 ```
 
 ### App with HTTPS backend:
@@ -122,7 +122,7 @@ docker run -d \
   -p 3000:3000 \
   -e ENFYRA_MODE=app \
   -e API_URL=https://api.your-domain.com/ \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 ```
 
 **Note**: 
@@ -153,7 +153,7 @@ docker run -d \
   -e ENFYRA_MODE=server \
   -e DB_URI=postgresql://enfyra:secret@shared-postgres:5432/enfyra \
   -e REDIS_URI=redis://shared-redis:6379/0 \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 
 # Server node 2
 docker run -d \
@@ -162,7 +162,7 @@ docker run -d \
   -e ENFYRA_MODE=server \
   -e DB_URI=postgresql://enfyra:secret@shared-postgres:5432/enfyra \
   -e REDIS_URI=redis://shared-redis:6379/0 \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 
 # App (pointing to load balancer or server nodes)
 docker run -d \
@@ -170,7 +170,7 @@ docker run -d \
   -p 3000:3000 \
   -e ENFYRA_MODE=app \
   -e API_URL=http://load-balancer:1105/ \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 ```
 
 ---
@@ -203,6 +203,9 @@ docker run -d \
 - `REDIS_URI`: Redis connection string
   - Format: `redis://user:pass@host:port/db` or `redis://host:port/db`
 - `DEFAULT_TTL`: Default TTL for cache entries in seconds (default: `5`)
+- `REDIS_RUNTIME_CACHE`: Store Enfyra runtime definition snapshots in Redis instead of per-instance memory (`false` by default)
+- `REDIS_USER_CACHE_LIMIT_MB`: Soft allocation for `$cache` / `@CACHE` user data (`30` by default)
+- `REDIS_USER_CACHE_MAX_VALUE_BYTES`: Optional per-value limit for `$cache` / `@CACHE`; `0` disables the cap
 
 ### Server
 - `PORT`: Server port (default: `1105`)
@@ -228,7 +231,7 @@ docker run -d \
   -e ADMIN_EMAIL=myadmin@example.com \
   -e ADMIN_PASSWORD=secure_password_123 \
   -v enfyra-data:/app/data \
-  dothinh115/enfyra:latest
+  enfyra/enfyra:latest
 ```
 
 ### App
@@ -266,7 +269,7 @@ docker run -d \
      -p 3000:3000 \
      -p 5432:5432 \  # ← Expose PostgreSQL port
      -v enfyra-data:/app/data \
-     dothinh115/enfyra:latest
+     enfyra/enfyra:latest
    ```
    
    Then connect with DBeaver:
@@ -284,7 +287,7 @@ docker run -d \
      -p 3306:3306 \  # ← Expose MySQL port
      -e EMBEDDED_DB=mysql \
      -v enfyra-data:/app/data \
-     dothinh115/enfyra:latest
+     enfyra/enfyra:latest
    ```
    
    Then connect with DBeaver:
@@ -301,7 +304,7 @@ docker run -d \
      -p 3000:3000 \
      -p 6379:6379 \  # ← Expose Redis port
      -v enfyra-data:/app/data \
-     dothinh115/enfyra:latest
+     enfyra/enfyra:latest
    ```
    
    **Default Admin User** (auto-created on init):
@@ -345,4 +348,3 @@ If you see a warning about port conflict:
 
 3. **Use different port** (not recommended, as embedded services use fixed ports):
    - Should use external service instead of changing port
-

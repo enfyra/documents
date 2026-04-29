@@ -43,7 +43,7 @@ Extensions provide the Vue.js component that renders when users navigate to your
 This example shows the complete process from creating a menu to displaying custom content.
 
 ### Step 1: Create a Menu Item
-1. Navigate to **Settings  Menu**
+1. Navigate to **Settings > Menus**
 2. Click **"Create"** to add a new menu
 3. Configure your menu:
    - **Type**: Select "Menu" (for regular menu items)
@@ -56,7 +56,7 @@ This example shows the complete process from creating a menu to displaying custo
 **Result**: You now have a menu entry, but clicking it shows a blank page because there's no extension linked.
 
 ### Step 2: Create the Extension
-1. Navigate to **Settings  Extensions**
+1. Navigate to **Settings > Extensions**
 2. Click **"Create Extension"**
 3. Fill in the extension details:
    - **Name**: "Analytics Dashboard"
@@ -1142,7 +1142,7 @@ Any npm package can be installed. Popular choices:
 ## Extension Management
 
 ### Enabling/Disabling Extensions
-1. Go to **Settings  Extensions**
+1. Go to **Settings > Extensions**
 2. Find your extension in the list
 3. Toggle the switch to enable/disable
 4. Disabled extensions won't load even if menu is clicked

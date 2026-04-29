@@ -76,8 +76,9 @@ $ctx = {
 ## Creating Hooks
 
 ### Step 1: Access Hooks Management
-1. Navigate to **Settings  Hooks** in the sidebar
-2. Click **"Create New Hook"** button
+1. Navigate to **Settings > Routes**
+2. Open the route that should run the hook
+3. In **Execution Flow**, click **Add Pre-Hook** or **Add Post-Hook**
 
 ### Step 2: Configure Hook
 You'll see the hook creation form with these fields:
@@ -88,12 +89,11 @@ You'll see the hook creation form with these fields:
 - **Priority**: Execution order (0 = highest priority)
 - **IsEnabled**: Toggle to activate/deactivate the hook
 - **Description**: Documentation for the hook's purpose
-- **Route**: Click the relation picker to select which route this applies to
-- **Methods**: Click the relation picker to select HTTP methods (GET, POST, PATCH, DELETE)
+- **Route**: The current route is selected automatically when you create the hook from the route detail page
+- **Methods**: Select the HTTP methods that should trigger this hook (`GET`, `POST`, `PATCH`, `DELETE`)
 
-### Step 3: Link to Route and Methods
-- **Route Selection**: Use the relation picker to search and select the target route
-- **Method Selection**: Use the relation picker to choose which HTTP methods trigger this hook
+### Step 3: Choose Methods
+- **Method Selection**: Choose which HTTP methods trigger this hook
 - **Multiple Methods**: A single hook can apply to multiple HTTP methods on the same route
 
 ## Writing Hook Code
@@ -113,7 +113,7 @@ if (!_.isObject($ctx.$body) || _.isEmpty($ctx.$body)) {
 // postHook example - Using moment for timestamps
 const moment = $ctx.$pkgs.moment;
 
-$ctx.$response.data.forEach(record => {
+($ctx.$data?.data || []).forEach(record => {
   record.formatted_date = moment(record.created_at).format('YYYY-MM-DD HH:mm:ss');
 });
 ```
@@ -138,4 +138,3 @@ This covers:
 **[User Registration Example](../../examples/user-registration-example.md)** - See hooks in action with welcome email postHook using nodemailer package.
 
 Hooks provide the perfect balance between simplicity and power, allowing you to customize API behavior without the complexity of full custom handlers.
-

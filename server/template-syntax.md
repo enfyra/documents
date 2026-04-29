@@ -79,6 +79,8 @@ In **`find()`** options, **`filter`** and **`where`** are the same object (REST 
 
 ### Cache Operations
 
+`@CACHE` maps to the same managed user cache as `$ctx.$cache`. Use logical keys only; Enfyra applies the current app namespace internally. Do not include `NODE_NAME`, `user_cache:`, or Redis prefixes in template code. User-cache data is limited by `REDIS_USER_CACHE_LIMIT_MB` (default `30` MB), and Enfyra evicts least-recently-used user-cache keys when the allocation is exceeded.
+
 ```javascript
 // Get data from cache
 const cachedData = await @CACHE.get('user:123');
@@ -90,7 +92,7 @@ await @CACHE.set('user:123', userData, 3600000); // 1 hour
 const exists = await @CACHE.exists('user:123');
 
 // Delete from cache
-await @CACHE.delete('user:123');
+await @CACHE.deleteKey('user:123');
 
 // Distributed locking
 const lockAcquired = await @CACHE.acquire('critical-operation', 'instance-1', 30000);
@@ -146,9 +148,9 @@ const usersInRole = await @REPOS.user_definition.find({
 // Create new record
 const newUser = await @REPOS.user_definition.create({
   data: {
-  email: 'user@example.com',
-  name: 'John Doe',
-  isActive: true
+    email: 'user@example.com',
+    name: 'John Doe',
+    isActive: true
   }
 });
 
@@ -156,8 +158,8 @@ const newUser = await @REPOS.user_definition.create({
 const updatedUser = await @REPOS.user_definition.update({
   id: userId,
   data: {
-  name: 'Jane Doe',
-  lastLogin: new Date()
+    name: 'Jane Doe',
+    lastLogin: new Date()
   }
 });
 
@@ -207,13 +209,13 @@ const newUser = await #user_definition.create({ data: {
   email: 'user@example.com',
   name: 'John Doe',
   isActive: true
-});
+}});
 
 // Update record by ID
 const updatedUser = await #user_definition.update({ id: userId, data: {
   name: 'Jane Doe',
   lastLogin: new Date()
-});
+}});
 
 // Delete record by ID
 await #user_definition.delete({ id: userId });

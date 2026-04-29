@@ -145,7 +145,7 @@ This Pre-Hook automatically injects `project_id` filter for ALL requests.
    - **Is Global:** `No` (specific to this route)
    - **Is Enabled:** `Yes`
 
-6. Select **HTTP Methods:** Check ALL (GET, POST, PUT, PATCH, DELETE)
+6. Select **HTTP Methods:** choose the route methods that should enforce tenant filtering (`GET`, `POST`, `PATCH`, `DELETE`)
 
 7. In the **Logic** editor, paste this code:
 
@@ -198,7 +198,6 @@ switch (method) {
     break;
 
   // === UPDATE OPERATIONS ===
-  case 'PUT':
   case 'PATCH':
     // Prevent changing project_id
     delete @BODY.project_id;
@@ -268,7 +267,7 @@ if (method === 'GET') {
     throw new Error('Cannot create records for another project');
   }
   @BODY.project_id = userProject;
-} else if (method === 'PUT' || method === 'PATCH') {
+} else if (method === 'PATCH') {
   delete @BODY.project_id;
 }
 ```
