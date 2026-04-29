@@ -20,7 +20,7 @@ Rules do **not** run for:
 
 ## Toggling `validateBody` on a Table
 
-1. Open **Collections → [your table]** (or any system table you own).
+1. Open **Collections > [your table]** (or any system table you own).
 2. Open the table form (gear / edit).
 3. Toggle **Validate Body** on or off.
 4. Save.
@@ -31,7 +31,7 @@ Default for newly-created tables is **on**.
 
 Rules live next to columns in the table editor.
 
-1. Open the table in **Collections** (or **Settings → Tables** for system tables).
+1. Open the table in **Collections** (or **Settings > Tables** for system tables).
 2. Locate the column row in the columns table.
 3. Click the **ruler icon** in the column row (next to the field-permission shield icon).
 4. The **Manage Rules** modal opens with the existing rule list for that column.
@@ -102,7 +102,7 @@ Content-Type: application/json
 }
 ```
 
-`message` is always an **array of strings**, mirroring the shape that NestJS class-validator produces. Front-end forms can iterate and bind each entry to its corresponding field (the prefix before `:` is the field name).
+`message` is always an **array of strings**. Front-end forms can iterate and bind each entry to its corresponding field (the prefix before `:` is the field name).
 
 ## Cascade Validation (Nested Create)
 

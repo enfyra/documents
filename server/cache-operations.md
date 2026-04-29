@@ -1,6 +1,6 @@
 # Cache Operations
 
-Enfyra provides distributed caching and locking operations through Redis. Use cache operations for performance optimization, rate limiting, and coordinating between instances.
+Enfyra provides managed user-cache operations and distributed locking through Redis. Use cache operations for performance optimization, rate limiting, and coordinating between instances.
 
 ## Quick Navigation
 
@@ -18,6 +18,12 @@ All cache operations are available through `$ctx.$cache` and require `await`.
 const value = await $ctx.$cache.get('key');
 await $ctx.$cache.set('key', value, 60000);
 ```
+
+`$ctx.$cache` and the `@CACHE` macro share the same user-cache storage. Use logical keys such as `user:123`, `session:abc`, or `report:daily`; Enfyra automatically scopes them to the current app namespace. Do not include `NODE_NAME`, `user_cache:`, or a Redis prefix in handler code.
+
+On Redis-backed deployments, user cache is stored under `NODE_NAME:user_cache:*`. The editable Redis Admin Key Editor uses this same contract, so values written in the admin UI are visible through `$ctx.$cache`.
+
+The soft allocation is controlled by `REDIS_USER_CACHE_LIMIT_MB` and defaults to `30` MB. When user cache grows past that allocation, Enfyra removes least-recently-used user-cache keys only. Runtime cache snapshots, BullMQ queues, Socket.IO state, runtime telemetry, and locks are system keys; they are not counted against user cache and are not evicted by user-cache cleanup.
 
 ## Cache Storage
 
@@ -68,6 +74,8 @@ await $ctx.$cache.setNoExpire(key, value);
 // Example
 await $ctx.$cache.setNoExpire('config:app', configData);
 ```
+
+Persistent user-cache entries can still be evicted by the soft allocation limit. Prefer a TTL for values that can be rebuilt from the database or an external source.
 
 ### Delete Cache Key
 
@@ -354,11 +362,12 @@ for (const product of popularProducts.data) {
 
 1. **Always use await** - All cache functions are async and require await
 2. **Set appropriate TTL** - Choose TTL based on how often data changes
-3. **Use consistent key patterns** - Use patterns like `user:123`, `session:456`, `lock:789`
+3. **Use logical key patterns** - Use patterns like `user:123`, `session:456`, `lock:789`; Enfyra adds the app namespace internally
 4. **Always release locks** - Use try-finally blocks to ensure locks are released
 5. **Invalidate cache on updates** - Delete cache keys when data is updated
 6. **Handle cache misses** - Always have a fallback to database when cache misses
 7. **Use locking for critical operations** - Prevent concurrent modifications with distributed locks
+8. **Respect the user-cache allocation** - Keep `$cache` data rebuildable because LRU cleanup may evict old keys when the configured limit is exceeded
 
 ## Key Naming Conventions
 
@@ -392,4 +401,3 @@ Use consistent naming patterns for cache keys:
 - Learn about [Context Reference](./context-reference/) for cache access
 - See [Cluster Architecture](./cluster-architecture.md) to understand distributed coordination
 - Check [Error Handling](./error-handling.md) for handling cache failures
-

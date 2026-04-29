@@ -7,8 +7,9 @@ This page reflects the current open-source server in the [`server`](https://gith
 ## What is actually “stateless”
 
 - **HTTP requests** do not rely on server-local session files: auth uses JWT; sessions are stored in the database (`session_definition`).
-- Each process still holds **large in-memory caches** (metadata, routes, GraphQL-related data, packages, storage config, OAuth config, websocket definitions, flows, folder tree, etc.). Those structures are **rebuilt from the database** after startup or when a peer signals a reload.
-- So instances are **not** “zero RAM state”; they are **interchangeable** as long as they share DB + Redis and receive the same reload signals.
+- By default, each process holds runtime definition caches in local memory (metadata, routes, GraphQL-related data, packages, storage config, OAuth config, websocket definitions, flows, folder tree, etc.). Those structures are rebuilt from the database after startup or when a peer signals a reload.
+- When `REDIS_RUNTIME_CACHE=true`, runtime definition snapshots are stored in Redis under the current `NODE_NAME` namespace. Instances with the same `NODE_NAME` read the same runtime cache snapshots instead of keeping a separate full copy per instance.
+- Instances are still not “zero RAM state”: each process keeps active runtime objects, clients, queues, workers, and request-local state. They are interchangeable as long as they share DB + Redis and use the same cluster namespace.
 
 ## Instance identity
 
@@ -32,13 +33,28 @@ When a cache service reloads (admin reload, metadata invalidation, etc.), the ty
 - `BASE_CHANNEL` if `NODE_NAME` is **unset**
 - `BASE_CHANNEL:NODE_NAME` if `NODE_NAME` is **set**
 
-**All API instances that must share the same live metadata/routes must use the same `NODE_NAME` (or all leave it unset).** If each machine uses a different `NODE_NAME`, they subscribe to **different** channels and **will not** synchronize caches with each other.
+**All API instances that must share the same live metadata/routes/runtime cache must use the same `NODE_NAME` (or all leave it unset).** If each machine uses a different `NODE_NAME`, they subscribe to **different** channels and read **different** Redis runtime cache namespaces.
 
 `NODE_NAME` is **not** for “unique per instance”; it is an optional **environment / deployment segment** for channel names.
 
+## Redis runtime cache and user cache
+
+`REDIS_RUNTIME_CACHE=true` enables Redis-backed runtime definition snapshots. This is system-owned cache used by Enfyra itself and is separate from application `$cache` data.
+
+`$ctx.$cache` and `@CACHE` use managed user cache. Script authors use logical keys such as `user:123`; Enfyra stores them under the current app namespace as `NODE_NAME:user_cache:*`.
+
+User cache is controlled by:
+
+- `REDIS_USER_CACHE_LIMIT_MB`: soft allocation for user-cache values, default `30`.
+- `REDIS_USER_CACHE_MAX_VALUE_BYTES`: optional per-value limit; `0` disables the per-value cap.
+
+When the allocation is exceeded, Enfyra evicts least-recently-used user-cache keys only. System keys are not counted or evicted by this user-cache limit.
+
+Redis Admin classifies current-app keys with badges, including runtime cache, user cache, BullMQ, Socket.IO, runtime monitor, and locks. It does not read or edit keys outside the current `NODE_NAME` namespace.
+
 ## BullMQ (background jobs)
 
-BullMQ uses the same Redis connection as the app. The queue **key prefix** is `configService.get('NODE_NAME') || 'bull'`.
+BullMQ uses the same Redis connection as the app. The queue **key prefix** is the current `NODE_NAME` namespace when it is set.
 
 - For a **single logical cluster**, every Enfyra server instance should use the **same** `NODE_NAME` (or all unset so every process uses the prefix `bull`). Otherwise each instance only processes its **own** isolated queues (e.g. session cleanup, websocket worker jobs may not run as you expect cluster-wide).
 
@@ -99,12 +115,12 @@ There is **no** `enfyra:ai-config-cache-sync` channel in the open-source server 
 
 1. **Same database** for every API instance (`DB_URI` / Mongo URI, same logical DB).
 2. **Same Redis** for Pub/Sub, BullMQ, and Socket.IO adapter (`REDIS_URI` and matching host/port/password if split).
-3. **Same `NODE_NAME` on every instance of one cluster** (or **unset** on all) so Pub/Sub channels and BullMQ prefixes match.
+3. **Same `NODE_NAME` on every instance of one cluster** (or **unset** on all) so Pub/Sub channels, Redis runtime cache namespace, user-cache namespace, and BullMQ prefixes match.
 4. **Load balancer** in front of HTTP/WebSocket as appropriate for your platform.
 
 Passwords with special characters in URIs must be URL-encoded (same as any JDBC/Redis URL).
 
-**Optional SQL read replicas:** `DB_REPLICA_URIS`, `DB_READ_FROM_MASTER`—see [Installation](../../getting-started/installation.md) for details.
+**Optional SQL read replicas:** `DB_REPLICA_URIS`, `DB_READ_FROM_MASTER`—see [Installation](../getting-started/installation.md) for details.
 
 ## Benefits
 

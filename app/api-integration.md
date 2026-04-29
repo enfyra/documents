@@ -106,7 +106,7 @@ watch(currentPage, () => {
 </script>
 ```
 
-### POST/PUT/DELETE Operations
+### POST/PATCH/DELETE Operations
 
 ```vue
 <script setup>

@@ -23,7 +23,7 @@ Routing Management lets you create custom API endpoints that are served by your 
 ## Creating Custom Routes
 
 ### Step 1: Access Route Manager
-1. Navigate to **Settings  Routings**
+1. Navigate to **Settings > Routes**
 2. Click **"Create Route"** button
 
 ### Step 2: Basic Configuration
@@ -79,7 +79,7 @@ When a route has a **Main Table** configured:
 2. Click **"Add Handler"** button
 3. Configure the handler:
    - **Name**: Descriptive name for the handler
-   - **Method**: Select the HTTP method this handler processes (GET, POST, PUT, PATCH, DELETE, or ALL)
+   - **Method**: Select the HTTP method this handler processes (`GET`, `POST`, `PATCH`, or `DELETE`)
    - **Logic**: Write your custom JavaScript code
    - **Is Enabled**: Toggle to activate/deactivate
 4. Click **Save** to create the handler
@@ -95,7 +95,7 @@ Hooks allow you to add processing logic before (Pre-Hooks) or after (Post-Hooks)
 2. Configure the hook:
    - **Name**: Descriptive name
    - **Is Global**: Check this to apply the hook to all routes (not just this route)
-   - **Methods**: Select which HTTP methods this hook applies to (can select multiple, or leave empty for ALL methods)
+   - **Methods**: Select which HTTP methods this hook applies to (can select multiple)
    - **Priority**: Lower numbers execute first (e.g., 1 executes before 2)
    - **Logic**: Write your JavaScript code
    - **Is Enabled**: Toggle to activate/deactivate
@@ -108,20 +108,20 @@ Hooks allow you to add processing logic before (Pre-Hooks) or after (Post-Hooks)
 
 **Global Hooks**:
 - When **Is Global** is enabled, the hook applies to **all routes** in the system
-- Global hooks appear in the execution flow for **all HTTP methods** (including ALL)
+- Global hooks appear in the execution flow for matching route methods
 - Use global hooks for cross-cutting concerns like logging, authentication checks, or notifications that should run for every request
 
 #### Visual Execution Flow
 
 The execution flow visualization:
-- Groups execution by HTTP method (GET, POST, PUT, PATCH, DELETE, ALL)
-- Shows the sequence of Pre-Hooks  Handler  Post-Hooks for each method
+- Groups execution by HTTP method (`GET`, `POST`, `PATCH`, `DELETE`)
+- Shows the sequence of Pre-Hooks > Handler > Post-Hooks for each method
 - Displays hook priority numbers
 - Allows clicking on any node to edit it
 - Shows enabled/disabled status
 
 **Hook Display Rules**:
-- **Global hooks** (isGlobal = true) appear for **all methods** (including ALL)
+- **Global hooks** (isGlobal = true) appear for matching route methods
 - **Method-specific hooks** appear only for their selected methods
 - **Default handler** appears for all methods that don't have a custom handler (when Main Table is configured)
 
@@ -140,9 +140,7 @@ After creating the route, you can set up fine-grained access control:
 3. **Click "Add Permission"** to open the permission configuration drawer
 4. **Configure permission settings:**
    - **Role**: Select which role gets access (single selection via relation picker)
-   - **Methods**: Choose which methods this role can access (multiple selection):
-     - **REST API Methods**: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`
-     - **GraphQL Methods**: `GQL_QUERY`, `GQL_MUTATION`
+   - **Methods**: Choose which REST methods this role can access (multiple selection): `GET`, `POST`, `PATCH`, `DELETE`
    - **Allowed Users**: Select specific users who bypass role restrictions (multiple selection via relation picker)
    - **Is Enabled**: Toggle to activate/deactivate this permission rule
    - **Description**: Document the purpose of this permission
@@ -161,50 +159,13 @@ After creating permissions, they appear as a list in the Route Permissions secti
 
 See [Relation Picker System](relation-picker.md) for details on selecting roles and users through the relation interface.
 
-### GraphQL Permission Control
+### GraphQL Access
 
-GraphQL API access is controlled through two special methods in Route Permissions:
+GraphQL is enabled per table from the table editor with the **GraphQL** toggle, which writes the table's `gql_definition` record. It is not enabled from Route Permissions.
 
-**`GQL_QUERY` Method:**
-- Controls **read access** via GraphQL queries
-- When enabled for a role, allows querying table data through GraphQL
-- Example: `query { users { data { id name email } } }`
-- Independent from REST `GET` permission
+GraphQL requests currently require a Bearer token. REST `publishedMethods` and route permission methods do not make GraphQL anonymous. GraphQL queries and mutations still use the same table metadata, field publication state, generated input/output schema, guards, and repository behavior as the server runtime.
 
-**`GQL_MUTATION` Method:**
-- Controls **write access** (create, update, delete) via GraphQL mutations
-- When enabled for a role, allows all mutation operations:
-  - `create_table_name` - Create new records
-  - `update_table_name` - Update existing records
-  - `delete_table_name` - Delete records
-- Independent from REST `POST`, `PUT`, `PATCH`, `DELETE` permissions
-
-**Permission Examples:**
-
-```
-# Editor Role - Read-only GraphQL access
-Role: Editor
-Methods: [GQL_QUERY]
-Result: Can query data but cannot create/update/delete via GraphQL
-
-# Admin Role - Full GraphQL access  
-Role: Admin
-Methods: [GQL_QUERY, GQL_MUTATION]
-Result: Can query and mutate data via GraphQL
-
-# Developer Role - Mixed access
-Role: Developer
-Methods: [GET, POST, GQL_QUERY, GQL_MUTATION]
-Result: Full REST and GraphQL access
-```
-
-**Important Notes:**
-- GraphQL permissions are **separate** from REST permissions
-- A role can have GraphQL access without REST access and vice versa
-- `GQL_MUTATION` covers all mutation operations (create, update, delete) - you cannot separate them
-- `GQL_QUERY` covers all query operations
-
-For complete GraphQL API documentation, see **[API Lifecycle](../server/api-lifecycle.md)** and **[Query Filtering](../server/query-filtering.md)**.
+For query syntax and filters, see **[Query Filtering](../server/query-filtering.md)**.
 
 ## System Routes
 

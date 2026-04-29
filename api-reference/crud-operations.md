@@ -38,15 +38,15 @@ curl "http://localhost:3000/api/products?limit=10&fields=id,name,price" \
 
 ---
 
-## GET /{routePath}/:id
+## Get One Record
 
-Get a single record by ID.
+Dynamic REST routes do not expose `GET /{routePath}/:id`. Fetch a single record by using the list endpoint with a primary-key filter and `limit=1`.
 
-**URL:** `{appUrl}/api/{routePath}/{id}`
+**URL:** `{appUrl}/api/{routePath}?filter={"id":{"_eq":1}}&limit=1`
 
 **Example:**
 ```bash
-curl "http://localhost:3000/api/user_definition/1" \
+curl 'http://localhost:3000/api/user_definition?filter={"id":{"_eq":1}}&limit=1' \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -55,16 +55,18 @@ curl "http://localhost:3000/api/user_definition/1" \
 {
   "statusCode": 200,
   "message": "Success",
-  "data": {
-    "id": 1,
-    "email": "user@example.com",
-    "name": "User 1",
-    "role": { "id": 1, "name": "Admin" }
-  }
+  "data": [
+    {
+      "id": 1,
+      "email": "user@example.com",
+      "name": "User 1",
+      "role": { "id": 1, "name": "Admin" }
+    }
+  ]
 }
 ```
 
-**Note:** For MongoDB, use `_id` instead of `id` if your schema uses it.
+Read the first item from `data`. For MongoDB, use `_id` instead of `id` if your schema uses it.
 
 ---
 
@@ -84,17 +86,19 @@ curl -X POST "http://localhost:3000/api/user_definition" \
   -d '{"email":"new@example.com","name":"New User","password":"secret123"}'
 ```
 
-**Response (201):**
+**Response (200):**
 ```json
 {
-  "statusCode": 201,
+  "statusCode": 200,
   "message": "Success",
-  "data": {
-    "id": 3,
-    "email": "new@example.com",
-    "name": "New User",
-    "createdAt": "2024-01-15T12:00:00.000Z"
-  }
+  "data": [
+    {
+      "id": 3,
+      "email": "new@example.com",
+      "name": "New User",
+      "createdAt": "2024-01-15T12:00:00.000Z"
+    }
+  ]
 }
 ```
 
@@ -116,7 +120,7 @@ curl -X PATCH "http://localhost:3000/api/user_definition/3" \
   -d '{"name":"Updated Name"}'
 ```
 
-**Response (200):** Updated record.
+**Response (200):** The default update handler returns a collection-shaped result with the updated record in `data[0]`.
 
 ---
 
@@ -132,7 +136,7 @@ curl -X DELETE "http://localhost:3000/api/user_definition/3" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-**Response (200):** Success or deleted record.
+**Response (200):** The default delete handler returns `{ "message": "Success", "statusCode": 200 }`.
 
 ---
 

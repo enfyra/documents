@@ -87,10 +87,14 @@ docker run -d \
   -p 3000:3000 \
   -e DB_URI=postgresql://enfyra:secret@my-postgres-host:5432/enfyra \
   -e REDIS_URI=redis://my-redis:6379/0 \
+  -e REDIS_RUNTIME_CACHE=true \
+  -e REDIS_USER_CACHE_LIMIT_MB=30 \
   enfyra/enfyra:latest
 ```
 
 > **Note**: If your password contains special characters, URL-encode them. Example: password `p@ssw0rd`  use `p%40ssw0rd` in the URI.
+
+`REDIS_RUNTIME_CACHE=true` stores Enfyra runtime definition snapshots in Redis so instances with the same `NODE_NAME` share the same runtime cache namespace. `$cache` / `@CACHE` user data is separately limited by `REDIS_USER_CACHE_LIMIT_MB`, which defaults to `30` MB.
 
 #### Docker Modes
 
@@ -108,6 +112,8 @@ docker run -d \
   -e ENFYRA_MODE=server \
   -e DB_URI=postgresql://user:password@my-postgres:5432/enfyra \
   -e REDIS_URI=redis://my-redis:6379/0 \
+  -e REDIS_RUNTIME_CACHE=true \
+  -e REDIS_USER_CACHE_LIMIT_MB=30 \
   enfyra/enfyra:latest
 ```
 
@@ -165,7 +171,7 @@ npm run dev
 Database  Backend APIs (1105) ← Frontend App (3000)
 ```
 
-1. **Backend** generates REST & GraphQL APIs from your database schema
+1. **Backend** generates REST APIs and enabled GraphQL schema from your database metadata
 2. **Frontend** uses **`API_URL`** (see `app/env_example`) as the backend API base and makes HTTP requests
 3. **All data operations** flow through: Frontend  Backend  Database
 

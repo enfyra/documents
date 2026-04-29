@@ -12,7 +12,7 @@
 
 ##  What is Enfyra?
 
-**Enfyra is a backend framework that automatically generates APIs from your database.** You create tables through a visual interface, and Enfyra instantly provides REST & GraphQL APIs for them - no coding required. It's like having a backend developer that never sleeps.
+**Enfyra is a backend framework that automatically generates APIs from your database.** You create tables through a visual interface, and Enfyra instantly provides REST APIs, with GraphQL available per table when enabled - no coding required. It's like having a backend developer that never sleeps.
 
  **Live Demo**: [https://demo.enfyra.io/](https://demo.enfyra.io/) - Pre-filled admin credentials, just click login!
 
@@ -40,15 +40,15 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 
 ** Backend-First Architecture**
 
-- **API Generation**: All REST & GraphQL APIs are automatically generated and served by the backend server (port 1105)
-- **Frontend as Client**: The admin app (port 3000) runs in the browser; a Nuxt server layer proxies `/api` to the Nest backend—it never talks to the database directly.
+- **API Generation**: REST APIs and enabled GraphQL schemas are generated and served by the backend server (port 1105)
+- **Frontend as Client**: The admin app (port 3000) runs in the browser; a Nuxt server layer proxies `/api` to the Enfyra backend—it never talks to the database directly.
 - **Single Source of Truth**: Backend generates APIs from database schema, frontend consumes them via HTTP requests
 
 ** Real-time Everything**
 
 - **Live Extension System**: Write Vue/JavaScript extensions that compile and load instantly from the database - no server restarts, no deployments
 - **Zero-downtime Schema Updates**: Change your data structure while your API stays 100% available
-- **Instant API Generation**: Every table immediately becomes a full REST & GraphQL API with advanced querying
+- **Instant API Generation**: Every table immediately gets REST endpoints with advanced querying; GraphQL can be enabled per table
 
 ** Cluster-Ready Architecture**
 
@@ -61,7 +61,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 
 - **Visual Permission Builder**: Create complex permission logic with AND/OR conditions and nested rules
 - **Dynamic Role System**: Permissions that adapt based on data relationships and user context
-- **Handler sandbox**: Custom handlers and hooks run in a Node.js **`vm` sandbox in the same process** with a restricted `require` allowlist—not OS-level or hardware VM isolation; combine RBAC and host hardening for untrusted code.
+- **Handler sandbox**: Custom handlers and hooks run through isolated-vm worker threads. Node-runtime package calls are proxied out of the isolate, so combine RBAC and host hardening for untrusted code.
 
 ** Beyond Traditional CMS**
 
@@ -79,16 +79,19 @@ Choose your coding style - both work seamlessly together:
 ```javascript
 const user = await $ctx.$repos.user_definition.create({
   data: {
-  email: $ctx.$body.email,
-  password: await $ctx.$helpers.$bcrypt.hash($ctx.$body.password)
+    email: $ctx.$body.email,
+    password: await $ctx.$helpers.$bcrypt.hash($ctx.$body.password)
+  }
 });
 ```
 
 **Template Syntax (Shortened):**
 ```javascript
 const user = await #user_definition.create({
-  email: @BODY.email,
-  password: await @HELPERS.$bcrypt.hash(@BODY.password)
+  data: {
+    email: @BODY.email,
+    password: await @HELPERS.$bcrypt.hash(@BODY.password)
+  }
 });
 ```
 
@@ -101,8 +104,8 @@ const user = await #user_definition.create({
 | **Extension System**  | Write custom features that compile and load instantly from the database |
 | **Schema Changes**    | Modify your data structure with zero downtime - APIs stay available     |
 | **Permission System** | Visual builder for complex access control                               |
-| **API Generation**    | Every table instantly becomes a full REST & GraphQL API                 |
-| **Custom Code**       | Execute business logic in a `vm` sandbox (same Node process) with full request context |
+| **API Generation**    | Every table gets REST endpoints, and GraphQL can be enabled per table   |
+| **Custom Code**       | Execute business logic in isolated-vm worker threads with full request context |
 | **Rate Limiting**     | Built-in rate limiting helper with Redis sliding window algorithm       |
 | **Multi-Instance**    | Run multiple servers with automatic synchronization                     |
 | **Flexible Syntax**   | Traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name` patterns |
@@ -124,7 +127,7 @@ const user = await #user_definition.create({
 Database  Backend (API Server)  Frontend (Admin App)
 ```
 
-- **Backend (Port 1105)**: Generates & serves all REST & GraphQL APIs from your database schema
+- **Backend (Port 1105)**: Generates and serves REST APIs plus enabled GraphQL schema from your database metadata
 - **Frontend (Port 3000)**: Pure client application consuming APIs from backend URL
 - **All API endpoints**: Originate from backend server, frontend makes HTTP requests
 - **WebSocket Support**: Real-time bidirectional communication with event-based messaging

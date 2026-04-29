@@ -123,15 +123,46 @@ http://localhost:3000/api/auth/google?redirect=http%3A%2F%2Flocalhost%3A3000%2Fd
 
 **Response:** HTTP 302 redirect to the OAuth provider.
 
+### OAuth Redirect Contract
+
+- `redirect` is required and must be an absolute `http(s)` URL.
+- The client should pass the page it wants to return to after login.
+- The Enfyra Nuxt app captures its own origin during `/api/auth/:provider` and signs it into OAuth state automatically.
+- If `oauth_config_definition.autoSetCookies = true`, the backend redirects back to the Enfyra Nuxt app `/api/auth/set-cookies` endpoint, Nuxt sets auth cookies, then Nuxt redirects to `redirect`.
+- If `oauth_config_definition.autoSetCookies = false`, the backend redirects to `oauth_config_definition.appCallbackUrl` with `accessToken`, `refreshToken`, `expTime`, `loginProvider`, and `redirect` on the query string.
+
 ---
 
 ## GET /auth/:provider/callback
 
-OAuth callback. The provider redirects here after the user authorizes. The backend exchanges the code for tokens and redirects to the app callback URL with tokens in query params.
+OAuth callback. The provider redirects here after the user authorizes. The backend exchanges the code for tokens and then:
+
+- redirects to the Enfyra Nuxt app `/api/auth/set-cookies` endpoint when `autoSetCookies = true`, or
+- redirects to `appCallbackUrl` with tokens on the query string when `autoSetCookies = false`.
 
 **URL:** `{appUrl}/api/auth/{provider}/callback?code=...&state=...`
 
 This endpoint is typically called by the OAuth provider, not directly by your app.
+
+### Example: Nuxt auto cookie flow
+
+```text
+https://localhost:3000/api/auth/google?redirect=https%3A%2F%2Flocalhost%3A3000%2Fdashboard
+```
+
+### Example: External client callback flow
+
+Configure:
+
+- `redirectUri = https://api.example.com/auth/google/callback`
+- `appCallbackUrl = https://client.example.com/oauth/callback`
+- `autoSetCookies = false`
+
+Then call:
+
+```text
+https://admin.enfyra.com/api/auth/google?redirect=https%3A%2F%2Fclient.example.com%2Fafter-login
+```
 
 ---
 
@@ -191,4 +222,3 @@ Update the current user's profile (e.g. name, password).
 **Response (200):** Updated user object.
 
 ---
-

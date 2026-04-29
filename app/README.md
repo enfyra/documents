@@ -39,6 +39,10 @@ The app is a **pure API client**: it never connects directly to your database. A
 - **Storage & Files**  
   - **[Storage Management](./storage-management.md)** – File uploads, folders, and storage configurations
 
+- **Operations**
+  - **[Server Logs](./log-viewing.md)** – Read and tail backend logs from the admin app
+  - **[Runtime Monitor](./runtime-monitor.md)** – Process, database, queue, websocket, and Redis visibility
+
 ## Frontend Learning Path
 
 If you are **building on top of the Enfyra App UI**, this is a suggested order:
@@ -77,4 +81,3 @@ When in doubt:
 
 - If you are asking **“Which endpoint / field / filter can I use?”** – go to the **server docs**.  
 - If you are asking **“How do I show this in the UI / extension?”** – stay in the **app docs**.
-

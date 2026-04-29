@@ -4,7 +4,7 @@ Access HTTP request information and parameters.
 
 ## $ctx.$body
 
-Request body data (POST, PATCH, PUT requests).
+Request body data (`POST` and `PATCH` requests).
 
 ```javascript
 // Access request body
@@ -103,4 +103,3 @@ if ($ctx.$statusCode === 200) {
 - See [Repositories](./repositories.md) for database operations
 - Check [Helpers & Cache](./helpers-cache.md) for utility functions
 - Learn about [Logging & Error Handling](./logging-errors.md)
-

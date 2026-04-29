@@ -136,7 +136,7 @@ Rules:
 | Endpoint | Description |
 |----------|-------------|
 | `POST /admin/flow/trigger/:id` | Trigger a flow execution via BullMQ |
-| `POST /admin/flow/test-step` | Test a single step without saving (body: `{type, config, timeout}`) |
+| `POST /admin/test/run` | Test a flow step without saving by sending `kind: "flow_step"` |
 
 ## Triggering Flows from Handlers
 
@@ -199,8 +199,9 @@ POST /api/flow_step_definition
 ### 3. Test a step before saving
 
 ```
-POST /api/admin/flow/test-step
+POST /api/admin/test/run
 {
+  "kind": "flow_step",
   "type": "query",
   "config": { "table": "user_definition", "filter": { "status": { "_eq": "active" } }, "limit": 5 },
   "timeout": 5000

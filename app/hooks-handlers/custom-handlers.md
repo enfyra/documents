@@ -17,19 +17,19 @@ Custom Handlers let you replace default CRUD operations with your own JavaScript
 ## Creating Custom Handlers
 
 ### Step 1: Access Handler Management
-1. Navigate to **Settings  Handlers** in the sidebar
-2. Click **"Create New Handler"** button
+1. Navigate to **Settings > Routes**
+2. Open the route that needs custom logic
+3. In **Execution Flow**, click the default handler for a method or click **Add Handler**
 
 ### Step 2: Configure Handler
 You'll see the handler creation form with these fields:
 
 - **Logic**: Large code editor where you write your custom JavaScript
 - **Description**: Text area to document what this handler does  
-- **Route**: Click the relation picker (pencil icon) to select which route this handler applies to
-- **Method**: Click the relation picker (pencil icon) to select the HTTP method (GET, POST, PATCH, DELETE)
+- **Route**: The current route is selected automatically when you create the handler from the route detail page
+- **Method**: Select the HTTP method (`GET`, `POST`, `PATCH`, `DELETE`)
 
 ### Step 3: Link to Route and Method
-- **Route Selection**: Use the relation picker to search and select the specific route
 - **Method Selection**: Use the relation picker to choose from available HTTP methods
 - **Unique Constraint**: Each route+method combination can only have one handler
 
@@ -72,11 +72,12 @@ if (!categoryResult.data.length) {
 const slug = $ctx.$helpers.autoSlug($ctx.$body.name);
 const productResult = await $ctx.$repos.products.create({
   data: {
-  name: $ctx.$body.name,
-  slug: slug,
-  price: $ctx.$body.price,
-  categoryId: $ctx.$body.categoryId,
-  createdBy: $ctx.$user.id
+    name: $ctx.$body.name,
+    slug: slug,
+    price: $ctx.$body.price,
+    categoryId: $ctx.$body.categoryId,
+    createdBy: $ctx.$user.id
+  }
 });
 
 const newProduct = productResult.data[0];
@@ -256,8 +257,8 @@ return {
 ## Best Practices
 
 ### Handler Creation
-- **Access via Settings  Handlers**: Use the dedicated handler management interface
-- **Relation Pickers**: Use the pencil icons to properly link routes and methods
+- **Access via Settings > Routes**: Open a route and use its Execution Flow section
+- **Route and method scope**: Create the handler from the route and method it should replace
 - **Unique Combinations**: Remember each route+method can only have one handler
 - **Return Values**: Always return something - this becomes the API response
 
@@ -296,7 +297,7 @@ return {
 
 **For complete best practices including cache operations and API filtering, see [Context Reference](../../server/context-reference/README.md#best-practices)**
 
-Custom Handlers provide unlimited flexibility with rich context access. Execution uses Enfyra’s Node **`vm` sandbox** (restricted modules, same process)—not a separate machine or process; treat author trust and permissions accordingly.
+Custom Handlers provide flexibility with rich context access. Execution runs through Enfyra's isolated-vm worker pool; Node-runtime package calls are proxied outside the isolate. Treat handler authors as trusted project collaborators and use RBAC plus host hardening for untrusted code.
 
 ## Related Documentation
 
@@ -310,4 +311,3 @@ Custom Handlers provide unlimited flexibility with rich context access. Executio
 ## Practical Examples
 
 - **[User Registration Example](../../examples/user-registration-example.md)** - Complete walkthrough of creating `/register` endpoint with validation, password hashing, and welcome emails
-

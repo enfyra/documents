@@ -217,7 +217,11 @@ await $ctx.$helpers.$rateLimit.reset(`ip:${$ctx.$req.ip}:/auth/forgot-password`)
 
 ## Cache
 
-Distributed caching and locking operations. All cache functions require `await`.
+Distributed user-cache and locking operations. All cache functions require `await`.
+
+`$ctx.$cache` stores application data created by handlers, hooks, flows, websocket scripts, and the `@CACHE` macro. Use logical keys such as `user:123`; do not include `NODE_NAME`, `user_cache:`, or any Redis namespace prefix. When Redis user cache is enabled, Enfyra stores those values under the current app namespace as `NODE_NAME:user_cache:*`.
+
+The user cache has a soft allocation controlled by `REDIS_USER_CACHE_LIMIT_MB` (default `30`). If the allocation is exceeded, Enfyra evicts least-recently-used user-cache keys only. System Redis keys such as runtime cache snapshots, BullMQ queues, Socket.IO, runtime telemetry, and locks are not counted or evicted by this quota.
 
 ### Get Cached Value
 
@@ -240,6 +244,8 @@ await $ctx.$cache.set('user:123', userData, 300000);
 // Set without expiration
 await $ctx.$cache.setNoExpire(key, value);
 ```
+
+Prefer `set(key, value, ttlMs)` with a TTL for operational data. `setNoExpire` keeps a value persistent from a TTL perspective, but it can still be evicted if the user-cache allocation is exceeded.
 
 ### Distributed Locking
 
@@ -289,4 +295,3 @@ await $ctx.$cache.deleteKey('user:123');
 - See [Logging & Error Handling](./logging-errors.md) for logging and error throwing
 - Check [Advanced Features](./advanced.md) for file uploads and more
 - Learn about [Cache Operations](../cache-operations.md) for detailed cache patterns
-

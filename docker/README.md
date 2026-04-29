@@ -203,6 +203,9 @@ docker run -d \
 - `REDIS_URI`: Redis connection string
   - Format: `redis://user:pass@host:port/db` or `redis://host:port/db`
 - `DEFAULT_TTL`: Default TTL for cache entries in seconds (default: `5`)
+- `REDIS_RUNTIME_CACHE`: Store Enfyra runtime definition snapshots in Redis instead of per-instance memory (`false` by default)
+- `REDIS_USER_CACHE_LIMIT_MB`: Soft allocation for `$cache` / `@CACHE` user data (`30` by default)
+- `REDIS_USER_CACHE_MAX_VALUE_BYTES`: Optional per-value limit for `$cache` / `@CACHE`; `0` disables the cap
 
 ### Server
 - `PORT`: Server port (default: `1105`)
@@ -345,4 +348,3 @@ If you see a warning about port conflict:
 
 3. **Use different port** (not recommended, as embedded services use fixed ports):
    - Should use external service instead of changing port
-

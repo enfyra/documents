@@ -26,6 +26,7 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 - **[Cache Operations](./cache-operations.md)** - Distributed caching and locking
 - **[File Handling](./file-handling.md)** - File uploads and management
 - **[Cluster Architecture](./cluster-architecture.md)** - Multi-instance coordination
+- **Runtime Redis Admin** - Available in the admin app Runtime Monitor Redis tab; shows current-app Redis categories, user-cache allocation, and editable `$cache` keys
 - **[Schema migration preview](./schema-migration-preview.md)** - Confirmed `table_definition` PATCH, hash, relation removal warnings
 
 ## Finding What You Need
@@ -34,13 +35,13 @@ This documentation covers the Enfyra server architecture, APIs, and development 
  See [Repository Methods - find()](./repository-methods/find.md)
 
 ### "I need to create a new record"
- See [Repository Methods - create()](repository-methods/find.md)
+ See [Repository Methods - create()](repository-methods/create-update-delete.md#create)
 
 ### "I want to update a record"
- See [Repository Methods - update()](repository-methods/find.md)
+ See [Repository Methods - update()](repository-methods/create-update-delete.md#update)
 
 ### "I need to delete a record"
- See [Repository Methods - delete()](repository-methods/find.md)
+ See [Repository Methods - delete()](repository-methods/create-update-delete.md#delete)
 
 ### "What properties are available in $ctx?"
  See [Context Reference](context-reference/request-data.md)
@@ -176,4 +177,3 @@ See [API Lifecycle](./api-lifecycle.md) for complete details.
 4. Explore [Hooks and Handlers](hooks-handlers/prehooks.md) for customization
 
 For specific questions, use the Quick Navigation section above to jump directly to relevant documentation.
-
