@@ -35,13 +35,13 @@ This documentation covers the Enfyra server architecture, APIs, and development 
  See [Repository Methods - find()](./repository-methods/find.md)
 
 ### "I need to create a new record"
- See [Repository Methods - create()](repository-methods/create-update-delete.md#create)
+ See [Repository Methods - create()](repository-methods/find.md)
 
 ### "I want to update a record"
- See [Repository Methods - update()](repository-methods/create-update-delete.md#update)
+ See [Repository Methods - update()](repository-methods/find.md)
 
 ### "I need to delete a record"
- See [Repository Methods - delete()](repository-methods/create-update-delete.md#delete)
+ See [Repository Methods - delete()](repository-methods/find.md)
 
 ### "What properties are available in $ctx?"
  See [Context Reference](context-reference/request-data.md)
