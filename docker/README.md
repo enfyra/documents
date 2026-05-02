@@ -54,6 +54,31 @@ docker run -d \
   enfyra/enfyra:latest
 ```
 
+If the database and Redis are running on your local machine for testing, use `host.docker.internal` instead of `localhost`. Inside a container, `localhost` points to the container itself:
+
+```bash
+docker run -d \
+  --name enfyra \
+  -p 3000:3000 \
+  -e DB_URI=postgresql://enfyra:secret@host.docker.internal:5432/enfyra \
+  -e REDIS_URI=redis://host.docker.internal:6379/0 \
+  enfyra/enfyra:latest
+```
+
+On Linux, add the host gateway mapping if needed:
+
+```bash
+docker run -d \
+  --name enfyra \
+  --add-host=host.docker.internal:host-gateway \
+  -p 3000:3000 \
+  -e DB_URI=postgresql://enfyra:secret@host.docker.internal:5432/enfyra \
+  -e REDIS_URI=redis://host.docker.internal:6379/0 \
+  enfyra/enfyra:latest
+```
+
+Your local database and Redis must accept connections from Docker, not only from `127.0.0.1`.
+
 > **Note:** The database engine is auto-detected from the `DB_URI` protocol prefix (`mysql://`, `postgres://`, `mongodb://`, `sqlite://`). No separate `DB_TYPE` env var is needed.
 
 ---

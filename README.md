@@ -181,6 +181,7 @@ Database  Backend (API Server)  Frontend (Admin App)
 enfyra-docs/
 ├──  architecture-overview.md  # System architecture diagram and component responsibilities
 ├──  getting-started/
+│   ├── README.md              # Getting started overview and quick navigation
 │   ├── installation.md          # Setup guide for backend and app
 │   ├── getting-started.md       # First steps after installation and interface overview
 │   ├── table-creation.md        # Complete guide to creating tables with all field types
@@ -250,7 +251,7 @@ enfyra-docs/
 ###  Quick Start (5 mins)
 **Just want to see what Enfyra can do?**
 1.  **[Try Live Demo](https://demo.enfyra.io/)** - Pre-filled admin credentials, just click login!
-2.  **[Getting Started Guide](./getting-started/getting-started.md)** - See table creation and data management in action
+2.  **[Getting Started](./getting-started/)** - Follow the setup, first login, table creation, and data management path
 
 ###  Full Learning Path
 **Ready to master Enfyra?** Follow this step-by-step path to become proficient:
@@ -314,8 +315,9 @@ enfyra-docs/
 - **[API Reference](./api-reference/README.md)** - REST API endpoints (use `{appUrl}/api/...`)
 
 ** Getting Started**
+- **[Getting Started Overview](./getting-started/)** - Setup path and quick navigation for first-time users
 - **[Installation](./getting-started/installation.md)** - Setup guide for backend and app
-- **[Getting Started](./getting-started/getting-started.md)** - First steps after installation and interface overview
+- **[First Login and Interface Overview](./getting-started/getting-started.md)** - First steps after installation and interface overview
 - **[Table Creation](./getting-started/table-creation.md)** - Complete guide to creating tables with all field types
 - **[Data Management](./getting-started/data-management.md)** - Complete guide to managing records in your tables
 
