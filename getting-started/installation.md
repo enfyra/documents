@@ -92,6 +92,31 @@ docker run -d \
   enfyra/enfyra:latest
 ```
 
+If your database and Redis are running on your local machine, do not use `localhost` in `DB_URI` or `REDIS_URI`. Inside the container, `localhost` means the container itself. Use `host.docker.internal` to connect back to the host:
+
+```bash
+docker run -d \
+  --name enfyra \
+  -p 3000:3000 \
+  -e DB_URI=postgresql://enfyra:secret@host.docker.internal:5432/enfyra \
+  -e REDIS_URI=redis://host.docker.internal:6379/0 \
+  enfyra/enfyra:latest
+```
+
+On Linux, add the host gateway mapping if your Docker version does not provide `host.docker.internal` automatically:
+
+```bash
+docker run -d \
+  --name enfyra \
+  --add-host=host.docker.internal:host-gateway \
+  -p 3000:3000 \
+  -e DB_URI=postgresql://enfyra:secret@host.docker.internal:5432/enfyra \
+  -e REDIS_URI=redis://host.docker.internal:6379/0 \
+  enfyra/enfyra:latest
+```
+
+Make sure your local database and Redis accept connections from Docker, not only from `127.0.0.1`.
+
 > **Note**: If your password contains special characters, URL-encode them. Example: password `p@ssw0rd`  use `p%40ssw0rd` in the URI.
 
 `REDIS_RUNTIME_CACHE=true` stores Enfyra runtime definition snapshots in Redis so instances with the same `NODE_NAME` share the same runtime cache namespace. `$cache` / `@CACHE` user data is separately limited by `REDIS_USER_CACHE_LIMIT_MB`, which defaults to `30` MB.
@@ -138,21 +163,21 @@ For detailed Docker documentation, see:
 
 ### Option 2: Manual Installation
 
-## Quick Setup (Manual Installation)
+#### Quick Setup (Manual Installation)
 
-### 1. Install and run the backend
+**Install and run the backend:**
 
 ```bash
 npx @enfyra/create-server <project-name>
 cd <project-name>
-npm run start
+npm run dev
 ```
 **Backend runs at http://localhost:1105** - This server generates and serves ALL API endpoints
 
 - For detailed instructions: [@enfyra/create-server](https://www.npmjs.com/package/@enfyra/create-server)
 - See [Architecture Overview](../architecture-overview.md) to understand how backend and frontend work together
 
-### 2. Install and run the frontend app
+**Install and run the frontend app:**
 ```bash
 npx @enfyra/create-app <project-name>
 cd <project-name>
@@ -163,7 +188,7 @@ npm run dev
 - For detailed instructions: [@enfyra/create-app](https://www.npmjs.com/package/@enfyra/create-app)
 - See [Architecture Overview](../architecture-overview.md) to understand the backend-first architecture
 
-## Connection Flow
+#### Connection Flow
 
 **Important**: The frontend app is a client that connects to your backend server:
 
@@ -177,14 +202,12 @@ Database  Backend APIs (1105) ← Frontend App (3000)
 
 **No API exists on the frontend** - it's purely a client consuming backend APIs.
 
-> **Learn More**: 
+> **Learn More**:
 > - [Architecture Overview](../architecture-overview.md) - Understand the system architecture
 > - [Getting Started Guide](./getting-started.md) - Next steps after installation
 > - [Table Creation Guide](./table-creation.md) - Create your first table
 
-## Configuration Prompts
-
-## 3. Backend Configuration prompts
+#### Backend Configuration Prompts
 
 When you run:
 
@@ -235,18 +258,16 @@ Then run your new backend:
 
 ```bash
 cd <project-name>
-npm run start
+npm run dev
 ```
 (or use `yarn dev` / `bun run dev` depending on the package manager you selected. Use `yarn debug` for Node inspector mode.)
 
-> **Next Steps**: 
+> **Next Steps**:
 > - [Getting Started Guide](./getting-started.md) - Learn the interface and create your first table
 > - [Table Creation Guide](./table-creation.md) - Complete guide to creating tables with all field types
 > - [Server Documentation](../server/README.md) - Advanced backend configuration and API development
-## **SECURITY WARNING:**
-#### Admin credentials will be pushed to Git. Change your password immediately after the first successful login.
 
-## 4. Frontend Configuration Prompts
+#### Frontend Configuration Prompts
 
 When you run:
 
@@ -279,7 +300,7 @@ npm run dev
 
 (or use `yarn dev` / `pnpm dev` / `bun dev` depending on the package manager you selected.)
 
-> **Next Steps**: 
+> **Next Steps**:
 > - [Getting Started Guide](./getting-started.md) - Learn the interface and create your first table
 > - [Table Creation Guide](./table-creation.md) - Complete guide to creating tables with all field types
 > - [Data Management Guide](./data-management.md) - Learn to manage records and relationships
