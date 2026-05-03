@@ -136,7 +136,7 @@ Database  Backend (API Server)  Frontend (Admin App)
 
 **Backend**: Awilix DI + Express 5 + Knex + Redis + GraphQL Yoga
 **Frontend**: Nuxt 4 + Vue 3 + TypeScript + TailwindCSS
-**Database**: MySQL, PostgreSQL, MongoDB, SQLite (your choice)
+**Database**: MySQL, PostgreSQL, MongoDB (your choice)
 **Extensions**: Dynamic Vue SFC compilation via Vite
 
 #### Technology Stack Details
@@ -147,7 +147,6 @@ Database  Backend (API Server)  Frontend (Admin App)
 - **MySQL** - Recommended for production environments. MariaDB users can use the `mysql://` protocol since the driver is wire-compatible.
 - **PostgreSQL** - Advanced features and complex data types supported (use `postgres://` or `postgresql://`)
 - **MongoDB** - NoSQL document database with full CRUD operations and query support (use `mongodb://`; SRV `mongodb+srv://` not supported)
-- **SQLite** - Lightweight file-based database for development and testing
 
 ## Features
 

@@ -20,7 +20,7 @@ This diagram shows how Enfyra's two-component system works.
          │                                  │                     │
          │                                  │      Database       │
          │                                  │  (MySQL/PostgreSQL/ │
-         │                                  │  MongoDB/SQLite)    │
+         │                                  │  MongoDB)           │
          │                                  └─────────────────────┘
          │                                           │
          │                                           │
@@ -37,7 +37,7 @@ This diagram shows how Enfyra's two-component system works.
 ## Component Responsibilities
 
 ### Backend Server (Port 1105)
-- **Database Management**: Direct connection to MySQL/PostgreSQL/MongoDB/SQLite
+- **Database Management**: Direct connection to MySQL/PostgreSQL/MongoDB
 - **API Generation**: Automatically creates REST APIs from database metadata, with GraphQL available per table when enabled
 - **Business Logic**: Custom handlers, hooks, and validation
 - **Security**: Authentication, authorization, and permissions
