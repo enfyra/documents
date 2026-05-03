@@ -4,7 +4,7 @@
 
 - **Node.js** >= 20.0.0
 - **Package manager** (npm ≥8.0.0, yarn ≥1.22.0, or bun ≥1.0.0)
-- **Database server** (MySQL, PostgreSQL, MongoDB, or SQLite — MariaDB works via the `mysql://` protocol)
+- **Database server** (MySQL, PostgreSQL, or MongoDB — MariaDB works via the `mysql://` protocol)
 - **Redis server**
 
 **OR** use Docker for a complete all-in-one setup (recommended for quick start)
@@ -221,7 +221,7 @@ the CLI will ask you a series of configuration questions. Enter the values that 
 | ------------------------------------- | ------------------------------------------------------------------- |
 | **Package manager**                   | Select the package manager you want to use (`npm`, `yarn`, `bun`)   |
 | **Project name**                      | Name of the backend project (if not passed as a CLI argument)       |
-| **Database type**                     | Type of database (`MySQL`, `PostgreSQL`, `MongoDB`, `SQLite`). MariaDB users select `MySQL`. |
+| **Database type**                     | Type of database (`MySQL`, `PostgreSQL`, `MongoDB`). MariaDB users select `MySQL`. |
 | **Database host**                     | Hostname or IP address of your database                             |
 | **Database port**                     | Port number of your database (e.g. `3306` for MySQL)                |
 | **Database username**                 | Database user account                                               |

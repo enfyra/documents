@@ -79,7 +79,7 @@ docker run -d \
 
 Your local database and Redis must accept connections from Docker, not only from `127.0.0.1`.
 
-> **Note:** The database engine is auto-detected from the `DB_URI` protocol prefix (`mysql://`, `postgres://`, `mongodb://`, `sqlite://`). No separate `DB_TYPE` env var is needed.
+> **Note:** The database engine is auto-detected from the `DB_URI` protocol prefix (`mysql://`, `postgres://`, `mongodb://`). No separate `DB_TYPE` env var is needed.
 
 ---
 
