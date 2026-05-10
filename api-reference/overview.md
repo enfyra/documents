@@ -15,7 +15,7 @@ All Enfyra REST API endpoints use:
 | Local development | `http://localhost:3000` | `http://localhost:3000/api/me` |
 | Production | Your deployed app URL | `https://app.yourdomain.com/api/me` |
 
-**Important:** Always use the Enfyra app URL with `/api`. The app proxies requests to the backend—this avoids CORS and keeps your integration simple.
+**Important:** Always use an app-origin proxy, not the raw backend host. The Enfyra app commonly exposes `/api/**`. Third apps may expose their own prefix, such as `/enfyra/**`, and proxy it to the Enfyra app `/api/**` base. This avoids CORS and lets browser cookies stay on the app origin.
 
 ## Request Headers
 
@@ -29,7 +29,7 @@ All Enfyra REST API endpoints use:
 
 Most endpoints require a valid JWT access token. Obtain it via:
 
-1. **POST** `{appUrl}/api/auth/login` – Returns `accessToken` and `refreshToken`
+1. **POST** `{appUrl}/api/login` – SSR/cookie login through the app proxy
 2. **GET** `{appUrl}/api/auth/{provider}?redirect=...` – OAuth login (Google, Facebook, GitHub)
 
 Include the token in requests:
@@ -38,11 +38,38 @@ Include the token in requests:
 Authorization: Bearer eyJhbGc...
 ```
 
-Or use cookies (if your app is configured for cookie-based sessions).
+For Nuxt, Next, or another SSR app, prefer cookie-based sessions. Proxy Enfyra through a same-origin prefix, call `{prefix}/login`, fetch the user with `{prefix}/me`, and let the browser send cookies with same-origin requests.
+
+For third apps, OAuth needs one extra query parameter:
+
+```text
+GET /enfyra/auth/google?redirect=https%3A%2F%2Fchat.example.com%2Fchat&cookieBridgePrefix=/enfyra
+```
+
+`redirect` must be an absolute `http(s)` URL. `cookieBridgePrefix` is the third app proxy prefix that forwards to Enfyra API routes. Enfyra uses it to redirect through `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, so cookies are written on the third app origin before returning to `redirect`.
+
+Nuxt third app proxy example:
+
+```ts
+export default defineNuxtConfig({
+  routeRules: {
+    '/enfyra/**': {
+      proxy: {
+        to: 'https://demo.enfyra.io/api/**',
+        fetchOptions: { redirect: 'manual' },
+      },
+    },
+    '/socket.io/**': {
+      proxy: { to: 'https://demo.enfyra.io/ws/socket.io/**' },
+    },
+  },
+})
+```
 
 **Public endpoints** (no auth required):
 
-- `POST /api/auth/login`
+- `POST /api/login`
+- `POST /api/auth/login` only for manual token clients
 - `POST /api/auth/logout`
 - `POST /api/auth/refresh-token`
 - `GET /api/auth/:provider` (OAuth redirect)

@@ -32,7 +32,7 @@ The Enfyra app proxies requests to the backend, so you call `{appUrl}/api/...` f
 
 ```bash
 # Login
-curl -X POST http://localhost:3000/api/auth/login \
+curl -X POST http://localhost:3000/api/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@example.com","password":"your_password"}'
 
@@ -51,18 +51,14 @@ curl "http://localhost:3000/api/products?limit=10" \
 const appUrl = 'http://localhost:3000';
 
 // Login
-const { data } = await fetch(`${appUrl}/api/auth/login`, {
+const response = await fetch(`${appUrl}/api/login`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ email: 'user@example.com', password: 'password' }),
 }).then(r => r.json());
 
-const token = data.accessToken;
-
-// Fetch your data
-const products = await fetch(`${appUrl}/api/products?limit=20`, {
-  headers: { 'Authorization': `Bearer ${token}` },
-}).then(r => r.json());
+// Fetch your data. The browser sends httpOnly auth cookies automatically.
+const products = await fetch(`${appUrl}/api/products?limit=20`).then(r => r.json());
 ```
 
 ### JavaScript / fetch (Cookie-Based)
@@ -82,6 +78,8 @@ const response = await fetch(`${appUrl}/api/login`, {
 // Fetch your data - browser automatically sends cookies
 const products = await fetch(`${appUrl}/api/products?limit=20`).then(r => r.json());
 ```
+
+For Nuxt, Next, or another SSR app, proxy all Enfyra calls through your app origin. The Enfyra app commonly uses `/api`; third apps can use a prefix such as `/enfyra` and forward it to the Enfyra app `/api` base. Use `{prefix}/login` for password login. For OAuth, start at `{prefix}/auth/{provider}?redirect=<absoluteReturnUrl>&cookieBridgePrefix=<prefix>` and enable Enfyra OAuth set-cookie mode. Enfyra redirects through `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, returns `Set-Cookie` for that app origin, then redirects to `redirect`.
 
 **Cookie-Based Benefits:**
 - **Enhanced Security**: HTTP-only cookies cannot be accessed by JavaScript

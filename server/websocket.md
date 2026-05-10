@@ -9,22 +9,25 @@ Connect to Enfyra WebSocket using Socket.IO client:
 ```typescript
 import { io } from 'socket.io-client';
 
-const socket = io(`${APP_URL}/ws/${GATEWAY_PATH}`, {
-  transports: ['polling', 'websocket'],
+const socket = io(`/${GATEWAY_NAMESPACE}`, {
+  path: '/socket.io',
   withCredentials: true,
 });
 ```
 
-**URL format:** `{APP_URL}/ws/{gatewayPath}`
+**Third app URL format:** connect to the Socket.IO namespace on the third app origin and use the local Socket.IO transport path.
 
-- `APP_URL` - Enfyra App URL (e.g., `http://localhost:3000`, `https://your-app.enfyra.io`)
-- `gatewayPath` - Configured gateway path (e.g., `chat`, `notifications`)
+- `GATEWAY_NAMESPACE` - configured backend gateway path without the leading slash in the string template (for gateway metadata path `/chat`, use `chat`)
+- `path` - local Socket.IO transport path. The third app proxies `/socket.io/**` to the Enfyra app bridge `/ws/socket.io/**`.
+
+Direct Enfyra app clients may use the built-in bridge form `io('/ws/chat', { path: '/ws/socket.io' })`. Third apps should prefer `io('/chat', { path: '/socket.io' })` so the namespace remains `/chat` while the transport is proxied through the third app.
 
 ### Connection Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `transports` | string[] | `['polling', 'websocket']` | Transport methods |
+| `path` | string | `/socket.io` | Socket.IO transport endpoint on the app origin |
 | `withCredentials` | boolean | `true` | Send cookies with requests |
 | `reconnect` | string | `'true'` | Auto reconnect when backend disconnects |
 
@@ -185,6 +188,7 @@ socket.on('disconnect', (reason) => {
 
 ```typescript
 const socket = io(url, {
+  path: '/socket.io',
   withCredentials: true,
   reconnection: true,
   reconnectionAttempts: 10,
@@ -327,8 +331,8 @@ class ChatService {
   private socket: Socket;
 
   connect() {
-    this.socket = io('http://localhost:3000/ws/chat', {
-      transports: ['polling', 'websocket'],
+    this.socket = io('/chat', {
+      path: '/socket.io',
       withCredentials: true,
     });
 
@@ -398,8 +402,8 @@ export function useWebSocket(gatewayPath: string) {
   const isConnected = ref(false);
 
   const connect = () => {
-    socket.value = io(`${import.meta.env.VITE_APP_URL}/ws/${gatewayPath}`, {
-      transports: ['polling', 'websocket'],
+    socket.value = io(`/${gatewayPath}`, {
+      path: '/socket.io',
       withCredentials: true,
     });
 
@@ -460,8 +464,8 @@ export function useWebSocket(gatewayPath: string) {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
-    socketRef.current = io(`${process.env.REACT_APP_URL}/ws/${gatewayPath}`, {
-      transports: ['polling', 'websocket'],
+    socketRef.current = io(`/${gatewayPath}`, {
+      path: '/socket.io',
       withCredentials: true,
     });
 
