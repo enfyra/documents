@@ -366,6 +366,8 @@ io("/chat", { path: "/socket.io", withCredentials: true })
 
 This keeps the backend hidden, keeps cookies same-origin, and lets Enfyra manage refresh tokens.
 
+For framework-specific setup, read [SSR Frameworks](./integrations/ssr-frameworks.md). It includes Nuxt, Next.js, SvelteKit, and Remix proxy examples.
+
 ## Multi-Instance Behavior
 
 In production, you can run more than one Enfyra server instance. Instances coordinate through Redis.
@@ -402,8 +404,11 @@ The result is a real app feature built from metadata, generated API, small scrip
 - [Getting Started](./getting-started/README.md)
 - [Installation](./getting-started/installation.md)
 - [API Reference](./api-reference/README.md)
+- [Integrations](./integrations/README.md)
+- [SSR Frameworks](./integrations/ssr-frameworks.md)
 - [App Documentation](./app/README.md)
 - [Server Documentation](./server/README.md)
 - [WebSocket Guide](./server/websocket.md)
 - [User Registration Example](./examples/user-registration-example.md)
 - [Row-Level Security Example](./examples/multi-tenant-rls-example.md)
+- [Third-Party Chat App Example](./examples/third-party-chat-app.md)

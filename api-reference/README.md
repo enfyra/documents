@@ -79,7 +79,7 @@ const response = await fetch(`${appUrl}/api/login`, {
 const products = await fetch(`${appUrl}/api/products?limit=20`).then(r => r.json());
 ```
 
-For Nuxt, Next, or another SSR app, proxy all Enfyra calls through your app origin. The Enfyra app commonly uses `/api`; third apps can use a prefix such as `/enfyra` and forward it to the Enfyra app `/api` base. Use `{prefix}/login` for password login. For OAuth, start at `{prefix}/auth/{provider}?redirect=<absoluteReturnUrl>&cookieBridgePrefix=<prefix>` and enable Enfyra OAuth set-cookie mode. Enfyra redirects through `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, returns `Set-Cookie` for that app origin, then redirects to `redirect`.
+For Nuxt, Next, or another SSR app, proxy all Enfyra calls through your app origin. The Enfyra app commonly uses `/api`; third apps can use a prefix such as `/enfyra` and forward it to the Enfyra app `/api` base. Use `{prefix}/login` for password login. For OAuth, start at `{prefix}/auth/{provider}?redirect=<absoluteReturnUrl>&cookieBridgePrefix=<prefix>` and enable Enfyra OAuth set-cookie mode. Enfyra redirects through `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, returns `Set-Cookie` for that app origin, then redirects to `redirect`. For framework setup, see [SSR Frameworks](../integrations/ssr-frameworks.md).
 
 **Cookie-Based Benefits:**
 - **Enhanced Security**: HTTP-only cookies cannot be accessed by JavaScript

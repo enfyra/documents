@@ -66,6 +66,8 @@ export default defineNuxtConfig({
 })
 ```
 
+For complete Nuxt, Next.js, SvelteKit, and Remix setup, see [SSR Frameworks](../integrations/ssr-frameworks.md).
+
 **Public endpoints** (no auth required):
 
 - `POST /api/login`

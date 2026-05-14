@@ -194,8 +194,15 @@ enfyra-docs/
 │   ├── query-parameters.md      # filter, fields, sort, limit, page
 │   └── file-storage.md          # Files, folders, assets
 │
+├──  integrations/
+│   ├── README.md                # Framework integration overview
+│   └── ssr-frameworks.md        # Nuxt, Next.js, SvelteKit, Remix proxy/auth/realtime setup
+│
 ├──  examples/
-│   └── user-registration-example.md # Complete end-to-end example with template syntax
+│   ├── README.md                # Example overview and recommended usage
+│   ├── user-registration-example.md # Public signup route with hook and handler
+│   ├── multi-tenant-rls-example.md  # Tenant isolation with pre-hooks
+│   └── third-party-chat-app.md      # SSR chat app using Enfyra REST and Socket.IO
 │
 ├──  app/
 │   ├── api-integration.md        # API integration with Enfyra SDK and examples for extensions
@@ -271,24 +278,25 @@ enfyra-docs/
 
 ###  Phase 3: Customization (3-4 hours)
 11. **[API Integration](./app/api-integration.md)** - Learn to fetch and manipulate data programmatically
-12. **[Package Management](./app/hooks-handlers/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
-13. **[Extension System](./app/extension-system.md)** - Build custom pages and functionality
-14. **[Header Actions](./app/header-actions.md)** - Inject custom buttons and widgets into the app interface
-15. **[Custom Handlers](./app/hooks-handlers/custom-handlers.md)** - Override default API behavior with business logic
+12. **[SSR Framework Integrations](./integrations/ssr-frameworks.md)** - Connect Nuxt, Next.js, SvelteKit, or Remix through same-origin auth, REST, OAuth, and Socket.IO
+13. **[Package Management](./app/hooks-handlers/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
+14. **[Extension System](./app/extension-system.md)** - Build custom pages and functionality
+15. **[Header Actions](./app/header-actions.md)** - Inject custom buttons and widgets into the app interface
+16. **[Custom Handlers](./app/hooks-handlers/custom-handlers.md)** - Override default API behavior with business logic
 
 ###  Phase 4: Advanced Development (4-5 hours)
-16. **[Repository Methods](./server/repository-methods/)** - Master database operations with find, create, update, delete
-17. **[Context Reference](./server/context-reference/)** - Complete reference for $ctx object in hooks and handlers
-18. **[Hooks and Handlers](./server/hooks-handlers/)** - Create sophisticated preHooks, afterHooks, and custom handlers
-19. **[Query Filtering](./server/query-filtering.md)** - Master MongoDB-like query filtering, including Deep Queries for nested relations
-20. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
-21. **[Error Handling](./server/error-handling.md)** - Handle errors properly with best practices
+17. **[Repository Methods](./server/repository-methods/)** - Master database operations with find, create, update, delete
+18. **[Context Reference](./server/context-reference/)** - Complete reference for $ctx object in hooks and handlers
+19. **[Hooks and Handlers](./server/hooks-handlers/)** - Create sophisticated preHooks, afterHooks, and custom handlers
+20. **[Query Filtering](./server/query-filtering.md)** - Master MongoDB-like query filtering, including Deep Queries for nested relations
+21. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
+22. **[Error Handling](./server/error-handling.md)** - Handle errors properly with best practices
 
 ###  Phase 5: Production & Scale (2-3 hours)
-22. **[WebSocket Guide](./server/websocket.md)** - Build real-time features with WebSocket
-23. **[Cache Operations](./server/cache-operations.md)** - Implement distributed caching and locking
-24. **[File Handling](./server/file-handling.md)** - Handle file uploads and management
-25. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
+23. **[WebSocket Guide](./server/websocket.md)** - Build real-time features with WebSocket
+24. **[Cache Operations](./server/cache-operations.md)** - Implement distributed caching and locking
+25. **[File Handling](./server/file-handling.md)** - Handle file uploads and management
+26. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
 
 ###  Goal-Oriented Paths
 
@@ -297,6 +305,7 @@ enfyra-docs/
 -  **Building an MVP?**  Phases 1-2 (4-5 hours total)
 -  **Need custom functionality?**  Focus on Phase 3: API Integration + Extensions
 -  **Building a dashboard?**  [Extension System](./app/extension-system.md) + [API Integration](./app/api-integration.md)
+-  **Building a third-party SSR app?**  [SSR Framework Integrations](./integrations/ssr-frameworks.md) + [Third-Party Chat App Example](./examples/third-party-chat-app.md)
 -  **Need role-based access?**  [Permission Builder](./app/permission-builder.md)
 -  **Complex business logic?**  [Custom Handlers](./app/hooks-handlers/custom-handlers.md) + [Context Reference](./server/context-reference/) + [Hooks and Handlers](./server/hooks-handlers/)
 -  **Real-time features?**  [WebSocket Guide](./server/websocket.md)
@@ -320,6 +329,10 @@ enfyra-docs/
 
 ** API Reference**
 - **[API Reference](./api-reference/README.md)** - REST API endpoints (use `{appUrl}/api/...`)
+
+** Integrations**
+- **[Integrations](./integrations/README.md)** - Connect external apps to Enfyra
+- **[SSR Frameworks](./integrations/ssr-frameworks.md)** - Nuxt, Next.js, SvelteKit, and Remix setup for REST, OAuth cookies, refresh, and Socket.IO
 
 ** Frontend (User Interface)**
 - **[API Integration](./app/api-integration.md)** - API integration with Enfyra SDK and examples for extensions
@@ -352,8 +365,9 @@ enfyra-docs/
 - **[Cluster Architecture](./server/cluster-architecture.md)** -  Multi-instance coordination and distributed synchronization
 
 ** Examples & Templates**
-- **[User Registration](./examples/user-registration-example.md)** - Complete end-to-end example featuring template syntax, hooks, handlers, and package management
-- **[Multi-Tenant RLS](./examples/multi-tenant-rls-example.md)** - Build multi-tenant SaaS with row-level security, custom dashboards, and data isolation
+- **[User Registration](./examples/user-registration-example.md)** - Public signup route with validation, password hashing, and safe response fields
+- **[Multi-Tenant RLS](./examples/multi-tenant-rls-example.md)** - Build tenant isolation with generated CRUD and backend pre-hooks
+- **[Third-Party Chat App](./examples/third-party-chat-app.md)** - Build an SSR chat app using Enfyra auth, REST, and Socket.IO
 
 ## Installation
 
