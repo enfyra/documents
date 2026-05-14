@@ -178,7 +178,7 @@ Database  Backend (API Server)  Frontend (Admin App)
 
 ```
 enfyra-docs/
-├──  architecture-overview.md  # System architecture diagram and component responsibilities
+├──  architecture-overview.md  # How Enfyra works: app, server, data, auth, realtime, and flow examples
 ├──  getting-started/
 │   ├── README.md              # Getting started overview and quick navigation
 │   ├── installation.md          # Setup guide for backend and app
@@ -257,37 +257,38 @@ enfyra-docs/
 
 ###  Phase 1: Setup & Basics (30 mins)
 1. **[Installation](./getting-started/installation.md)** - Set up Enfyra backend and app
-2. **[Getting Started](./getting-started/getting-started.md)** - First login and interface overview
-3. **[Table Creation](./getting-started/table-creation.md)** - Create your first table with all field types and relations, including `onDelete` cascade behavior
-4. **[Data Management](./getting-started/data-management.md)** - Learn to manage records and relationships
+2. **[Architecture Overview](./architecture-overview.md)** - Understand how Enfyra turns metadata into APIs, auth, realtime events, and workflows
+3. **[Getting Started](./getting-started/getting-started.md)** - First login and interface overview
+4. **[Table Creation](./getting-started/table-creation.md)** - Create your first table with all field types and relations, including `onDelete` cascade behavior
+5. **[Data Management](./getting-started/data-management.md)** - Learn to manage records and relationships
 
 ###  Phase 2: Frontend Mastery (2-3 hours)
-5. **[Form System](./app/form-system.md)** - Understand how forms work with your data
-6. **[Filter System](./app/filter-system.md)** - Master data filtering and searching  
-7. **[Permission Builder](./app/permission-builder.md)** - Set up access control rules
-8. **[Menu Management](./app/menu-management.md)** - Customize navigation and user interface
-9. **[Storage Management](./app/storage-management.md)** - Upload and manage files, folders, and storage configurations
+6. **[Form System](./app/form-system.md)** - Understand how forms work with your data
+7. **[Filter System](./app/filter-system.md)** - Master data filtering and searching
+8. **[Permission Builder](./app/permission-builder.md)** - Set up access control rules
+9. **[Menu Management](./app/menu-management.md)** - Customize navigation and user interface
+10. **[Storage Management](./app/storage-management.md)** - Upload and manage files, folders, and storage configurations
 
 ###  Phase 3: Customization (3-4 hours)
-10. **[API Integration](./app/api-integration.md)** - Learn to fetch and manipulate data programmatically
-11. **[Package Management](./app/hooks-handlers/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
-12. **[Extension System](./app/extension-system.md)** - Build custom pages and functionality
-13. **[Header Actions](./app/header-actions.md)** - Inject custom buttons and widgets into the app interface
-14. **[Custom Handlers](./app/hooks-handlers/custom-handlers.md)** - Override default API behavior with business logic
+11. **[API Integration](./app/api-integration.md)** - Learn to fetch and manipulate data programmatically
+12. **[Package Management](./app/hooks-handlers/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
+13. **[Extension System](./app/extension-system.md)** - Build custom pages and functionality
+14. **[Header Actions](./app/header-actions.md)** - Inject custom buttons and widgets into the app interface
+15. **[Custom Handlers](./app/hooks-handlers/custom-handlers.md)** - Override default API behavior with business logic
 
 ###  Phase 4: Advanced Development (4-5 hours)
-15. **[Repository Methods](./server/repository-methods/)** - Master database operations with find, create, update, delete
-16. **[Context Reference](./server/context-reference/)** - Complete reference for $ctx object in hooks and handlers
-17. **[Hooks and Handlers](./server/hooks-handlers/)** - Create sophisticated preHooks, afterHooks, and custom handlers
-18. **[Query Filtering](./server/query-filtering.md)** - Master MongoDB-like query filtering, including Deep Queries for nested relations
-19. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
-20. **[Error Handling](./server/error-handling.md)** - Handle errors properly with best practices
+16. **[Repository Methods](./server/repository-methods/)** - Master database operations with find, create, update, delete
+17. **[Context Reference](./server/context-reference/)** - Complete reference for $ctx object in hooks and handlers
+18. **[Hooks and Handlers](./server/hooks-handlers/)** - Create sophisticated preHooks, afterHooks, and custom handlers
+19. **[Query Filtering](./server/query-filtering.md)** - Master MongoDB-like query filtering, including Deep Queries for nested relations
+20. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
+21. **[Error Handling](./server/error-handling.md)** - Handle errors properly with best practices
 
 ###  Phase 5: Production & Scale (2-3 hours)
-21. **[WebSocket Guide](./server/websocket.md)** - Build real-time features with WebSocket
-22. **[Cache Operations](./server/cache-operations.md)** - Implement distributed caching and locking
-23. **[File Handling](./server/file-handling.md)** - Handle file uploads and management
-24. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
+22. **[WebSocket Guide](./server/websocket.md)** - Build real-time features with WebSocket
+23. **[Cache Operations](./server/cache-operations.md)** - Implement distributed caching and locking
+24. **[File Handling](./server/file-handling.md)** - Handle file uploads and management
+25. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
 
 ###  Goal-Oriented Paths
 
@@ -308,10 +309,7 @@ enfyra-docs/
 ### Quick Navigation
 
 ** Architecture Overview**
-- **[Architecture Overview](./architecture-overview.md)** - System architecture diagram and component responsibilities
-
-** API Reference**
-- **[API Reference](./api-reference/README.md)** - REST API endpoints (use `{appUrl}/api/...`)
+- **[Architecture Overview](./architecture-overview.md)** - How Enfyra works across the app proxy, server runtime, metadata, database, auth, realtime, and flows
 
 ** Getting Started**
 - **[Getting Started Overview](./getting-started/)** - Setup path and quick navigation for first-time users
@@ -319,6 +317,9 @@ enfyra-docs/
 - **[First Login and Interface Overview](./getting-started/getting-started.md)** - First steps after installation and interface overview
 - **[Table Creation](./getting-started/table-creation.md)** - Complete guide to creating tables with all field types
 - **[Data Management](./getting-started/data-management.md)** - Complete guide to managing records in your tables
+
+** API Reference**
+- **[API Reference](./api-reference/README.md)** - REST API endpoints (use `{appUrl}/api/...`)
 
 ** Frontend (User Interface)**
 - **[API Integration](./app/api-integration.md)** - API integration with Enfyra SDK and examples for extensions
