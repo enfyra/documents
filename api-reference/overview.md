@@ -40,10 +40,10 @@ Authorization: Bearer eyJhbGc...
 
 For Nuxt, Next, or another SSR app, prefer cookie-based sessions. Proxy Enfyra through a same-origin prefix, call `{prefix}/login`, fetch the user with `{prefix}/me`, and let the browser send cookies with same-origin requests.
 
-For third apps, OAuth needs one extra query parameter:
+For third apps, start OAuth on the Enfyra app URL and pass one extra query parameter:
 
 ```text
-GET /enfyra/auth/google?redirect=https%3A%2F%2Fchat.example.com%2Fchat&cookieBridgePrefix=/enfyra
+GET https://demo.enfyra.io/api/auth/google?redirect=https%3A%2F%2Fchat.example.com%2Fchat&cookieBridgePrefix=/enfyra
 ```
 
 `redirect` must be an absolute `http(s)` URL. `cookieBridgePrefix` is the third app proxy prefix that forwards to Enfyra API routes. Enfyra uses it to redirect through `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, so cookies are written on the third app origin before returning to `redirect`.

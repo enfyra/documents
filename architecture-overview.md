@@ -253,7 +253,7 @@ A third-party app should start OAuth through its own proxy prefix:
 
 ```js
 const redirect = new URL("/chat", window.location.origin)
-const url = new URL("/enfyra/auth/google", window.location.origin)
+const url = new URL("/api/auth/google", "https://demo.enfyra.io")
 url.searchParams.set("redirect", redirect.toString())
 url.searchParams.set("cookieBridgePrefix", "/enfyra")
 window.location.href = url.toString()
@@ -263,7 +263,7 @@ The flow is:
 
 ```text
 User clicks Google login
-  -> third app /enfyra/auth/google
+  -> Enfyra App /api/auth/google
   -> Enfyra redirects to Google
   -> Google redirects to Enfyra callback
   -> Enfyra redirects through {thirdAppOrigin}/enfyra/auth/set-cookies
@@ -301,7 +301,7 @@ Example event script:
 const { conversationId, text } = @BODY
 if (!conversationId || !text) @THROW400("conversationId and text are required")
 
-const membership = await #chat_conversation_member.find({
+const membership = await @REPOS.chat_conversation_member.find({
   filter: {
     conversation: { id: { _eq: conversationId } },
     member: { id: { _eq: @USER.id } }
@@ -311,12 +311,17 @@ const membership = await #chat_conversation_member.find({
 
 if (!membership.data[0]) @THROW403("Not a conversation member")
 
-const created = await #chat_message.create({
+const created = await @REPOS.chat_message.create({
   data: {
     conversation: { id: conversationId },
     sender: { id: @USER.id },
     text
   }
+})
+
+await @REPOS.chat_conversation.update({
+  id: conversationId,
+  data: { lastMessage: { id: created.data[0].id } }
 })
 
 @SOCKET.emitToRoom(`conversation:${conversationId}`, "chat:message", {

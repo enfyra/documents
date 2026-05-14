@@ -31,8 +31,11 @@ Send message
 | Field | Type |
 |-------|------|
 | title | string |
-| isGroup | boolean |
-| lastMessageAt | datetime |
+| kind | string |
+| description | text |
+| updatedAt | datetime |
+| createdBy | many-to-one to `user_definition` |
+| lastMessage | many-to-one to `chat_message`, nullable |
 
 ### chat_conversation_member
 
@@ -40,7 +43,8 @@ Send message
 |-------|------|
 | conversation | many-to-one to `chat_conversation` |
 | member | many-to-one to `user_definition` |
-| lastReadAt | datetime |
+| role | string |
+| joinedAt | datetime |
 
 ### chat_message
 
@@ -49,6 +53,17 @@ Send message
 | conversation | many-to-one to `chat_conversation` |
 | sender | many-to-one to `user_definition` |
 | text | text |
+| persistStatus | string |
+
+### chat_message_read
+
+| Field | Type |
+|-------|------|
+| message | many-to-one to `chat_message` |
+| conversation | many-to-one to `chat_conversation` |
+| member | many-to-one to `user_definition` |
+| isRead | boolean |
+| readAt | datetime |
 
 Use cascade delete from `chat_conversation` to members/messages if deleting a conversation should remove its chat data.
 
@@ -58,12 +73,13 @@ Only load the list on initial page render.
 
 ```ts
 const conversations = await fetch(
-  "/enfyra/chat_conversation?fields=id,title,isGroup,lastMessageAt&sort=-lastMessageAt,id&limit=20",
+  "/enfyra/chat_conversation?fields=id,title,kind,lastMessage.id,lastMessage.text,lastMessage.createdAt&limit=0",
   { credentials: "include" },
 ).then((res) => res.json())
 ```
 
 Do not load messages for every conversation during page refresh. Load messages after the user selects one conversation.
+Sort the list in the frontend by `conversation.lastMessage?.createdAt`. The conversation keeps only a relation to the latest message, not duplicated preview text/date fields.
 
 ## 3. Load Messages After Selection
 
@@ -74,8 +90,8 @@ const filter = encodeURIComponent(JSON.stringify({
 
 const messages = await fetch(
   `/enfyra/chat_message?filter=${filter}&fields=id,text,createdAt,sender&deep=${encodeURIComponent(JSON.stringify({
-    sender: { fields: "id,name,email" },
-  }))}&sort=createdAt,id&limit=20`,
+    sender: {},
+  }))}&sort=-createdAt,-id&limit=20`,
   { credentials: "include" },
 ).then((res) => res.json())
 ```
@@ -90,9 +106,12 @@ import { io } from "socket.io-client"
 const socket = io("/chat", {
   path: "/socket.io",
   withCredentials: true,
+  reconnection: false,
+  transports: ["polling"],
+  upgrade: false,
 })
 
-socket.emit("room:join", { conversationId })
+socket.emit("chat:join")
 
 socket.on("chat:message", (payload) => {
   appendMessage(payload.message)
@@ -101,19 +120,19 @@ socket.on("chat:message", (payload) => {
 
 `/chat` is the Enfyra websocket namespace. `/socket.io` is the transport path proxied by the SSR app.
 
-## 5. Add A Send Message Event
+## 5. Add A Message Event
 
-Create a websocket event named `chat:send`.
+Create a websocket event named `chat:message`.
 
 Event script:
 
 ```js
-const { conversationId, text } = @BODY
+const { conversationId, messageId, text } = @BODY
 
 if (!conversationId) @THROW400("conversationId is required")
 if (!text) @THROW400("text is required")
 
-const membership = await #chat_conversation_member.find({
+const membership = await @REPOS.chat_conversation_member.find({
   filter: {
     conversation: { id: { _eq: conversationId } },
     member: { id: { _eq: @USER.id } }
@@ -124,20 +143,29 @@ const membership = await #chat_conversation_member.find({
 
 if (!membership.data[0]) @THROW403("Not a conversation member")
 
-const created = await #chat_message.create({
+const created = await @REPOS.chat_message.create({
   data: {
     conversation: { id: conversationId },
     sender: { id: @USER.id },
-    text
+    text,
+    persistStatus: "persisted"
   }
 })
 
-await #chat_conversation.update({
+await @REPOS.chat_conversation.update({
   filter: { id: { _eq: conversationId } },
-  data: { lastMessageAt: new Date().toISOString() }
+  data: {
+    lastMessage: { id: created.data[0].id },
+    updatedAt: new Date().toISOString()
+  }
 })
 
 @SOCKET.emitToRoom(`conversation:${conversationId}`, "chat:message", {
+  message: created.data[0]
+})
+
+@SOCKET.reply("chat:message:sent", {
+  messageId,
   message: created.data[0]
 })
 ```
@@ -145,20 +173,65 @@ await #chat_conversation.update({
 Client send:
 
 ```ts
-socket.emit("chat:send", {
+socket.emit("chat:message", {
   conversationId,
+  messageId: crypto.randomUUID(),
   text,
 })
 ```
 
-## 6. Add A Join Room Event
+## 6. Add A Join Event
 
-Create a websocket event named `room:join`.
+Create a websocket event named `chat:join`.
 
 ```js
-const { conversationId } = @BODY
+const memberships = await @REPOS.chat_conversation_member.find({
+  filter: {
+    member: { id: { _eq: @USER.id } }
+  },
+  fields: "id,conversation",
+  deep: { conversation: { fields: "id" } },
+  limit: 0
+})
 
-const membership = await #chat_conversation_member.find({
+for (const row of memberships.data || []) {
+  const conversationId = row.conversation?.id
+  if (conversationId) {
+    @SOCKET.join(`conversation:${conversationId}`)
+  }
+}
+
+@SOCKET.reply("chat:joined", {
+  joined: memberships.data?.length || 0
+})
+```
+
+## 7. Keep `lastMessage` Correct On Delete
+
+If users can delete individual messages, add a `DELETE /chat_message` pre-hook and post-hook.
+
+The pre-hook snapshots the deleted message before the default delete handler runs:
+
+```js
+const message = await @REPOS.chat_message.find({
+  filter: { id: { _eq: @PARAMS.id } },
+  fields: "id,createdAt,conversation",
+  limit: 1
+})
+
+const row = message.data?.[0]
+if (!row) return
+
+const conversationId = row.conversation?.id || row.conversation
+const conversation = await @REPOS.chat_conversation.find({
+  filter: { id: { _eq: conversationId } },
+  fields: "id,lastMessage",
+  limit: 1
+})
+const current = conversation.data?.[0]
+const currentLastId = current?.lastMessage?.id || current?.lastMessage
+
+const membership = await @REPOS.chat_conversation_member.find({
   filter: {
     conversation: { id: { _eq: conversationId } },
     member: { id: { _eq: @USER.id } }
@@ -167,28 +240,49 @@ const membership = await #chat_conversation_member.find({
   limit: 1
 })
 
-if (!membership.data[0]) @THROW403("Not a conversation member")
+if (!membership.data?.length) @THROW403("Not a conversation member")
 
-@SOCKET.join(`conversation:${conversationId}`)
+@SHARE.deletedChatMessage = {
+  id: row.id,
+  conversationId,
+  wasLastMessage: String(currentLastId || "") === String(row.id)
+}
 ```
 
-## 7. Add Read State
+The post-hook only repairs the conversation when the deleted message was the current `lastMessage`:
 
-When a user opens a conversation, update their membership row.
+```js
+const deleted = @SHARE.deletedChatMessage
+if (!deleted?.conversationId) return
+if (!deleted.wasLastMessage) return
 
-```ts
-await fetch(`/enfyra/chat_conversation_member?filter=${encodeURIComponent(JSON.stringify({
-  conversation: { id: { _eq: conversationId } },
-  member: { id: { _eq: currentUserId } },
-}))}`, {
-  method: "PATCH",
-  headers: { "Content-Type": "application/json" },
-  credentials: "include",
-  body: JSON.stringify({ lastReadAt: new Date().toISOString() }),
+const nextLast = await @REPOS.chat_message.find({
+  filter: { conversation: { id: { _eq: deleted.conversationId } } },
+  fields: "id",
+  sort: "-createdAt,-id",
+  limit: 1
+})
+
+await @REPOS.chat_conversation.update({
+  id: deleted.conversationId,
+  data: {
+    lastMessage: nextLast.data?.[0]?.id ? { id: nextLast.data[0].id } : null
+  }
 })
 ```
 
-Unread count can be derived by comparing `chat_message.createdAt` with `chat_conversation_member.lastReadAt`.
+## 8. Add Read State
+
+When a user opens a conversation, emit `chat:read`.
+
+```ts
+socket.emit("chat:read", {
+  conversationId,
+  readAt: new Date().toISOString(),
+})
+```
+
+The server marks `chat_message_read` rows as read for `@USER` and emits `chat:read` to user rooms so other open tabs clear unread dots.
 
 ## Common Mistakes
 

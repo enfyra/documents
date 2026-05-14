@@ -48,11 +48,11 @@ const me = await fetch("/enfyra/me", {
 })
 ```
 
-OAuth:
+OAuth starts on the Enfyra app URL, then returns through your app proxy:
 
 ```ts
 const redirect = new URL("/chat", window.location.origin)
-const url = new URL("/enfyra/auth/google", window.location.origin)
+const url = new URL("/api/auth/google", "https://demo.enfyra.io")
 
 url.searchParams.set("redirect", redirect.toString())
 url.searchParams.set("cookieBridgePrefix", "/enfyra")
@@ -68,19 +68,24 @@ import { io } from "socket.io-client"
 const socket = io("/chat", {
   path: "/socket.io",
   withCredentials: true,
+  reconnection: false,
+  transports: ["polling"],
+  upgrade: false,
 })
 ```
 
 `/chat` is the Enfyra websocket namespace. `/socket.io` is the transport path your SSR app proxies to the Enfyra app websocket bridge.
 
+The demo chat apps use polling-only Socket.IO because it works consistently through simple SSR framework rewrites and reverse proxies. If your deployment proxy supports websocket upgrade cleanly, you can enable websocket transport later.
+
 ## OAuth Flow
 
 ```text
 User clicks Google
-  -> /enfyra/auth/google?redirect=...&cookieBridgePrefix=/enfyra
+  -> https://demo.enfyra.io/api/auth/google?redirect=...&cookieBridgePrefix=/enfyra
   -> Enfyra redirects to Google
   -> Google returns to Enfyra callback
-  -> Enfyra redirects through /enfyra/auth/set-cookies
+  -> Enfyra redirects through {yourAppOrigin}/enfyra/auth/set-cookies
   -> the proxy response sets cookies on your app origin
   -> browser returns to redirect
 ```
@@ -124,8 +129,8 @@ const nextConfig = {
         destination: "https://demo.enfyra.io/api/:path*",
       },
       {
-        source: "/socket.io/:path*",
-        destination: "https://demo.enfyra.io/ws/socket.io/:path*",
+        source: "/socket.io/",
+        destination: "https://demo.enfyra.io/ws/socket.io/",
       },
     ]
   },
@@ -224,6 +229,16 @@ cookieBridgePrefix=/enfyra
 ```
 
 Without this, Enfyra uses the default `/api` cookie bridge, which is correct for the Enfyra app itself but wrong for a third-party app using `/enfyra`.
+
+### Starting OAuth from the wrong origin
+
+The production demo chat apps start OAuth on the Enfyra app URL:
+
+```ts
+new URL("/api/auth/google", "https://demo.enfyra.io")
+```
+
+They do not start Google OAuth at `/enfyra/auth/google`. The local `/enfyra/**` proxy is still required for the later `/enfyra/auth/set-cookies` bridge.
 
 ### Calling the backend host from browser code
 

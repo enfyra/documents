@@ -127,7 +127,7 @@ http://localhost:3000/api/auth/google?redirect=http%3A%2F%2Flocalhost%3A3000%2Fd
 Third app example:
 
 ```text
-https://chat.example.com/enfyra/auth/google?redirect=https%3A%2F%2Fchat.example.com%2Fchat&cookieBridgePrefix=%2Fenfyra
+https://demo.enfyra.io/api/auth/google?redirect=https%3A%2F%2Fchat.example.com%2Fchat&cookieBridgePrefix=%2Fenfyra
 ```
 
 **Response:** HTTP 302 redirect to the OAuth provider.
@@ -136,7 +136,7 @@ https://chat.example.com/enfyra/auth/google?redirect=https%3A%2F%2Fchat.example.
 
 - `redirect` is required and must be an absolute `http(s)` URL.
 - The client should pass the page it wants to return to after login.
-- For Nuxt, Next, and other SSR apps, proxy OAuth through the same prefix used for REST calls, such as `{appUrl}/api/auth/:provider` or `{thirdAppUrl}/enfyra/auth/:provider`.
+- For Nuxt, Next, and other SSR apps, start OAuth on the Enfyra app URL, such as `{enfyraAppUrl}/api/auth/:provider`, and pass `redirect` plus `cookieBridgePrefix`.
 - If `oauth_config_definition.autoSetCookies = true`, the backend redirects through `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, sets auth cookies for that origin through the proxy response, then redirects to `redirect`. If `cookieBridgePrefix` is omitted, the prefix defaults to `/api`.
 - If `oauth_config_definition.autoSetCookies = false`, the backend redirects to `oauth_config_definition.appCallbackUrl` with `accessToken`, `refreshToken`, `expTime`, `loginProvider`, and `redirect` on the query string.
 
@@ -166,7 +166,7 @@ For this SSR flow, enable `autoSetCookies` in the OAuth config. The default cook
 The third app proxies `/enfyra/**` to the Enfyra app `/api/**` base. The login button redirects the browser to:
 
 ```text
-https://chat.example.com/enfyra/auth/google?redirect=https%3A%2F%2Fchat.example.com%2Fchat&cookieBridgePrefix=%2Fenfyra
+https://demo.enfyra.io/api/auth/google?redirect=https%3A%2F%2Fchat.example.com%2Fchat&cookieBridgePrefix=%2Fenfyra
 ```
 
 After the provider callback, Enfyra redirects to:
