@@ -29,6 +29,7 @@ The app is a **pure API client**: it never connects directly to your database. A
 
 - **Navigation & Layout**  
   - **[Menu Management](./menu-management.md)** – Sidebar and menu configuration  
+  - **[Method Management](./method-management.md)** – HTTP method records and badge colors used by route forms
   - **[Page Header](./page-header.md)** – Page headers with stats and gradients
 
 - **Hooks, Handlers & Packages (UI side)**  

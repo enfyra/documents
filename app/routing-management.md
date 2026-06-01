@@ -15,6 +15,7 @@ Routing Management lets you create custom API endpoints that are served by your 
 
 ### Advanced Configuration
 - **Main Table**: The primary table this route serves (see below for details)
+- **Available Methods**: Method records this route supports. Manage method records and badge colors from **Settings > Methods**.
 - **Route Permissions**: Access control rules for this endpoint
 - **Handlers**: Custom request processing logic (see [Custom Handlers](hooks-handlers/custom-handlers.md))
 - **Hooks**: Lifecycle events and custom processing (Pre-Hooks and Post-Hooks)
@@ -32,6 +33,9 @@ Configure the essential route properties:
 - **Icon**: Choose a Lucide icon for visual identification
 - **Description**: Add a clear description of the route's purpose
 - **Is Enabled**: Toggle to activate the route
+- **Available Methods**: Select the methods the route supports. If a method is missing, open **Settings > Methods** or use the selector `+` action to create it.
+
+See [Method Management](./method-management.md) for method records and badge color configuration.
 
 ### Step 3: Link to Main Table
 The most important step is connecting your route to a data source:
