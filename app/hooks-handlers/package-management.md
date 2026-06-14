@@ -303,7 +303,7 @@ const axios = $ctx.$pkgs.axios; // undefined
 
 ## Using App Packages in Extensions
 
-App Packages let you use npm packages directly in your Extensions (custom pages and widgets). Unlike Backend Packages which run on the server, App Packages run in the browser and are perfect for:
+App Packages let you use npm packages directly in your Extensions (custom pages, widgets, and global shell extensions). Unlike Backend Packages which run on the server, App Packages run in the browser and are perfect for:
 - Charts and visualizations (chart.js, echarts)
 - Utilities (lodash, dayjs, axios)
 - UI components
@@ -473,4 +473,3 @@ The system automatically detects which packages you use by scanning your code:
 - Use specific packages for better performance
 
 **For more examples, see [Extension System](../extension-system.md#using-npm-packages-in-extensions)**
-

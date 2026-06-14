@@ -51,12 +51,44 @@ const slug = $ctx.$helpers.autoSlug('My Product Name');
 // Result: 'my-product-name'
 ```
 
-### File Upload Helper
+### Crypto Helpers
+
+Use `$ctx.$helpers.$crypto` for bounded cryptographic helpers inside hooks, handlers, flows, and websocket scripts.
+
+```javascript
+const id = $ctx.$helpers.$crypto.randomUUID();
+const token = $ctx.$helpers.$crypto.randomBytes(32, 'base64url');
+const digest = $ctx.$helpers.$crypto.sha256('payload');
+const signature = $ctx.$helpers.$crypto.hmacSha256('payload', 'shared-secret');
+```
+
+Supported encodings for `randomBytes`, `sha256`, and `hmacSha256` are `hex`, `base64`, and `base64url`. `randomBytes` is capped to 4096 bytes.
+
+Generate SSH keys with the same crypto helper:
+
+```javascript
+const keyPair = await $ctx.$helpers.$crypto.generateSshKeyPair('deploy@example.com');
+
+// keyPair.publicKey is OpenSSH format.
+// keyPair.privateKey is RSA PKCS#1 PEM.
+```
+
+Do not use legacy `$ctx.$helpers.$ssh` or manual encryption helpers in new scripts. Database values that need encryption at rest should be stored in columns marked `isEncrypted=true`; scripts read and write plaintext values.
+
+### Sleep Helper
+
+Pause a dynamic script for a bounded duration. The runtime clamps the delay between 0 and 30000 milliseconds.
+
+```javascript
+await $ctx.$helpers.$sleep(1000);
+```
+
+### Storage Helpers
 
 Upload files to storage.
 
 ```javascript
-const fileResult = await $ctx.$helpers.$uploadFile({
+const fileResult = await $ctx.$storage.$upload({
   originalname: 'image.jpg',
   filename: 'custom-filename.jpg',
   mimetype: 'image/jpeg',
@@ -74,7 +106,7 @@ const fileResult = await $ctx.$helpers.$uploadFile({
 Update existing files.
 
 ```javascript
-await $ctx.$helpers.$updateFile(fileId, {
+await $ctx.$storage.$update(fileId, {
   buffer: newFileBuffer,
   originalname: 'new-name.jpg',
   mimetype: 'image/jpeg',
@@ -88,7 +120,19 @@ await $ctx.$helpers.$updateFile(fileId, {
 Delete files.
 
 ```javascript
-await $ctx.$helpers.$deleteFile(fileId);
+await $ctx.$storage.$delete(fileId);
+```
+
+Register an object that already exists in the configured storage backend without uploading bytes:
+
+```javascript
+await $ctx.$storage.$registerFile({
+  filename: 'backup.sql.gz',
+  mimetype: 'application/gzip',
+  location: 'backups/project-1/backup.sql.gz',
+  size: 1024,
+  storageConfig: 1,
+});
 ```
 
 ### Rate Limiting

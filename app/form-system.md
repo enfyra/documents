@@ -251,6 +251,7 @@ Enfyra automatically tracks form changes to provide better user experience:
 ### Implementation Pattern
 
 ```typescript
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 // In your page component
 const hasFormChanges = ref(false);
 const formEditorRef = ref();
@@ -275,7 +276,7 @@ async function save() {
 }
 
 // Header action
-useHeaderActionRegistry([
+registerHeaderActions([
   {
     id: "save-user",
     label: "Save",
@@ -313,6 +314,7 @@ Enfyra provides a consistent reset button pattern to discard form changes:
 ### Implementation Pattern
 
 ```typescript
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 // In your page component
 const { confirm } = useConfirm();
 const hasFormChanges = ref(false);
@@ -333,7 +335,7 @@ async function handleReset() {
 }
 
 // Header actions
-useHeaderActionRegistry([
+registerHeaderActions([
   {
     id: "save-user",
     label: "Save",

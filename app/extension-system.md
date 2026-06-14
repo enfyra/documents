@@ -1,6 +1,6 @@
 # Extension System
 
-The Extension System allows you to create custom pages and widgets using Vue.js components. Extensions are tightly coupled with the menu system - when you create a menu item, you need an extension to provide the actual content that displays when users click that menu.
+The Extension System allows you to create custom pages, widgets, and global shell integrations using Vue.js components. Page extensions pair with menu items to provide route content, widget extensions are embedded inside pages, and global extensions mount once at the app shell level for app-wide registration logic.
 
 ** [Menu Management Guide](./menu-management.md)** - Learn how to create and configure menus
 
@@ -19,6 +19,7 @@ The Extension System allows you to create custom pages and widgets using Vue.js 
 - [Advanced Extension Features](#advanced-extension-features)
 - [Header Actions Integration](#header-actions-integration)
 - [Widget System](#widget-system)
+- [Global Extension System](#global-extension-system)
 - [File Upload Support](#file-upload-support)
 - [Using NPM Packages in Extensions](#using-npm-packages-in-extensions)
 - [Extension Management](#extension-management)
@@ -219,6 +220,10 @@ This example demonstrates all features and can be pasted directly into the exten
 </template>
 
 <script setup>
+const {
+  register: registerHeaderActions,
+  unregister: unregisterHeaderAction
+} = useHeaderActionRegistry();
 // ==========================================
 // ALL FUNCTIONS ARE GLOBALLY AVAILABLE
 // No imports needed - just use them directly!
@@ -399,7 +404,7 @@ const submitForm = async () => {
 // Register header actions when component mounts
 onMounted(() => {
   // Add custom actions to app header
-  useHeaderActionRegistry().register([
+  registerHeaderActions([
     {
       id: 'refresh-dashboard',
       label: 'Refresh',
@@ -432,7 +437,8 @@ onMounted(() => {
 // Cleanup when component unmounts
 onUnmounted(() => {
   // Unregister header actions
-  useHeaderActionRegistry().unregister(['refresh-dashboard', 'view-settings']);
+  unregisterHeaderAction('refresh-dashboard');
+  unregisterHeaderAction('view-settings');
 });
 </script>
 
@@ -471,8 +477,13 @@ onUnmounted(() => {
 
 ### Widget Extensions  
 - **Purpose**: Reusable components for embedding anywhere
-- **Usage**: Can be embedded using `<Widget :id="extensionId" />`
+- **Usage**: Can be embedded using `<Widget :id="databaseId" />`
 - **Example**: Charts, status cards, mini-forms
+
+### Global Extensions
+- **Purpose**: App-wide shell registration and background realtime behavior
+- **Usage**: Create an extension with type `global`; eApp mounts enabled global extensions invisibly during layout init
+- **Example**: Notification bell in the account panel, global unread counters, admin socket listeners, background refresh bridges
 
 ## Full SDK Access in Extensions
 
@@ -588,6 +599,7 @@ const handleClick = () => {
 **UI & State Management:**
 - `useHeaderActionRegistry()` - Register header actions
 - `useSubHeaderActionRegistry()` - Register sub-header actions  
+- `useAccountPanelRegistry()` - Register rows in the sidebar account panel
 - `useScreen()` - Screen size and responsive utilities
 - `useGlobalState()` - Global state management
 - `useConfirm()` - Confirmation dialogs
@@ -738,9 +750,11 @@ Control visibility based on permissions:
 
 ```vue
 <script setup>
+const { register: registerHeaderActions } = useHeaderActionRegistry();
+const { register: registerSubHeaderActions } = useSubHeaderActionRegistry();
 onMounted(() => {
   // Register in main header (top-right)
-  useHeaderActionRegistry().register({
+  registerHeaderActions({
     id: 'save-report',
     label: 'Save Report',
     color: 'primary',
@@ -752,7 +766,7 @@ onMounted(() => {
   });
   
   // Register in sub-header (page level)
-  useSubHeaderActionRegistry().register({
+  registerSubHeaderActions({
     id: 'filter-toggle',
     label: 'Filters',
     side: 'left',
@@ -935,6 +949,105 @@ onMounted(async () => {
 ```
 
 3. **Embed Widget**: Use `<Widget :id="database_id" />` in any extension or page
+
+## Global Extension System
+
+Global extensions are Vue SFC records with `type="global"`. eApp fetches every enabled global extension during layout initialization, resolves it through the normal dynamic extension loader, and mounts it invisibly at shell level. Use this for logic that must exist across every page.
+
+### When to Use Global Extensions
+
+Use a global extension for:
+- Account panel items such as a notification bell
+- Global unread counters or status indicators
+- Shared admin Socket.IO listeners
+- Background refresh bridges that update app-wide state
+- Shell-level registry entries that should survive route changes
+
+Do not use a global extension for:
+- Full page content
+- Route-specific UI
+- Large dashboards or operational pages
+- Widgets that should be embedded in one page only
+- Floating cards or custom overlays that duplicate shell UI
+
+### Creating a Global Extension
+
+Create an `extension_definition` record with:
+- **Type**: `global`
+- **Menu**: empty
+- **Template**: empty or hidden
+- **Script**: registry and realtime setup
+
+Global extensions should register visible UI into existing shell registries. They should not render page body UI directly.
+
+```vue
+<template></template>
+
+<script setup>
+const unread = ref(3)
+const iconName = (name) => ['lucide', name].join(':')
+const activeBellIcon = iconName('bell-ring')
+const idleBellIcon = iconName('bell')
+const chevronIcon = iconName('chevron-right')
+
+const NotificationPanelItem = defineComponent({
+  name: 'NotificationPanelItem',
+  setup() {
+    const openNotifications = () => navigateTo('/notifications')
+
+    return () => h('button', {
+      type: 'button',
+      class: 'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-muted',
+      onClick: openNotifications,
+    }, [
+      h('span', {
+        class: 'flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary',
+      }, [
+        h(UIcon, {
+          name: unread.value > 0 ? activeBellIcon : idleBellIcon,
+          class: 'h-5 w-5',
+        }),
+      ]),
+      h('span', { class: 'min-w-0 flex-1' }, [
+        h('span', { class: 'block truncate text-sm font-medium text-highlighted' }, 'Notifications'),
+        h('span', { class: 'mt-0.5 block truncate text-xs text-muted' }, unread.value > 0 ? 'Needs review' : 'All caught up'),
+      ]),
+      unread.value > 0
+        ? h(UBadge, { color: 'primary', variant: 'soft', size: 'sm' }, () => String(unread.value))
+        : h(UIcon, { name: chevronIcon, class: 'h-4 w-4 text-muted' }),
+    ])
+  },
+})
+
+const { register } = useAccountPanelRegistry()
+register({
+  id: 'notifications',
+  order: 20,
+  component: NotificationPanelItem,
+})
+
+const { adminSocket } = useAdminSocket()
+const handleSummary = (payload) => {
+  if (payload?.unread != null) unread.value = payload.unread
+}
+
+adminSocket.on('notification:summary', handleSummary)
+onUnmounted(() => {
+  adminSocket.off('notification:summary', handleSummary)
+})
+</script>
+```
+
+### Global Extension UI Rules
+
+- Keep account-panel items as one compact row: icon, label, short secondary text, trailing badge or chevron.
+- Use shell-compatible tokens/classes such as `bg-muted`, `text-muted`, and `text-highlighted`.
+- Use `rounded-lg` or smaller radii and moderate padding so the row matches the sidebar panel.
+- Make the entire row one `button` with `type="button"`.
+- Do not nest buttons inside account-panel rows.
+- Do not render page-scale cards, modal shells, or hero-style UI from a global extension.
+- Use stable registry ids so reloads replace the same shell item predictably.
+- Clean up socket and DOM listeners in `onUnmounted`; eApp unmounts old global components when extensions reload or are disabled.
 
 ## File Upload Support
 Extensions can handle file uploads:

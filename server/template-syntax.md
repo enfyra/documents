@@ -30,7 +30,7 @@ const userId = @USER.id;
 const bodyData = @BODY.name;
 ```
 
-** Template syntax is just syntactic sugar** - it gets automatically replaced with the full `$ctx.$property` syntax during execution. **Use whichever style you prefer - you can even mix all three in the same file!**
+**Template syntax is just syntactic sugar** - ESV replaces it with the full `$ctx.$property` syntax before compiled code is passed to the kernel executor. **Use whichever style you prefer - you can even mix all three in the same file!**
 
 In **`find()`** options, **`filter`** and **`where`** are the same object (REST list endpoints use the query parameter name **`filter`** only).
 
@@ -44,6 +44,7 @@ In **`find()`** options, **`filter`** and **`where`** are the same object (REST 
 | `@FETCH` | `$ctx.$helpers.$fetch` | SSRF-hardened HTTP client (shorthand for `@HELPERS.$fetch`) |
 | `@LOGS` | `$ctx.$logs` | Logging functions |
 | `@BODY` | `$ctx.$body` | Request body data |
+| `@ENV` | `$ctx.$env` | Sanitized environment variables exposed by the host runtime |
 | `@DATA` | `$ctx.$data` | Response data object |
 | `@STATUS` | `$ctx.$statusCode` | HTTP status code (200 on success, error code on failure — available in postHooks) |
 | `@ERROR` | `$ctx.$error` | Error context in postHooks (`{ message, name, statusCode, details, timestamp }` — `undefined` on success) |
@@ -318,14 +319,13 @@ const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
 ```javascript
 // Access uploaded file
 const file = @UPLOADED_FILE;
-@LOGS('File uploaded:', file.filename, file.mimetype, file.size);
+@LOGS('File uploaded:', file.originalname, file.mimetype, file.size);
 
-// Save uploaded file to database
-const savedFile = await #file_definition.create({ data: {
-  filename: @UPLOADED_FILE.filename,
-  mimetype: @UPLOADED_FILE.mimetype,
-  filesize: @UPLOADED_FILE.size,
-  buffer: @UPLOADED_FILE.buffer
+// Save uploaded request file to storage and file_definition.
+// This streams from the server temp file and does not buffer the full file.
+const savedFile = await @STORAGE.$upload({
+  file: @UPLOADED_FILE,
+  description: @BODY.description
 });
 
 // Stream response (for large files or image processing)
@@ -548,12 +548,19 @@ const users = await #user_definition.find({
   fields: 'id,email,name' // Performance optimization
 });
 
+//  Good - fetch editable script source without generated compiled output
+const handlers = await #route_handler_definition.find({
+  fields: '-compiledCode'
+});
+
 //  Avoid fetching all fields unnecessarily
 const users = await #user_definition.find({
   where: { isActive: true }
   // Fetches all fields by default
 });
 ```
+
+When any field token starts with `-`, that `fields` scope uses exclude mode. For example, `fields: 'id,-compiledCode'` still returns all readable fields except `compiledCode`.
 
 ### 3. Proper Error Handling
 

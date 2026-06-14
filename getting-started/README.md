@@ -7,6 +7,7 @@ If you are new to Enfyra, follow the pages in order. If you already have an inst
 ## Quick Navigation
 
 ### Setup
+- **[Enfyra Cloud](../cloud/README.md)** - Use the managed hosting option when you do not want to run your own server, database, Redis, and deployment pipeline.
 - **[Installation](./installation.md)** - Install Enfyra with Docker or the manual backend and app setup.
 - **[First Login and Interface Overview](./getting-started.md)** - Sign in, understand the admin app layout, and choose the next step.
 
@@ -18,6 +19,9 @@ If you are new to Enfyra, follow the pages in order. If you already have an inst
 
 ### "I need to install Enfyra"
 See [Installation](./installation.md).
+
+### "I want Enfyra hosted for me"
+See [Enfyra Cloud](../cloud/README.md).
 
 ### "I just logged in and need to understand the UI"
 See [First Login and Interface Overview](./getting-started.md).

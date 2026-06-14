@@ -235,8 +235,16 @@ docker run -d \
 ### Server
 - `PORT`: Server port (default: `1105`)
 - `ENFYRA_SERVER_WORKERS`: Number of workers for cluster (default: `1`)
-- `SECRET_KEY`: JWT secret key (default: `enfyra_secret_key_change_in_production`)
+- `SECRET_KEY`: Server secret used for auth token signing and `isEncrypted=true` field encryption (default: `enfyra_secret_key_change_in_production`)
 - `NODE_NAME`: Node instance name for logs/cluster (default: auto-generated UUID - ensures 100% uniqueness across nodes)
+
+Set an explicit, high-entropy `SECRET_KEY` for production and keep it stable. Back it up securely and use the same value on every server instance for the same Enfyra app. Changing or losing it invalidates existing auth tokens and prevents existing encrypted field values from decrypting.
+
+Generate one before a production Docker deployment:
+
+```bash
+openssl rand -hex 32
+```
 
 ### Auth (Optional)
 - `SALT_ROUNDS`: bcrypt salt rounds (default: `10`)

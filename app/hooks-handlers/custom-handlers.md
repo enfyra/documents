@@ -27,7 +27,7 @@ You'll see the handler creation form with these fields:
 - **Logic**: Large code editor where you write your custom JavaScript
 - **Description**: Text area to document what this handler does  
 - **Route**: The current route is selected automatically when you create the handler from the route detail page
-- **Method**: Select the HTTP method (`GET`, `POST`, `PATCH`, `DELETE`)
+- **Method**: Select the HTTP method record. Built-in methods are `GET`, `POST`, `PATCH`, and `DELETE`; create custom methods in **Settings > Methods** before assigning them to handlers.
 
 ### Step 3: Link to Route and Method
 - **Method Selection**: Use the relation picker to choose from available HTTP methods

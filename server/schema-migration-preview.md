@@ -37,6 +37,14 @@ The preview lists those cases so you can adjust other tables first or accept the
 
 Use the Enfyra admin UI if you prefer; it walks the same confirm flow.
 
+## Boot-time metadata migrations
+
+Server snapshots can declare metadata-driven column changes in `data/snapshot-migration.json` with `columnsToModify`. On first-run boot, Enfyra applies those changes before metadata sync so physical columns and metadata rows stay aligned.
+
+Column rename migrations must be generic and table-driven. The migration runner reads the table name plus `oldName` / `newName` from the snapshot migration file, renames the SQL or Mongo field when needed, updates column metadata, and self-heals duplicate old/new columns by preserving the target field and removing the old field. Do not implement table-specific repair code for one metadata table when the same `columnsToModify` contract can describe the change.
+
+For HTTP method metadata, the unique method label is `method_definition.name`. Use `name` in metadata, default data, migrations, tools, filters, and API payloads.
+
 ## Related
 
 - [Table creation guide](../getting-started/table-creation.md) — ordering relations and tables

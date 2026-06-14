@@ -266,8 +266,9 @@ async function handleSubmit() {
 
 ```vue
 <script setup lang="ts">
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 // Register header action with permission
-useHeaderActionRegistry({
+registerHeaderActions({
   id: 'create-user',
   label: 'Create User',
   permission: {

@@ -186,6 +186,9 @@ enfyra-docs/
 │   ├── table-creation.md        # Complete guide to creating tables with all field types
 │   └── data-management.md       # Complete guide to managing records in your tables
 │
+├──  cloud/
+│   └── README.md                # Managed Enfyra Cloud hosting, project isolation, checkout, and headroom model
+│
 ├──  api-reference/              # REST API endpoints (use {appUrl}/api/...)
 │   ├── README.md                # API overview and base URL
 │   ├── overview.md              # Headers, auth, response format
@@ -200,6 +203,9 @@ enfyra-docs/
 │
 ├──  examples/
 │   ├── README.md                # Example overview and recommended usage
+│   ├── api-examples.md          # Small REST API examples
+│   ├── script-examples.md       # Small handler, hook, flow, websocket, and cache examples
+│   ├── app-examples.md          # Small extension and SSR app examples
 │   ├── user-registration-example.md # Public signup route with hook and handler
 │   ├── multi-tenant-rls-example.md  # Tenant isolation with pre-hooks
 │   └── third-party-chat-app.md      # SSR chat app using Enfyra REST and Socket.IO
@@ -257,7 +263,8 @@ enfyra-docs/
 ###  Quick Start (5 mins)
 **Just want to see what Enfyra can do?**
 1.  **[Try Live Demo](https://demo.enfyra.io/)** - Pre-filled admin credentials, just click login!
-2.  **[Getting Started](./getting-started/)** - Follow the setup, first login, table creation, and data management path
+2.  **[Enfyra Cloud](./cloud/)** - Use managed hosting when you do not want to run your own infrastructure
+3.  **[Getting Started](./getting-started/)** - Follow the setup, first login, table creation, and data management path
 
 ###  Full Learning Path
 **Ready to master Enfyra?** Follow this step-by-step path to become proficient:
@@ -321,6 +328,7 @@ enfyra-docs/
 - **[Architecture Overview](./architecture-overview.md)** - How Enfyra works across the app proxy, server runtime, metadata, database, auth, realtime, and flows
 
 ** Getting Started**
+- **[Enfyra Cloud](./cloud/)** - Managed hosting, project isolation, checkout, and headroom model
 - **[Getting Started Overview](./getting-started/)** - Setup path and quick navigation for first-time users
 - **[Installation](./getting-started/installation.md)** - Setup guide for backend and app
 - **[First Login and Interface Overview](./getting-started/getting-started.md)** - First steps after installation and interface overview
@@ -365,6 +373,9 @@ enfyra-docs/
 - **[Cluster Architecture](./server/cluster-architecture.md)** -  Multi-instance coordination and distributed synchronization
 
 ** Examples & Templates**
+- **[API Examples](./examples/api-examples.md)** - Small REST examples for auth, CRUD, query parameters, fields, relations, and deep loading
+- **[Script Examples](./examples/script-examples.md)** - Small handler, hook, flow, websocket, repository, and cache examples
+- **[App Examples](./examples/app-examples.md)** - Small extension, shell, permission, SSR auth, and realtime examples
 - **[User Registration](./examples/user-registration-example.md)** - Public signup route with validation, password hashing, and safe response fields
 - **[Multi-Tenant RLS](./examples/multi-tenant-rls-example.md)** - Build tenant isolation with generated CRUD and backend pre-hooks
 - **[Third-Party Chat App](./examples/third-party-chat-app.md)** - Build an SSR chat app using Enfyra auth, REST, and Socket.IO

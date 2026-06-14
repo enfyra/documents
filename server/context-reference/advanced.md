@@ -15,10 +15,11 @@ if ($ctx.$uploadedFile) {
   const filename = $ctx.$uploadedFile.originalname;
   const mimetype = $ctx.$uploadedFile.mimetype;
   const size = $ctx.$uploadedFile.size;
-  const buffer = $ctx.$uploadedFile.buffer;
   const fieldname = $ctx.$uploadedFile.fieldname;
 }
 ```
+
+`$ctx.$uploadedFile` describes a multipart request file. It does not expose the file body as a buffer. Pass it directly to `$ctx.$storage.$upload({ file: $ctx.$uploadedFile })` or `$ctx.$storage.$update(id, { file: $ctx.$uploadedFile })` so Enfyra streams from the temp file path.
 
 ### Processing Uploaded Files
 
@@ -28,12 +29,10 @@ if ($ctx.$uploadedFile) {
   $ctx.$logs(`File size: ${$ctx.$uploadedFile.size} bytes`);
   $ctx.$logs(`MIME type: ${$ctx.$uploadedFile.mimetype}`);
   
-  // Save file using helper
-  const fileResult = await $ctx.$helpers.$uploadFile({
-    originalname: $ctx.$uploadedFile.originalname,
-    mimetype: $ctx.$uploadedFile.mimetype,
-    buffer: $ctx.$uploadedFile.buffer,
-    size: $ctx.$uploadedFile.size
+  // Save request file using the streaming helper.
+  const fileResult = await $ctx.$storage.$upload({
+    file: $ctx.$uploadedFile,
+    description: $ctx.$body.description
   });
 }
 ```
@@ -101,6 +100,31 @@ if ($ctx.$share.validationPassed) {
 // All logs are stored in $ctx.$share.$logs
 const allLogs = $ctx.$share.$logs;  // Array of all logged messages
 ```
+
+## Environment Access
+
+Read non-secret process environment values from the sanitized environment snapshot.
+
+### $ctx.$env
+
+`$ctx.$env` exposes a sanitized copy of `process.env` for dynamic scripts. It is useful for non-secret runtime switches such as node names, deployment labels, public URLs, or feature flags.
+
+```javascript
+const nodeName = $ctx.$env.NODE_NAME || 'default';
+const appMode = $ctx.$env.ENFYRA_MODE || 'all';
+```
+
+Sensitive infrastructure keys are not exposed. Current exact deny-list keys are:
+
+- `DB_URI`
+- `DB_REPLICA_URIS`
+- `REDIS_URI`
+- `SECRET_KEY`
+- `ADMIN_PASSWORD`
+
+Do not use `$ctx.$env` as an application secret store. Store application secrets in unpublished table fields marked `isEncrypted=true`, then read and write plaintext through normal repository or REST operations.
+
+Encrypted table fields are tied to the server `SECRET_KEY`. In self-hosted deployments, keep `SECRET_KEY` stable, backed up, and identical across every server instance for the same Enfyra app. Changing or losing it prevents existing encrypted field values from decrypting.
 
 ## Package Access
 
@@ -218,4 +242,3 @@ if ($ctx.$api.error) {
 - See [File Handling](../file-handling.md) for complete file upload guide
 - Check [Cache Operations](../cache-operations.md) for detailed cache patterns
 - Learn about [Error Handling](../error-handling.md) for error handling patterns
-

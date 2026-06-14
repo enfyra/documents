@@ -94,7 +94,7 @@ JWT authentication and role-based access control.
 **What happens:**
 - JWT token is verified
 - User is loaded with their role
-- Route permissions are checked (published methods skip auth)
+- Route permissions are checked (public methods skip auth)
 - Root admin bypasses all permission checks
 
 ### Phase 5: Post-Auth Guards

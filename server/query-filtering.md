@@ -510,6 +510,62 @@ const result = await $ctx.$repos.products.find({
 - If no `sort` is specified, results are sorted by `id` ascending
 - Sort applies only to the parent table
 - Nested arrays are always sorted by `id` internally
+- `createdAt`, `updatedAt`, and scalar `date`, `datetime`, or `timestamp` columns get auto-generated single-field indexes. SQL includes `id` as a stable tie-breaker; Mongo includes `_id`.
+- Add explicit compound indexes for hot query shapes that combine time with other predicates, such as `status + lastMessageAt` or `project + createdAt`. Do not add duplicate single-field indexes for time columns.
+- Parent rows can be sorted by direct list-relation aggregates with `_count(relationName)`, `_max(relationName.fieldName)`, or `_min(relationName.fieldName)`
+- Raw dotted sort through a to-many relation, such as `messages.createdAt`, is not valid for parent ordering
+
+## Field Selection
+
+The `fields` option supports include mode and exclude mode.
+
+Include mode is the default:
+
+```javascript
+const result = await $ctx.$repos.users.find({
+  fields: 'id,email,role.name'
+});
+```
+
+Exclude mode starts when any field token is prefixed with `-`:
+
+```javascript
+const result = await $ctx.$repos.route_handler_definition.find({
+  fields: '-compiledCode'
+});
+```
+
+In exclude mode, positive field names in the same scope are ignored. `fields: 'id,-compiledCode'` returns all readable fields except `compiledCode`, not only `id`.
+
+Dotted exclusions work for related records:
+
+```javascript
+const result = await $ctx.$repos.users.find({
+  fields: '-role.avatar'
+});
+```
+
+Excluded field and relation names must exist in metadata. Unknown excluded names return a request error instead of being ignored.
+
+## Encrypted Field Restrictions
+
+Fields marked `isEncrypted=true` are encrypted at rest and decrypted after records are selected. Do not use encrypted fields in `filter` or `sort`, including root queries and nested `deep` queries.
+
+```javascript
+// Not supported: api_token is encrypted
+await $ctx.$repos.integrations.find({
+  where: {
+    api_token: { _eq: 'plaintext-token' }
+  }
+});
+
+// Not supported: api_token is encrypted
+await $ctx.$repos.integrations.find({
+  sort: 'api_token'
+});
+```
+
+Encrypted ciphertext cannot be compared meaningfully for equality, text search, range queries, or ordering, and exposing these operations would leak implementation details. Store a separate non-secret lookup key or hash when records need to be searched by a secret-derived value.
 
 ## Best Practices
 
@@ -532,6 +588,25 @@ const result = await $ctx.$repos.users.find({
   deep: {
     posts: {
       fields: 'id,title,content'
+    }
+  }
+});
+```
+
+`fields` inside each deep relation can also use exclude mode:
+
+```javascript
+const result = await $ctx.$repos.users.find({
+  fields: 'id,name',
+  deep: {
+    posts: {
+      fields: '-compiledCode,-author.avatar',
+      limit: 5,
+      deep: {
+        author: {
+          fields: '-avatar'
+        }
+      }
     }
   }
 });
@@ -636,6 +711,25 @@ const result = await $ctx.$repos.users.find({
   }
 });
 ```
+
+Deep sort orders the loaded child rows inside each parent. It does not reorder the parent result set. To sort parent rows by child data, use a root aggregate sort:
+
+```javascript
+const result = await $ctx.$repos.cloud_support_tickets.find({
+  fields: 'id,subject,status,project.id,project.name',
+  sort: '-_max(messages.createdAt),-createdAt',
+  limit: 25,
+  deep: {
+    messages: {
+      fields: 'id,authorKind,body,createdAt',
+      sort: '-createdAt',
+      limit: 3
+    }
+  }
+});
+```
+
+Use `_max(messages.createdAt)` for latest child value, `_min(messages.createdAt)` for earliest child value, and `_count(messages)` for child count. Aggregate sort helpers only support direct `one-to-many` and `many-to-many` relations, and the aggregate field must be a non-encrypted scalar field on the related table.
 
 ### Deep Query with Limit and Offset
 
@@ -746,4 +840,3 @@ Both database types handle the same deep query syntax transparently.
 - See [Repository Methods](./repository-methods/) for complete find() documentation
 - Learn about [Context Reference](./context-reference/) for accessing query parameters
 - Check [API Lifecycle](./api-lifecycle.md) to understand query processing
-

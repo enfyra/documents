@@ -10,7 +10,7 @@ Method Management controls the HTTP method records used by route forms, handler/
 
 Each method record stores:
 
-- **Method**: uppercase method key such as `GET`, `POST`, `PATCH`, `DELETE`, or a custom key such as `CUSTOM_METHOD`.
+- **Name**: the unique uppercase method key stored as `method_definition.name`, such as `GET`, `POST`, `PATCH`, `DELETE`, `PUT`, or a custom key such as `CUSTOM_METHOD`.
 - **Background color**: `buttonColor`, used as the badge background.
 - **Text color**: `textColor`, used as the badge text.
 - **System**: marks built-in runtime methods.
@@ -36,9 +36,11 @@ When a drawer has unsaved changes, closing it asks for discard confirmation. Cho
 
 ## Use Methods In Routes
 
-Route forms use the method selector for fields such as **Available Methods**, **Published Methods**, and handler/hook method targeting. If the needed method does not exist, use the `+` action in the selector to open Method Manager.
+Route forms use the method selector for fields such as **Available Methods**, **Public Methods**, and handler/hook method targeting. If the needed method does not exist, use the `+` action in the selector to open Method Manager.
 
 Published method choices control whether an HTTP method is public or permission-protected. Route permissions also use method records to define which authenticated roles can call a route.
+
+Route and permission forms store method relation ids, not raw strings. Method ids are instance data, so resolve methods by `method_definition.name` through the UI or MCP tools before wiring route fields such as **Available Methods**, **Public Methods**, hook methods, handler methods, or route permissions.
 
 ## MCP Tools
 
@@ -50,3 +52,5 @@ When managing method metadata through MCP, use the dedicated method tools instea
 - `delete_method`
 
 `delete_method` is preview-first and should only be used for unused custom methods.
+
+The MCP tools keep a user-facing `method` input name, but they read and write the backend `name` field. Do not use generic CRUD payloads with a `method` field on `method_definition`.

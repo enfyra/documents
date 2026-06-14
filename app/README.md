@@ -12,7 +12,7 @@ The app is a **pure API client**: it never connects directly to your database. A
   - **[API Integration](./api-integration.md)** – How to call backend APIs directly using `fetch` through `appUrl/api/` (e.g., `http://localhost:3000/api/user_definition`)
 
 - **Extensions & Widgets**  
-  - **[Extension System](./extension-system.md)** – Create custom pages and widgets with Vue components  
+  - **[Extension System](./extension-system.md)** – Create custom pages, widgets, and global shell extensions with Vue components  
   - **[Header Actions](./header-actions.md)** – Inject custom buttons into the app header and sub-header
 
 - **Forms & Data Entry**  
@@ -58,7 +58,7 @@ If you are **building on top of the Enfyra App UI**, this is a suggested order:
    - **[API Integration](./api-integration.md)** – Calling APIs from pages, extensions, and widgets
 
 3. **Build custom UI and workflows**  
-   - **[Extension System](./extension-system.md)** – Custom pages and widgets  
+   - **[Extension System](./extension-system.md)** – Custom pages, widgets, and global shell extensions  
    - **[Header Actions](./header-actions.md)** – Custom header actions  
    - **[Menu Management](./menu-management.md)** – Connecting extensions to menus
 

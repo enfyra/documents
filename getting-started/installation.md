@@ -13,6 +13,16 @@
 
 ## Installation Methods
 
+### Option 0: Enfyra Cloud (Managed Hosting)
+
+If you do not want to run your own server, database, Redis, TLS, reverse proxy, or deployment pipeline, use Enfyra Cloud instead of a self-hosted installation.
+
+Cloud creates hosted Enfyra projects from the Cloud dashboard. Each project has its own Enfyra runtime boundary, while shared database, edge, and supporting services are capacity-managed with headroom and guardrails. Higher plans reserve more operating room per project.
+
+Use Cloud when you want to start building in Enfyra without managing infrastructure. Use the Docker or manual installation paths below when you need to own the runtime environment yourself.
+
+See [Enfyra Cloud](../cloud/README.md) for the managed hosting model, project creation flow, checkout behavior, and how Cloud differs from self-hosting.
+
 ### Option 1: Docker (Recommended for Quick Start)
 
 The easiest way to get started with Enfyra is using the all-in-one Docker image, which includes:
@@ -236,6 +246,8 @@ the CLI will ask you a series of configuration questions. Enter the values that 
 >  If any of the database or Redis connection details are invalid, the CLI will prompt you to re-enter them or cancel setup.
 
 > **Note**: The CLI will generate a `DB_URI` connection string in your `.env` file (e.g., `mysql://user:pass@host:port/database`). You can also manually set `DB_URI` instead of using separate host/port/username/password/name fields.
+
+> **Important - `SECRET_KEY`**: `@enfyra/create-server` generates a random `SECRET_KEY` in `.env`. Keep this value stable and backed up for production. It signs auth tokens and derives the encryption key for columns marked `isEncrypted=true`; changing or losing it invalidates existing tokens and prevents Enfyra from decrypting stored encrypted field values. All server instances for the same Enfyra app must use the same `SECRET_KEY`.
 
 > **Important - Password with Special Characters**: If your database password contains special characters (such as `@`, `:`, `/`, `%`, `#`, `?`, `&`), you must URL-encode them in the `DB_URI`. For example:
 > - Password `p@ssw0rd`  Use `p%40ssw0rd` in URI
