@@ -236,7 +236,7 @@ Only `emitToUser`, `emitToRoom`, `emitToGateway`, and `broadcast` are available 
 
 ```javascript
 const { roomId } = @BODY;
-if (!roomId) @THROW.badRequest('roomId is required');
+if (!roomId) @THROW400('roomId is required');
 @SOCKET.join(`chat_${roomId}`);
 @SOCKET.emitToCurrentRoom(`chat_${roomId}`, 'userJoined', { userId: @USER.id });
 return { joined: roomId };
