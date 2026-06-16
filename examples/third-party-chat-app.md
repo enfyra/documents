@@ -160,7 +160,7 @@ await @REPOS.chat_conversation.update({
   }
 })
 
-@SOCKET.emitToRoom(`conversation:${conversationId}`, "chat:message", {
+@SOCKET.emitToCurrentRoom(`conversation:${conversationId}`, "chat:message", {
   message: created.data[0]
 })
 

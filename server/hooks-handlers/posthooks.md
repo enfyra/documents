@@ -90,7 +90,7 @@ if (@ERROR) {
 
   // Send notification on critical errors
   if (@ERROR.statusCode >= 500) {
-    await @SOCKET.emitToRoom('admin', 'server-error', {
+    await @SOCKET.emitToRoom('/admin', 'admin', 'server-error', {
       message: @ERROR.message,
       url: @API.request.url
     });

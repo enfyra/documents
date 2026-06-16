@@ -219,14 +219,16 @@ Handler scripts run in an isolated sandbox. Use the `@SOCKET` template macro (pr
 | `@SOCKET.join(room)` | Join a room in the current namespace | connection + event |
 | `@SOCKET.leave(room)` | Leave a room | connection + event |
 | `@SOCKET.emitToUser(userId, event, data)` | Send to a specific user across all gateways | connection + event |
-| `@SOCKET.emitToRoom(room, event, data)` | Send to a named room across all gateways | connection + event |
+| `@SOCKET.emitToRoom(path, room, event, data)` | Send to a named room in a specific gateway namespace | HTTP, flow, connection + event |
+| `@SOCKET.emitToCurrentRoom(room, event, data)` | Send to a named room in the current gateway namespace | connection + event |
+| `@SOCKET.broadcastToRoom(room, event, data)` | Send to a named room in the current gateway namespace, excluding the triggering socket | connection + event |
 | `@SOCKET.emitToGateway(path, event, data)` | Broadcast to all connections on a namespace | connection + event |
 | `@SOCKET.broadcast(event, data)` | Broadcast to all connections on all gateways | connection + event |
 | `@SOCKET.disconnect()` | Force-disconnect the current socket from the gateway | **connection handler only** |
 
 #### HTTP context (handler / hook)
 
-Only `emitToUser`, `emitToRoom`, `emitToGateway`, and `broadcast` are available (no socket to reply/join/leave/disconnect).
+Only `emitToUser`, `emitToRoom`, `emitToGateway`, and `broadcast` are available (no socket to reply/join/leave/disconnect). HTTP handlers, hooks, and flow steps must pass the gateway path to `emitToRoom`.
 
 ### Handler Script Examples
 
@@ -236,7 +238,7 @@ Only `emitToUser`, `emitToRoom`, `emitToGateway`, and `broadcast` are available 
 const { roomId } = @BODY;
 if (!roomId) @THROW.badRequest('roomId is required');
 @SOCKET.join(`chat_${roomId}`);
-@SOCKET.emitToRoom(`chat_${roomId}`, 'userJoined', { userId: @USER.id });
+@SOCKET.emitToCurrentRoom(`chat_${roomId}`, 'userJoined', { userId: @USER.id });
 return { joined: roomId };
 ```
 
@@ -247,7 +249,7 @@ const { text, roomId } = @BODY;
 const msg = await #message.create({
   data: { text, roomId, senderId: @USER.id }
 });
-@SOCKET.emitToRoom(`chat_${roomId}`, 'newMessage', msg);
+@SOCKET.emitToCurrentRoom(`chat_${roomId}`, 'newMessage', msg);
 return { sent: true };
 ```
 
@@ -268,7 +270,7 @@ return { notified: true };
 ```javascript
 const { roomId } = @BODY;
 @SOCKET.leave(`chat_${roomId}`);
-@SOCKET.emitToRoom(`chat_${roomId}`, 'userLeft', { userId: @USER.id });
+@SOCKET.emitToCurrentRoom(`chat_${roomId}`, 'userLeft', { userId: @USER.id });
 return { left: roomId };
 ```
 

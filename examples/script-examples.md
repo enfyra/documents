@@ -187,10 +187,10 @@ return {
 @SOCKET.join(`project:${@BODY.projectId}`)
 ```
 
-### Emit To Room
+### Emit To Current Room
 
 ```js
-@SOCKET.emitToRoom(`project:${@BODY.projectId}`, "project:changed", {
+@SOCKET.emitToCurrentRoom(`project:${@BODY.projectId}`, "project:changed", {
   projectId: @BODY.projectId
 })
 ```

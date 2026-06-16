@@ -55,7 +55,7 @@ In **`find()`** options, **`filter`** and **`where`** are the same object (REST 
 | `@RES` | `$ctx.$res` | Express response object (handlers only) |
 | `@SHARE` | `$ctx.$share` | Shared data between hooks |
 | `@API` | `$ctx.$api` | API request/response information |
-| `@SOCKET` | `$ctx.$socket` | WebSocket operations (join, leave, reply, emitToUser, emitToRoom, emitToGateway, broadcast; `disconnect` only in connection handlers) |
+| `@SOCKET` | `$ctx.$socket` | WebSocket operations (join, leave, reply, emitToUser, emitToRoom, emitToCurrentRoom, broadcastToRoom, emitToGateway, broadcast; `disconnect` only in connection handlers) |
 | `@TRIGGER` | `$ctx.$trigger` | Trigger a flow by id or name (`@TRIGGER(flowIdOrName, payload?)`) |
 | `@FLOW` | `$ctx.$flow` | Current flow context inside flow steps (payload, last step output, meta) |
 | `@FLOW_PAYLOAD` | `$ctx.$flow.$payload` | Original payload passed into the flow |
