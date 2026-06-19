@@ -29,8 +29,8 @@ The Enfyra app provides:
 ```vue
 <script setup>
 // Fetch data with custom error handling
-// This makes HTTP request to: ${API_URL}/enfyra/api/user_definition
-const { data, pending, error, refresh, execute } = useApi('/user_definition', {
+// This makes HTTP request to: ${API_URL}/enfyra/api/enfyra_user
+const { data, pending, error, refresh, execute } = useApi('/enfyra_user', {
   query: {
     limit: 10,
     fields: 'id,email,name,role.name'
@@ -71,7 +71,7 @@ onMounted(() => {
 ```vue
 <script setup>
 // Complex query with filtering, sorting, and pagination
-const { data, pending, error, execute } = useApi('/product_definition', {
+const { data, pending, error, execute } = useApi('/product', {
   query: computed(() => ({
     // Pagination
     page: currentPage.value,
@@ -113,9 +113,9 @@ watch(currentPage, () => {
 const toast = useToast();
 
 // Create new record
-// POST request to: ${API_URL}/enfyra/api/user_definition
+// POST request to: ${API_URL}/enfyra/api/enfyra_user
 const createUser = async (userData) => {
-  const { data, error, execute } = useApi('/user_definition', {
+  const { data, error, execute } = useApi('/enfyra_user', {
     method: 'post',
     body: userData
   });
@@ -136,9 +136,9 @@ const createUser = async (userData) => {
 };
 
 // Update existing record
-// PATCH request to: ${API_URL}/enfyra/api/user_definition/${userId}
+// PATCH request to: ${API_URL}/enfyra/api/enfyra_user/${userId}
 const updateUser = async (userId, updates) => {
-  const { data, error, execute } = useApi('/user_definition', {
+  const { data, error, execute } = useApi('/enfyra_user', {
     method: 'patch',
     body: updates
   });
@@ -153,9 +153,9 @@ const updateUser = async (userId, updates) => {
 };
 
 // Delete record
-// DELETE request to: ${API_URL}/enfyra/api/user_definition/${userId}
+// DELETE request to: ${API_URL}/enfyra/api/enfyra_user/${userId}
 const deleteUser = async (userId) => {
-  const { error, execute } = useApi('/user_definition', {
+  const { error, execute } = useApi('/enfyra_user', {
     method: 'delete'
   });
   
@@ -177,7 +177,7 @@ const uploadFiles = async (files: File[]) => {
     return formData;
   });
   
-  const { data, error, execute } = useApi('/file_definition', {
+  const { data, error, execute } = useApi('/enfyra_file', {
     method: 'post'
   });
   
@@ -201,7 +201,7 @@ When working with MongoDB databases, the app automatically handles `_id` fields 
 const { getId, getIdFieldName } = useDatabase();
 
 // Filter queries automatically use correct ID field
-const { data, execute } = useApi('/folder_definition', {
+const { data, execute } = useApi('/enfyra_folder', {
   query: computed(() => {
     const idField = getIdFieldName();
     return {
@@ -288,7 +288,7 @@ API calls often need permission checks. Enfyra provides the powerful `Permission
 ```vue
 <template>
   <!-- Only show button if user has permission -->
-  <PermissionGate :condition="{ route: '/user_definition', actions: ['create'] }">
+  <PermissionGate :condition="{ route: '/enfyra_user', methods: ['POST'] }">
     <UButton @click="createUser">Create User</UButton>
   </PermissionGate>
 </template>
@@ -299,7 +299,7 @@ const { hasPermission } = usePermissions();
 
 const deleteUser = async (userId) => {
   // Check permission before API call
-  if (!hasPermission('/user_definition', 'DELETE')) {
+  if (!hasPermission('/enfyra_user', 'DELETE')) {
     toast.add({
       title: 'Permission denied',
       color: 'error'
@@ -307,7 +307,7 @@ const deleteUser = async (userId) => {
     return;
   }
   
-  await useApi(`/user_definition/${userId}`, {
+  await useApi(`/enfyra_user/${userId}`, {
     method: 'DELETE'
   });
 };
@@ -375,7 +375,7 @@ const toast = useToast();
 const refreshing = ref(false);
 
 // Fetch user statistics
-const { data: userStats, pending: usersPending } = await useApi('/user_definition', {
+const { data: userStats, pending: usersPending } = await useApi('/enfyra_user', {
   query: {
     limit: 0, // Get count only
     fields: 'id'
@@ -384,7 +384,7 @@ const { data: userStats, pending: usersPending } = await useApi('/user_definitio
 });
 
 // Fetch product statistics
-const { data: productStats, pending: productsPending } = await useApi('/product_definition', {
+const { data: productStats, pending: productsPending } = await useApi('/product', {
   query: {
     limit: 0,
     fields: 'id'
@@ -393,7 +393,7 @@ const { data: productStats, pending: productsPending } = await useApi('/product_
 });
 
 // Fetch recent orders
-const { data: ordersData, pending: ordersPending } = await useApi('/order_definition', {
+const { data: ordersData, pending: ordersPending } = await useApi('/order', {
   query: {
     limit: 10,
     fields: 'id,total,status,user.name,createdAt',
@@ -479,7 +479,7 @@ onMounted(() => {
       </div>
       
       <!-- Permission-controlled button - see Permission Components guide -->
-      <PermissionGate :condition="{ route: '/user_definition', actions: ['create'] }">
+      <PermissionGate :condition="{ route: '/enfyra_user', methods: ['POST'] }">
         <UButton @click="showCreateModal = true" color="primary">
           Add User
         </UButton>
@@ -522,7 +522,7 @@ onMounted(() => {
       >
         <template #actions-data="{ row }">
           <div class="flex gap-2">
-            <PermissionGate :condition="{ route: '/user_definition', actions: ['update'] }">
+            <PermissionGate :condition="{ route: '/enfyra_user', methods: ['PATCH'] }">
               <UButton 
                 @click="editUser(row)" 
                 size="sm" 
@@ -532,7 +532,7 @@ onMounted(() => {
               </UButton>
             </PermissionGate>
             
-            <PermissionGate :condition="{ route: '/user_definition', actions: ['delete'] }">
+            <PermissionGate :condition="{ route: '/enfyra_user', methods: ['DELETE'] }">
               <UButton 
                 @click="deleteUser(row.id)" 
                 size="sm" 
@@ -630,7 +630,7 @@ const apiQuery = computed(() => ({
 }));
 
 // Fetch users with reactive query
-const { data: usersData, pending, execute: fetchUsers } = useApi('/user_definition', {
+const { data: usersData, pending, execute: fetchUsers } = useApi('/enfyra_user', {
   query: apiQuery
 });
 
@@ -644,7 +644,7 @@ watch(apiQuery, () => {
 }, { deep: true });
 
 // Fetch roles for dropdown
-const { data: rolesData, execute: fetchRoles } = useApi('/role_definition', {
+const { data: rolesData, execute: fetchRoles } = useApi('/enfyra_role', {
   query: {
     fields: 'id,name',
     sort: 'name'
@@ -709,7 +709,7 @@ const saveUser = async () => {
   try {
     if (editingUser.value) {
       // Update existing user
-      const { execute: updateUser } = useApi('/user_definition', {
+      const { execute: updateUser } = useApi('/enfyra_user', {
         method: 'patch',
         body: userForm
       });
@@ -722,7 +722,7 @@ const saveUser = async () => {
       });
     } else {
       // Create new user
-      const { execute: createUser } = useApi('/user_definition', {
+      const { execute: createUser } = useApi('/enfyra_user', {
         method: 'post',
         body: userForm
       });
@@ -760,7 +760,7 @@ const deleteUser = async (userId) => {
   if (!isConfirmed) return;
   
   try {
-    const { execute: deleteUserApi } = useApi('/user_definition', {
+    const { execute: deleteUserApi } = useApi('/enfyra_user', {
       method: 'delete'
     });
     await deleteUserApi({ id: userId });
@@ -862,7 +862,7 @@ const userListKey = computed(() =>
 );
 
 // Fetch with reactive query
-const { data, pending, execute: fetchUsers } = useApi('/user_definition', {
+const { data, pending, execute: fetchUsers } = useApi('/enfyra_user', {
   query: apiQuery
 });
 
@@ -889,7 +889,7 @@ const updateUserOptimistically = async (userId, updates) => {
   
   try {
     // Send API request
-    const { execute: updateUser } = useApi('/user_definition', {
+    const { execute: updateUser } = useApi('/enfyra_user', {
       method: 'patch',
       body: updates
     });
@@ -962,7 +962,7 @@ interface User {
   };
 }
 
-const { data, execute } = useApi<{ data: User[], total: number }>('/user_definition');
+const { data, execute } = useApi<{ data: User[], total: number }>('/enfyra_user');
 
 onMounted(() => {
   execute();

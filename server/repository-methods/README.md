@@ -28,7 +28,7 @@ Repositories are available through the context object (`$ctx`) in hooks and hand
 ```javascript
 // Access a repository by table name
 const productsRepo = $ctx.$repos.products;
-const usersRepo = $ctx.$repos.user_definition;
+const usersRepo = $ctx.$repos.enfyra_user;
 
 // Access the main table repository (if configured in route)
 const mainRepo = $ctx.$repos.main;

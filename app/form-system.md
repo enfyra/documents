@@ -251,6 +251,7 @@ Enfyra automatically tracks form changes to provide better user experience:
 ### Implementation Pattern
 
 ```typescript
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 // In your page component
 const hasFormChanges = ref(false);
 const formEditorRef = ref();
@@ -261,7 +262,7 @@ const formEditorRef = ref();
   v-model="form"
   v-model:errors="errors"
   @has-changed="(hasChanged) => hasFormChanges = hasChanged"
-  table-name="user_definition"
+  table-name="enfyra_user"
   :loading="loading"
 />
 
@@ -275,7 +276,7 @@ async function save() {
 }
 
 // Header action
-useHeaderActionRegistry([
+registerHeaderActions([
   {
     id: "save-user",
     label: "Save",
@@ -313,6 +314,7 @@ Enfyra provides a consistent reset button pattern to discard form changes:
 ### Implementation Pattern
 
 ```typescript
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 // In your page component
 const { confirm } = useConfirm();
 const hasFormChanges = ref(false);
@@ -333,7 +335,7 @@ async function handleReset() {
 }
 
 // Header actions
-useHeaderActionRegistry([
+registerHeaderActions([
   {
     id: "save-user",
     label: "Save",
@@ -556,7 +558,7 @@ const fieldMap = computed(() => ({
   adminNotes: {
     permission: {
       and: [
-        { route: '/user_definition', actions: ['update'] }
+        { route: '/enfyra_user', methods: ['PATCH'] }
       ]
     }
   }
@@ -567,8 +569,8 @@ const fieldMap = computed(() => ({
   sensitiveData: {
     permission: {
       or: [
-        { route: '/admin_panel', actions: ['read'] },
-        { route: '/reports', actions: ['read'] }
+        { route: '/admin_panel', methods: ['GET'] },
+        { route: '/reports', methods: ['GET'] }
       ]
     }
   }

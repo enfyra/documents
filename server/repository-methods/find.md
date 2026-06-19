@@ -96,6 +96,23 @@ const result = await $ctx.$repos.products.find({
 });
 ```
 
+### Exclude fields
+```javascript
+const result = await $ctx.$repos.enfyra_route_handler.find({
+  fields: '-compiledCode'
+});
+```
+
+Any field prefixed with `-` switches that `fields` scope to exclude mode. In exclude mode, positive field names are ignored, so `fields: 'id,-compiledCode'` returns all readable fields except `compiledCode`.
+
+Nested exclusions use dot notation:
+
+```javascript
+const result = await $ctx.$repos.posts.find({
+  fields: '-author.avatar'
+});
+```
+
 ### Deep Queries (Nested Relations)
 
 For complex nested queries across multiple levels, use the `deep` parameter:
@@ -125,6 +142,25 @@ const result = await $ctx.$repos.products.find({
       filter: { isActive: { _eq: true } },
       sort: 'name',
       limit: 10
+    }
+  }
+});
+```
+
+Deep fields also support exclude mode at each nested scope:
+
+```javascript
+const result = await $ctx.$repos.posts.find({
+  fields: 'id,title',
+  deep: {
+    comments: {
+      fields: '-compiledCode,-author.avatar',
+      limit: 10,
+      deep: {
+        author: {
+          fields: '-avatar'
+        }
+      }
     }
   }
 });
@@ -297,4 +333,3 @@ const filteredCount = result.meta.filterCount;
 - See [create(), update(), delete() methods](./create-update-delete.md)
 - Learn about [Common Patterns](./patterns.md)
 - Check [Query Filtering](../query-filtering.md) for more filtering examples
-

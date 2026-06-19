@@ -86,7 +86,7 @@ const permissionAction = {
   onClick: () => openAdminPanel(),
   permission: {
     route: '/admin',
-    actions: ['read']
+    methods: ['GET']
   }
 };
 ```
@@ -105,9 +105,9 @@ const permissionAction = {
 
 ```vue
 <script setup>
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 // Available globally in extensions
-// Pass actions directly to the composable - no need for onMounted
-useHeaderActionRegistry([
+registerHeaderActions([
   {
     id: 'save-report',
     label: 'Save Report',
@@ -120,7 +120,7 @@ useHeaderActionRegistry([
     },
     permission: {
       route: '/reports',
-      actions: ['create']
+      methods: ['POST']
     }
   }
 ]);
@@ -131,9 +131,9 @@ useHeaderActionRegistry([
 
 ```vue
 <script setup>
+const { register: registerSubHeaderActions } = useSubHeaderActionRegistry();
 // Available globally in extensions
-// Pass actions directly to the composable - no need for onMounted
-useSubHeaderActionRegistry([
+registerSubHeaderActions([
   {
     id: 'filter-toggle',
     label: 'Filters',
@@ -152,6 +152,7 @@ All properties can be reactive using refs or computed:
 
 ```vue
 <script setup>
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 const isLoading = ref(false);
 const itemCount = ref(0);
 
@@ -159,7 +160,7 @@ const dynamicLabel = computed(() =>
   `Export (${itemCount.value} items)`
 );
 
-useHeaderActionRegistry([
+registerHeaderActions([
   {
     id: 'dynamic-export',
     label: dynamicLabel,
@@ -179,6 +180,7 @@ useHeaderActionRegistry([
 
 ```vue
 <script setup>
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 const actions = [
   {
     id: 'refresh',
@@ -196,7 +198,7 @@ const actions = [
 ];
 
 // Register all at once
-useHeaderActionRegistry(actions);
+registerHeaderActions(actions);
 </script>
 ```
 
@@ -206,8 +208,9 @@ useHeaderActionRegistry(actions);
 
 ```vue
 <script setup>
+const { register: registerSubHeaderActions } = useSubHeaderActionRegistry();
 // Left side actions (typically filters, views)
-useSubHeaderActionRegistry([
+registerSubHeaderActions([
   {
     id: 'view-toggle',
     label: 'Grid View',
@@ -236,7 +239,8 @@ Actions automatically adapt to screen size:
 
 ```vue
 <script setup>
-useHeaderActionRegistry([
+const { register: registerHeaderActions } = useHeaderActionRegistry();
+registerHeaderActions([
   {
     id: 'route-specific',
     label: 'Data Tools',
@@ -252,8 +256,9 @@ useHeaderActionRegistry([
 
 ```vue
 <script setup>
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 // Register multiple actions
-useHeaderActionRegistry([
+registerHeaderActions([
   {
     id: 'global-help',
     global: true, // Persists across all routes
@@ -280,6 +285,7 @@ useHeaderActionRegistry([
 </template>
 
 <script setup>
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 // Define a custom component
 const CustomStatusWidget = {
   template: `
@@ -298,7 +304,7 @@ const CustomStatusWidget = {
 };
 
 // Register as header action
-useHeaderActionRegistry([
+registerHeaderActions([
   {
     id: 'status-widget',
     component: CustomStatusWidget
@@ -311,6 +317,7 @@ useHeaderActionRegistry([
 
 ```vue
 <script setup>
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 const DataCounter = {
   template: `
     <UBadge variant="soft" color="primary">
@@ -322,7 +329,7 @@ const DataCounter = {
 
 const itemCount = ref(150);
 
-useHeaderActionRegistry([
+registerHeaderActions([
   {
     id: 'data-counter',
     component: DataCounter,
@@ -346,6 +353,7 @@ useHeaderActionRegistry([
 </template>
 
 <script setup>
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 const isExporting = ref(false);
 const selectedFormat = ref('json');
 
@@ -422,13 +430,13 @@ const ExportDropdown = {
 };
 
 // Register at top level - no onMounted needed
-useHeaderActionRegistry([
+registerHeaderActions([
   {
     id: 'export-dropdown',
     component: ExportDropdown,
     permission: {
       route: '/data',
-      actions: ['read']
+      methods: ['GET']
     }
   }
 ]);
@@ -446,6 +454,7 @@ useHeaderActionRegistry([
 </template>
 
 <script setup>
+const { register: registerSubHeaderActions } = useSubHeaderActionRegistry();
 const connectionStatus = ref('connecting');
 const lastUpdate = ref(null);
 const autoRefresh = ref(true);
@@ -495,7 +504,7 @@ const StatusIndicator = {
 };
 
 // Register status in sub-header left
-useSubHeaderActionRegistry([
+registerSubHeaderActions([
   {
     id: 'connection-status',
     component: StatusIndicator,
@@ -504,7 +513,7 @@ useSubHeaderActionRegistry([
 ]);
 
 // Register controls in sub-header right
-useSubHeaderActionRegistry([
+registerSubHeaderActions([
   {
     id: 'auto-refresh-toggle',
     label: computed(() => autoRefresh.value ? 'Auto-refresh ON' : 'Auto-refresh OFF'),
@@ -554,6 +563,8 @@ const watchConnection = () => {
 </template>
 
 <script setup>
+const { register: registerHeaderActions } = useHeaderActionRegistry();
+const { register: registerSubHeaderActions } = useSubHeaderActionRegistry();
 const { me } = useAuth();
 const userRole = computed(() => me.value?.role?.name);
 
@@ -564,7 +575,7 @@ const adminActions = [
     label: 'System',
     permission: {
       route: '/admin',
-      actions: ['update']
+      methods: ['PATCH']
     },
     onClick: () => navigateTo('/admin/system')
   },
@@ -572,8 +583,8 @@ const adminActions = [
     id: 'user-management',
     label: 'Users',
     permission: {
-      route: '/user_definition',
-      actions: ['create', 'update', 'delete']
+      route: '/enfyra_user',
+      methods: ['POST', 'PATCH', 'DELETE']
     },
     onClick: () => navigateTo('/admin/users')
   },
@@ -582,7 +593,7 @@ const adminActions = [
     label: 'Audit',
     permission: {
       route: '/audit_log',
-      actions: ['read']
+      methods: ['GET']
     },
     onClick: () => navigateTo('/admin/audit')
   }
@@ -596,7 +607,7 @@ const superAdminActions = [
     color: 'error',
     permission: {
       and: [
-        { route: '/admin', actions: ['delete'] },
+        { route: '/admin', methods: ['DELETE'] },
         { allowedUsers: [me.value?.id] }
       ]
     },
@@ -605,11 +616,11 @@ const superAdminActions = [
 ];
 
 // Register actions
-useHeaderActionRegistry([...adminActions, ...superAdminActions]);
+registerHeaderActions([...adminActions, ...superAdminActions]);
 
 // Conditional registration based on user role
 if (userRole.value === 'manager') {
-  useSubHeaderActionRegistry([
+  registerSubHeaderActions([
     {
       id: 'team-overview',
       label: `Team Overview (${me.value.team?.memberCount || 0})`,
@@ -641,7 +652,7 @@ if (userRole.value === 'manager') {
   color: 'error',
   permission: {
     route: '/data',
-    actions: ['delete']
+    methods: ['DELETE']
   }
 }
 ```
@@ -730,17 +741,17 @@ interface HeaderAction {
 ### useHeaderActionRegistry()
 
 ```typescript
-// Pass actions directly to the composable
-// Accepts single action object or array of actions
-useHeaderActionRegistry(actions: HeaderAction | HeaderAction[])
+const { register: registerHeaderActions } = useHeaderActionRegistry();
+// Accepts a single action object or an array of actions
+registerHeaderActions(actionOrActions)
 ```
 
 ### useSubHeaderActionRegistry()
 
 ```typescript
-// Pass actions directly to the composable
-// Accepts single action object or array of actions
-useSubHeaderActionRegistry(actions: HeaderAction | HeaderAction[])
+const { register: registerSubHeaderActions } = useSubHeaderActionRegistry();
+// Accepts a single action object or an array of actions
+registerSubHeaderActions(actionOrActions)
 ```
 
 ## Summary

@@ -69,7 +69,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 - **Multi-Instance Coordination**: Run multiple instances with automatic schema synchronization via Redis
 - **Smart Caching**: Redis-based caching for optimal performance
 - **Flexible Syntax**: Choose between traditional `$ctx.$property` or modern template syntax `@TEMPLATE` & `#table_name`
-- **Built-in Tables**: Leverage system tables like `user_definition` for immediate user management
+- **Built-in Tables**: Leverage system tables like `enfyra_user` for immediate user management
 
 ###  Modern Template Syntax
 
@@ -77,7 +77,7 @@ Choose your coding style - both work seamlessly together:
 
 **Traditional Syntax:**
 ```javascript
-const user = await $ctx.$repos.user_definition.create({
+const user = await $ctx.$repos.enfyra_user.create({
   data: {
     email: $ctx.$body.email,
     password: await $ctx.$helpers.$bcrypt.hash($ctx.$body.password)
@@ -87,7 +87,7 @@ const user = await $ctx.$repos.user_definition.create({
 
 **Template Syntax (Shortened):**
 ```javascript
-const user = await #user_definition.create({
+const user = await #enfyra_user.create({
   data: {
     email: @BODY.email,
     password: await @HELPERS.$bcrypt.hash(@BODY.password)
@@ -110,7 +110,7 @@ const user = await #user_definition.create({
 | **Multi-Instance**    | Run multiple servers with automatic synchronization                     |
 | **Flexible Syntax**   | Traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name` patterns |
 | **Package Management**| Install NPM packages directly from UI for use in handlers and hooks     |
-| **Built-in Auth**     | System tables like `user_definition` for immediate user management     |
+| **Built-in Auth**     | System tables like `enfyra_user` for immediate user management     |
 
 ###  Perfect For
 
@@ -168,7 +168,7 @@ Database  Backend (API Server)  Frontend (Admin App)
 
 ###  Developer Experience
 - **Flexible Code Syntax** - Choose between traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name`
-- **Built-in Authentication** - System tables like `user_definition` for immediate user management
+- **Built-in Authentication** - System tables like `enfyra_user` for immediate user management
 - **Hook System** - preHooks and postHooks support for custom business logic
 - **Custom Handlers** - Override default CRUD operations with your own code
 - **Rate Limiting** - Built-in `$helpers.$rateLimit` for API protection with flexible templates
@@ -178,13 +178,16 @@ Database  Backend (API Server)  Frontend (Admin App)
 
 ```
 enfyra-docs/
-├──  architecture-overview.md  # System architecture diagram and component responsibilities
+├──  architecture-overview.md  # How Enfyra works: app, server, data, auth, realtime, and flow examples
 ├──  getting-started/
 │   ├── README.md              # Getting started overview and quick navigation
 │   ├── installation.md          # Setup guide for backend and app
 │   ├── getting-started.md       # First steps after installation and interface overview
 │   ├── table-creation.md        # Complete guide to creating tables with all field types
 │   └── data-management.md       # Complete guide to managing records in your tables
+│
+├──  cloud/
+│   └── README.md                # Managed Enfyra Cloud hosting, project isolation, checkout, and headroom model
 │
 ├──  api-reference/              # REST API endpoints (use {appUrl}/api/...)
 │   ├── README.md                # API overview and base URL
@@ -194,8 +197,46 @@ enfyra-docs/
 │   ├── query-parameters.md      # filter, fields, sort, limit, page
 │   └── file-storage.md          # Files, folders, assets
 │
+├──  integrations/
+│   ├── README.md                # Framework integration overview
+│   └── ssr-frameworks.md        # Nuxt, Next.js, SvelteKit, Remix proxy/auth/realtime setup
+│
 ├──  examples/
-│   └── user-registration-example.md # Complete end-to-end example with template syntax
+│   ├── README.md                # Example overview and recommended usage
+│   ├── api-examples.md          # Small REST API examples
+│   ├── script-examples.md       # Small handler, hook, flow, websocket, and cache examples
+│   ├── app-examples.md          # Small extension and SSR app examples
+│   ├── crud-apps/               # Todo, blog, catalog, orders, and GraphQL recipes
+│   │   ├── README.md
+│   │   ├── todo-app.md
+│   │   ├── blog-comments.md
+│   │   ├── catalog-orders.md
+│   │   └── graphql-read-api.md
+│   ├── auth-permissions/        # Profiles, owner scope, team RLS, and public intake
+│   │   ├── README.md
+│   │   ├── profile-owner-scope.md
+│   │   ├── team-workspace-rls.md
+│   │   └── public-contact-form.md
+│   ├── files-realtime/          # Uploads, attachments, avatars, notifications, activity feeds
+│   │   ├── README.md
+│   │   ├── file-attachments.md
+│   │   ├── avatar-upload.md
+│   │   ├── realtime-notifications.md
+│   │   └── activity-feed.md
+│   ├── automation-integrations/ # Webhooks, schedules, rate limits, outbound sync
+│   │   ├── README.md
+│   │   ├── webhook-ingest.md
+│   │   ├── scheduled-cleanup.md
+│   │   ├── rate-limited-public-api.md
+│   │   └── outbound-sync.md
+│   ├── admin-operations/        # Admin console pages and operator workflows
+│   │   ├── README.md
+│   │   ├── moderation-console.md
+│   │   ├── operator-queue.md
+│   │   └── settings-page.md
+│   ├── user-registration-example.md # Public signup route with hook and handler
+│   ├── multi-tenant-rls-example.md  # Tenant isolation with pre-hooks
+│   └── third-party-chat-app.md      # SSR chat app using Enfyra REST and Socket.IO
 │
 ├──  app/
 │   ├── api-integration.md        # API integration with Enfyra SDK and examples for extensions
@@ -250,44 +291,47 @@ enfyra-docs/
 ###  Quick Start (5 mins)
 **Just want to see what Enfyra can do?**
 1.  **[Try Live Demo](https://demo.enfyra.io/)** - Pre-filled admin credentials, just click login!
-2.  **[Getting Started](./getting-started/)** - Follow the setup, first login, table creation, and data management path
+2.  **[Enfyra Cloud](./cloud/)** - Use managed hosting when you do not want to run your own infrastructure
+3.  **[Getting Started](./getting-started/)** - Follow the setup, first login, table creation, and data management path
 
 ###  Full Learning Path
 **Ready to master Enfyra?** Follow this step-by-step path to become proficient:
 
 ###  Phase 1: Setup & Basics (30 mins)
 1. **[Installation](./getting-started/installation.md)** - Set up Enfyra backend and app
-2. **[Getting Started](./getting-started/getting-started.md)** - First login and interface overview
-3. **[Table Creation](./getting-started/table-creation.md)** - Create your first table with all field types and relations, including `onDelete` cascade behavior
-4. **[Data Management](./getting-started/data-management.md)** - Learn to manage records and relationships
+2. **[Architecture Overview](./architecture-overview.md)** - Understand how Enfyra turns metadata into APIs, auth, realtime events, and workflows
+3. **[Getting Started](./getting-started/getting-started.md)** - First login and interface overview
+4. **[Table Creation](./getting-started/table-creation.md)** - Create your first table with all field types and relations, including `onDelete` cascade behavior
+5. **[Data Management](./getting-started/data-management.md)** - Learn to manage records and relationships
 
 ###  Phase 2: Frontend Mastery (2-3 hours)
-5. **[Form System](./app/form-system.md)** - Understand how forms work with your data
-6. **[Filter System](./app/filter-system.md)** - Master data filtering and searching  
-7. **[Permission Builder](./app/permission-builder.md)** - Set up access control rules
-8. **[Menu Management](./app/menu-management.md)** - Customize navigation and user interface
-9. **[Storage Management](./app/storage-management.md)** - Upload and manage files, folders, and storage configurations
+6. **[Form System](./app/form-system.md)** - Understand how forms work with your data
+7. **[Filter System](./app/filter-system.md)** - Master data filtering and searching
+8. **[Permission Builder](./app/permission-builder.md)** - Set up access control rules
+9. **[Menu Management](./app/menu-management.md)** - Customize navigation and user interface
+10. **[Storage Management](./app/storage-management.md)** - Upload and manage files, folders, and storage configurations
 
 ###  Phase 3: Customization (3-4 hours)
-10. **[API Integration](./app/api-integration.md)** - Learn to fetch and manipulate data programmatically
-11. **[Package Management](./app/hooks-handlers/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
-12. **[Extension System](./app/extension-system.md)** - Build custom pages and functionality
-13. **[Header Actions](./app/header-actions.md)** - Inject custom buttons and widgets into the app interface
-14. **[Custom Handlers](./app/hooks-handlers/custom-handlers.md)** - Override default API behavior with business logic
+11. **[API Integration](./app/api-integration.md)** - Learn to fetch and manipulate data programmatically
+12. **[SSR Framework Integrations](./integrations/ssr-frameworks.md)** - Connect Nuxt, Next.js, SvelteKit, or Remix through same-origin auth, REST, OAuth, and Socket.IO
+13. **[Package Management](./app/hooks-handlers/package-management.md)** - Install NPM packages for enhanced handler and hook functionality
+14. **[Extension System](./app/extension-system.md)** - Build custom pages and functionality
+15. **[Header Actions](./app/header-actions.md)** - Inject custom buttons and widgets into the app interface
+16. **[Custom Handlers](./app/hooks-handlers/custom-handlers.md)** - Override default API behavior with business logic
 
 ###  Phase 4: Advanced Development (4-5 hours)
-15. **[Repository Methods](./server/repository-methods/)** - Master database operations with find, create, update, delete
-16. **[Context Reference](./server/context-reference/)** - Complete reference for $ctx object in hooks and handlers
-17. **[Hooks and Handlers](./server/hooks-handlers/)** - Create sophisticated preHooks, afterHooks, and custom handlers
-18. **[Query Filtering](./server/query-filtering.md)** - Master MongoDB-like query filtering, including Deep Queries for nested relations
-19. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
-20. **[Error Handling](./server/error-handling.md)** - Handle errors properly with best practices
+17. **[Repository Methods](./server/repository-methods/)** - Master database operations with find, create, update, delete
+18. **[Context Reference](./server/context-reference/)** - Complete reference for $ctx object in hooks and handlers
+19. **[Hooks and Handlers](./server/hooks-handlers/)** - Create sophisticated preHooks, afterHooks, and custom handlers
+20. **[Query Filtering](./server/query-filtering.md)** - Master MongoDB-like query filtering, including Deep Queries for nested relations
+21. **[API Lifecycle](./server/api-lifecycle.md)** - Understand the complete request processing pipeline
+22. **[Error Handling](./server/error-handling.md)** - Handle errors properly with best practices
 
 ###  Phase 5: Production & Scale (2-3 hours)
-21. **[WebSocket Guide](./server/websocket.md)** - Build real-time features with WebSocket
-22. **[Cache Operations](./server/cache-operations.md)** - Implement distributed caching and locking
-23. **[File Handling](./server/file-handling.md)** - Handle file uploads and management
-24. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
+23. **[WebSocket Guide](./server/websocket.md)** - Build real-time features with WebSocket
+24. **[Cache Operations](./server/cache-operations.md)** - Implement distributed caching and locking
+25. **[File Handling](./server/file-handling.md)** - Handle file uploads and management
+26. **[Cluster Architecture](./server/cluster-architecture.md)** - Deploy and scale across multiple instances
 
 ###  Goal-Oriented Paths
 
@@ -296,6 +340,7 @@ enfyra-docs/
 -  **Building an MVP?**  Phases 1-2 (4-5 hours total)
 -  **Need custom functionality?**  Focus on Phase 3: API Integration + Extensions
 -  **Building a dashboard?**  [Extension System](./app/extension-system.md) + [API Integration](./app/api-integration.md)
+-  **Building a third-party SSR app?**  [SSR Framework Integrations](./integrations/ssr-frameworks.md) + [Third-Party Chat App Example](./examples/third-party-chat-app.md)
 -  **Need role-based access?**  [Permission Builder](./app/permission-builder.md)
 -  **Complex business logic?**  [Custom Handlers](./app/hooks-handlers/custom-handlers.md) + [Context Reference](./server/context-reference/) + [Hooks and Handlers](./server/hooks-handlers/)
 -  **Real-time features?**  [WebSocket Guide](./server/websocket.md)
@@ -308,17 +353,22 @@ enfyra-docs/
 ### Quick Navigation
 
 ** Architecture Overview**
-- **[Architecture Overview](./architecture-overview.md)** - System architecture diagram and component responsibilities
-
-** API Reference**
-- **[API Reference](./api-reference/README.md)** - REST API endpoints (use `{appUrl}/api/...`)
+- **[Architecture Overview](./architecture-overview.md)** - How Enfyra works across the app proxy, server runtime, metadata, database, auth, realtime, and flows
 
 ** Getting Started**
+- **[Enfyra Cloud](./cloud/)** - Managed hosting, project isolation, checkout, and headroom model
 - **[Getting Started Overview](./getting-started/)** - Setup path and quick navigation for first-time users
 - **[Installation](./getting-started/installation.md)** - Setup guide for backend and app
 - **[First Login and Interface Overview](./getting-started/getting-started.md)** - First steps after installation and interface overview
 - **[Table Creation](./getting-started/table-creation.md)** - Complete guide to creating tables with all field types
 - **[Data Management](./getting-started/data-management.md)** - Complete guide to managing records in your tables
+
+** API Reference**
+- **[API Reference](./api-reference/README.md)** - REST API endpoints (use `{appUrl}/api/...`)
+
+** Integrations**
+- **[Integrations](./integrations/README.md)** - Connect external apps to Enfyra
+- **[SSR Frameworks](./integrations/ssr-frameworks.md)** - Nuxt, Next.js, SvelteKit, and Remix setup for REST, OAuth cookies, refresh, and Socket.IO
 
 ** Frontend (User Interface)**
 - **[API Integration](./app/api-integration.md)** - API integration with Enfyra SDK and examples for extensions
@@ -351,8 +401,12 @@ enfyra-docs/
 - **[Cluster Architecture](./server/cluster-architecture.md)** -  Multi-instance coordination and distributed synchronization
 
 ** Examples & Templates**
-- **[User Registration](./examples/user-registration-example.md)** - Complete end-to-end example featuring template syntax, hooks, handlers, and package management
-- **[Multi-Tenant RLS](./examples/multi-tenant-rls-example.md)** - Build multi-tenant SaaS with row-level security, custom dashboards, and data isolation
+- **[API Examples](./examples/api-examples.md)** - Small REST examples for auth, CRUD, query parameters, fields, relations, and deep loading
+- **[Script Examples](./examples/script-examples.md)** - Small handler, hook, flow, websocket, repository, and cache examples
+- **[App Examples](./examples/app-examples.md)** - Small extension, shell, permission, SSR auth, and realtime examples
+- **[User Registration](./examples/user-registration-example.md)** - Public signup route with validation, password hashing, and safe response fields
+- **[Multi-Tenant RLS](./examples/multi-tenant-rls-example.md)** - Build tenant isolation with generated CRUD and backend pre-hooks
+- **[Third-Party Chat App](./examples/third-party-chat-app.md)** - Build an SSR chat app using Enfyra auth, REST, and Socket.IO
 
 ## Installation
 

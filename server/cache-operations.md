@@ -180,7 +180,7 @@ let userProfile = await $ctx.$cache.get(cacheKey);
 
 if (!userProfile) {
   // Cache miss - fetch from database
-  const result = await $ctx.$repos.user_definition.find({
+  const result = await $ctx.$repos.enfyra_user.find({
     where: { id: { _eq: $ctx.$params.id } }
   });
   

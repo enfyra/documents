@@ -51,6 +51,7 @@ You can change the id field type to `uuid` if you prefer UUID identifiers, but `
 - **isUpdatable** - Toggle to allow field updates after creation
 - **isGenerated** - Auto-set for `uuid` type (system managed)
 - **isPublished** - Visibility baseline (default: true). Set to false to block access by default — use field permission rules to grant access to specific roles/users
+- **isEncrypted** - Encrypt string-like field values at rest in the database access layer. Scripts, REST, and repositories read and write plaintext; Enfyra encrypts on insert/update and decrypts after select. Encrypted fields cannot be used for filter or sort. `isEncrypted` does not make a field immutable; set `isUpdatable=false` separately only when the value must not change after creation. Encrypted field values depend on the server `SECRET_KEY`; self-hosted deployments must keep that key stable, backed up, and identical across all server instances
 
 **Display & UX:**
 - **description** - Field documentation with rich text editor (displays as help text under field labels in forms)
@@ -212,9 +213,12 @@ Once saved, Enfyra automatically sets up several things for your new table:
 - **Add descriptions** - Help users understand field purposes
 - **Set sensible defaults** - Reduce data entry effort
 - **Use appropriate types** - Match field types to data requirements
+- **Protect secrets with `isEncrypted=true`** - Use encrypted, unpublished fields for API keys, tokens, passwords, private keys, and other stored secrets. Do not build manual pre-hook encryption for normal app data. If a secret should only be set once, also set `isUpdatable=false`. Back up the server `SECRET_KEY`; losing or changing it prevents existing encrypted values from decrypting
 
 ### Performance Considerations
 - **Index frequently queried fields** - Improve query performance
+- **Do not duplicate time indexes** - Enfyra automatically creates single-field indexes for `createdAt`, `updatedAt`, and scalar `date`, `datetime`, or `timestamp` columns. SQL indexes include `id` as a stable tie-breaker; Mongo indexes include `_id`.
+- **Use compound indexes for hot query shapes** - Add explicit compound indexes when the query combines a time field with other filters, such as `status + createdAt`, `owner + updatedAt`, or `project + lastMessageAt`.
 - **Avoid over-indexing** - Too many indexes can slow down writes
 - **Consider data volume** - Plan for growth in your table design
 
@@ -222,7 +226,7 @@ Once saved, Enfyra automatically sets up several things for your new table:
 
 ### User Management Table
 ```
-Table: user_definition (built-in, but as example)
+Table: enfyra_user (built-in, but as example)
 - id (uuid, generated)
 - email (varchar, unique)
 - name (varchar)

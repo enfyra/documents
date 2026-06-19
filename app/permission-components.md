@@ -9,7 +9,7 @@ The `PermissionGate` component wraps UI elements and automatically shows/hides t
 ### Basic Usage
 
 ```vue
-<PermissionGate :condition="{ route: '/user_definition', actions: ['read'] }">
+<PermissionGate :condition="{ route: '/enfyra_user', methods: ['GET'] }">
   <div>This content only shows if user can read users</div>
 </PermissionGate>
 ```
@@ -19,7 +19,7 @@ The `PermissionGate` component wraps UI elements and automatically shows/hides t
 Check if user has ANY of the listed actions:
 
 ```vue
-<PermissionGate :condition="{ route: '/user_definition', actions: ['create', 'update'] }">
+<PermissionGate :condition="{ route: '/enfyra_user', methods: ['POST', 'PATCH'] }">
   <UButton>Edit User</UButton>
 </PermissionGate>
 ```
@@ -32,8 +32,8 @@ User must have ALL permissions:
 ```vue
 <PermissionGate :condition="{
   and: [
-    { route: '/user_definition', actions: ['read'] },
-    { route: '/roles', actions: ['read'] }
+    { route: '/enfyra_user', methods: ['GET'] },
+    { route: '/roles', methods: ['GET'] }
   ]
 }">
   <div>User can read both users AND roles</div>
@@ -46,8 +46,8 @@ User needs ANY of these permissions:
 ```vue
 <PermissionGate :condition="{
   or: [
-    { route: '/user_definition', actions: ['create'] },
-    { route: '/user_definition', actions: ['update'] }
+    { route: '/enfyra_user', methods: ['POST'] },
+    { route: '/enfyra_user', methods: ['PATCH'] }
   ]
 }">
   <UButton>Modify User</UButton>
@@ -60,11 +60,11 @@ Combine AND/OR for complex logic:
 ```vue
 <PermissionGate :condition="{
   or: [
-    { route: '/admin', actions: ['read'] },
+    { route: '/admin', methods: ['GET'] },
     {
       and: [
-        { route: '/user_definition', actions: ['read'] },
-        { route: '/user_definition', actions: ['update'] }
+        { route: '/enfyra_user', methods: ['GET'] },
+        { route: '/enfyra_user', methods: ['PATCH'] }
       ]
     }
   ]
@@ -93,12 +93,12 @@ const { hasPermission } = usePermissions();
 
 // Check single permission
 const canCreateUsers = computed(() => {
-  return hasPermission('/user_definition', 'POST'); // POST = create
+  return hasPermission('/enfyra_user', 'POST'); // POST = create
 });
 
 // Use in functions
 async function deleteUser(id: string) {
-  if (!hasPermission('/user_definition', 'DELETE')) {
+  if (!hasPermission('/enfyra_user', 'DELETE')) {
     toast.add({
       title: 'Access Denied',
       description: 'You do not have permission to delete users',
@@ -107,7 +107,7 @@ async function deleteUser(id: string) {
     return;
   }
   
-  await api.delete(`/user_definition/${id}`);
+  await api.delete(`/enfyra_user/${id}`);
 }
 </script>
 ```
@@ -122,11 +122,11 @@ const { checkPermissionCondition } = usePermissions();
 const canManageUsers = computed(() => {
   return checkPermissionCondition({
     and: [
-      { route: '/user_definition', actions: ['read'] },
+      { route: '/enfyra_user', methods: ['GET'] },
       { 
         or: [
-          { route: '/user_definition', actions: ['create'] },
-          { route: '/user_definition', actions: ['update'] }
+          { route: '/enfyra_user', methods: ['POST'] },
+          { route: '/enfyra_user', methods: ['PATCH'] }
         ]
       }
     ]
@@ -161,8 +161,8 @@ When you set permissions on a menu item:
   route: '/settings/users',
   permission: {
     or: [
-      { route: '/users', actions: ['read'] },
-      { route: '/users', actions: ['create'] }
+      { route: '/users', methods: ['GET'] },
+      { route: '/users', methods: ['POST'] }
     ]
   }
 }
@@ -200,13 +200,13 @@ const visibleItems = menuGroups.filter(item => {
 ```vue
 <template>
   <div class="flex gap-2">
-    <PermissionGate :condition="{ route: '/user_definition', actions: ['create'] }">
+    <PermissionGate :condition="{ route: '/enfyra_user', methods: ['POST'] }">
       <UButton color="primary" @click="createUser">
         Create User
       </UButton>
     </PermissionGate>
     
-    <PermissionGate :condition="{ route: '/user_definition', actions: ['delete'] }">
+    <PermissionGate :condition="{ route: '/enfyra_user', methods: ['DELETE'] }">
       <UButton color="red" @click="deleteSelected">
         Delete Selected
       </UButton>
@@ -221,11 +221,11 @@ const visibleItems = menuGroups.filter(item => {
 <template>
   <UTable :rows="users">
     <template #actions="{ row }">
-      <PermissionGate :condition="{ route: '/user_definition', actions: ['update'] }">
+      <PermissionGate :condition="{ route: '/enfyra_user', methods: ['PATCH'] }">
         <UButton size="sm" @click="editUser(row.id)">Edit</UButton>
       </PermissionGate>
       
-      <PermissionGate :condition="{ route: '/user_definition', actions: ['delete'] }">
+      <PermissionGate :condition="{ route: '/enfyra_user', methods: ['DELETE'] }">
         <UButton size="sm" color="red" @click="deleteUser(row.id)">Delete</UButton>
       </PermissionGate>
     </template>
@@ -241,7 +241,7 @@ const { hasPermission } = usePermissions();
 
 async function handleSubmit() {
   // Check permission before processing
-  if (!hasPermission('/user_definition', 'POST')) {
+  if (!hasPermission('/enfyra_user', 'POST')) {
     toast.add({
       title: 'Access Denied', 
       description: 'You cannot create users',
@@ -257,7 +257,7 @@ async function handleSubmit() {
     return;
   }
   
-  await api.post('/user_definition', formData.value);
+  await api.post('/enfyra_user', formData.value);
 }
 </script>
 ```
@@ -266,13 +266,14 @@ async function handleSubmit() {
 
 ```vue
 <script setup lang="ts">
+const { register: registerHeaderActions } = useHeaderActionRegistry();
 // Register header action with permission
-useHeaderActionRegistry({
+registerHeaderActions({
   id: 'create-user',
   label: 'Create User',
   permission: {
-    route: '/user_definition',
-    actions: ['create']
+    route: '/enfyra_user',
+    methods: ['POST']
   },
   onClick: () => navigateTo('/users/create')
 });
@@ -342,10 +343,10 @@ const canEdit = computed(() => hasPermission('/users', 'PATCH'));
 Always use actual API endpoint paths:
 ```javascript
 // Good - matches API endpoint
-{ route: '/user_definition', actions: ['read'] }
+{ route: '/enfyra_user', methods: ['GET'] }
 
 // Bad - doesn't match actual route
-{ route: '/users', actions: ['read'] }
+{ route: '/users', methods: ['GET'] }
 ```
 
 ## Debugging
@@ -374,8 +375,8 @@ console.log('Can create users:', hasPermission('/users', 'POST'));
 <script setup lang="ts">
 const condition = {
   and: [
-    { route: '/users', actions: ['read'] },
-    { route: '/roles', actions: ['read'] }
+    { route: '/users', methods: ['GET'] },
+    { route: '/roles', methods: ['GET'] }
   ]
 };
 

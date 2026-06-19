@@ -110,7 +110,7 @@ When the table accepts nested records (e.g. `POST /post` with an inline `comment
 
 ## System Tables
 
-Some system tables (`table_definition`, `field_permission_definition`, etc.) accept a small set of virtual fields that aren't real columns (`graphqlEnabled`, `config`). The validator allows those by name; everything else outside the schema is rejected as "not allowed". You don't need to do anything special for system tables — rules work the same way.
+Some system tables (`enfyra_table`, `enfyra_field_permission`, etc.) accept a small set of virtual fields that aren't real columns (`graphqlEnabled`, `config`). The validator allows those by name; everything else outside the schema is rejected as "not allowed". You don't need to do anything special for system tables — rules work the same way.
 
 ## Related
 

@@ -90,7 +90,7 @@ You'll see the hook creation form with these fields:
 - **IsEnabled**: Toggle to activate/deactivate the hook
 - **Description**: Documentation for the hook's purpose
 - **Route**: The current route is selected automatically when you create the hook from the route detail page
-- **Methods**: Select the HTTP methods that should trigger this hook (`GET`, `POST`, `PATCH`, `DELETE`)
+- **Methods**: Select the HTTP method records that should trigger this hook. Built-in methods are `GET`, `POST`, `PATCH`, and `DELETE`; custom methods such as `PUT` must be created in **Settings > Methods** first.
 
 ### Step 3: Choose Methods
 - **Method Selection**: Choose which HTTP methods trigger this hook

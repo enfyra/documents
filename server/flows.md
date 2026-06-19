@@ -6,9 +6,9 @@ Flows are automated workflows that execute a sequence of steps based on triggers
 
 | Table | Purpose |
 |-------|---------|
-| `flow_definition` | Flow configuration (name, trigger, timeout, maxExecutions) |
-| `flow_step_definition` | Steps within a flow (ordered, typed, configurable) |
-| `flow_execution_definition` | Execution history and state (query separately, not nested) |
+| `enfyra_flow` | Flow configuration (name, trigger, timeout, maxExecutions) |
+| `enfyra_flow_step` | Steps within a flow (ordered, typed, configurable) |
+| `enfyra_flow_execution` | Execution history and state (query separately, not nested) |
 
 ## Trigger Types
 
@@ -73,7 +73,7 @@ Each flow execution maintains a shared context (`$ctx.$flow` / `@FLOW`) that pas
 const email = @FLOW_PAYLOAD.email;
 const user = @FLOW.find_user?.data?.[0];
 const prev = @FLOW_LAST;
-const orders = await #order_definition.find({
+const orders = await #order.find({
   filter: { userId: { _eq: user.id } }
 });
 return orders;
@@ -81,7 +81,7 @@ return orders;
 
 ```javascript
 // Equivalent verbose syntax (not recommended)
-// $ctx.$flow.$payload.email, $ctx.$repos.order_definition, etc.
+// $ctx.$flow.$payload.email, $ctx.$repos.order, etc.
 ```
 
 ## Condition Branching
@@ -103,13 +103,13 @@ Condition steps support true/false branching. Child steps reference the conditio
 
 Creating branch steps via API:
 ```
-POST /api/flow_step_definition
+POST /api/enfyra_flow_step
 {
   "flow": { "id": 1 },
   "key": "process_users",
   "stepOrder": 1,
   "type": "script",
-  "config": { "code": "return #user_definition.find({ limit: 100 })" },
+  "config": { "code": "return #enfyra_user.find({ limit: 100 })" },
   "parent": { "id": 5 },
   "branch": "true"
 }
@@ -150,7 +150,7 @@ await @TRIGGER(5, { orderId: @PARAMS.id, total: 100 });
 Query execution records separately (not nested under flow):
 
 ```
-GET /api/flow_execution_definition?filter={"flow":{"_eq":1}}&sort=-id&limit=10
+GET /api/enfyra_flow_execution?filter={"flow":{"_eq":1}}&sort=-id&limit=10
 ```
 
 Each execution record contains:
@@ -165,7 +165,7 @@ Each execution record contains:
 ### 1. Create the flow
 
 ```
-POST /api/flow_definition
+POST /api/enfyra_flow
 {
   "name": "process-order",
   "triggerType": "manual",
@@ -174,7 +174,7 @@ POST /api/flow_definition
 }
 ```
 
-Then trigger from a post-hook on `/order_definition`:
+Then trigger from a post-hook on `/order`:
 ```javascript
 await @TRIGGER('process-order', { data: @DATA });
 ```
@@ -182,14 +182,14 @@ await @TRIGGER('process-order', { data: @DATA });
 ### 2. Add steps
 
 ```
-POST /api/flow_step_definition
+POST /api/enfyra_flow_step
 {
   "flow": { "id": 1 },
   "key": "validate_stock",
   "stepOrder": 1,
   "type": "script",
   "config": {
-    "code": "const order = @FLOW_PAYLOAD.data; const product = await #product_definition.find({ filter: { id: { _eq: order.productId } }, limit: 1 }); return { inStock: product.data[0]?.stock > order.quantity }"
+    "code": "const order = @FLOW_PAYLOAD.data; const product = await #product.find({ filter: { id: { _eq: order.productId } }, limit: 1 }); return { inStock: product.data[0]?.stock > order.quantity }"
   },
   "timeout": 5000,
   "onError": "stop"
@@ -203,7 +203,7 @@ POST /api/admin/test/run
 {
   "kind": "flow_step",
   "type": "query",
-  "config": { "table": "user_definition", "filter": { "status": { "_eq": "active" } }, "limit": 5 },
+  "config": { "table": "enfyra_user", "filter": { "status": { "_eq": "active" } }, "limit": 5 },
   "timeout": 5000
 }
 ```
@@ -220,13 +220,13 @@ POST /api/admin/flow/trigger/1
 ### 5. View execution history
 
 ```
-GET /api/flow_execution_definition?filter={"flow":{"_eq":1}}&sort=-id&limit=10
+GET /api/enfyra_flow_execution?filter={"flow":{"_eq":1}}&sort=-id&limit=10
 ```
 
 ## Scheduled Flow Example
 
 ```
-POST /api/flow_definition
+POST /api/enfyra_flow
 {
   "name": "daily-cleanup",
   "triggerType": "schedule",

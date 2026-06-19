@@ -1,13 +1,13 @@
 # Routing Management
 
-Routing Management lets you create custom API endpoints that are served by your **backend server**. By default, Enfyra automatically generates REST API endpoints for every table you create (like `/table_definition`). The Routing Manager allows you to create **custom endpoints** like `/products` or `/users` for any purpose you need.
+Routing Management lets you create custom API endpoints that are served by your **backend server**. By default, Enfyra automatically generates REST API endpoints for every table you create (like `/enfyra_table`). The Routing Manager allows you to create **custom endpoints** like `/products` or `/users` for any purpose you need.
 
 **Important**: All routes are created and served by the **backend server**, not the frontend app. The frontend consumes these API endpoints via HTTP requests.
 
 ## Route Properties
 
 ### Basic Configuration
-- **Path**: The custom endpoint path (e.g., `/assets/:id` instead of `/file_definition`)
+- **Path**: The custom endpoint path (e.g., `/assets/:id` instead of `/enfyra_file`)
 - **Icon**: Visual identifier for the route (using Lucide icons)
 - **Description**: Human-readable description of the route's purpose
 - **Status**: Whether the route is enabled or disabled
@@ -15,10 +15,11 @@ Routing Management lets you create custom API endpoints that are served by your 
 
 ### Advanced Configuration
 - **Main Table**: The primary table this route serves (see below for details)
+- **Available Methods**: Method records this route supports. Method labels live in `enfyra_method.name`; manage method records and badge colors from **Settings > Methods**.
 - **Route Permissions**: Access control rules for this endpoint
 - **Handlers**: Custom request processing logic (see [Custom Handlers](hooks-handlers/custom-handlers.md))
 - **Hooks**: Lifecycle events and custom processing (Pre-Hooks and Post-Hooks)
-- **Published Methods**: Defines which HTTP methods are public (no authentication required) vs private (role-protected)
+- **Public Methods**: Defines which HTTP methods are public (no authentication required) vs private (role-protected)
 
 ## Creating Custom Routes
 
@@ -32,6 +33,9 @@ Configure the essential route properties:
 - **Icon**: Choose a Lucide icon for visual identification
 - **Description**: Add a clear description of the route's purpose
 - **Is Enabled**: Toggle to activate the route
+- **Available Methods**: Select the methods the route supports. If a method is missing, open **Settings > Methods** or use the selector `+` action to create it.
+
+See [Method Management](./method-management.md) for method records and badge color configuration.
 
 ### Step 3: Link to Main Table
 The most important step is connecting your route to a data source:
@@ -43,7 +47,7 @@ The most important step is connecting your route to a data source:
    - `PATCH /your-route/:id` - Update record
    - `DELETE /your-route/:id` - Delete record
 
-4. **Published Methods Control**: HTTP methods specified in **Published Methods** become **public** (accessible by guests without authentication). Methods not listed remain **private** and require proper authentication and role permissions.
+4. **Public Methods Control**: HTTP methods specified in **Public Methods** become **public** (accessible by guests without authentication). Methods not listed remain **private** and require proper authentication and role permissions.
 
 The route inherits all the table's fields, validation rules, and relationships without requiring additional configuration.
 
@@ -79,7 +83,7 @@ When a route has a **Main Table** configured:
 2. Click **"Add Handler"** button
 3. Configure the handler:
    - **Name**: Descriptive name for the handler
-   - **Method**: Select the HTTP method this handler processes (`GET`, `POST`, `PATCH`, or `DELETE`)
+   - **Method**: Select the HTTP method record this handler processes. Built-in CRUD methods are `GET`, `POST`, `PATCH`, and `DELETE`; custom methods such as `PUT` must exist in **Settings > Methods** first.
    - **Logic**: Write your custom JavaScript code
    - **Is Enabled**: Toggle to activate/deactivate
 4. Click **Save** to create the handler
@@ -95,7 +99,7 @@ Hooks allow you to add processing logic before (Pre-Hooks) or after (Post-Hooks)
 2. Configure the hook:
    - **Name**: Descriptive name
    - **Is Global**: Check this to apply the hook to all routes (not just this route)
-   - **Methods**: Select which HTTP methods this hook applies to (can select multiple)
+   - **Methods**: Select which HTTP method records this hook applies to (can select multiple)
    - **Priority**: Lower numbers execute first (e.g., 1 executes before 2)
    - **Logic**: Write your JavaScript code
    - **Is Enabled**: Toggle to activate/deactivate
@@ -161,9 +165,9 @@ See [Relation Picker System](relation-picker.md) for details on selecting roles 
 
 ### GraphQL Access
 
-GraphQL is enabled per table from the table editor with the **GraphQL** toggle, which writes the table's `gql_definition` record. It is not enabled from Route Permissions.
+GraphQL is enabled per table from the table editor with the **GraphQL** toggle, which writes the table's `enfyra_graphql` record. It is not enabled from Route Permissions.
 
-GraphQL requests currently require a Bearer token. REST `publishedMethods` and route permission methods do not make GraphQL anonymous. GraphQL queries and mutations still use the same table metadata, field publication state, generated input/output schema, guards, and repository behavior as the server runtime.
+GraphQL requests currently require a Bearer token. REST `publicMethods` and route permission methods do not make GraphQL anonymous. GraphQL queries and mutations still use the same table metadata, field publication state, generated input/output schema, guards, and repository behavior as the server runtime.
 
 For query syntax and filters, see **[Query Filtering](../server/query-filtering.md)**.
 
@@ -179,16 +183,16 @@ Examples include routes for:
 
 ## Method Publishing and Access Control
 
-The **Published Methods** field controls the authentication requirements for each HTTP method.
+The **Public Methods** field controls the authentication requirements for each HTTP method.
 
 **For complete details on permissions, roles, and allowedUsers, see [Permission Builder](./permission-builder.md).**
 
-### Published Methods vs Private Methods
-- **Published Methods**: Public access, no authentication required
+### Public Methods vs Private Methods
+- **Public Methods**: Public access, no authentication required
 - **Unpublished Methods**: Require authentication and proper permissions
 
 ### Quick Reference
-1. **Published Methods**: Public access
+1. **Public Methods**: Public access
 2. **Allowed Users**: Bypass role restrictions  
 3. **Role Permissions**: Standard role-based access
 4. **No Access**: Denied
@@ -227,7 +231,7 @@ For detailed handler creation and examples, see [Custom Handlers](hooks-handlers
 
 ### API Consistency
 Create RESTful endpoints that match your application's naming conventions:
-- `/products` instead of `/table_definition`
+- `/products` instead of `/enfyra_table`
 - `/orders` instead of `/order_table`
 
 ### Versioning Support

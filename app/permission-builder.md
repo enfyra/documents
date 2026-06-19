@@ -134,7 +134,7 @@ Permission Builder controls menu visibility:
 
 ### Route System  
 Controls API endpoint access:
-- Works with Published Methods and Role Permissions
+- Works with Public Methods and Role Permissions
 - See [Permission Components](./permission-components.md) for UI integration details
 
 ### Form System
