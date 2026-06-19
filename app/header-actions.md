@@ -86,7 +86,7 @@ const permissionAction = {
   onClick: () => openAdminPanel(),
   permission: {
     route: '/admin',
-    actions: ['read']
+    methods: ['GET']
   }
 };
 ```
@@ -120,7 +120,7 @@ registerHeaderActions([
     },
     permission: {
       route: '/reports',
-      actions: ['create']
+      methods: ['POST']
     }
   }
 ]);
@@ -436,7 +436,7 @@ registerHeaderActions([
     component: ExportDropdown,
     permission: {
       route: '/data',
-      actions: ['read']
+      methods: ['GET']
     }
   }
 ]);
@@ -575,7 +575,7 @@ const adminActions = [
     label: 'System',
     permission: {
       route: '/admin',
-      actions: ['update']
+      methods: ['PATCH']
     },
     onClick: () => navigateTo('/admin/system')
   },
@@ -583,8 +583,8 @@ const adminActions = [
     id: 'user-management',
     label: 'Users',
     permission: {
-      route: '/user_definition',
-      actions: ['create', 'update', 'delete']
+      route: '/enfyra_user',
+      methods: ['POST', 'PATCH', 'DELETE']
     },
     onClick: () => navigateTo('/admin/users')
   },
@@ -593,7 +593,7 @@ const adminActions = [
     label: 'Audit',
     permission: {
       route: '/audit_log',
-      actions: ['read']
+      methods: ['GET']
     },
     onClick: () => navigateTo('/admin/audit')
   }
@@ -607,7 +607,7 @@ const superAdminActions = [
     color: 'error',
     permission: {
       and: [
-        { route: '/admin', actions: ['delete'] },
+        { route: '/admin', methods: ['DELETE'] },
         { allowedUsers: [me.value?.id] }
       ]
     },
@@ -652,7 +652,7 @@ if (userRole.value === 'manager') {
   color: 'error',
   permission: {
     route: '/data',
-    actions: ['delete']
+    methods: ['DELETE']
   }
 }
 ```

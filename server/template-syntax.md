@@ -9,13 +9,13 @@ Enfyra provides **three equivalent ways** to access context properties. You can 
 ```javascript
 //  Full syntax (always works)
 const data = await $ctx.$cache.get('key');
-const users = await $ctx.$repos.user_definition.find({...});
+const users = await $ctx.$repos.enfyra_user.find({...});
 const slug = $ctx.$helpers.autoSlug('Hello World');
 $ctx.$logs('Operation completed');
 
 //  Template syntax (convenience shortcut)
 const data = await @CACHE.get('key');
-const users = await @REPOS.user_definition.find({...});
+const users = await @REPOS.enfyra_user.find({...});
 const slug = @HELPERS.autoSlug('Hello World');
 @LOGS('Operation completed');
 const userId = @USER.id;
@@ -23,14 +23,14 @@ const bodyData = @BODY.name;
 
 //  Direct table syntax (shortest for database)
 const data = await @CACHE.get('key');
-const users = await #user_definition.find({...});
+const users = await #enfyra_user.find({...});
 const slug = @HELPERS.autoSlug('Hello World');
 @LOGS('Operation completed');
 const userId = @USER.id;
 const bodyData = @BODY.name;
 ```
 
-**Template syntax is just syntactic sugar** - ESV replaces it with the full `$ctx.$property` syntax before compiled code is passed to the kernel executor. **Use whichever style you prefer - you can even mix all three in the same file!**
+**Template syntax is just syntactic sugar** - Enfyra Server replaces it with the full `$ctx.$property` syntax before compiled code is passed to the kernel executor. **Use whichever style you prefer - you can even mix all three in the same file!**
 
 In **`find()`** options, **`filter`** and **`where`** are the same object (REST list endpoints use the query parameter name **`filter`** only).
 
@@ -73,7 +73,7 @@ In **`find()`** options, **`filter`** and **`where`** are the same object (REST 
 | `@THROW429` | `$ctx.$throw['429']` | HTTP 429 Rate Limit Exceeded (shortcut) |
 | `@THROW500` | `$ctx.$throw['500']` | HTTP 500 Internal Error (shortcut) |
 | `@THROW503` | `$ctx.$throw['503']` | HTTP 503 Service Unavailable (shortcut) |
-| `#table_name` | `$ctx.$repos.table_name` | Direct table access (e.g., `#user_definition`, `#product_definition`) |
+| `#table_name` | `$ctx.$repos.table_name` | Direct table access (e.g., `#enfyra_user`, `#product`) |
 | `%pkg_name` | `$ctx.$pkgs.pkg_name` | Shorthand package access (e.g., `%axios`, `%lodash`, `%moment`) |
 
 ## Usage Examples
@@ -112,7 +112,7 @@ if (lockAcquired) {
 #### Using @REPOS syntax:
 ```javascript
 // Find records with filtering and pagination
-const users = await @REPOS.user_definition.find({
+const users = await @REPOS.enfyra_user.find({
   where: { isActive: true },
   fields: 'id,email,name',   // Only fetch required fields
   limit: 10,                  // Max 10 records (default: 10)
@@ -120,24 +120,24 @@ const users = await @REPOS.user_definition.find({
 });
 
 // Fetch ALL records (no limit)
-const allUsers = await @REPOS.user_definition.find({
+const allUsers = await @REPOS.enfyra_user.find({
   where: { isActive: true },
   limit: 0  // 0 = fetch all
 });
 
 // Multi-field sorting
-const sorted = await @REPOS.user_definition.find({
+const sorted = await @REPOS.enfyra_user.find({
   sort: 'name,-createdAt'  // Sort by name ASC, then createdAt DESC
 });
 
 // Nested relations (get related data in ONE query)
-const usersWithPosts = await @REPOS.user_definition.find({
+const usersWithPosts = await @REPOS.enfyra_user.find({
   fields: 'id,email,posts.title,posts.createdAt',  // Nested field: posts.title
   where: { isActive: true }
 });
 
 // Filter by nested relation
-const usersInRole = await @REPOS.user_definition.find({
+const usersInRole = await @REPOS.enfyra_user.find({
   where: {
     role: {
       name: { _eq: 'Admin' }  // Filter by related role name
@@ -147,7 +147,7 @@ const usersInRole = await @REPOS.user_definition.find({
 });
 
 // Create new record
-const newUser = await @REPOS.user_definition.create({
+const newUser = await @REPOS.enfyra_user.create({
   data: {
     email: 'user@example.com',
     name: 'John Doe',
@@ -156,7 +156,7 @@ const newUser = await @REPOS.user_definition.create({
 });
 
 // Update record by ID
-const updatedUser = await @REPOS.user_definition.update({
+const updatedUser = await @REPOS.enfyra_user.update({
   id: userId,
   data: {
     name: 'Jane Doe',
@@ -165,13 +165,13 @@ const updatedUser = await @REPOS.user_definition.update({
 });
 
 // Delete record by ID
-await @REPOS.user_definition.delete({ id: userId });
+await @REPOS.enfyra_user.delete({ id: userId });
 ```
 
 #### Using #table_name syntax (shorter):
 ```javascript
 // Find records with filtering and pagination
-const users = await #user_definition.find({
+const users = await #enfyra_user.find({
   where: { isActive: true },
   fields: 'id,email,name',   // Only fetch required fields
   limit: 10,                  // Max 10 records (default: 10)
@@ -179,24 +179,24 @@ const users = await #user_definition.find({
 });
 
 // Fetch ALL records (no limit)
-const allUsers = await #user_definition.find({
+const allUsers = await #enfyra_user.find({
   where: { isActive: true },
   limit: 0  // 0 = fetch all
 });
 
 // Multi-field sorting
-const sorted = await #user_definition.find({
+const sorted = await #enfyra_user.find({
   sort: 'name,-createdAt'  // Sort by name ASC, then createdAt DESC
 });
 
 // Nested relations (get related data in ONE query)
-const usersWithPosts = await #user_definition.find({
+const usersWithPosts = await #enfyra_user.find({
   fields: 'id,email,posts.title,posts.createdAt',  // Nested field: posts.title
   where: { isActive: true }
 });
 
 // Filter by nested relation
-const usersInRole = await #user_definition.find({
+const usersInRole = await #enfyra_user.find({
   where: {
     role: {
       name: { _eq: 'Admin' }  // Filter by related role name
@@ -206,20 +206,20 @@ const usersInRole = await #user_definition.find({
 });
 
 // Create new record
-const newUser = await #user_definition.create({ data: {
+const newUser = await #enfyra_user.create({ data: {
   email: 'user@example.com',
   name: 'John Doe',
   isActive: true
 }});
 
 // Update record by ID
-const updatedUser = await #user_definition.update({ id: userId, data: {
+const updatedUser = await #enfyra_user.update({ id: userId, data: {
   name: 'Jane Doe',
   lastLogin: new Date()
 }});
 
 // Delete record by ID
-await #user_definition.delete({ id: userId });
+await #enfyra_user.delete({ id: userId });
 ```
 
 ### Helper Functions
@@ -321,7 +321,7 @@ const timestamp = moment().format('YYYY-MM-DD HH:mm:ss');
 const file = @UPLOADED_FILE;
 @LOGS('File uploaded:', file.originalname, file.mimetype, file.size);
 
-// Save uploaded request file to storage and file_definition.
+// Save uploaded request file to storage and enfyra_file.
 // This streams from the server temp file and does not buffer the full file.
 const savedFile = await @STORAGE.$upload({
   file: @UPLOADED_FILE,
@@ -428,12 +428,12 @@ if (!data) {
 
 ```javascript
 try {
-  const user = await #user_definition.find({ where: { id: userId } });
+  const user = await #enfyra_user.find({ where: { id: userId } });
   if (!user.data.length) {
     @THROW404('User not found');
   }
   
-  const updatedUser = await #user_definition.update({
+  const updatedUser = await #enfyra_user.update({
     id: userId,
     data: { lastLogin: new Date() }
   });
@@ -453,7 +453,7 @@ try {
 // User registration with validation and caching
 async function registerUser(userData) {
   // Check if user exists
-  const existingUser = await #user_definition.find({
+  const existingUser = await #enfyra_user.find({
     where: { email: userData.email },
     fields: 'id'
   });
@@ -466,7 +466,7 @@ async function registerUser(userData) {
   const hashedPassword = await @HELPERS.$bcrypt.hash(userData.password);
   
   // Create user
-  const newUser = await #user_definition.create({ data: {
+  const newUser = await #enfyra_user.create({ data: {
     ...userData,
     password: hashedPassword,
     createdAt: new Date()
@@ -498,11 +498,11 @@ Template syntax is **purely a convenience feature**. Here's what happens behind 
 ```javascript
 // Your code (template syntax):
 const data = await @CACHE.get('key');
-const users = await #user_definition.find({...});
+const users = await #enfyra_user.find({...});
 
 // What actually runs (after replacement):
 const data = await $ctx.$cache.get('key');
-const users = await $ctx.$repos.user_definition.find({...});
+const users = await $ctx.$repos.enfyra_user.find({...});
 ```
 
 ** The replacement is transparent** - you can mix all three syntaxes in the same file if you want!
@@ -523,19 +523,19 @@ await @CACHE.set(`user:${userId}`, user);
 @LOGS('User cached:', userId);
 
 //  Option 3 - Direct table syntax (shortest for database)
-const user = await #user_definition.find({ where: { id: userId } });
+const user = await #enfyra_user.find({ where: { id: userId } });
 await @CACHE.set(`user:${userId}`, user);
 @LOGS('User cached:', userId);
 
 //  Option 4 - Mix all three (totally fine!)
-const user = await #user_definition.find({ where: { id: userId } });        // Direct table
+const user = await #enfyra_user.find({ where: { id: userId } });        // Direct table
 await $ctx.$cache.set(`user:${userId}`, user);                    // Full syntax
 @LOGS('User cached:', userId);                                     // Template syntax
 
 //  Option 5 - Any combination works!
-const user = await $ctx.$repos.user_definition.find({ where: { id: userId } }); // Full
+const user = await $ctx.$repos.enfyra_user.find({ where: { id: userId } }); // Full
 await @CACHE.set(`user:${userId}`, user);                             // Template
-const products = await #product_definition.find({ where: { userId } }); // Direct
+const products = await #product.find({ where: { userId } }); // Direct
 $ctx.$logs('All operations completed');                               // Full
 ```
 
@@ -543,18 +543,18 @@ $ctx.$logs('All operations completed');                               // Full
 
 ```javascript
 //  Good - only fetch needed fields
-const users = await #user_definition.find({
+const users = await #enfyra_user.find({
   where: { isActive: true },
   fields: 'id,email,name' // Performance optimization
 });
 
 //  Good - fetch editable script source without generated compiled output
-const handlers = await #route_handler_definition.find({
+const handlers = await #enfyra_route_handler.find({
   fields: '-compiledCode'
 });
 
 //  Avoid fetching all fields unnecessarily
-const users = await #user_definition.find({
+const users = await #enfyra_user.find({
   where: { isActive: true }
   // Fetches all fields by default
 });

@@ -226,7 +226,7 @@ Once saved, Enfyra automatically sets up several things for your new table:
 
 ### User Management Table
 ```
-Table: user_definition (built-in, but as example)
+Table: enfyra_user (built-in, but as example)
 - id (uuid, generated)
 - email (varchar, unique)
 - name (varchar)

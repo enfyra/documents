@@ -1,6 +1,6 @@
 # Query Parameters
 
-These parameters apply to **GET** requests for list endpoints (e.g. `GET {appUrl}/api/user_definition`).
+These parameters apply to **GET** requests for list endpoints (e.g. `GET {appUrl}/api/enfyra_user`).
 
 ## fields
 
@@ -8,7 +8,7 @@ Select which fields to return. Comma-separated list.
 
 **Example:**
 ```
-GET {appUrl}/api/user_definition?fields=id,email,name,role.name
+GET {appUrl}/api/enfyra_user?fields=id,email,name,role.name
 ```
 
 - Use dot notation for related fields: `role.name`
@@ -26,7 +26,7 @@ MongoDB-like filter object. Pass as JSON in the query string.
 
 **Example:**
 ```
-GET {appUrl}/api/user_definition?filter={"email":{"_contains":"@example.com"}}
+GET {appUrl}/api/enfyra_user?filter={"email":{"_contains":"@example.com"}}
 ```
 
 **Common operators:**
@@ -53,7 +53,7 @@ GET {appUrl}/api/user_definition?filter={"email":{"_contains":"@example.com"}}
 
 **Filter by relation:**
 ```
-GET {appUrl}/api/order_definition?filter={"customer":{"name":{"_contains":"Smith"}}}
+GET {appUrl}/api/order?filter={"customer":{"name":{"_contains":"Smith"}}}
 ```
 
 See [Query Filtering](../server/query-filtering.md) for full reference.
@@ -84,7 +84,7 @@ Sort order for parent/root records. Comma-separated fields. Prefix with `-` for 
 - To sort nested relations, use the `deep` parameter with a `sort` option:
 
 ```
-GET /api/user_definition?fields=id,name&deep={"posts":{"fields":"id,title","sort":"-createdAt"}}
+GET /api/enfyra_user?fields=id,name&deep={"posts":{"fields":"id,title","sort":"-createdAt"}}
 ```
 
 The `deep` sort above orders `posts` inside each user. It does not sort the user list.
@@ -124,7 +124,7 @@ Request metadata (e.g. total count). Comma-separated.
 
 **Example:**
 ```
-GET {appUrl}/api/user_definition?limit=10&meta=totalCount,filterCount
+GET {appUrl}/api/enfyra_user?limit=10&meta=totalCount,filterCount
 ```
 
 **Response:**
@@ -146,13 +146,13 @@ Nested relations with filters, sort, and limit per level. Pass as JSON.
 
 **Example:**
 ```
-GET {appUrl}/api/user_definition?fields=id,name&deep={"posts":{"fields":"id,title","sort":"-createdAt","limit":5}}
+GET {appUrl}/api/enfyra_user?fields=id,name&deep={"posts":{"fields":"id,title","sort":"-createdAt","limit":5}}
 ```
 
 Each `deep.<relation>.fields` value also supports exclude mode:
 
 ```
-GET {appUrl}/api/user_definition?fields=id,name&deep={"posts":{"fields":"-compiledCode,-author.avatar","limit":5}}
+GET {appUrl}/api/enfyra_user?fields=id,name&deep={"posts":{"fields":"-compiledCode,-author.avatar","limit":5}}
 ```
 
 See [Deep Queries](../server/query-filtering.md#deep-queries-nested-relations) for details.
@@ -162,5 +162,5 @@ See [Deep Queries](../server/query-filtering.md#deep-queries-nested-relations) f
 ## Combined Example
 
 ```
-GET {appUrl}/api/product_definition?filter={"category":{"_eq":"electronics"},"price":{"_gte":100}}&fields=id,name,price,category.name&sort=-price&limit=20&page=1&meta=filterCount
+GET {appUrl}/api/product?filter={"category":{"_eq":"electronics"},"price":{"_gte":100}}&fields=id,name,price,category.name&sort=-price&limit=20&page=1&meta=filterCount
 ```

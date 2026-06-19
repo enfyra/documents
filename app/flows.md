@@ -129,7 +129,7 @@ Use these macros in Script and Condition step code. They are auto-transpiled to 
 | `@FLOW_LAST` | `$ctx.$flow.$last` |
 | `@FLOW.step_key` | `$ctx.$flow.step_key` |
 | `@FLOW_META` | `$ctx.$flow.$meta` |
-| `#user_definition` | `$ctx.$repos.user_definition` |
+| `#enfyra_user` | `$ctx.$repos.enfyra_user` |
 | `@HELPERS` | `$ctx.$helpers` |
 | `@TRIGGER(...)` | Trigger another flow from handler |
 | `@USER` | `$ctx.$user` |
@@ -140,7 +140,7 @@ Use these macros in Script and Condition step code. They are auto-transpiled to 
 
 ```javascript
 // In a script step:
-const user = await #user_definition.find({
+const user = await #enfyra_user.find({
   filter: { email: { _eq: @FLOW_PAYLOAD.email } },
   limit: 1
 });

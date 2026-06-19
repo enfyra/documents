@@ -1,10 +1,20 @@
 # Examples
 
-Use these examples when you want short copy-ready snippets or complete feature walkthroughs.
+Use these examples when you want short copy-ready snippets, common app recipes, or complete feature walkthroughs.
 
-Start with the small examples when you need syntax quickly. Use walkthroughs when you want to see a full feature assembled from tables, routes, hooks, handlers, permissions, integrations, and app UI pieces.
+Start with the small examples when you need syntax quickly. Use category recipes when you are building a normal product feature. Use walkthroughs when you want to see a full feature assembled from tables, routes, hooks, handlers, permissions, integrations, and app UI pieces.
 
 For framework setup, read [Integrations](../integrations/README.md) first.
+
+## Recipe Categories
+
+These folders group common product patterns so the docs navigation can show each use case clearly.
+
+- [CRUD Apps](./crud-apps/README.md) - Todo lists, blogs with comments, catalogs, orders, and optional GraphQL reads.
+- [Auth & Permissions](./auth-permissions/README.md) - Profiles, owner-scoped data, team workspaces, and public intake forms.
+- [Files & Realtime](./files-realtime/README.md) - Attachments, avatar uploads, user notifications, and realtime activity feeds.
+- [Automation & Integrations](./automation-integrations/README.md) - Webhooks, scheduled cleanup, rate-limited public APIs, and outbound sync.
+- [Admin Operations](./admin-operations/README.md) - Back-office moderation, operator queues, and dynamic admin console pages.
 
 ## Small Examples
 

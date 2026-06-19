@@ -261,11 +261,11 @@ When you have many files or folders:
 
 ## Permissions
 
-- **Upload Files**: Requires create permission on `/file_definition`
-- **Create Folders**: Requires create permission on `/folder_definition`
-- **Edit Files**: Requires update permission on `/file_definition`
-- **Delete Files**: Requires delete permission on `/file_definition`
-- **Manage Storage Config**: Requires permissions on `/storage_config_definition`
+- **Upload Files**: Requires create permission on `/enfyra_file`
+- **Create Folders**: Requires create permission on `/enfyra_folder`
+- **Edit Files**: Requires update permission on `/enfyra_file`
+- **Delete Files**: Requires delete permission on `/enfyra_file`
+- **Manage Storage Config**: Requires permissions on `/enfyra_storage_config`
 
 Actions will only appear if you have the required permissions.
 

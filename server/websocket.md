@@ -292,7 +292,7 @@ if (bannedResult.data.length > 0) {
 ```javascript
 // Event handler: notify a user that their account is suspended
 // Note: @SOCKET.disconnect() is NOT available in event handlers — only in connection handlers.
-const userResult = await #user_definition.find({
+const userResult = await #enfyra_user.find({
   filter: { id: { _eq: @USER.id } },
   fields: 'id,isSuspended',
   limit: 1,

@@ -7,20 +7,20 @@ Control access to individual columns and relations per role, user, or condition.
 Every column and relation has an `isPublished` flag (default: `true`).
 
 - `isPublished: true` — accessible by all authenticated users by default
-- `isPublished: false` — blocked by default. Only accessible via explicit `allow` rules in `field_permission_definition`
+- `isPublished: false` — blocked by default. Only accessible via explicit `allow` rules in `enfyra_field_permission`
 
 Unpublished fields are omitted entirely from API responses (not returned as `null`). Root admin bypasses all field permission checks.
 
 Sensitive columns like `password`, OAuth `clientSecret`, and storage credentials use `isPublished: false`.
 
-## field_permission_definition
+## enfyra_field_permission
 
 Each rule targets one column OR one relation (not both):
 
 ```
-POST /api/field_permission_definition
+POST /api/enfyra_field_permission
 {
-  "column": { "id": "<column_definition_id>" },
+  "column": { "id": "<enfyra_column_id>" },
   "role": { "id": "<role_id>" },
   "action": "read",
   "effect": "allow",
@@ -30,10 +30,10 @@ POST /api/field_permission_definition
 
 | Field | Type | Description |
 |---|---|---|
-| `column` | FK  column_definition | Target column (null if targeting a relation) |
-| `relation` | FK  relation_definition | Target relation (null if targeting a column) |
-| `role` | FK  role_definition | Role this rule applies to |
-| `allowedUsers` | M2M  user_definition | Specific users (alternative to role — use one or the other) |
+| `column` | FK  enfyra_column | Target column (null if targeting a relation) |
+| `relation` | FK  enfyra_relation | Target relation (null if targeting a column) |
+| `role` | FK  enfyra_role | Role this rule applies to |
+| `allowedUsers` | M2M  enfyra_user | Specific users (alternative to role — use one or the other) |
 | `action` | enum: `read`, `create`, `update` | Which operation this rule controls |
 | `effect` | enum: `allow`, `deny` | Whether to allow or deny access |
 | `condition` | JSON | Optional filter DSL condition (evaluated per record) |
@@ -43,10 +43,10 @@ The table is derived from the column/relation FK — no separate `table` field n
 
 ### Inverse Relations
 
-`column_definition` and `relation_definition` both have a `fieldPermissions` inverse relation back to `field_permission_definition`. This allows fetching a column/relation with its permission rules embedded:
+`enfyra_column` and `enfyra_relation` both have a `fieldPermissions` inverse relation back to `enfyra_field_permission`. This allows fetching a column/relation with its permission rules embedded:
 
 ```
-GET /api/column_definition?filter[table][id][_eq]=<tableId>&fields=id,name,fieldPermissions.id,fieldPermissions.effect
+GET /api/enfyra_column?filter[table][id][_eq]=<tableId>&fields=id,name,fieldPermissions.id,fieldPermissions.effect
 ```
 
 ## Scope
@@ -124,7 +124,7 @@ Unpublished columns and relations (`isPublished: false`) are excluded from the g
 2. Create an allow rule:
 
 ```
-POST /api/field_permission_definition
+POST /api/enfyra_field_permission
 {
   "column": { "id": "<salary_column_id>" },
   "role": { "id": "<manager_role_id>" },
@@ -138,7 +138,7 @@ POST /api/field_permission_definition
 Allow users to see their own salary only:
 
 ```
-POST /api/field_permission_definition
+POST /api/enfyra_field_permission
 {
   "column": { "id": "<salary_column_id>" },
   "action": "read",
@@ -150,7 +150,7 @@ POST /api/field_permission_definition
 ### Block a role from updating a field
 
 ```
-POST /api/field_permission_definition
+POST /api/enfyra_field_permission
 {
   "column": { "id": "<status_column_id>" },
   "role": { "id": "<viewer_role_id>" },

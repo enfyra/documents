@@ -126,7 +126,7 @@ Use when there's a conflict with current state (e.g., duplicate entry).
 
 ```javascript
 // Check if email already exists
-const existing = await $ctx.$repos.user_definition.find({
+const existing = await $ctx.$repos.enfyra_user.find({
   where: { email: { _eq: $ctx.$body.email } }
 });
 
@@ -307,7 +307,7 @@ if ($ctx.$body.email) {
   }
   
   // Check if email already exists
-  const existing = await $ctx.$repos.user_definition.find({
+  const existing = await $ctx.$repos.enfyra_user.find({
     where: { email: { _eq: $ctx.$body.email } }
   });
   

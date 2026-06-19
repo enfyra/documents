@@ -138,7 +138,7 @@ This example demonstrates all features and can be pasted directly into the exten
         Fetch Real Data
       </UButton>
 
-      <PermissionGate :condition="{ route: '/admin', actions: ['create'] }">
+      <PermissionGate :condition="{ route: '/admin', methods: ['POST'] }">
         <UButton
           @click="generateReport"
           variant="soft"
@@ -318,7 +318,7 @@ const fetchFromAPI = async () => {
   apiLoading.value = true;
 
   // useApi already handles errors - no try-catch needed
-  const { data, error } = await useApi('/user_definition', {
+  const { data, error } = await useApi('/enfyra_user', {
     query: {
       limit: 5,
       fields: 'id,email,created_at'
@@ -482,7 +482,7 @@ onUnmounted(() => {
 
 ### Global Extensions
 - **Purpose**: App-wide shell registration and background realtime behavior
-- **Usage**: Create an extension with type `global`; eApp mounts enabled global extensions invisibly during layout init
+- **Usage**: Create an extension with type `global`; Enfyra admin app mounts enabled global extensions invisibly during layout init
 - **Example**: Notification bell in the account panel, global unread counters, admin socket listeners, background refresh bridges
 
 ## Full SDK Access in Extensions
@@ -551,7 +551,7 @@ All UI components are automatically injected by the extension system and can be 
     <UBadge color="green">Status: Active</UBadge>
 
     <!-- Advanced Components -->
-    <PermissionGate :condition="{ route: '/users', actions: ['read'] }">
+    <PermissionGate :condition="{ route: '/users', methods: ['GET'] }">
       <UButton variant="outline">Admin Only Button</UButton>
     </PermissionGate>
   </UCard>
@@ -689,7 +689,7 @@ const handleClick = () => {
 // All functions and composables are available globally - just use them directly!
 
 // API Access
-const { data } = await useApi('/extension_definition', {
+const { data } = await useApi('/enfyra_extension', {
   query: { limit: 10 }
 });
 
@@ -714,7 +714,7 @@ const router = useRouter();
 const route = useRoute();
 
 // Schema & Validation
-const { validate, generateEmptyForm } = useSchema('extension_definition');
+const { validate, generateEmptyForm } = useSchema('enfyra_extension');
 
 // Vue 3 Composition API - use directly from global
 const loading = ref(false);
@@ -733,7 +733,7 @@ Control visibility based on permissions:
 <template>
   <PermissionGate :condition="{ 
     route: '/users', 
-    actions: ['create'] 
+    methods: ['POST'] 
   }">
     <UButton>Admin Only Button</UButton>
   </PermissionGate>
@@ -761,7 +761,7 @@ onMounted(() => {
     onClick: () => saveReport(),
     permission: {
       route: '/reports',
-      actions: ['create']
+      methods: ['POST']
     }
   });
   
@@ -789,7 +789,7 @@ onMounted(() => {
 ```vue
 <script setup>
 // Using custom API wrapper (recommended)
-const { data: usersData, pending, error, refresh } = await useApi('/user_definition', {
+const { data: usersData, pending, error, refresh } = await useApi('/enfyra_user', {
   query: {
     limit: 10,
     fields: 'id,email,name,role.name',
@@ -799,7 +799,7 @@ const { data: usersData, pending, error, refresh } = await useApi('/user_definit
 });
 
 // Or use the standard useApi() composable for any custom call
-const { data: directData, execute: loadDirect } = useApi('/user_definition', {
+const { data: directData, execute: loadDirect } = useApi('/enfyra_user', {
   query: { limit: 10 },
 });
 await loadDirect();
@@ -952,7 +952,7 @@ onMounted(async () => {
 
 ## Global Extension System
 
-Global extensions are Vue SFC records with `type="global"`. eApp fetches every enabled global extension during layout initialization, resolves it through the normal dynamic extension loader, and mounts it invisibly at shell level. Use this for logic that must exist across every page.
+Global extensions are Vue SFC records with `type="global"`. Enfyra admin app fetches every enabled global extension during layout initialization, resolves it through the normal dynamic extension loader, and mounts it invisibly at shell level. Use this for logic that must exist across every page.
 
 ### When to Use Global Extensions
 
@@ -972,7 +972,7 @@ Do not use a global extension for:
 
 ### Creating a Global Extension
 
-Create an `extension_definition` record with:
+Create an `enfyra_extension` record with:
 - **Type**: `global`
 - **Menu**: empty
 - **Template**: empty or hidden
@@ -1047,7 +1047,7 @@ onUnmounted(() => {
 - Do not nest buttons inside account-panel rows.
 - Do not render page-scale cards, modal shells, or hero-style UI from a global extension.
 - Use stable registry ids so reloads replace the same shell item predictably.
-- Clean up socket and DOM listeners in `onUnmounted`; eApp unmounts old global components when extensions reload or are disabled.
+- Clean up socket and DOM listeners in `onUnmounted`; Enfyra admin app unmounts old global components when extensions reload or are disabled.
 
 ## File Upload Support
 Extensions can handle file uploads:

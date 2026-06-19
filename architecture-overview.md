@@ -60,7 +60,7 @@ When you change metadata, the server reloads the affected runtime cache. In norm
 The database stores:
 
 - Your application tables, such as `post`, `project`, `order`, or `chat_message`.
-- Enfyra system tables, such as `table_definition`, `route_definition`, `pre_hook_definition`, `flow_definition`, and `websocket_definition`.
+- Enfyra system tables, such as `enfyra_table`, `enfyra_route`, `enfyra_pre_hook`, `enfyra_flow`, and `enfyra_websocket`.
 
 Enfyra supports MySQL, PostgreSQL, and MongoDB. The public API uses logical table fields and relation names; Enfyra handles physical SQL foreign keys or Mongo junction collections internally.
 
@@ -79,7 +79,7 @@ Redis is used when enabled for runtime coordination:
 Example: you create a `post` table with `title`, `content`, and `status`.
 
 1. In the app, create a collection named `post`.
-2. Enfyra stores the table metadata in `table_definition`.
+2. Enfyra stores the table metadata in `enfyra_table`.
 3. Enfyra creates or updates the physical database table.
 4. Enfyra creates a default REST route for `/post`.
 5. The route cache reloads.
@@ -194,7 +194,7 @@ if (!@ERROR && @DATA?.data?.[0]) {
 
 Relations are first-class metadata, not plain `userId` or JSON fields.
 
-Example: `post.author` points to `user_definition`.
+Example: `post.author` points to `enfyra_user`.
 
 Create and update payloads use the relation property name:
 
@@ -275,7 +275,7 @@ The user does not need to copy tokens or manually finish login.
 
 ## Realtime
 
-Enfyra realtime is Socket.IO, configured through `websocket_definition` and `websocket_event_definition`.
+Enfyra realtime is Socket.IO, configured through `enfyra_websocket` and `enfyra_websocket_event`.
 
 Example gateway:
 
@@ -394,7 +394,7 @@ For realtime, Socket.IO can fan out room/user events across instances through th
 Build a simple support inbox:
 
 1. Create `ticket` table with `subject`, `status`, `priority`, and `description`.
-2. Relate `ticket.requester` to `user_definition`.
+2. Relate `ticket.requester` to `enfyra_user`.
 3. Add a pre-hook on `POST /ticket` to set `requester` from `@USER.id`.
 4. Add route permissions so users can create and view their own tickets.
 5. Add a pre-hook on `GET /ticket` to filter tickets by requester unless the user is an admin.

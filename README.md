@@ -69,7 +69,7 @@ Unlike typical no-code platforms that limit you to predefined features, **Enfyra
 - **Multi-Instance Coordination**: Run multiple instances with automatic schema synchronization via Redis
 - **Smart Caching**: Redis-based caching for optimal performance
 - **Flexible Syntax**: Choose between traditional `$ctx.$property` or modern template syntax `@TEMPLATE` & `#table_name`
-- **Built-in Tables**: Leverage system tables like `user_definition` for immediate user management
+- **Built-in Tables**: Leverage system tables like `enfyra_user` for immediate user management
 
 ###  Modern Template Syntax
 
@@ -77,7 +77,7 @@ Choose your coding style - both work seamlessly together:
 
 **Traditional Syntax:**
 ```javascript
-const user = await $ctx.$repos.user_definition.create({
+const user = await $ctx.$repos.enfyra_user.create({
   data: {
     email: $ctx.$body.email,
     password: await $ctx.$helpers.$bcrypt.hash($ctx.$body.password)
@@ -87,7 +87,7 @@ const user = await $ctx.$repos.user_definition.create({
 
 **Template Syntax (Shortened):**
 ```javascript
-const user = await #user_definition.create({
+const user = await #enfyra_user.create({
   data: {
     email: @BODY.email,
     password: await @HELPERS.$bcrypt.hash(@BODY.password)
@@ -110,7 +110,7 @@ const user = await #user_definition.create({
 | **Multi-Instance**    | Run multiple servers with automatic synchronization                     |
 | **Flexible Syntax**   | Traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name` patterns |
 | **Package Management**| Install NPM packages directly from UI for use in handlers and hooks     |
-| **Built-in Auth**     | System tables like `user_definition` for immediate user management     |
+| **Built-in Auth**     | System tables like `enfyra_user` for immediate user management     |
 
 ###  Perfect For
 
@@ -168,7 +168,7 @@ Database  Backend (API Server)  Frontend (Admin App)
 
 ###  Developer Experience
 - **Flexible Code Syntax** - Choose between traditional `$ctx.$property` or modern `@TEMPLATE` & `#table_name`
-- **Built-in Authentication** - System tables like `user_definition` for immediate user management
+- **Built-in Authentication** - System tables like `enfyra_user` for immediate user management
 - **Hook System** - preHooks and postHooks support for custom business logic
 - **Custom Handlers** - Override default CRUD operations with your own code
 - **Rate Limiting** - Built-in `$helpers.$rateLimit` for API protection with flexible templates
@@ -206,6 +206,34 @@ enfyra-docs/
 │   ├── api-examples.md          # Small REST API examples
 │   ├── script-examples.md       # Small handler, hook, flow, websocket, and cache examples
 │   ├── app-examples.md          # Small extension and SSR app examples
+│   ├── crud-apps/               # Todo, blog, catalog, orders, and GraphQL recipes
+│   │   ├── README.md
+│   │   ├── todo-app.md
+│   │   ├── blog-comments.md
+│   │   ├── catalog-orders.md
+│   │   └── graphql-read-api.md
+│   ├── auth-permissions/        # Profiles, owner scope, team RLS, and public intake
+│   │   ├── README.md
+│   │   ├── profile-owner-scope.md
+│   │   ├── team-workspace-rls.md
+│   │   └── public-contact-form.md
+│   ├── files-realtime/          # Uploads, attachments, avatars, notifications, activity feeds
+│   │   ├── README.md
+│   │   ├── file-attachments.md
+│   │   ├── avatar-upload.md
+│   │   ├── realtime-notifications.md
+│   │   └── activity-feed.md
+│   ├── automation-integrations/ # Webhooks, schedules, rate limits, outbound sync
+│   │   ├── README.md
+│   │   ├── webhook-ingest.md
+│   │   ├── scheduled-cleanup.md
+│   │   ├── rate-limited-public-api.md
+│   │   └── outbound-sync.md
+│   ├── admin-operations/        # Admin console pages and operator workflows
+│   │   ├── README.md
+│   │   ├── moderation-console.md
+│   │   ├── operator-queue.md
+│   │   └── settings-page.md
 │   ├── user-registration-example.md # Public signup route with hook and handler
 │   ├── multi-tenant-rls-example.md  # Tenant isolation with pre-hooks
 │   └── third-party-chat-app.md      # SSR chat app using Enfyra REST and Socket.IO

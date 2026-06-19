@@ -137,8 +137,8 @@ https://demo.enfyra.io/api/auth/google?redirect=https%3A%2F%2Fchat.example.com%2
 - `redirect` is required and must be an absolute `http(s)` URL.
 - The client should pass the page it wants to return to after login.
 - For Nuxt, Next, and other SSR apps, start OAuth on the Enfyra app URL, such as `{enfyraAppUrl}/api/auth/:provider`, and pass `redirect` plus `cookieBridgePrefix`.
-- If `oauth_config_definition.autoSetCookies = true`, the backend redirects through `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, sets auth cookies for that origin through the proxy response, then redirects to `redirect`. If `cookieBridgePrefix` is omitted, the prefix defaults to `/api`.
-- If `oauth_config_definition.autoSetCookies = false`, the backend redirects to `oauth_config_definition.appCallbackUrl` with `accessToken`, `refreshToken`, `expTime`, `loginProvider`, and `redirect` on the query string.
+- If `enfyra_oauth_config.autoSetCookies = true`, the backend redirects through `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, sets auth cookies for that origin through the proxy response, then redirects to `redirect`. If `cookieBridgePrefix` is omitted, the prefix defaults to `/api`.
+- If `enfyra_oauth_config.autoSetCookies = false`, the backend redirects to `enfyra_oauth_config.appCallbackUrl` with `accessToken`, `refreshToken`, `expTime`, `loginProvider`, and `redirect` on the query string.
 
 ---
 

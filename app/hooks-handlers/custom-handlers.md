@@ -102,12 +102,12 @@ return {
 ### User Authentication
 ```javascript
 // POST /auth/login handler  
-// Target Tables: user_definition
+// Target Tables: enfyra_user
 
 const { email, password } = $ctx.$body;
 
 // Find user by email
-const userResult = await $ctx.$repos.user_definition.find({
+const userResult = await $ctx.$repos.enfyra_user.find({
   where: { email: { _eq: email } },
   fields: 'id,email,password' // Only fetch authentication fields
 });
@@ -135,7 +135,7 @@ const token = await $ctx.$helpers.$jwt(
 );
 
 // Update last login
-await $ctx.$repos.user_definition.update({ id: user.id, data: {
+await $ctx.$repos.enfyra_user.update({ id: user.id, data: {
   lastLoginAt: new Date()
 } });
 

@@ -46,7 +46,7 @@ Dynamic REST routes do not expose `GET /{routePath}/:id`. Fetch a single record 
 
 **Example:**
 ```bash
-curl 'http://localhost:3000/api/user_definition?filter={"id":{"_eq":1}}&limit=1' \
+curl 'http://localhost:3000/api/enfyra_user?filter={"id":{"_eq":1}}&limit=1' \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
@@ -80,7 +80,7 @@ Create a new record.
 
 **Example:**
 ```bash
-curl -X POST "http://localhost:3000/api/user_definition" \
+curl -X POST "http://localhost:3000/api/enfyra_user" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"email":"new@example.com","name":"New User","password":"secret123"}'
@@ -114,7 +114,7 @@ Update an existing record.
 
 **Example:**
 ```bash
-curl -X PATCH "http://localhost:3000/api/user_definition/3" \
+curl -X PATCH "http://localhost:3000/api/enfyra_user/3" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"name":"Updated Name"}'
@@ -132,7 +132,7 @@ Delete a record.
 
 **Example:**
 ```bash
-curl -X DELETE "http://localhost:3000/api/user_definition/3" \
+curl -X DELETE "http://localhost:3000/api/enfyra_user/3" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 

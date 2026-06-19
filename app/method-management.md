@@ -10,7 +10,7 @@ Method Management controls the HTTP method records used by route forms, handler/
 
 Each method record stores:
 
-- **Name**: the unique uppercase method key stored as `method_definition.name`, such as `GET`, `POST`, `PATCH`, `DELETE`, `PUT`, or a custom key such as `CUSTOM_METHOD`.
+- **Name**: the unique uppercase method key stored as `enfyra_method.name`, such as `GET`, `POST`, `PATCH`, `DELETE`, `PUT`, or a custom key such as `CUSTOM_METHOD`.
 - **Background color**: `buttonColor`, used as the badge background.
 - **Text color**: `textColor`, used as the badge text.
 - **System**: marks built-in runtime methods.
@@ -40,7 +40,7 @@ Route forms use the method selector for fields such as **Available Methods**, **
 
 Published method choices control whether an HTTP method is public or permission-protected. Route permissions also use method records to define which authenticated roles can call a route.
 
-Route and permission forms store method relation ids, not raw strings. Method ids are instance data, so resolve methods by `method_definition.name` through the UI or MCP tools before wiring route fields such as **Available Methods**, **Public Methods**, hook methods, handler methods, or route permissions.
+Route and permission forms store method relation ids, not raw strings. Method ids are instance data, so resolve methods by `enfyra_method.name` through the UI or MCP tools before wiring route fields such as **Available Methods**, **Public Methods**, hook methods, handler methods, or route permissions.
 
 ## MCP Tools
 
@@ -53,4 +53,4 @@ When managing method metadata through MCP, use the dedicated method tools instea
 
 `delete_method` is preview-first and should only be used for unused custom methods.
 
-The MCP tools keep a user-facing `method` input name, but they read and write the backend `name` field. Do not use generic CRUD payloads with a `method` field on `method_definition`.
+The MCP tools keep a user-facing `method` input name, but they read and write the backend `name` field. Do not use generic CRUD payloads with a `method` field on `enfyra_method`.

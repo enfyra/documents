@@ -369,42 +369,42 @@ Filter directly on the relation using ID comparison operators. This is the simpl
 
 ```javascript
 // Find menu items without a parent (parent is null)
-const result = await $ctx.$repos.menu_definition.find({
+const result = await $ctx.$repos.enfyra_menu.find({
   where: {
     parent: { _is_null: true }
   }
 });
 
 // Find menu items with a parent (parent is not null)
-const result = await $ctx.$repos.menu_definition.find({
+const result = await $ctx.$repos.enfyra_menu.find({
   where: {
     parent: { _is_not_null: true }
   }
 });
 
 // Find menu items where parent ID equals 3
-const result = await $ctx.$repos.menu_definition.find({
+const result = await $ctx.$repos.enfyra_menu.find({
   where: {
     parent: { _eq: 3 }
   }
 });
 
 // Find menu items where parent ID is in [3, 4, 5]
-const result = await $ctx.$repos.menu_definition.find({
+const result = await $ctx.$repos.enfyra_menu.find({
   where: {
     parent: { _in: [3, 4, 5] }
   }
 });
 
 // Find menu items where parent ID is not 3
-const result = await $ctx.$repos.menu_definition.find({
+const result = await $ctx.$repos.enfyra_menu.find({
   where: {
     parent: { _neq: 3 }
   }
 });
 
 // Find menu items where parent ID is not in [1, 2]
-const result = await $ctx.$repos.menu_definition.find({
+const result = await $ctx.$repos.enfyra_menu.find({
   where: {
     parent: { _not_in: [1, 2] }
   }
@@ -417,7 +417,7 @@ You can also filter by explicitly specifying the `id` or `_id` field of the rela
 
 ```javascript
 // Find menu items where parent ID equals 3
-const result = await $ctx.$repos.menu_definition.find({
+const result = await $ctx.$repos.enfyra_menu.find({
   where: {
     parent: {
       id: { _eq: 3 }
@@ -426,7 +426,7 @@ const result = await $ctx.$repos.menu_definition.find({
 });
 
 // Find menu items without a parent
-const result = await $ctx.$repos.menu_definition.find({
+const result = await $ctx.$repos.enfyra_menu.find({
   where: {
     parent: {
       id: { _is_null: true }
@@ -435,7 +435,7 @@ const result = await $ctx.$repos.menu_definition.find({
 });
 
 // Find menu items where parent ID is in [3, 4, 5]
-const result = await $ctx.$repos.menu_definition.find({
+const result = await $ctx.$repos.enfyra_menu.find({
   where: {
     parent: {
       id: { _in: [3, 4, 5] }
@@ -530,7 +530,7 @@ const result = await $ctx.$repos.users.find({
 Exclude mode starts when any field token is prefixed with `-`:
 
 ```javascript
-const result = await $ctx.$repos.route_handler_definition.find({
+const result = await $ctx.$repos.enfyra_route_handler.find({
   fields: '-compiledCode'
 });
 ```

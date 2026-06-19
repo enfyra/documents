@@ -75,7 +75,7 @@ Result: Internal IPs pass immediately. External IPs must pass both rate limits.
 ### Create a Guard
 
 ```
-POST /api/guard_definition
+POST /api/enfyra_guard
 {
   "name": "Login Rate Limit",
   "position": "pre_auth",
@@ -100,7 +100,7 @@ POST /api/guard_definition
 ### Add Rules to a Guard
 
 ```
-POST /api/guard_rule_definition
+POST /api/enfyra_guard_rule
 {
   "type": "rate_limit_by_ip",
   "config": { "maxRequests": 5, "perSeconds": 60 },
@@ -111,7 +111,7 @@ POST /api/guard_rule_definition
 To scope a rule to specific users only:
 
 ```
-POST /api/guard_rule_definition
+POST /api/enfyra_guard_rule
 {
   "type": "rate_limit_by_user",
   "config": { "maxRequests": 30, "perSeconds": 60 },
@@ -130,7 +130,7 @@ When `users` is empty, the rule applies to everyone.
 Set `parent` to create a child guard:
 
 ```
-POST /api/guard_definition
+POST /api/enfyra_guard
 {
   "name": "External Rate Limit",
   "position": "pre_auth",
@@ -145,7 +145,7 @@ POST /api/guard_definition
 ### Block Bad IPs from All Routes
 
 ```
-POST /api/guard_definition
+POST /api/enfyra_guard
 {
   "name": "Global IP Blacklist",
   "position": "pre_auth",
@@ -154,7 +154,7 @@ POST /api/guard_definition
   "isEnabled": true
 }
 
-POST /api/guard_rule_definition
+POST /api/enfyra_guard_rule
 {
   "type": "ip_blacklist",
   "config": { "ips": ["1.2.3.4", "5.6.7.8"] },
@@ -167,7 +167,7 @@ POST /api/guard_rule_definition
 5 requests per minute per IP, before authentication:
 
 ```
-POST /api/guard_definition
+POST /api/enfyra_guard
 {
   "name": "Login Rate Limit",
   "position": "pre_auth",
@@ -177,7 +177,7 @@ POST /api/guard_definition
   "methods": [{ "id": "<POST_method_id>" }]
 }
 
-POST /api/guard_rule_definition
+POST /api/enfyra_guard_rule
 {
   "type": "rate_limit_by_ip",
   "config": { "maxRequests": 5, "perSeconds": 60 },
@@ -188,7 +188,7 @@ POST /api/guard_rule_definition
 ### Office IP Only + Rate Limit for Admin Routes
 
 ```
-POST /api/guard_definition
+POST /api/enfyra_guard
 {
   "name": "Admin Access Control",
   "position": "post_auth",
@@ -197,14 +197,14 @@ POST /api/guard_definition
   "route": { "id": "<admin_route_id>" }
 }
 
-POST /api/guard_rule_definition
+POST /api/enfyra_guard_rule
 {
   "type": "ip_whitelist",
   "config": { "ips": ["10.0.0.0/8", "203.0.113.0/24"] },
   "guard": { "id": "<guard_id>" }
 }
 
-POST /api/guard_rule_definition
+POST /api/enfyra_guard_rule
 {
   "type": "rate_limit_by_user",
   "config": { "maxRequests": 100, "perSeconds": 60 },
@@ -215,7 +215,7 @@ POST /api/guard_rule_definition
 ### Whitelist OR Rate Limit (Internal IPs bypass limits)
 
 ```
-POST /api/guard_definition
+POST /api/enfyra_guard
 {
   "name": "Internal or Rate Limited",
   "position": "pre_auth",
@@ -224,7 +224,7 @@ POST /api/guard_definition
   "isEnabled": true
 }
 
-POST /api/guard_rule_definition
+POST /api/enfyra_guard_rule
 {
   "type": "ip_whitelist",
   "config": { "ips": ["10.0.0.0/8"] },
@@ -232,7 +232,7 @@ POST /api/guard_rule_definition
 }
 
 // Create child guard for external traffic
-POST /api/guard_definition
+POST /api/enfyra_guard
 {
   "name": "External Rate Limit",
   "position": "pre_auth",
@@ -241,7 +241,7 @@ POST /api/guard_definition
   "isEnabled": true
 }
 
-POST /api/guard_rule_definition
+POST /api/enfyra_guard_rule
 {
   "type": "rate_limit_by_ip",
   "config": { "maxRequests": 100, "perSeconds": 60 },
@@ -252,7 +252,7 @@ POST /api/guard_rule_definition
 ### Global API Rate Limit
 
 ```
-POST /api/guard_definition
+POST /api/enfyra_guard
 {
   "name": "Global API Rate Limit",
   "position": "pre_auth",
@@ -261,7 +261,7 @@ POST /api/guard_definition
   "isEnabled": true
 }
 
-POST /api/guard_rule_definition
+POST /api/enfyra_guard_rule
 {
   "type": "rate_limit_by_ip",
   "config": { "maxRequests": 200, "perSeconds": 60 },
@@ -274,7 +274,7 @@ POST /api/guard_rule_definition
 Apply stricter limits to specific users:
 
 ```
-POST /api/guard_definition
+POST /api/enfyra_guard
 {
   "name": "Heavy User Limit",
   "position": "post_auth",
@@ -283,7 +283,7 @@ POST /api/guard_definition
   "route": { "id": "<api_route_id>" }
 }
 
-POST /api/guard_rule_definition
+POST /api/enfyra_guard_rule
 {
   "type": "rate_limit_by_user",
   "config": { "maxRequests": 30, "perSeconds": 60 },

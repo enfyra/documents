@@ -10,11 +10,11 @@ This example uses one custom route, one pre-hook, and one custom handler. It is 
 POST /api/register
   -> pre-hook validates input
   -> handler hashes password
-  -> handler creates user_definition row
+  -> handler creates enfyra_user row
   -> response returns safe user fields only
 ```
 
-Use this when the default `POST /user_definition` route is too generic for public signup.
+Use this when the default `POST /enfyra_user` route is too generic for public signup.
 
 ## 1. Create The Route
 
@@ -25,7 +25,7 @@ In the admin app, create a route:
 | Path | `/register` |
 | Method | `POST` |
 | Handler | Custom |
-| Target table | `user_definition` |
+| Target table | `enfyra_user` |
 
 Keep the route public only if this endpoint is meant for signup. Otherwise attach normal route permissions.
 
@@ -42,7 +42,7 @@ if (!email) @THROW400("Email is required")
 if (!password) @THROW400("Password is required")
 if (password.length < 8) @THROW400("Password must be at least 8 characters")
 
-const existing = await #user_definition.find({
+const existing = await #enfyra_user.find({
   filter: { email: { _eq: email } },
   fields: "id",
   limit: 1
@@ -66,7 +66,7 @@ const { email, password, name } = @BODY
 
 const hashedPassword = await @HELPERS.$bcrypt.hash(password)
 
-const result = await #user_definition.create({
+const result = await #enfyra_user.create({
   data: {
     email,
     password: hashedPassword,
@@ -127,7 +127,7 @@ Use a flow when the work can happen after the response or may need retry/history
 
 ## Common Mistakes
 
-### Creating users from the browser with `/user_definition`
+### Creating users from the browser with `/enfyra_user`
 
 Use a dedicated `/register` route for public signup. It gives you one place to validate, hash, and return safe fields.
 

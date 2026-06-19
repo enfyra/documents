@@ -34,7 +34,7 @@ Send message
 | kind | string |
 | description | text |
 | updatedAt | datetime |
-| createdBy | many-to-one to `user_definition` |
+| createdBy | many-to-one to `enfyra_user` |
 | lastMessage | many-to-one to `chat_message`, nullable |
 
 ### chat_conversation_member
@@ -42,7 +42,7 @@ Send message
 | Field | Type |
 |-------|------|
 | conversation | many-to-one to `chat_conversation` |
-| member | many-to-one to `user_definition` |
+| member | many-to-one to `enfyra_user` |
 | role | string |
 | joinedAt | datetime |
 
@@ -51,7 +51,7 @@ Send message
 | Field | Type |
 |-------|------|
 | conversation | many-to-one to `chat_conversation` |
-| sender | many-to-one to `user_definition` |
+| sender | many-to-one to `enfyra_user` |
 | text | text |
 | persistStatus | string |
 
@@ -61,7 +61,7 @@ Send message
 |-------|------|
 | message | many-to-one to `chat_message` |
 | conversation | many-to-one to `chat_conversation` |
-| member | many-to-one to `user_definition` |
+| member | many-to-one to `enfyra_user` |
 | isRead | boolean |
 | readAt | datetime |
 

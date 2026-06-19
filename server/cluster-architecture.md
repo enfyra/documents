@@ -6,7 +6,7 @@ This page reflects the current open-source server in the [`server`](https://gith
 
 ## What is actually “stateless”
 
-- **HTTP requests** do not rely on server-local session files: auth uses JWT; sessions are stored in the database (`session_definition`).
+- **HTTP requests** do not rely on server-local session files: auth uses JWT; sessions are stored in the database (`enfyra_session`).
 - By default, each process holds runtime definition caches in local memory (metadata, routes, GraphQL-related data, packages, storage config, OAuth config, websocket definitions, flows, folder tree, etc.). Those structures are rebuilt from the database after startup or when a peer signals a reload.
 - When `REDIS_RUNTIME_CACHE=true`, runtime definition snapshots are stored in Redis under the current `NODE_NAME` namespace. Instances with the same `NODE_NAME` read the same runtime cache snapshots instead of keeping a separate full copy per instance.
 - Instances are still not “zero RAM state”: each process keeps active runtime objects, clients, queues, workers, and request-local state. They are interchangeable as long as they share DB + Redis and use the same cluster namespace.
@@ -60,7 +60,7 @@ BullMQ uses the same Redis connection as the app. The queue **key prefix** is th
 
 ## Bootstrap scripts (distributed lock)
 
-`BootstrapScriptService` uses a Redis lock so **only one** instance runs enabled `bootstrap_script_definition` scripts at startup (or on reload):
+`BootstrapScriptService` uses a Redis lock so **only one** instance runs enabled `enfyra_bootstrap_script` scripts at startup (or on reload):
 
 - Lock key: `bootstrap-script-execution` (see `BOOTSTRAP_SCRIPT_EXECUTION_LOCK_KEY`)
 - TTL: **30 seconds** (`REDIS_TTL.BOOTSTRAP_LOCK_TTL`)
@@ -68,11 +68,11 @@ BullMQ uses the same Redis connection as the app. The queue **key prefix** is th
 
 If the lock is not acquired, the instance **skips** running scripts (another instance is responsible).
 
-The constant `enfyra:bootstrap-script-reload` exists in code as `BOOTSTRAP_SCRIPT_RELOAD_EVENT_KEY`; there is **no** separate subscriber wired to it in the current server—bootstrap coordination is the **lock** above plus normal cache invalidation when `bootstrap_script_definition` changes.
+The constant `enfyra:bootstrap-script-reload` exists in code as `BOOTSTRAP_SCRIPT_RELOAD_EVENT_KEY`; there is **no** separate subscriber wired to it in the current server—bootstrap coordination is the **lock** above plus normal cache invalidation when `enfyra_bootstrap_script` changes.
 
 ## Session cleanup (no Redis lock)
 
-Expired `session_definition` rows are removed by a **BullMQ** repeatable job on queue `sys_session-cleanup` (`SYSTEM_QUEUES.SESSION_CLEANUP`), processor **concurrency 1**, schedule **`0 2 * * *`** (daily). There is **no** one-hour Redis lock for session cleanup in the current implementation.
+Expired `enfyra_session` rows are removed by a **BullMQ** repeatable job on queue `sys_session-cleanup` (`SYSTEM_QUEUES.SESSION_CLEANUP`), processor **concurrency 1**, schedule **`0 2 * * *`** (daily). There is **no** one-hour Redis lock for session cleanup in the current implementation.
 
 ## WebSockets across nodes
 

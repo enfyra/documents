@@ -36,7 +36,7 @@ Do not read `@UPLOADED_FILE.path` into a `Buffer` in script code. For normal req
 
 ## Upload Files
 
-Use `$ctx.$storage.$upload` or `@STORAGE.$upload` to upload a file to storage and create a `file_definition` record.
+Use `$ctx.$storage.$upload` or `@STORAGE.$upload` to upload a file to storage and create a `enfyra_file` record.
 
 ### Upload The Request File
 
@@ -136,7 +136,7 @@ await @STORAGE.$delete(@PARAMS.fileId);
 return { success: true };
 ```
 
-Deletion removes the `file_definition` record and the physical object from the configured storage backend.
+Deletion removes the `enfyra_file` record and the physical object from the configured storage backend.
 
 ## Validation Pattern
 
@@ -168,7 +168,7 @@ return await @STORAGE.$upload({
 
 ## Register Existing Storage Objects
 
-Use `@STORAGE.$registerFile` when a trusted external process has already uploaded an object to the selected storage backend and the script only needs to create the `file_definition` record.
+Use `@STORAGE.$registerFile` when a trusted external process has already uploaded an object to the selected storage backend and the script only needs to create the `enfyra_file` record.
 
 ```javascript
 return await @STORAGE.$registerFile({

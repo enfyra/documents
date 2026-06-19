@@ -262,7 +262,7 @@ const formEditorRef = ref();
   v-model="form"
   v-model:errors="errors"
   @has-changed="(hasChanged) => hasFormChanges = hasChanged"
-  table-name="user_definition"
+  table-name="enfyra_user"
   :loading="loading"
 />
 
@@ -558,7 +558,7 @@ const fieldMap = computed(() => ({
   adminNotes: {
     permission: {
       and: [
-        { route: '/user_definition', actions: ['update'] }
+        { route: '/enfyra_user', methods: ['PATCH'] }
       ]
     }
   }
@@ -569,8 +569,8 @@ const fieldMap = computed(() => ({
   sensitiveData: {
     permission: {
       or: [
-        { route: '/admin_panel', actions: ['read'] },
-        { route: '/reports', actions: ['read'] }
+        { route: '/admin_panel', methods: ['GET'] },
+        { route: '/reports', methods: ['GET'] }
       ]
     }
   }

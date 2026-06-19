@@ -1,6 +1,6 @@
-# Schema migration preview (`table_definition` PATCH)
+# Schema migration preview (`enfyra_table` PATCH)
 
-When you change a table’s schema via **`PATCH /api/table_definition/:id`** (admin UI or API), Enfyra may require a **confirmed preview** before applying destructive changes. This keeps multi-DB behavior aligned and prevents silent data loss.
+When you change a table’s schema via **`PATCH /api/enfyra_table/:id`** (admin UI or API), Enfyra may require a **confirmed preview** before applying destructive changes. This keeps multi-DB behavior aligned and prevents silent data loss.
 
 ## When preview is required
 
@@ -25,7 +25,7 @@ Typical fields in `details`:
 
 Relations expose **`mappedBy`** (inverse property name on the other table) and a stable **`mappedByRelationId`** (owning relation id) in cached metadata.
 
-When you **remove a relation on the owning side** and that relation had **no** `mappedBy` (it is the owning side), other tables may still hold **inverse** `relation_definition` rows that point at it. Removing the owning row **cascade-deletes** those inverse relation rows.
+When you **remove a relation on the owning side** and that relation had **no** `mappedBy` (it is the owning side), other tables may still hold **inverse** `enfyra_relation` rows that point at it. Removing the owning row **cascade-deletes** those inverse relation rows.
 
 The preview lists those cases so you can adjust other tables first or accept the cascade. **Removing only an inverse relation** does not produce this warning.
 
@@ -43,9 +43,9 @@ Server snapshots can declare metadata-driven column changes in `data/snapshot-mi
 
 Column rename migrations must be generic and table-driven. The migration runner reads the table name plus `oldName` / `newName` from the snapshot migration file, renames the SQL or Mongo field when needed, updates column metadata, and self-heals duplicate old/new columns by preserving the target field and removing the old field. Do not implement table-specific repair code for one metadata table when the same `columnsToModify` contract can describe the change.
 
-For HTTP method metadata, the unique method label is `method_definition.name`. Use `name` in metadata, default data, migrations, tools, filters, and API payloads.
+For HTTP method metadata, the unique method label is `enfyra_method.name`. Use `name` in metadata, default data, migrations, tools, filters, and API payloads.
 
 ## Related
 
 - [Table creation guide](../getting-started/table-creation.md) — ordering relations and tables
-- [Field permissions](./field-permissions.md) — `field_permission_definition` targets columns/relations by id
+- [Field permissions](./field-permissions.md) — `enfyra_field_permission` targets columns/relations by id

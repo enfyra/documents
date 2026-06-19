@@ -9,7 +9,7 @@ The app is a **pure API client**: it never connects directly to your database. A
 ## Quick Navigation
 
 - **API Integration**
-  - **[API Integration](./api-integration.md)** – How to call backend APIs directly using `fetch` through `appUrl/api/` (e.g., `http://localhost:3000/api/user_definition`)
+  - **[API Integration](./api-integration.md)** – How to call backend APIs directly using `fetch` through `appUrl/api/` (e.g., `http://localhost:3000/api/enfyra_user`)
 
 - **Extensions & Widgets**  
   - **[Extension System](./extension-system.md)** – Create custom pages, widgets, and global shell extensions with Vue components  

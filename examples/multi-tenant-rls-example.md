@@ -7,7 +7,7 @@ This example uses one relation, one pre-hook, and normal generated CRUD routes.
 ## What You Build
 
 ```text
-user_definition
+enfyra_user
   -> has tenant
 
 project_task
@@ -36,11 +36,11 @@ Use this pattern for teams, workspaces, organizations, schools, branches, or cus
 | title | string | Task title |
 | status | string | `todo`, `doing`, `done` |
 | tenant | many-to-one | Relation to `tenant` |
-| owner | many-to-one | Relation to `user_definition` |
+| owner | many-to-one | Relation to `enfyra_user` |
 
-### user_definition
+### enfyra_user
 
-Add a relation from `user_definition.tenant` to `tenant`.
+Add a relation from `enfyra_user.tenant` to `tenant`.
 
 Every user should belong to one tenant.
 

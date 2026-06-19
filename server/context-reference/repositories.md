@@ -7,7 +7,7 @@ Access database tables through repositories. See [Repository Methods](../reposit
 ```javascript
 // Access repository by table name
 const productsRepo = $ctx.$repos.products;
-const usersRepo = $ctx.$repos.user_definition;
+const usersRepo = $ctx.$repos.enfyra_user;
 
 // Access main table repository
 const mainRepo = $ctx.$repos.main;

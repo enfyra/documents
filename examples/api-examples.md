@@ -116,7 +116,7 @@ GET {appUrl}/api/post?fields=id,title,author.email
 ### Exclude A Large Field
 
 ```http
-GET {appUrl}/api/route_handler_definition?fields=-compiledCode
+GET {appUrl}/api/enfyra_route_handler?fields=-compiledCode
 ```
 
 ### Exclude Nested Field

@@ -27,7 +27,7 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 - **[File Handling](./file-handling.md)** - File uploads and management
 - **[Cluster Architecture](./cluster-architecture.md)** - Multi-instance coordination
 - **Runtime Redis Admin** - Available in the admin app Runtime Monitor Redis tab; shows current-app Redis categories, user-cache allocation, and editable `$cache` keys
-- **[Schema migration preview](./schema-migration-preview.md)** - Confirmed `table_definition` PATCH, hash, relation removal warnings
+- **[Schema migration preview](./schema-migration-preview.md)** - Confirmed `enfyra_table` PATCH, hash, relation removal warnings
 
 ## Finding What You Need
 

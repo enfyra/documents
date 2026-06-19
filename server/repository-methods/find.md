@@ -98,7 +98,7 @@ const result = await $ctx.$repos.products.find({
 
 ### Exclude fields
 ```javascript
-const result = await $ctx.$repos.route_handler_definition.find({
+const result = await $ctx.$repos.enfyra_route_handler.find({
   fields: '-compiledCode'
 });
 ```

@@ -1,13 +1,13 @@
 # Routing Management
 
-Routing Management lets you create custom API endpoints that are served by your **backend server**. By default, Enfyra automatically generates REST API endpoints for every table you create (like `/table_definition`). The Routing Manager allows you to create **custom endpoints** like `/products` or `/users` for any purpose you need.
+Routing Management lets you create custom API endpoints that are served by your **backend server**. By default, Enfyra automatically generates REST API endpoints for every table you create (like `/enfyra_table`). The Routing Manager allows you to create **custom endpoints** like `/products` or `/users` for any purpose you need.
 
 **Important**: All routes are created and served by the **backend server**, not the frontend app. The frontend consumes these API endpoints via HTTP requests.
 
 ## Route Properties
 
 ### Basic Configuration
-- **Path**: The custom endpoint path (e.g., `/assets/:id` instead of `/file_definition`)
+- **Path**: The custom endpoint path (e.g., `/assets/:id` instead of `/enfyra_file`)
 - **Icon**: Visual identifier for the route (using Lucide icons)
 - **Description**: Human-readable description of the route's purpose
 - **Status**: Whether the route is enabled or disabled
@@ -15,7 +15,7 @@ Routing Management lets you create custom API endpoints that are served by your 
 
 ### Advanced Configuration
 - **Main Table**: The primary table this route serves (see below for details)
-- **Available Methods**: Method records this route supports. Method labels live in `method_definition.name`; manage method records and badge colors from **Settings > Methods**.
+- **Available Methods**: Method records this route supports. Method labels live in `enfyra_method.name`; manage method records and badge colors from **Settings > Methods**.
 - **Route Permissions**: Access control rules for this endpoint
 - **Handlers**: Custom request processing logic (see [Custom Handlers](hooks-handlers/custom-handlers.md))
 - **Hooks**: Lifecycle events and custom processing (Pre-Hooks and Post-Hooks)
@@ -165,7 +165,7 @@ See [Relation Picker System](relation-picker.md) for details on selecting roles 
 
 ### GraphQL Access
 
-GraphQL is enabled per table from the table editor with the **GraphQL** toggle, which writes the table's `gql_definition` record. It is not enabled from Route Permissions.
+GraphQL is enabled per table from the table editor with the **GraphQL** toggle, which writes the table's `enfyra_graphql` record. It is not enabled from Route Permissions.
 
 GraphQL requests currently require a Bearer token. REST `publicMethods` and route permission methods do not make GraphQL anonymous. GraphQL queries and mutations still use the same table metadata, field publication state, generated input/output schema, guards, and repository behavior as the server runtime.
 
@@ -231,7 +231,7 @@ For detailed handler creation and examples, see [Custom Handlers](hooks-handlers
 
 ### API Consistency
 Create RESTful endpoints that match your application's naming conventions:
-- `/products` instead of `/table_definition`
+- `/products` instead of `/enfyra_table`
 - `/orders` instead of `/order_table`
 
 ### Versioning Support
