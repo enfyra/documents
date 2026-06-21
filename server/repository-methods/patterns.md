@@ -23,7 +23,7 @@ const newProduct = result.data[0];
 ```javascript
 // Get current record
 const current = await $ctx.$repos.products.find({
-  where: { id: { _eq: 123 } }
+  filter: { id: { _eq: 123 } }
 });
 
 if (current.data.length === 0) {
@@ -46,7 +46,7 @@ const result = await $ctx.$repos.products.update({
 
 ```javascript
 const existing = await $ctx.$repos.products.find({
-  where: { name: { _eq: 'Product Name' } }
+  filter: { name: { _eq: 'Product Name' } }
 });
 
 if (existing.data.length > 0) {
@@ -73,7 +73,7 @@ if (existing.data.length > 0) {
 ```javascript
 // Check if record can be deleted
 const product = await $ctx.$repos.products.find({
-  where: { id: { _eq: 123 } }
+  filter: { id: { _eq: 123 } }
 });
 
 if (product.data.length === 0) {

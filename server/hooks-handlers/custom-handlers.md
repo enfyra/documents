@@ -61,7 +61,7 @@ let total = 0;
 // Create order items
 for (const item of $ctx.$body.items) {
   const productResult = await $ctx.$repos.products.find({
-    where: { id: { _eq: item.productId } }
+    filter: { id: { _eq: item.productId } }
   });
   
   if (productResult.data.length === 0) {
@@ -92,7 +92,7 @@ await $ctx.$repos.orders.update({
 
 // Return complete order
 const finalOrder = await $ctx.$repos.orders.find({
-  where: { id: { _eq: order.id } }
+  filter: { id: { _eq: order.id } }
 });
 
 return finalOrder;

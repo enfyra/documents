@@ -201,7 +201,7 @@ let user = await $ctx.$cache.get(cacheKey);
 if (!user) {
   // Cache miss - fetch from database
   const result = await $ctx.$repos.enfyra_user.find({
-    where: { id: { _eq: $ctx.$params.id } }
+    filter: { id: { _eq: $ctx.$params.id } }
   });
   
   if (result.data.length > 0) {

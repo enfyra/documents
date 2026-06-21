@@ -6,7 +6,7 @@ Integration guides focus on framework setup: proxy rules, auth cookies, OAuth re
 
 ## Available Guides
 
-- [SSR Frameworks](./ssr-frameworks.md) - Connect Nuxt, Next.js, SvelteKit, or Remix to Enfyra with same-origin REST, OAuth cookies, and Socket.IO.
+- [SSR Frameworks](./ssr-frameworks.md) - Connect Nuxt, Next.js, Angular, SvelteKit, or Remix to Enfyra with same-origin REST, OAuth cookies, and Socket.IO.
 
 ## Recommended Reading Order
 

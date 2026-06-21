@@ -65,7 +65,7 @@ if ($ctx.$user.role !== 'admin') {
 
 // Check resource ownership
 const resource = await $ctx.$repos.resources.find({
-  where: { id: { _eq: $ctx.$params.id } }
+  filter: { id: { _eq: $ctx.$params.id } }
 });
 
 if (resource.data.length === 0) {

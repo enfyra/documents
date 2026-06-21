@@ -96,7 +96,7 @@ if ($ctx.$user.role !== 'admin') {
 
 // Check resource ownership
 const resource = await $ctx.$repos.resources.find({
-  where: { id: { _eq: $ctx.$params.id } }
+  filter: { id: { _eq: $ctx.$params.id } }
 });
 
 if (resource.data[0].userId !== $ctx.$user.id) {
@@ -111,7 +111,7 @@ Use when requested resource doesn't exist.
 
 ```javascript
 const product = await $ctx.$repos.products.find({
-  where: { id: { _eq: $ctx.$params.id } }
+  filter: { id: { _eq: $ctx.$params.id } }
 });
 
 if (product.data.length === 0) {
@@ -127,7 +127,7 @@ Use when there's a conflict with current state (e.g., duplicate entry).
 ```javascript
 // Check if email already exists
 const existing = await $ctx.$repos.enfyra_user.find({
-  where: { email: { _eq: $ctx.$body.email } }
+  filter: { email: { _eq: $ctx.$body.email } }
 });
 
 if (existing.data.length > 0) {
@@ -282,7 +282,7 @@ for (const field of requiredFields) {
 ```javascript
 // In preHook or handler
 const resource = await $ctx.$repos.products.find({
-  where: { id: { _eq: $ctx.$params.id } }
+  filter: { id: { _eq: $ctx.$params.id } }
 });
 
 if (resource.data.length === 0) {
@@ -308,7 +308,7 @@ if ($ctx.$body.email) {
   
   // Check if email already exists
   const existing = await $ctx.$repos.enfyra_user.find({
-    where: { email: { _eq: $ctx.$body.email } }
+    filter: { email: { _eq: $ctx.$body.email } }
   });
   
   if (existing.data.length > 0) {
@@ -334,7 +334,7 @@ if ($ctx.$user.role !== 'admin') {
 
 // Check resource ownership
 const resource = await $ctx.$repos.resources.find({
-  where: { id: { _eq: $ctx.$params.id } }
+  filter: { id: { _eq: $ctx.$params.id } }
 });
 
 if (resource.data.length === 0) {

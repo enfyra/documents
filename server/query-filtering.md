@@ -3,7 +3,7 @@
 Enfyra provides MongoDB-like filtering operators for querying data.
 
 - **HTTP / REST:** pass the predicate as the **`filter`** query parameter (JSON in the query string).
-- **Handlers, hooks, flows (`$ctx.$repos.*.find`, `#table.find`, etc.):** pass the same predicate as **`filter`** or **`where`** — both are equivalent (`DynamicRepository` uses `filter ?? where`).
+- **Handlers, hooks, flows (`$ctx.$repos.*.find`, `#table.find`, etc.):** pass the same predicate as **`filter`** in repository calls.
 
 ## Quick Navigation
 
@@ -24,7 +24,7 @@ Match exact value.
 ```javascript
 // Find products with price = 100
 const result = await $ctx.$repos.products.find({
-  where: { price: { _eq: 100 } }
+  filter: { price: { _eq: 100 } }
 });
 
 // URL: /products?filter={"price":{"_eq":100}}
@@ -37,7 +37,7 @@ Exclude matching value.
 ```javascript
 // Find products where price != 0
 const result = await $ctx.$repos.products.find({
-  where: { price: { _neq: 0 } }
+  filter: { price: { _neq: 0 } }
 });
 ```
 
@@ -48,7 +48,7 @@ Match values greater than.
 ```javascript
 // Find products with price > 100
 const result = await $ctx.$repos.products.find({
-  where: { price: { _gt: 100 } }
+  filter: { price: { _gt: 100 } }
 });
 ```
 
@@ -59,7 +59,7 @@ Match values greater than or equal to.
 ```javascript
 // Find products with price >= 100
 const result = await $ctx.$repos.products.find({
-  where: { price: { _gte: 100 } }
+  filter: { price: { _gte: 100 } }
 });
 ```
 
@@ -70,7 +70,7 @@ Match values less than.
 ```javascript
 // Find products with price < 500
 const result = await $ctx.$repos.products.find({
-  where: { price: { _lt: 500 } }
+  filter: { price: { _lt: 500 } }
 });
 ```
 
@@ -81,7 +81,7 @@ Match values less than or equal to.
 ```javascript
 // Find products with price <= 500
 const result = await $ctx.$repos.products.find({
-  where: { price: { _lte: 500 } }
+  filter: { price: { _lte: 500 } }
 });
 ```
 
@@ -94,7 +94,7 @@ Match any value in the array.
 ```javascript
 // Find products in specific categories
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     category: { _in: ['electronics', 'gadgets', 'phones'] }
   }
 });
@@ -109,7 +109,7 @@ Exclude values in the array.
 ```javascript
 // Find products not in these categories
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     category: { _not_in: ['discontinued', 'old'] }
   }
 });
@@ -126,7 +126,7 @@ Match fields containing the text.
 ```javascript
 // Find products with name containing "phone"
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     name: { _contains: 'phone' }
   }
 });
@@ -141,7 +141,7 @@ Match fields starting with the text.
 ```javascript
 // Find products starting with "Apple"
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     name: { _starts_with: 'Apple' }
   }
 });
@@ -157,7 +157,7 @@ Match fields ending with the text.
 ```javascript
 // Find products ending with "Pro"
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     name: { _ends_with: 'Pro' }
   }
 });
@@ -175,7 +175,7 @@ Match fields that are null.
 ```javascript
 // Find products without description
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     description: { _is_null: true }
   }
 });
@@ -188,7 +188,7 @@ Match fields that are not null.
 ```javascript
 // Find products with description
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     description: { _is_not_null: true }
   }
 });
@@ -203,7 +203,7 @@ Match values between two numbers (inclusive).
 ```javascript
 // Find products with price between 100 and 500
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     price: { _between: [100, 500] }
   }
 });
@@ -220,7 +220,7 @@ Combine multiple conditions with AND logic.
 ```javascript
 // Find active products in electronics category with price >= 100
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     _and: [
       { category: { _eq: 'electronics' } },
       { price: { _gte: 100 } },
@@ -237,7 +237,7 @@ Combine multiple conditions with OR logic.
 ```javascript
 // Find products that are active OR on sale
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     _or: [
       { isActive: { _eq: true } },
       { isOnSale: { _eq: true } }
@@ -253,7 +253,7 @@ Negate a condition.
 ```javascript
 // Find products that are not discontinued
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     _not: {
       status: { _eq: 'discontinued' }
     }
@@ -268,7 +268,7 @@ Combine logical operators for complex queries.
 ```javascript
 // Find active products in electronics OR gadgets, with price between 100-500
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     _and: [
       {
         _or: [
@@ -291,7 +291,7 @@ const result = await $ctx.$repos.products.find({
 // Find active products in electronics or gadgets category
 // with price between 100-500 and name containing "phone"
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     _and: [
       {
         _or: [
@@ -313,7 +313,7 @@ const result = await $ctx.$repos.products.find({
 // Find products not in discontinued or old categories
 // with description and price >= 50
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     _and: [
       {
         category: { _not_in: ['discontinued', 'old'] }
@@ -331,7 +331,7 @@ const result = await $ctx.$repos.products.find({
 // Find products with name starting with "Apple"
 // price >= 200, and not discontinued
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     _and: [
       { name: { _starts_with: 'Apple' } },
       { price: { _gte: 200 } },
@@ -353,7 +353,7 @@ const startDate = new Date('2024-01-01');
 const endDate = new Date('2024-12-31');
 
 const result = await $ctx.$repos.orders.find({
-  where: {
+  filter: {
     createdAt: { _between: [startDate, endDate] }
   }
 });
@@ -370,42 +370,42 @@ Filter directly on the relation using ID comparison operators. This is the simpl
 ```javascript
 // Find menu items without a parent (parent is null)
 const result = await $ctx.$repos.enfyra_menu.find({
-  where: {
+  filter: {
     parent: { _is_null: true }
   }
 });
 
 // Find menu items with a parent (parent is not null)
 const result = await $ctx.$repos.enfyra_menu.find({
-  where: {
+  filter: {
     parent: { _is_not_null: true }
   }
 });
 
 // Find menu items where parent ID equals 3
 const result = await $ctx.$repos.enfyra_menu.find({
-  where: {
+  filter: {
     parent: { _eq: 3 }
   }
 });
 
 // Find menu items where parent ID is in [3, 4, 5]
 const result = await $ctx.$repos.enfyra_menu.find({
-  where: {
+  filter: {
     parent: { _in: [3, 4, 5] }
   }
 });
 
 // Find menu items where parent ID is not 3
 const result = await $ctx.$repos.enfyra_menu.find({
-  where: {
+  filter: {
     parent: { _neq: 3 }
   }
 });
 
 // Find menu items where parent ID is not in [1, 2]
 const result = await $ctx.$repos.enfyra_menu.find({
-  where: {
+  filter: {
     parent: { _not_in: [1, 2] }
   }
 });
@@ -418,7 +418,7 @@ You can also filter by explicitly specifying the `id` or `_id` field of the rela
 ```javascript
 // Find menu items where parent ID equals 3
 const result = await $ctx.$repos.enfyra_menu.find({
-  where: {
+  filter: {
     parent: {
       id: { _eq: 3 }
     }
@@ -427,7 +427,7 @@ const result = await $ctx.$repos.enfyra_menu.find({
 
 // Find menu items without a parent
 const result = await $ctx.$repos.enfyra_menu.find({
-  where: {
+  filter: {
     parent: {
       id: { _is_null: true }
     }
@@ -436,7 +436,7 @@ const result = await $ctx.$repos.enfyra_menu.find({
 
 // Find menu items where parent ID is in [3, 4, 5]
 const result = await $ctx.$repos.enfyra_menu.find({
-  where: {
+  filter: {
     parent: {
       id: { _in: [3, 4, 5] }
     }
@@ -451,7 +451,7 @@ Filter by fields within the related table.
 ```javascript
 // Find products where category name is "Electronics"
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     category: {
       name: { _eq: 'Electronics' }
     }
@@ -460,7 +460,7 @@ const result = await $ctx.$repos.products.find({
 
 // Find orders where customer email contains "@example.com"
 const result = await $ctx.$repos.orders.find({
-  where: {
+  filter: {
     customer: {
       email: { _contains: '@example.com' }
     }
@@ -494,7 +494,7 @@ Combine filters with sorting and pagination.
 
 ```javascript
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     category: { _eq: 'electronics' },
     price: { _between: [100, 500] },
     isActive: { _eq: true }
@@ -554,7 +554,7 @@ Fields marked `isEncrypted=true` are encrypted at rest and decrypted after recor
 ```javascript
 // Not supported: api_token is encrypted
 await $ctx.$repos.integrations.find({
-  where: {
+  filter: {
     api_token: { _eq: 'plaintext-token' }
   }
 });
