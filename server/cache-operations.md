@@ -181,7 +181,7 @@ let userProfile = await $ctx.$cache.get(cacheKey);
 if (!userProfile) {
   // Cache miss - fetch from database
   const result = await $ctx.$repos.enfyra_user.find({
-    where: { id: { _eq: $ctx.$params.id } }
+    filter: { id: { _eq: $ctx.$params.id } }
   });
   
   if (result.data.length > 0) {
@@ -268,7 +268,7 @@ if (!lockAcquired) {
 try {
   // Get current record
   const current = await $ctx.$repos.products.find({
-    where: { id: { _eq: $ctx.$params.id } }
+    filter: { id: { _eq: $ctx.$params.id } }
   });
   
   if (current.data.length === 0) {
@@ -301,7 +301,7 @@ let config = await $ctx.$cache.get(configKey);
 if (!config) {
   // Load from database
   const result = await $ctx.$repos.configurations.find({
-    where: { isActive: { _eq: true } }
+    filter: { isActive: { _eq: true } }
   });
   
   if (result.data.length > 0) {
@@ -345,7 +345,7 @@ Pre-populate cache with frequently accessed data.
 ```javascript
 // In a background process or bootstrap script
 const popularProducts = await $ctx.$repos.products.find({
-  where: { isPopular: { _eq: true } },
+  filter: { isPopular: { _eq: true } },
   limit: 100
 });
 

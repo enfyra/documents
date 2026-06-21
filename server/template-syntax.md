@@ -32,7 +32,7 @@ const bodyData = @BODY.name;
 
 **Template syntax is just syntactic sugar** - Enfyra Server replaces it with the full `$ctx.$property` syntax before compiled code is passed to the kernel executor. **Use whichever style you prefer - you can even mix all three in the same file!**
 
-In **`find()`** options, **`filter`** and **`where`** are the same object (REST list endpoints use the query parameter name **`filter`** only).
+In **`find()`** options, pass predicates as **`filter`**. REST list endpoints also use the query parameter name **`filter`**.
 
 ## Available Templates
 
@@ -113,7 +113,7 @@ if (lockAcquired) {
 ```javascript
 // Find records with filtering and pagination
 const users = await @REPOS.enfyra_user.find({
-  where: { isActive: true },
+  filter: { isActive: true },
   fields: 'id,email,name',   // Only fetch required fields
   limit: 10,                  // Max 10 records (default: 10)
   sort: '-createdAt'          // Sort by createdAt DESC
@@ -121,7 +121,7 @@ const users = await @REPOS.enfyra_user.find({
 
 // Fetch ALL records (no limit)
 const allUsers = await @REPOS.enfyra_user.find({
-  where: { isActive: true },
+  filter: { isActive: true },
   limit: 0  // 0 = fetch all
 });
 
@@ -133,12 +133,12 @@ const sorted = await @REPOS.enfyra_user.find({
 // Nested relations (get related data in ONE query)
 const usersWithPosts = await @REPOS.enfyra_user.find({
   fields: 'id,email,posts.title,posts.createdAt',  // Nested field: posts.title
-  where: { isActive: true }
+  filter: { isActive: true }
 });
 
 // Filter by nested relation
 const usersInRole = await @REPOS.enfyra_user.find({
-  where: {
+  filter: {
     role: {
       name: { _eq: 'Admin' }  // Filter by related role name
     }
@@ -172,7 +172,7 @@ await @REPOS.enfyra_user.delete({ id: userId });
 ```javascript
 // Find records with filtering and pagination
 const users = await #enfyra_user.find({
-  where: { isActive: true },
+  filter: { isActive: true },
   fields: 'id,email,name',   // Only fetch required fields
   limit: 10,                  // Max 10 records (default: 10)
   sort: '-createdAt'          // Sort by createdAt DESC
@@ -180,7 +180,7 @@ const users = await #enfyra_user.find({
 
 // Fetch ALL records (no limit)
 const allUsers = await #enfyra_user.find({
-  where: { isActive: true },
+  filter: { isActive: true },
   limit: 0  // 0 = fetch all
 });
 
@@ -192,12 +192,12 @@ const sorted = await #enfyra_user.find({
 // Nested relations (get related data in ONE query)
 const usersWithPosts = await #enfyra_user.find({
   fields: 'id,email,posts.title,posts.createdAt',  // Nested field: posts.title
-  where: { isActive: true }
+  filter: { isActive: true }
 });
 
 // Filter by nested relation
 const usersInRole = await #enfyra_user.find({
-  where: {
+  filter: {
     role: {
       name: { _eq: 'Admin' }  // Filter by related role name
     }
@@ -416,7 +416,7 @@ const transformer = sharp()
 let data = await @CACHE.get('products:featured');
 if (!data) {
   data = await #products.find({
-    where: { featured: true },
+    filter: { featured: true },
     fields: 'id,name,price,image'
   });
   await @CACHE.set('products:featured', data, 3600000);
@@ -428,7 +428,7 @@ if (!data) {
 
 ```javascript
 try {
-  const user = await #enfyra_user.find({ where: { id: userId } });
+  const user = await #enfyra_user.find({ filter: { id: userId } });
   if (!user.data.length) {
     @THROW404('User not found');
   }
@@ -454,7 +454,7 @@ try {
 async function registerUser(userData) {
   // Check if user exists
   const existingUser = await #enfyra_user.find({
-    where: { email: userData.email },
+    filter: { email: userData.email },
     fields: 'id'
   });
   
@@ -513,29 +513,29 @@ const users = await $ctx.$repos.enfyra_user.find({...});
 
 ```javascript
 //  Option 1 - Full syntax throughout
-const user = await $ctx.$repos.users.find({ where: { id: userId } });
+const user = await $ctx.$repos.users.find({ filter: { id: userId } });
 await $ctx.$cache.set(`user:${userId}`, user);
 $ctx.$logs('User cached:', userId);
 
 //  Option 2 - Template syntax throughout  
-const user = await @REPOS.users.find({ where: { id: userId } });
+const user = await @REPOS.users.find({ filter: { id: userId } });
 await @CACHE.set(`user:${userId}`, user);
 @LOGS('User cached:', userId);
 
 //  Option 3 - Direct table syntax (shortest for database)
-const user = await #enfyra_user.find({ where: { id: userId } });
+const user = await #enfyra_user.find({ filter: { id: userId } });
 await @CACHE.set(`user:${userId}`, user);
 @LOGS('User cached:', userId);
 
 //  Option 4 - Mix all three (totally fine!)
-const user = await #enfyra_user.find({ where: { id: userId } });        // Direct table
+const user = await #enfyra_user.find({ filter: { id: userId } });        // Direct table
 await $ctx.$cache.set(`user:${userId}`, user);                    // Full syntax
 @LOGS('User cached:', userId);                                     // Template syntax
 
 //  Option 5 - Any combination works!
-const user = await $ctx.$repos.enfyra_user.find({ where: { id: userId } }); // Full
+const user = await $ctx.$repos.enfyra_user.find({ filter: { id: userId } }); // Full
 await @CACHE.set(`user:${userId}`, user);                             // Template
-const products = await #product.find({ where: { userId } }); // Direct
+const products = await #product.find({ filter: { userId } }); // Direct
 $ctx.$logs('All operations completed');                               // Full
 ```
 
@@ -544,7 +544,7 @@ $ctx.$logs('All operations completed');                               // Full
 ```javascript
 //  Good - only fetch needed fields
 const users = await #enfyra_user.find({
-  where: { isActive: true },
+  filter: { isActive: true },
   fields: 'id,email,name' // Performance optimization
 });
 
@@ -555,7 +555,7 @@ const handlers = await #enfyra_route_handler.find({
 
 //  Avoid fetching all fields unnecessarily
 const users = await #enfyra_user.find({
-  where: { isActive: true }
+  filter: { isActive: true }
   // Fetches all fields by default
 });
 ```
@@ -584,7 +584,7 @@ const cacheKey = `user:${userId}`;
 let user = await @CACHE.get(cacheKey);
 
 if (!user) {
-  user = await @REPOS.users.find({ where: { id: userId } });
+  user = await @REPOS.users.find({ filter: { id: userId } });
   await @CACHE.set(cacheKey, user, 1800000); // 30 minutes
 }
 ```

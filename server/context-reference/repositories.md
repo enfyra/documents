@@ -30,7 +30,7 @@ Each repository provides these methods:
 ```javascript
 // Find records
 const result = await $ctx.$repos.products.find({
-  where: { category: { _eq: 'electronics' } },
+  filter: { category: { _eq: 'electronics' } },
   fields: 'id,name,price',
   limit: 10,
   sort: '-createdAt'

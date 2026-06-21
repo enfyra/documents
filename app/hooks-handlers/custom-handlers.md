@@ -60,7 +60,7 @@ Each repository in `$ctx.$repos` provides full database access through the Query
 
 // Validate category exists
 const categoryResult = await $ctx.$repos.categories.find({
-  where: { id: { _eq: $ctx.$body.categoryId } },
+  filter: { id: { _eq: $ctx.$body.categoryId } },
   fields: 'id,name' // Only fetch required fields
 });
 
@@ -108,7 +108,7 @@ const { email, password } = $ctx.$body;
 
 // Find user by email
 const userResult = await $ctx.$repos.enfyra_user.find({
-  where: { email: { _eq: email } },
+  filter: { email: { _eq: email } },
   fields: 'id,email,password' // Only fetch authentication fields
 });
 
@@ -157,7 +157,7 @@ return {
 // Demonstrates the full power of API Filtering in handlers
 
 const result = await $ctx.$repos.products.find({
-  where: {
+  filter: {
     // Logical operators
     _or: [
       {
@@ -190,7 +190,7 @@ const result = await $ctx.$repos.products.find({
 
 // Use aggregation filtering to get categories with products count
 const categoriesWithCount = await $ctx.$repos.categories.find({
-  where: {
+  filter: {
     products: { _count: { _gt: 0 } }  // Categories that have products
   },
   fields: 'id,name,description' // Only fetch essential category info
@@ -216,7 +216,7 @@ const { startDate, endDate, category } = $ctx.$query;
 
 // Advanced filtering using API Filtering operators
 const ordersResult = await $ctx.$repos.orders.find({
-  where: {
+  filter: {
     _and: [
       // Date range
       { createdAt: { _between: [startDate, endDate] } },
@@ -236,7 +236,7 @@ const ordersResult = await $ctx.$repos.orders.find({
 
 // Get high-value customers using aggregation
 const vipCustomers = await $ctx.$repos.users.find({
-  where: {
+  filter: {
     orders: {
       _sum: { total: { _gte: 1000 } }  // Customers with $1000+ total orders
     }

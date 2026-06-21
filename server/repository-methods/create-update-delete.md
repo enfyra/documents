@@ -191,7 +191,7 @@ const result = await $ctx.$repos.products.update({
 ```javascript
 // Find the record first
 const findResult = await $ctx.$repos.products.find({
-  where: { id: { _eq: 123 } }
+  filter: { id: { _eq: 123 } }
 });
 
 if (findResult.data.length === 0) {
@@ -261,7 +261,7 @@ const result = await $ctx.$repos.products.delete({
 ```javascript
 // Find the record first
 const findResult = await $ctx.$repos.products.find({
-  where: { id: { _eq: 123 } }
+  filter: { id: { _eq: 123 } }
 });
 
 if (findResult.data.length === 0) {

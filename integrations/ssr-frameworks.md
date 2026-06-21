@@ -1,6 +1,6 @@
 # SSR Frameworks
 
-Connect a Nuxt, Next.js, SvelteKit, or Remix app to Enfyra with same-origin REST, OAuth cookies, refresh-token support, and Socket.IO.
+Connect a Nuxt, Next.js, Angular, SvelteKit, or Remix app to Enfyra with same-origin REST, OAuth cookies, refresh-token support, and Socket.IO.
 
 ## Integration Model
 
@@ -149,6 +149,184 @@ const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/enfyra/me`, {
   cache: "no-store",
 })
 ```
+
+## Angular
+
+Use the Angular dev-server proxy for local development and configure the same routes in your production reverse proxy.
+
+```json
+{
+  "/enfyra/**": {
+    "target": "https://demo.enfyra.io/api",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/enfyra": ""
+    }
+  },
+  "/socket.io/**": {
+    "target": "https://demo.enfyra.io/ws",
+    "secure": true,
+    "changeOrigin": true,
+    "ws": true
+  }
+}
+```
+
+Add the proxy file to the Angular serve target:
+
+```json
+{
+  "projects": {
+    "your-app": {
+      "architect": {
+        "serve": {
+          "options": {
+            "proxyConfig": "src/proxy.conf.json"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+Use an HTTP interceptor so every Enfyra request sends cookies:
+
+```ts
+import { ApplicationConfig, inject } from "@angular/core"
+import { HttpInterceptorFn, provideHttpClient, withInterceptors } from "@angular/common/http"
+import { CanActivateFn, provideRouter, Router } from "@angular/router"
+import { catchError, map, of } from "rxjs"
+
+import { routes } from "./app.routes"
+import { EnfyraAuthService } from "./enfyra-auth.service"
+
+export const enfyraCredentialsInterceptor: HttpInterceptorFn = (req, next) => {
+  if (!req.url.startsWith("/enfyra/")) return next(req)
+  return next(req.clone({ withCredentials: true }))
+}
+
+export const requireUserGuard: CanActivateFn = () => {
+  const auth = inject(EnfyraAuthService)
+  const router = inject(Router)
+
+  return auth.loadMe().pipe(
+    map(user => user ? true : router.createUrlTree(["/login"])),
+    catchError(() => of(router.createUrlTree(["/login"]))),
+  )
+}
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(withInterceptors([enfyraCredentialsInterceptor])),
+    provideRouter(routes),
+  ],
+}
+```
+
+Create a small auth service around `/enfyra/login`, `/enfyra/me`, and `/enfyra/logout`:
+
+```ts
+import { Injectable, signal } from "@angular/core"
+import { HttpClient } from "@angular/common/http"
+import { Observable, switchMap, tap } from "rxjs"
+
+type EnfyraUser = {
+  id: string | number
+  email?: string
+}
+
+@Injectable({ providedIn: "root" })
+export class EnfyraAuthService {
+  readonly user = signal<EnfyraUser | null>(null)
+
+  constructor(private readonly http: HttpClient) {}
+
+  login(email: string, password: string): Observable<EnfyraUser | null> {
+    return this.http.post("/enfyra/login", { email, password, remember: true }).pipe(
+      switchMap(() => this.loadMe()),
+    )
+  }
+
+  loadMe(): Observable<EnfyraUser | null> {
+    return this.http.get<EnfyraUser | null>("/enfyra/me").pipe(
+      tap(user => this.user.set(user)),
+    )
+  }
+
+  logout(): Observable<unknown> {
+    return this.http.post("/enfyra/logout", {}).pipe(
+      tap(() => this.user.set(null)),
+    )
+  }
+
+  startGoogleOAuth(returnPath = "/") {
+    const redirect = new URL(returnPath, window.location.origin)
+    const url = new URL("/api/auth/google", "https://demo.enfyra.io")
+    url.searchParams.set("redirect", redirect.toString())
+    url.searchParams.set("cookieBridgePrefix", "/enfyra")
+    window.location.href = url.toString()
+  }
+}
+```
+
+Create one Socket.IO connection in an app-level service after auth is known:
+
+```ts
+import { computed, effect, Injectable, signal } from "@angular/core"
+import { io, type Socket } from "socket.io-client"
+
+import { EnfyraAuthService } from "./enfyra-auth.service"
+
+@Injectable({ providedIn: "root" })
+export class EnfyraRealtimeService {
+  private socket: Socket | null = null
+  private readonly connected = signal(false)
+  readonly isConnected = computed(() => this.connected())
+
+  constructor(private readonly auth: EnfyraAuthService) {
+    effect(() => {
+      const user = this.auth.user()
+      if (user) this.connect()
+      else this.disconnect()
+    })
+  }
+
+  connect() {
+    if (this.socket) return this.socket
+
+    this.socket = io("/chat", {
+      path: "/socket.io",
+      withCredentials: true,
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 2000,
+      reconnectionDelayMax: 30000,
+      transports: ["polling"],
+      upgrade: false,
+    })
+
+    this.socket.on("connect", () => this.connected.set(true))
+    this.socket.on("disconnect", () => this.connected.set(false))
+    return this.socket
+  }
+
+  disconnect() {
+    this.socket?.disconnect()
+    this.socket = null
+    this.connected.set(false)
+  }
+
+  onMessage(handler: (event: unknown) => void) {
+    const activeSocket = this.connect()
+    activeSocket.on("chat:message", handler)
+    return () => activeSocket.off("chat:message", handler)
+  }
+}
+```
+
+Route guards are for browser navigation only. Keep Enfyra route permissions, guards, and owner checks on the server side.
 
 ## SvelteKit
 
