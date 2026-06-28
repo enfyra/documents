@@ -85,7 +85,7 @@ This example demonstrates all features and can be pasted directly into the exten
           Complete working example - copy and paste this code
         </p>
       </div>
-      <UBadge color="green" variant="soft">
+      <UBadge color="success" variant="soft">
         
         Live Data
       </UBadge>
@@ -142,7 +142,7 @@ This example demonstrates all features and can be pasted directly into the exten
         <UButton
           @click="generateReport"
           variant="soft"
-          color="green"
+          color="success"
          
         >
           Generate Report (Admin Only)
@@ -531,6 +531,29 @@ All UI components are automatically injected by the extension system and can be 
 - `UploadModal` - File upload interface
 - `Widget` - Dynamic widget embedding
 
+Use `CommonModal` for modal workflows and `CommonDrawer` for side-panel editing workflows. For standard footers, pass the action buttons through props instead of hand-styling Cancel and Save buttons in a footer slot:
+
+```vue
+<CommonModal
+  v-model:open="open"
+  :cancel-action="{ label: 'Cancel', onClick: () => (open = false) }"
+  :primary-action="{ label: 'Save', loading: saving, disabled: !canSave, onClick: save }"
+>
+  <template #header>
+    <h3 class="text-lg font-semibold eapp-text-primary">Edit settings</h3>
+  </template>
+  <template #body>
+    <FormEditor v-model="form" table-name="settings" />
+  </template>
+</CommonModal>
+```
+
+Cancel actions default to neutral outline styling. Use `dangerAction` for irreversible destructive work such as delete, revoke, or permanently remove. In discard dialogs, use `tone: "primary"` for `Keep editing` because it keeps the user in the safe editing flow.
+
+Use `USkeleton` or shared loading components for loading placeholders. Enfyra maps skeleton colors globally, so extension code should not hardcode loading gradients or palette colors.
+
+Use `UTabs` for page sections instead of custom tab bars. Enfyra styles tabs globally, so your extension tabs will match system pages automatically.
+
 ```vue
 <template>
   <!-- Components are injected and can be used directly -->
@@ -542,13 +565,13 @@ All UI components are automatically injected by the extension system and can be 
     <USwitch v-model="enabled" label="Enable feature" />
 
     <!-- Buttons and Actions -->
-    <UButton @click="handleClick" color="primary">
+    <UButton type="button" @click="handleClick" color="primary">
       Click Me
     </UButton>
 
     <!-- Data Display -->
     <UTable :rows="data" :columns="columns" />
-    <UBadge color="green">Status: Active</UBadge>
+    <UBadge color="success">Status: Active</UBadge>
 
     <!-- Advanced Components -->
     <PermissionGate :condition="{ route: '/users', methods: ['GET'] }">
@@ -1140,7 +1163,7 @@ const allPackages = await getPackages();
       </div>
 
       <div v-if="futureDate">
-        <UBadge color="green">{{ futureDate }}</UBadge>
+        <UBadge color="success">{{ futureDate }}</UBadge>
       </div>
     </div>
   </UCard>

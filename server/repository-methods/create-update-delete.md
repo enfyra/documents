@@ -1,6 +1,6 @@
-# Repository Methods - create(), update(), delete()
+# Create, Update, and Delete Records
 
-## create()
+## Create
 
 Create a new record in the table. Automatically returns the full created record including ID and timestamps.
 
@@ -115,7 +115,7 @@ try {
 
 ---
 
-## update()
+## Update
 
 Update an existing record by ID. Automatically returns the full updated record.
 
@@ -226,7 +226,7 @@ try {
 
 ---
 
-## delete()
+## Delete
 
 Delete a record by ID. Returns a success message.
 
@@ -297,7 +297,6 @@ try {
 
 ## Next Steps
 
-- See [find() method](./find.md) for querying records
+- See [Find Records](./find.md) for querying records
 - Learn about [Common Patterns](./patterns.md) for best practices
 - Check [Error Handling](../error-handling.md) for proper error handling
-

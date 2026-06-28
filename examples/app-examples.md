@@ -110,7 +110,10 @@ registerHeaderActions({
 ```vue
 <template>
   <UButton type="button" @click="open = true">Open</UButton>
-  <CommonModal v-model:open="open">
+  <CommonModal
+    v-model:open="open"
+    :cancel-action="{ label: 'Close', tone: 'neutral', onClick: () => (open = false) }"
+  >
     <template #body>Modal content</template>
   </CommonModal>
 </template>

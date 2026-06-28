@@ -1,4 +1,4 @@
-# Repository Methods - find()
+# Find Records
 
 Query records from a table with filtering, sorting, pagination, and field selection.
 
@@ -329,6 +329,6 @@ const filteredCount = result.meta.filterCount;
 
 ## Next Steps
 
-- See [create(), update(), delete() methods](./create-update-delete.md)
+- See [Create, Update, and Delete Records](./create-update-delete.md)
 - Learn about [Common Patterns](./patterns.md)
 - Check [Query Filtering](../query-filtering.md) for more filtering examples

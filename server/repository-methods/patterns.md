@@ -141,9 +141,8 @@ try {
 
 ## Next Steps
 
-- Learn about the [find() method](./find.md) for querying records
-- See [create(), update(), delete() methods](./create-update-delete.md)
+- Learn about [Find Records](./find.md) for querying records
+- See [Create, Update, and Delete Records](./create-update-delete.md)
 - Check [Context Reference](../context-reference/) to understand all available properties
 - See [Query Filtering](../query-filtering.md) for advanced filtering patterns
 - Check [API Lifecycle](../api-lifecycle.md) to understand how repositories fit into the request flow
-

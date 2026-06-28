@@ -8,7 +8,7 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 
 ### Getting Started
 - **[Repository Methods](repository-methods/find.md)** - Complete guide to database operations (find, create, update, delete)
-- **[Context Object ($ctx)](./context-reference/)** - All available properties and methods in the context
+- **[Context Reference](context-reference/request-data.md)** - All available properties and methods in `$ctx`
 - **[API Lifecycle](./api-lifecycle.md)** - How requests flow through the system
 
 ### Core Concepts
@@ -32,16 +32,16 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 ## Finding What You Need
 
 ### "I want to query data from a table"
- See [Repository Methods - find()](./repository-methods/find.md)
+ See [Find Records](./repository-methods/find.md)
 
 ### "I need to create a new record"
- See [Repository Methods - create()](repository-methods/find.md)
+ See [Create Records](repository-methods/create-update-delete.md#create)
 
 ### "I want to update a record"
- See [Repository Methods - update()](repository-methods/find.md)
+ See [Update Records](repository-methods/create-update-delete.md#update)
 
 ### "I need to delete a record"
- See [Repository Methods - delete()](repository-methods/find.md)
+ See [Delete Records](repository-methods/create-update-delete.md#delete)
 
 ### "What properties are available in $ctx?"
  See [Context Reference](context-reference/request-data.md)
@@ -112,10 +112,10 @@ All documentation is organized step-by-step, with clear examples and explanation
 The repository is the main way to interact with your database tables. Each table you create automatically gets a repository accessible through `$ctx.$repos.tableName`.
 
 **Available Methods:**
-- `find()` - Query records with filtering, sorting, and pagination
-- `create()` - Create new records
-- `update()` - Update existing records by ID
-- `delete()` - Delete records by ID
+- Find - Query records with filtering, sorting, and pagination
+- Create - Create new records
+- Update - Update existing records by ID
+- Delete - Delete records by ID
 
 All methods return data in a consistent format: `{ data: [...], meta: {...} }`
 

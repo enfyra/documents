@@ -418,7 +418,7 @@ interface PageHeaderStat {
 }
 ```
 
-### usePageHeaderRegistry()
+### Page Header Registry
 
 ```typescript
 const {

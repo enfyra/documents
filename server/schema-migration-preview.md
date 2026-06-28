@@ -1,4 +1,4 @@
-# Schema migration preview (`enfyra_table` PATCH)
+# Schema Preview
 
 When you change a table’s schema via **`PATCH /api/enfyra_table/:id`** (admin UI or API), Enfyra may require a **confirmed preview** before applying destructive changes. This keeps multi-DB behavior aligned and prevents silent data loss.
 
