@@ -2,7 +2,7 @@
 
 This documentation covers the Enfyra server architecture, APIs, and development guides. It's organized to help you find information quickly, whether you're learning the basics or looking up specific details.
 
-> **New to Enfyra?** Start with the [Installation Guide](../getting-started/installation.md) to set up your backend and frontend.
+> **New to Enfyra?** Start with the [Installation Guide](../getting-started/installation.md) to set up your app + server workspace.
 
 ## Quick Navigation
 

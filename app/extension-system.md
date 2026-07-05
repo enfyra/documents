@@ -623,6 +623,7 @@ const handleClick = () => {
 - `useHeaderActionRegistry()` - Register header actions
 - `useSubHeaderActionRegistry()` - Register sub-header actions  
 - `useAccountPanelRegistry()` - Register rows in the sidebar account panel
+- `useMenuNotificationRegistry()` - Register sidebar menu notification counts or dots
 - `useScreen()` - Screen size and responsive utilities
 - `useGlobalState()` - Global state management
 - `useConfirm()` - Confirmation dialogs
@@ -1042,11 +1043,29 @@ const NotificationPanelItem = defineComponent({
   },
 })
 
+const notificationCount = computed(() => unread.value > 0 ? String(unread.value) : null)
+
 const { register } = useAccountPanelRegistry()
 register({
   id: 'notifications',
   order: 20,
+  label: 'Notifications',
+
+  description: computed(() => unread.value > 0 ? 'Needs review' : 'All caught up'),
+  count: notificationCount,
+  badgeColor: 'error',
   component: NotificationPanelItem,
+})
+
+const { register: registerMenuNotification, unregister: unregisterMenuNotification } = useMenuNotificationRegistry()
+watchEffect(() => {
+  registerMenuNotification({
+    id: 'notifications-menu',
+    target: { path: '/notifications' },
+    value: notificationCount.value,
+    color: unread.value > 0 ? 'error' : 'neutral',
+    title: unread.value > 0 ? 'Unread notifications' : 'No unread notifications',
+  })
 })
 
 const { adminSocket } = useAdminSocket()
@@ -1057,6 +1076,7 @@ const handleSummary = (payload) => {
 adminSocket.on('notification:summary', handleSummary)
 onUnmounted(() => {
   adminSocket.off('notification:summary', handleSummary)
+  unregisterMenuNotification('notifications-menu')
 })
 </script>
 ```
@@ -1064,6 +1084,8 @@ onUnmounted(() => {
 ### Global Extension UI Rules
 
 - Keep account-panel items as one compact row: icon, label, short secondary text, trailing badge or chevron.
+- Use `count` for account-panel notification values. `badge` remains supported as an alias, but the account trigger aggregates visible numeric `count`/`badge` values and caps the trigger at `99+`.
+- Use `useMenuNotificationRegistry()` for sidebar menu notification state. Register a stable `id`, target by menu `id`, `path`, or `route`, pass `value` for a visible count, omit `value` for a dot, and use `primary`, `success`, `warning`, `error`, `info`, or `neutral` for `color`.
 - Use shell-compatible tokens/classes such as `bg-muted`, `text-muted`, and `text-highlighted`.
 - Use `rounded-lg` or smaller radii and moderate padding so the row matches the sidebar panel.
 - Make the entire row one `button` with `type="button"`.
