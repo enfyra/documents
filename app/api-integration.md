@@ -561,31 +561,24 @@ onMounted(() => {
     </UCard>
     
     <!-- Create/Edit Modal -->
-    <UModal v-model="showCreateModal">
-      <UCard>
-        <template #header>
-          <h3>{{ editingUser ? 'Edit User' : 'Create User' }}</h3>
-        </template>
-        
+    <CommonModal
+      v-model:open="showCreateModal"
+      :cancel-action="{ label: 'Cancel', onClick: () => (showCreateModal = false) }"
+      :primary-action="{ label: editingUser ? 'Update' : 'Create', loading: saving, onClick: saveUser }"
+    >
+      <template #header>
+        <h3>{{ editingUser ? 'Edit User' : 'Create User' }}</h3>
+      </template>
+
+      <template #body>
         <div class="space-y-4">
           <UInput v-model="userForm.name" label="Name" />
           <UInput v-model="userForm.email" label="Email" type="email" />
           <USelect v-model="userForm.roleId" label="Role" :options="roleOptions" />
           <UToggle v-model="userForm.isActive" label="Active" />
         </div>
-        
-        <template #footer>
-          <div class="flex gap-2">
-            <UButton @click="showCreateModal = false" variant="outline">
-              Cancel
-            </UButton>
-            <UButton @click="saveUser" :loading="saving">
-              {{ editingUser ? 'Update' : 'Create' }}
-            </UButton>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
+      </template>
+    </CommonModal>
   </div>
 </template>
 

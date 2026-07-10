@@ -85,7 +85,7 @@ This example demonstrates all features and can be pasted directly into the exten
           Complete working example - copy and paste this code
         </p>
       </div>
-      <UBadge color="green" variant="soft">
+      <UBadge color="success" variant="soft">
         
         Live Data
       </UBadge>
@@ -142,7 +142,7 @@ This example demonstrates all features and can be pasted directly into the exten
         <UButton
           @click="generateReport"
           variant="soft"
-          color="green"
+          color="success"
          
         >
           Generate Report (Admin Only)
@@ -531,6 +531,29 @@ All UI components are automatically injected by the extension system and can be 
 - `UploadModal` - File upload interface
 - `Widget` - Dynamic widget embedding
 
+Use `CommonModal` for modal workflows and `CommonDrawer` for side-panel editing workflows. For standard footers, pass the action buttons through props instead of hand-styling Cancel and Save buttons in a footer slot:
+
+```vue
+<CommonModal
+  v-model:open="open"
+  :cancel-action="{ label: 'Cancel', onClick: () => (open = false) }"
+  :primary-action="{ label: 'Save', loading: saving, disabled: !canSave, onClick: save }"
+>
+  <template #header>
+    <h3 class="text-lg font-semibold eapp-text-primary">Edit settings</h3>
+  </template>
+  <template #body>
+    <FormEditor v-model="form" table-name="settings" />
+  </template>
+</CommonModal>
+```
+
+Cancel actions default to neutral outline styling. Use `dangerAction` for irreversible destructive work such as delete, revoke, or permanently remove. In discard dialogs, use `tone: "primary"` for `Keep editing` because it keeps the user in the safe editing flow.
+
+Use `USkeleton` or shared loading components for loading placeholders. Enfyra maps skeleton colors globally, so extension code should not hardcode loading gradients or palette colors.
+
+Use `UTabs` for page sections instead of custom tab bars. Enfyra styles tabs globally, so your extension tabs will match system pages automatically.
+
 ```vue
 <template>
   <!-- Components are injected and can be used directly -->
@@ -542,13 +565,13 @@ All UI components are automatically injected by the extension system and can be 
     <USwitch v-model="enabled" label="Enable feature" />
 
     <!-- Buttons and Actions -->
-    <UButton @click="handleClick" color="primary">
+    <UButton type="button" @click="handleClick" color="primary">
       Click Me
     </UButton>
 
     <!-- Data Display -->
     <UTable :rows="data" :columns="columns" />
-    <UBadge color="green">Status: Active</UBadge>
+    <UBadge color="success">Status: Active</UBadge>
 
     <!-- Advanced Components -->
     <PermissionGate :condition="{ route: '/users', methods: ['GET'] }">
@@ -600,6 +623,7 @@ const handleClick = () => {
 - `useHeaderActionRegistry()` - Register header actions
 - `useSubHeaderActionRegistry()` - Register sub-header actions  
 - `useAccountPanelRegistry()` - Register rows in the sidebar account panel
+- `useMenuNotificationRegistry()` - Register sidebar menu notification counts or dots
 - `useScreen()` - Screen size and responsive utilities
 - `useGlobalState()` - Global state management
 - `useConfirm()` - Confirmation dialogs
@@ -1019,11 +1043,29 @@ const NotificationPanelItem = defineComponent({
   },
 })
 
+const notificationCount = computed(() => unread.value > 0 ? String(unread.value) : null)
+
 const { register } = useAccountPanelRegistry()
 register({
   id: 'notifications',
   order: 20,
+  label: 'Notifications',
+
+  description: computed(() => unread.value > 0 ? 'Needs review' : 'All caught up'),
+  count: notificationCount,
+  badgeColor: 'error',
   component: NotificationPanelItem,
+})
+
+const { register: registerMenuNotification, unregister: unregisterMenuNotification } = useMenuNotificationRegistry()
+watchEffect(() => {
+  registerMenuNotification({
+    id: 'notifications-menu',
+    target: { path: '/notifications' },
+    value: notificationCount.value,
+    color: unread.value > 0 ? 'error' : 'neutral',
+    title: unread.value > 0 ? 'Unread notifications' : 'No unread notifications',
+  })
 })
 
 const { adminSocket } = useAdminSocket()
@@ -1034,6 +1076,7 @@ const handleSummary = (payload) => {
 adminSocket.on('notification:summary', handleSummary)
 onUnmounted(() => {
   adminSocket.off('notification:summary', handleSummary)
+  unregisterMenuNotification('notifications-menu')
 })
 </script>
 ```
@@ -1041,6 +1084,8 @@ onUnmounted(() => {
 ### Global Extension UI Rules
 
 - Keep account-panel items as one compact row: icon, label, short secondary text, trailing badge or chevron.
+- Use `count` for account-panel notification values. `badge` remains supported as an alias, but the account trigger aggregates visible numeric `count`/`badge` values and caps the trigger at `99+`.
+- Use `useMenuNotificationRegistry()` for sidebar menu notification state. Register a stable `id`, target by menu `id`, `path`, or `route`, pass `value` for a visible count, omit `value` for a dot, and use `primary`, `success`, `warning`, `error`, `info`, or `neutral` for `color`.
 - Use shell-compatible tokens/classes such as `bg-muted`, `text-muted`, and `text-highlighted`.
 - Use `rounded-lg` or smaller radii and moderate padding so the row matches the sidebar panel.
 - Make the entire row one `button` with `type="button"`.
@@ -1140,7 +1185,7 @@ const allPackages = await getPackages();
       </div>
 
       <div v-if="futureDate">
-        <UBadge color="green">{{ futureDate }}</UBadge>
+        <UBadge color="success">{{ futureDate }}</UBadge>
       </div>
     </div>
   </UCard>

@@ -1,4 +1,4 @@
-# Context Object ($ctx) Reference
+# Context Reference
 
 The `$ctx` (context) object is available in all hooks and handlers. It provides access to request data, database repositories, helper functions, cache operations, and more.
 

@@ -2,7 +2,7 @@
 
 After completing the installation of both Enfyra backend and app, follow these steps to get started.
 
-> **New to Enfyra?** Start with the [Installation Guide](./installation.md) to set up your backend and frontend.
+> **New to Enfyra?** Start with the [Installation Guide](./installation.md) to set up your app + server workspace.
 
 ## First Login
 

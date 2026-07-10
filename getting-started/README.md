@@ -8,7 +8,7 @@ If you are new to Enfyra, follow the pages in order. If you already have an inst
 
 ### Setup
 - **[Enfyra Cloud](../cloud/README.md)** - Use the managed hosting option when you do not want to run your own server, database, Redis, and deployment pipeline.
-- **[Installation](./installation.md)** - Install Enfyra with Docker or the manual backend and app setup.
+- **[Installation](./installation.md)** - Install Enfyra with Docker or the manual app + server workspace setup.
 - **[First Login and Interface Overview](./getting-started.md)** - Sign in, understand the admin app layout, and choose the next step.
 
 ### Build Your First Data Model
@@ -37,7 +37,7 @@ See [Architecture Overview](../architecture-overview.md).
 
 ## Learning Path
 
-1. **[Installation](./installation.md)** - Set up the backend server and admin app.
+1. **[Installation](./installation.md)** - Set up the Enfyra app + server workspace.
 2. **[First Login and Interface Overview](./getting-started.md)** - Log in and learn the main navigation.
 3. **[Table Creation](./table-creation.md)** - Create your first table and relations.
 4. **[Data Management](./data-management.md)** - Manage records in the table you created.

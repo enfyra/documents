@@ -16,10 +16,10 @@ Repositories are the main way to interact with your database tables in Enfyra. E
 ```
 
 **Available Methods:**
-- [`find()`](./find.md) - Query records with filtering, sorting, and pagination
-- [`create()`](./create-update-delete.md#create) - Create new records
-- [`update()`](./create-update-delete.md#update) - Update existing records by ID
-- [`delete()`](./create-update-delete.md#delete) - Delete records by ID
+- [Find](./find.md) - Query records with filtering, sorting, and pagination
+- [Create](./create-update-delete.md#create) - Create new records
+- [Update](./create-update-delete.md#update) - Update existing records by ID
+- [Delete](./create-update-delete.md#delete) - Delete records by ID
 
 ## Accessing Repositories
 
@@ -42,8 +42,8 @@ const mainRepo = $ctx.$repos.main;
 
 ## Documentation
 
-- **[find() Method](./find.md)** - Complete guide to querying records
-- **[create(), update(), delete() Methods](./create-update-delete.md)** - Create, update, and delete operations
+- **[Find Records](./find.md)** - Complete guide to querying records
+- **[Create, Update, and Delete Records](./create-update-delete.md)** - Create, update, and delete operations
 - **[Common Patterns](./patterns.md)** - Best practices and common patterns
 
 ## Next Steps

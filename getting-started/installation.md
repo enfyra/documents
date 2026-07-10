@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- **Node.js** >= 20.0.0
-- **Package manager** (npm ≥8.0.0, yarn ≥1.22.0, or bun ≥1.0.0)
+- **Node.js** >= 24.0.0 for manual installation
+- **Package manager** (npm, yarn, or pnpm)
 - **Database server** (MySQL, PostgreSQL, or MongoDB — MariaDB works via the `mysql://` protocol)
 - **Redis server**
 
@@ -175,145 +175,139 @@ For detailed Docker documentation, see:
 
 #### Quick Setup (Manual Installation)
 
-**Install and run the backend:**
+Use the Enfyra create CLI to scaffold one workspace that contains both the backend server and the Nuxt admin app:
 
 ```bash
-npx @enfyra/create-server <project-name>
+npx @enfyra/create <project-name>
 cd <project-name>
 npm run dev
 ```
-**Backend runs at http://localhost:1105** - This server generates and serves ALL API endpoints
 
-- For detailed instructions: [@enfyra/create-server](https://www.npmjs.com/package/@enfyra/create-server)
-- See [Architecture Overview](../architecture-overview.md) to understand how backend and frontend work together
+The generated workspace has this structure:
 
-**Install and run the frontend app:**
-```bash
-npx @enfyra/create-app <project-name>
-cd <project-name>
-npm run dev
+```text
+<project-name>/
+|-- app/
+|   `-- .env
+|-- server/
+|   `-- .env
+|-- scripts/
+`-- package.json
 ```
-**Frontend runs at http://localhost:3000** - This app consumes APIs from your backend URL
 
-- For detailed instructions: [@enfyra/create-app](https://www.npmjs.com/package/@enfyra/create-app)
-- See [Architecture Overview](../architecture-overview.md) to understand the backend-first architecture
+The `app` and `server` folders are separate applications inside one project folder. Each folder has its own dependencies and lockfile; the root package only provides convenience scripts.
+
+**Server:** http://localhost:1105  
+**App:** http://localhost:3000
+
+The server port is fixed to `1105`. During setup, the CLI checks that port first and asks before killing any process already using it. The Nuxt app is configured with `3000`; if the port is busy during development, Nuxt can select another available port.
+
+- For package details: [@enfyra/create](https://www.npmjs.com/package/@enfyra/create)
+- See [Architecture Overview](../architecture-overview.md) to understand how the backend and frontend work together
 
 #### Connection Flow
 
-**Important**: The frontend app is a client that connects to your backend server:
+The admin app is a client that connects to your backend server:
 
+```text
+Database -> Backend APIs (1105) <- Frontend App (3000)
 ```
-Database  Backend APIs (1105) ← Frontend App (3000)
-```
 
-1. **Backend** generates REST APIs and enabled GraphQL schema from your database metadata
-2. **Frontend** uses **`API_URL`** (see `app/env_example`) as the backend API base and makes HTTP requests
-3. **All data operations** flow through: Frontend  Backend  Database
+1. The backend generates REST APIs and the enabled GraphQL schema from your database metadata.
+2. The frontend uses the generated `app/.env` API URL to call the backend.
+3. All data operations flow through: Frontend -> Backend -> Database.
 
-**No API exists on the frontend** - it's purely a client consuming backend APIs.
+The frontend does not own the generated API. It consumes the backend API.
 
 > **Learn More**:
 > - [Architecture Overview](../architecture-overview.md) - Understand the system architecture
 > - [Getting Started Guide](./getting-started.md) - Next steps after installation
 > - [Table Creation Guide](./table-creation.md) - Create your first table
 
-#### Backend Configuration Prompts
+#### Configuration Prompts
 
 When you run:
 
 ```bash
-npx @enfyra/create-server <project-name>
+npx @enfyra/create <project-name>
 ```
 
-the CLI will ask you a series of configuration questions. Enter the values that match your environment.
+the CLI asks for the settings needed to create both applications.
 
-| Prompt                                | Description                                                         |
-| ------------------------------------- | ------------------------------------------------------------------- |
-| **Package manager**                   | Select the package manager you want to use (`npm`, `yarn`, `bun`)   |
-| **Project name**                      | Name of the backend project (if not passed as a CLI argument)       |
-| **Database type**                     | Type of database (`MySQL`, `PostgreSQL`, `MongoDB`). MariaDB users select `MySQL`. |
-| **Database host**                     | Hostname or IP address of your database                             |
-| **Database port**                     | Port number of your database (e.g. `3306` for MySQL)                |
-| **Database username**                 | Database user account                                               |
-| **Database password**                 | Database password (can be left empty)                               |
-| **Database name**                     | Name of the database to connect to / create                         |
-| **Configure database pool settings?** | Whether to configure advanced connection-pool settings (Yes/No)     |
-| **Redis URI**                         | URI of your Redis instance (e.g. `redis://user:pass@host:port`)     |
-| **Application port**                  | Port where the Enfyra backend will run (default `1105`)             |
-| **Admin email**                       | Initial admin email used to log into the dashboard                  |
-| **Admin password**                    | Initial admin password                                              |
+| Prompt | Description |
+| ------ | ----------- |
+| **Package manager** | Select the package manager to use for both `app` and `server` (`npm`, `yarn`, or `pnpm`). |
+| **Project name** | Name of the generated workspace, if not passed as a CLI argument. |
+| **Database type** | Type of database (`MySQL`, `PostgreSQL`, or `MongoDB`). MariaDB users select `MySQL`. |
+| **Database URI** | SQL connection URI, such as `mysql://user:password@localhost:3306/enfyra` or `postgresql://postgres:password@localhost:5432/enfyra`. |
+| **MongoDB URI** | MongoDB connection URI when MongoDB is selected. |
+| **Setup read replica?** | Optional SQL read replica configuration. |
+| **Replica URI** | SQL replica connection URI when read replicas are enabled. |
+| **Redis URI** | URI of your Redis instance, such as `redis://localhost:6379`. |
+| **Admin email** | Initial admin email used to log into the dashboard. |
+| **Admin password** | Initial admin password. |
 
->  If any of the database or Redis connection details are invalid, the CLI will prompt you to re-enter them or cancel setup.
+The CLI validates the database and Redis connections before creating the project. If a connection fails, it asks whether to re-enter the connection details, continue anyway, or exit setup.
 
-> **Note**: The CLI will generate a `DB_URI` connection string in your `.env` file (e.g., `mysql://user:pass@host:port/database`). You can also manually set `DB_URI` instead of using separate host/port/username/password/name fields.
+After you confirm creation, the CLI will:
 
-> **Important - `SECRET_KEY`**: `@enfyra/create-server` generates a random `SECRET_KEY` in `.env`. Keep this value stable and backed up for production. It signs auth tokens and derives the encryption key for columns marked `isEncrypted=true`; changing or losing it invalidates existing tokens and prevents Enfyra from decrypting stored encrypted field values. All server instances for the same Enfyra app must use the same `SECRET_KEY`.
+* Download the Enfyra app and server.
+* Generate `app/.env` and `server/.env`.
+* Connect the app to the local server URL.
+* Install dependencies separately inside `server/` and `app/`.
+* Generate root convenience scripts for local development and self-hosting.
 
-> **Important - Password with Special Characters**: If your database password contains special characters (such as `@`, `:`, `/`, `%`, `#`, `?`, `&`), you must URL-encode them in the `DB_URI`. For example:
-> - Password `p@ssw0rd`  Use `p%40ssw0rd` in URI
-> - Password `pass:word`  Use `pass%3Aword` in URI
+> **Important - `SECRET_KEY`**: The CLI generates a random `SECRET_KEY` in `server/.env`. Keep this value stable and backed up for production. It signs auth tokens and derives the encryption key for columns marked `isEncrypted=true`; changing or losing it invalidates existing tokens and prevents Enfyra from decrypting stored encrypted field values. All server instances for the same Enfyra app must use the same `SECRET_KEY`.
+
+> **Important - Password with Special Characters**: If your database password contains special characters (such as `@`, `:`, `/`, `%`, `#`, `?`, `&`), URL-encode them in the database URI. For example:
+> - Password `p@ssw0rd` -> Use `p%40ssw0rd` in URI
+> - Password `pass:word` -> Use `pass%3Aword` in URI
 > - Common encodings: `@` = `%40`, `:` = `%3A`, `/` = `%2F`, `%` = `%25`, `#` = `%23`, `?` = `%3F`, `&` = `%26`
 
 > **Database replication (optional, SQL only)**  
-> Add `DB_REPLICA_URIS` (comma-separated URIs) so read queries round-robin across healthy replicas. Writes still use `DB_URI` (master). Set `DB_READ_FROM_MASTER=true` if reads should also participate in round-robin against the master (default is replicas-only for reads).
->
+> Add replica URI values during setup so read queries can round-robin across healthy replicas. Writes still use the main database URI.
 
-**The backend will run at http://localhost:1105 by default.**
+#### Running The Workspace
 
-After you finish answering the prompts, the CLI will:
-
-* Validate database and Redis connections.
-* Generate an `.env` file with your answers (using `DB_URI` format).
-* Ask for confirmation before scaffolding the project.
-
-Then run your new backend:
+From the workspace root:
 
 ```bash
-cd <project-name>
-npm run dev
-```
-(or use `yarn dev` / `bun run dev` depending on the package manager you selected. Use `yarn debug` for Node inspector mode.)
-
-> **Next Steps**:
-> - [Getting Started Guide](./getting-started.md) - Learn the interface and create your first table
-> - [Table Creation Guide](./table-creation.md) - Complete guide to creating tables with all field types
-> - [Server Documentation](../server/README.md) - Advanced backend configuration and API development
-
-#### Frontend Configuration Prompts
-
-When you run:
-
-```bash
-npx @enfyra/create-app <project-name>
-```
-
-the CLI will ask you a series of configuration questions for the frontend application. Enter the values that match your environment.
-
-| Prompt                                | Description                                                         |
-| ------------------------------------- | ------------------------------------------------------------------- |
-| **Package manager**                   | Select the package manager you want to use (`npm`, `yarn`, `pnpm`) |
-| **API base URL**                      | **CRITICAL**: Base URL of your backend API server that generates all APIs (must include `http://` or `https://`) |
-| **App port**                          | Port where the Enfyra frontend will run (default `3000`)           |
-
->  **Important**: The API base URL must point to your **backend server** (usually `http://localhost:1105`). The frontend app will make HTTP requests to this URL to consume APIs. All REST & GraphQL endpoints are served by your backend, not the frontend.
-
-After you finish answering the prompts, the CLI will:
-
-* Validate the API URL format.
-* Generate an `.env` file with your configuration.
-* Scaffold the frontend project with your selected package manager.
-
-Then run your new frontend:
-
-```bash
-cd <project-name>
 npm run dev
 ```
 
-(or use `yarn dev` / `pnpm dev` / `bun dev` depending on the package manager you selected.)
+`npm run dev` starts the server first, waits for port `1105` to accept connections, and then starts the app. Use the matching package manager command if you selected Yarn or pnpm:
+
+```bash
+yarn dev
+pnpm run dev
+```
+
+You can also run one side at a time:
+
+```bash
+npm run dev:server
+npm run dev:app
+```
+
+#### Building And Starting
+
+Build both applications from the workspace root:
+
+```bash
+npm run build
+```
+
+The root build script runs the server build first, then the app build. To run the production outputs:
+
+```bash
+npm run start
+```
+
+The start script also starts the server first and then the app after the server port is ready.
 
 > **Next Steps**:
 > - [Getting Started Guide](./getting-started.md) - Learn the interface and create your first table
 > - [Table Creation Guide](./table-creation.md) - Complete guide to creating tables with all field types
 > - [Data Management Guide](./data-management.md) - Learn to manage records and relationships
 > - [App Documentation](../app/README.md) - Frontend features and customization guides
+> - [Server Documentation](../server/README.md) - Advanced backend configuration and API development

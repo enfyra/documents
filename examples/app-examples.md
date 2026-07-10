@@ -81,6 +81,36 @@ registerHeaderActions({
 </script>
 ```
 
+### Register Menu And Account Notifications
+
+```vue
+<script setup>
+const unread = ref(0)
+const count = computed(() => unread.value > 0 ? String(unread.value) : null)
+
+const { register: registerAccountPanel } = useAccountPanelRegistry()
+registerAccountPanel({
+  id: "notifications",
+  label: "Notifications",
+  icon: computed(() => unread.value > 0 ? "" : ""),
+  count,
+  badgeColor: "error",
+  order: 20
+})
+
+const { register: registerMenuNotification } = useMenuNotificationRegistry()
+watchEffect(() => {
+  registerMenuNotification({
+    id: "notifications-menu",
+    target: { path: "/notifications" },
+    value: count.value,
+    color: unread.value > 0 ? "error" : "neutral",
+    title: "Unread notifications"
+  })
+})
+</script>
+```
+
 ### Gate A Button By Permission
 
 ```vue
@@ -110,7 +140,10 @@ registerHeaderActions({
 ```vue
 <template>
   <UButton type="button" @click="open = true">Open</UButton>
-  <CommonModal v-model:open="open">
+  <CommonModal
+    v-model:open="open"
+    :cancel-action="{ label: 'Close', tone: 'neutral', onClick: () => (open = false) }"
+  >
     <template #body>Modal content</template>
   </CommonModal>
 </template>

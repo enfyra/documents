@@ -181,7 +181,7 @@ enfyra-docs/
 ├──  architecture-overview.md  # How Enfyra works: app, server, data, auth, realtime, and flow examples
 ├──  getting-started/
 │   ├── README.md              # Getting started overview and quick navigation
-│   ├── installation.md          # Setup guide for backend and app
+│   ├── installation.md          # Setup guide for Docker or the app + server workspace
 │   ├── getting-started.md       # First steps after installation and interface overview
 │   ├── table-creation.md        # Complete guide to creating tables with all field types
 │   └── data-management.md       # Complete guide to managing records in your tables
@@ -298,7 +298,7 @@ enfyra-docs/
 **Ready to master Enfyra?** Follow this step-by-step path to become proficient:
 
 ###  Phase 1: Setup & Basics (30 mins)
-1. **[Installation](./getting-started/installation.md)** - Set up Enfyra backend and app
+1. **[Installation](./getting-started/installation.md)** - Set up the Enfyra app + server workspace
 2. **[Architecture Overview](./architecture-overview.md)** - Understand how Enfyra turns metadata into APIs, auth, realtime events, and workflows
 3. **[Getting Started](./getting-started/getting-started.md)** - First login and interface overview
 4. **[Table Creation](./getting-started/table-creation.md)** - Create your first table with all field types and relations, including `onDelete` cascade behavior
@@ -358,7 +358,7 @@ enfyra-docs/
 ** Getting Started**
 - **[Enfyra Cloud](./cloud/)** - Managed hosting, project isolation, checkout, and headroom model
 - **[Getting Started Overview](./getting-started/)** - Setup path and quick navigation for first-time users
-- **[Installation](./getting-started/installation.md)** - Setup guide for backend and app
+- **[Installation](./getting-started/installation.md)** - Setup guide for Docker or the app + server workspace
 - **[First Login and Interface Overview](./getting-started/getting-started.md)** - First steps after installation and interface overview
 - **[Table Creation](./getting-started/table-creation.md)** - Complete guide to creating tables with all field types
 - **[Data Management](./getting-started/data-management.md)** - Complete guide to managing records in your tables
@@ -410,14 +410,14 @@ enfyra-docs/
 
 ## Installation
 
-Enfyra requires both backend and frontend to work properly. See our complete installation guide:
+Enfyra requires both the backend server and the admin app to work properly. The manual installer creates both inside one workspace. See the complete installation guide:
 
 **[ Complete Installation Guide](./getting-started/installation.md)**
 
 Quick overview:
-1. First install Enfyra Server
-2. Then install Enfyra App  
-3. Connect them together
+1. Run `npx @enfyra/create <project-name>`
+2. Answer the package manager, database, Redis, and admin prompts
+3. Run `npm run dev` from the generated workspace
 
 ## Contributing
 

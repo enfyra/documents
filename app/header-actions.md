@@ -738,7 +738,7 @@ interface HeaderAction {
 }
 ```
 
-### useHeaderActionRegistry()
+### Header Action Registry
 
 ```typescript
 const { register: registerHeaderActions } = useHeaderActionRegistry();
@@ -746,7 +746,7 @@ const { register: registerHeaderActions } = useHeaderActionRegistry();
 registerHeaderActions(actionOrActions)
 ```
 
-### useSubHeaderActionRegistry()
+### Sub Header Action Registry
 
 ```typescript
 const { register: registerSubHeaderActions } = useSubHeaderActionRegistry();

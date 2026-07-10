@@ -91,8 +91,32 @@ Do not use the buffer form for large request uploads or database backups. For la
 | `storageConfig` | `number \| { id: number }` | No | Storage configuration relation |
 | `title` | `string` | No | File title |
 | `description` | `string` | No | File description |
+| `isPublic` | `boolean` | No | Allow anonymous access through `/assets/:id` when true |
 
 Pass either `file` or `buffer`, never both.
+
+### HTTP Upload Progress
+
+`$upload` and blob-replacing `$update` do not accept `onProgress`. Upload progress is owned by the authenticated multipart request layer.
+
+When a browser or API client uploads a file, generate a client-side id and send it as `x-enfyra-upload-id`. Enfyra emits `$system:upload:progress` to the current user's admin Socket.IO room.
+
+Payload:
+
+```javascript
+{
+  uploadId: "client-generated-id",
+  phase: "receiving", // receiving, completed, or failed
+  loaded: 1024,
+  total: 2048,
+  percent: 50,
+  fileName: "avatar.png",
+  route: "/profile/avatar",
+  method: "POST"
+}
+```
+
+This built-in event covers multipart receiving only. Storage or cloud-provider transfer progress is not exposed by default.
 
 ## Update Files
 
@@ -121,6 +145,7 @@ const updated = await @STORAGE.$update(@PARAMS.fileId, {
   title: @BODY.title,
   description: @BODY.description,
   folder: @BODY.folder,
+  isPublic: @BODY.isPublic,
 });
 
 return updated;
@@ -137,6 +162,12 @@ return { success: true };
 ```
 
 Deletion removes the `enfyra_file` record and the physical object from the configured storage backend.
+
+## Public Asset Access
+
+`enfyra_file.isPublic` controls anonymous access to stored assets. Set `isPublic: true` only when the asset can be served without authentication through `/assets/:id` or the app proxy equivalent. Use `isPublic: false` or omit it for private files that should require authenticated access.
+
+This file-level public access flag is separate from column and relation visibility. Columns and relations still use `isPublished` as the field-permission baseline; file records use `isPublic`.
 
 ## Validation Pattern
 

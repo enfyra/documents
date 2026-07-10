@@ -4,7 +4,7 @@ This section covers everything that runs in the Enfyra **admin app (port 3000)**
 
 The app is a **pure API client**: it never connects directly to your database. All data comes from the **Enfyra Server (port 1105)** via HTTP APIs.
 
-> **New to Enfyra?** Start with the [Installation Guide](../getting-started/installation.md) to set up your backend and frontend.
+> **New to Enfyra?** Start with the [Installation Guide](../getting-started/installation.md) to set up your app + server workspace.
 
 ## Quick Navigation
 
