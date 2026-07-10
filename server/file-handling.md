@@ -95,6 +95,29 @@ Do not use the buffer form for large request uploads or database backups. For la
 
 Pass either `file` or `buffer`, never both.
 
+### HTTP Upload Progress
+
+`$upload` and blob-replacing `$update` do not accept `onProgress`. Upload progress is owned by the authenticated multipart request layer.
+
+When a browser or API client uploads a file, generate a client-side id and send it as `x-enfyra-upload-id`. Enfyra emits `$system:upload:progress` to the current user's admin Socket.IO room.
+
+Payload:
+
+```javascript
+{
+  uploadId: "client-generated-id",
+  phase: "receiving", // receiving, completed, or failed
+  loaded: 1024,
+  total: 2048,
+  percent: 50,
+  fileName: "avatar.png",
+  route: "/profile/avatar",
+  method: "POST"
+}
+```
+
+This built-in event covers multipart receiving only. Storage or cloud-provider transfer progress is not exposed by default.
+
 ## Update Files
 
 Use `$ctx.$storage.$update` or `@STORAGE.$update`.

@@ -92,11 +92,13 @@ PATCH /api/post/1
 DELETE /api/post/1
 ```
 
-There is no dynamic `GET /api/post/1`. To fetch one record, filter by the primary key:
+There is no dynamic `GET /api/post/1`. To fetch one record on a SQL backend, filter by its `id` primary key:
 
 ```http
 GET /api/post?filter={"id":{"_eq":1}}&limit=1
 ```
+
+MongoDB collections conventionally use `_id` instead.
 
 ## Request Flow
 

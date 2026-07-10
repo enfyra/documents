@@ -27,20 +27,21 @@ You'll see the table creation form with these sections:
 
 ### Columns Configuration
 
-**Columns** - Add fields to your table (an "id" field is added by default as primary key with auto increment)
+**Columns** - Add fields to your table. Enfyra adds the database-appropriate primary key automatically.
 - Click green **"+ Add Column"** button to add new fields
 - Configure column properties in the drawer:
 
-#### Default ID Field
+#### Default Primary Key
 
-**Every table automatically gets an `id` field with these properties:**
+For SQL backends, every table automatically gets an `id` field with these properties:
+
 - **Type**: `int` (integer)
 - **Primary Key**: Yes
-- **Auto Increment**: Yes (automatically increments for each new record)
-- **Nullable**: No (required field)
-- **Updatable**: No (system managed)
+- **Auto Increment**: Yes
+- **Nullable**: No
+- **Updatable**: No
 
-You can change the id field type to `uuid` if you prefer UUID identifiers, but `int` with auto-increment is the default and recommended for most use cases.
+For MongoDB, every collection automatically gets an `_id` primary field with the `ObjectId` type. The primary field is system-managed in both cases.
 
 #### Column Properties
 
@@ -75,7 +76,7 @@ You can change the id field type to `uuid` if you prefer UUID identifiers, but `
 | `uuid` | Auto-generated UUID (sets isGenerated to true automatically) | Unique identifiers |
 | `varchar` | Variable length text | Names, titles, short text |
 | `text` | Long text content | Descriptions, articles |
-| `int`, `bigint`, `number` | Numeric values. **Note**: When used for `id` field, automatically becomes auto-increment primary key | Prices, quantities, IDs |
+| `int`, `bigint`, `number` | Numeric values. On SQL backends, the generated `id` field is an auto-increment primary key | Prices, quantities, IDs |
 | `boolean` | True/false values | Flags, status indicators |
 | `date`, `timestamp` | Date/time values | Created dates, deadlines |
 | `enum` | Single selection from predefined options | Status, categories |

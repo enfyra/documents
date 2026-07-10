@@ -50,12 +50,17 @@ return created.data?.[0] || null;
 const form = new FormData();
 form.append('file', fileInput.files[0]);
 
+const uploadId = crypto.randomUUID();
+
 await fetch('/enfyra/profile/avatar', {
   method: 'POST',
+  headers: { 'x-enfyra-upload-id': uploadId },
   body: form,
   credentials: 'include'
 });
 ```
+
+Listen for `$system:upload:progress` on the authenticated admin socket and match events by `uploadId`.
 
 ## Public Profile Read
 

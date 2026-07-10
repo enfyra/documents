@@ -1,6 +1,6 @@
 # MCP Server
 
-Use `@enfyra/mcp-server` to connect MCP-compatible coding tools to an Enfyra instance. The server exposes focused tools for metadata discovery, schema changes, routes, handlers, hooks, permissions, flows, websocket events, files, packages, menus, extensions, logs, and runtime checks.
+Use `@enfyra/mcp-server` to connect MCP-compatible coding tools to an Enfyra instance. The server exposes focused tools for schema changes, routes, handlers, hooks, permissions, flows, websocket events, files, packages, menus, extensions, logs, and runtime checks.
 
 ## Install And Configure
 
