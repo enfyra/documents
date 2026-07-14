@@ -176,7 +176,7 @@ Once saved, Enfyra automatically sets up several things for your new table:
 
 ### 1. API Endpoints Generated on Backend
 
-- REST and GraphQL APIs are instantly available on your **backend server** (port 1105)
+- REST APIs are available immediately. GraphQL is available only after you enable GraphQL for that table.
 - **4 CRUD endpoints** are automatically created:
   - `GET /[your-table-name]` - List all records
   - `POST /[your-table-name]` - Create new record

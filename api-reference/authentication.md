@@ -26,21 +26,14 @@ Authenticate with email and password through the Enfyra app proxy. In SSR/cookie
 **Response (200):**
 ```json
 {
-  "statusCode": 200,
-  "message": "Success",
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-    "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
-    "expTime": 900,
-    "user": {
-      "id": 1,
-      "email": "admin@example.com",
-      "name": "Admin",
-      "role": { "id": 1, "name": "Admin" }
-    }
-  }
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
+  "expTime": 1735689600000,
+  "loginProvider": null
 }
 ```
+
+`POST /login` also sets httpOnly cookies on the app origin. For a token-managed client, call `{appUrl}/api/auth/login` instead; it returns the same JSON but does not provide the app's cookie-session convenience.
 
 **Example:**
 ```bash
@@ -58,6 +51,8 @@ Use `{appUrl}/api/auth/login` only when you intentionally want the raw backend t
 Invalidate the current session (refresh token).
 
 **URL:** `{appUrl}/api/auth/logout`
+
+For a manual token client, send the access token as `Authorization: Bearer …` and the refresh token in the JSON body. Browser apps should use `{appUrl}/api/logout`; it reads the httpOnly cookies and clears them after the server invalidates the session.
 
 **Request Body:**
 ```json
@@ -90,14 +85,14 @@ Get a new access token using a refresh token.
 **Response (200):**
 ```json
 {
-  "statusCode": 200,
-  "message": "Success",
-  "data": {
-    "accessToken": "eyJhbGciOiJIUzI1NiIs...",
-    "expTime": 900
-  }
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
+  "expTime": 1735689600000,
+  "loginProvider": null
 }
 ```
+
+Replace both stored tokens with the response values. Refresh-token rotation invalidates the token you submitted.
 
 ---
 
@@ -138,7 +133,7 @@ https://demo.enfyra.io/api/auth/google?redirect=https%3A%2F%2Fchat.example.com%2
 - The client should pass the page it wants to return to after login.
 - For Nuxt, Next, and other SSR apps, start OAuth on the Enfyra app URL, such as `{enfyraAppUrl}/api/auth/:provider`, and pass `redirect` plus `cookieBridgePrefix`.
 - If `enfyra_oauth_config.autoSetCookies = true`, the backend redirects through `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, sets auth cookies for that origin through the proxy response, then redirects to `redirect`. If `cookieBridgePrefix` is omitted, the prefix defaults to `/api`.
-- If `enfyra_oauth_config.autoSetCookies = false`, the backend redirects to `enfyra_oauth_config.appCallbackUrl` with `accessToken`, `refreshToken`, `expTime`, `loginProvider`, and `redirect` on the query string.
+- If `enfyra_oauth_config.autoSetCookies = false`, the backend redirects to `enfyra_oauth_config.appCallbackUrl` with a short-lived, single-use `code` and `redirect` on the query string. It never places tokens in the URL.
 
 ---
 
@@ -147,7 +142,7 @@ https://demo.enfyra.io/api/auth/google?redirect=https%3A%2F%2Fchat.example.com%2
 OAuth callback. The provider redirects here after the user authorizes. The backend exchanges the code for tokens and then:
 
 - redirects through the app proxy `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies` when `autoSetCookies = true`, or
-- redirects to `appCallbackUrl` with tokens on the query string when `autoSetCookies = false`.
+- redirects to `appCallbackUrl` with a one-time exchange `code` when `autoSetCookies = false`.
 
 **URL:** `{appUrl}/api/auth/{provider}/callback?code=...&state=...`
 
@@ -172,7 +167,7 @@ https://demo.enfyra.io/api/auth/google?redirect=https%3A%2F%2Fchat.example.com%2
 After the provider callback, Enfyra redirects to:
 
 ```text
-https://chat.example.com/enfyra/auth/set-cookies?accessToken=...&refreshToken=...&expTime=...&loginProvider=google&redirect=https%3A%2F%2Fchat.example.com%2Fchat
+https://chat.example.com/enfyra/auth/set-cookies?code=...&redirect=https%3A%2F%2Fchat.example.com%2Fchat
 ```
 
 That URL is still proxied to Enfyra. Enfyra responds with `Set-Cookie` on the third app origin and redirects to the original `redirect`.
@@ -190,6 +185,33 @@ Then call:
 ```text
 https://admin.enfyra.com/api/auth/google?redirect=https%3A%2F%2Fclient.example.com%2Fafter-login
 ```
+
+The callback receives `?code=...&redirect=...`. Your server must exchange the code immediately; do not put the returned tokens into browser URLs, logs, or local storage.
+
+## POST /auth/oauth/exchange
+
+Exchange the short-lived, single-use code from an OAuth callback for tokens. This endpoint is intended for the trusted server of an external application when `autoSetCookies = false`.
+
+**URL:** `{appUrl}/api/auth/oauth/exchange`
+
+```bash
+curl -X POST https://admin.enfyra.com/api/auth/oauth/exchange \
+  -H "Content-Type: application/json" \
+  -d '{"code":"CODE_FROM_THE_CALLBACK"}'
+```
+
+**Response (200):**
+
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIs...",
+  "expTime": 1735689600000,
+  "loginProvider": "google"
+}
+```
+
+The code expires after 10 minutes and is consumed by the first successful exchange. Treat the returned tokens as credentials.
 
 ---
 

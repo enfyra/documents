@@ -68,14 +68,14 @@ export default defineNuxtConfig({
 
 For complete Nuxt, Next.js, SvelteKit, and Remix setup, see [SSR Frameworks](../integrations/ssr-frameworks.md).
 
-**Public endpoints** (no auth required):
+**Unauthenticated entry endpoints:**
 
 - `POST /api/login`
-- `POST /api/auth/login` only for manual token clients
-- `POST /api/auth/logout`
-- `POST /api/auth/refresh-token`
+- `POST /api/auth/login` for manual token clients
 - `GET /api/auth/:provider` (OAuth redirect)
 - `GET /api/auth/:provider/callback` (OAuth callback)
+
+`POST /api/auth/refresh-token` requires a valid refresh token in its body. `POST /api/auth/logout` requires both the refresh token and the authenticated user context. They are auth-maintenance endpoints, not anonymous application APIs.
 
 ## Response Format
 

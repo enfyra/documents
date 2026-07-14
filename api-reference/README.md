@@ -45,7 +45,7 @@ curl "http://localhost:3000/api/products?limit=10" \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
-### JavaScript / fetch (Token-Based)
+### JavaScript / fetch (Cookie-Based, Recommended For Browsers)
 
 ```javascript
 const appUrl = 'http://localhost:3000';
@@ -61,22 +61,22 @@ const response = await fetch(`${appUrl}/api/login`, {
 const products = await fetch(`${appUrl}/api/products?limit=20`).then(r => r.json());
 ```
 
-### JavaScript / fetch (Cookie-Based)
+### Token-Based Client
 
-Cookie-based authentication automatically handles tokens via HTTP-only cookies for enhanced security:
+Use a token client only when you deliberately manage credentials outside a browser cookie session. Login through `/api/auth/login`, store tokens in your own secure credential store, then send the access token explicitly.
 
 ```javascript
 const appUrl = 'http://localhost:3000';
 
-// Login - cookies are automatically set by server
-const response = await fetch(`${appUrl}/api/login`, {
+const login = await fetch(`${appUrl}/api/auth/login`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ email: 'user@example.com', password: 'password' })
-});
+}).then(r => r.json());
 
-// Fetch your data - browser automatically sends cookies
-const products = await fetch(`${appUrl}/api/products?limit=20`).then(r => r.json());
+const products = await fetch(`${appUrl}/api/products?limit=20`, {
+  headers: { Authorization: `Bearer ${login.accessToken}` },
+}).then(r => r.json());
 ```
 
 For Nuxt, Next, or another SSR app, proxy all Enfyra calls through your app origin. The Enfyra app commonly uses `/api`; third apps can use a prefix such as `/enfyra` and forward it to the Enfyra app `/api` base. Use `{prefix}/login` for password login. For OAuth, start at `{prefix}/auth/{provider}?redirect=<absoluteReturnUrl>&cookieBridgePrefix=<prefix>` and enable Enfyra OAuth set-cookie mode. Enfyra redirects through `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, returns `Set-Cookie` for that app origin, then redirects to `redirect`. For framework setup, see [SSR Frameworks](../integrations/ssr-frameworks.md).
