@@ -16,6 +16,16 @@
 
  **Live Demo**: [https://demo.enfyra.io/](https://demo.enfyra.io/) - Pre-filled admin credentials, just click login!
 
+## Start With Your Goal
+
+Choose the path that matches what you want to do today:
+
+- **I want to build my first app in Enfyra** — start with [Build Your First App](./getting-started/first-app.md). You will create data, add a record, and verify a generated API before learning advanced schema options.
+- **I want to connect an existing frontend or mobile app** — start with [API Reference](./api-reference/README.md), then [SSR Frameworks](./integrations/ssr-frameworks.md) if your app needs cookie-based authentication.
+- **I want to run Enfyra myself** — start with [Installation](./getting-started/installation.md), then [Docker](./docker/README.md) for deployment configuration.
+
+Once you have a working first result, use the capability map and learning paths below to go deeper.
+
 **What can you build with Enfyra?**
 
 - **E-commerce platforms** - Products, orders, customers, inventory
@@ -291,8 +301,8 @@ enfyra-docs/
 ###  Quick Start (5 mins)
 **Just want to see what Enfyra can do?**
 1.  **[Try Live Demo](https://demo.enfyra.io/)** - Pre-filled admin credentials, just click login!
-2.  **[Enfyra Cloud](./cloud/)** - Use managed hosting when you do not want to run your own infrastructure
-3.  **[Getting Started](./getting-started/)** - Follow the setup, first login, table creation, and data management path
+2.  **[Build Your First App](./getting-started/first-app.md)** - Create data and call a generated API.
+3.  **[Enfyra Cloud](./cloud/)** - Use managed hosting when you do not want to run your own infrastructure.
 
 ###  Full Learning Path
 **Ready to master Enfyra?** Follow this step-by-step path to become proficient:

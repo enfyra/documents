@@ -49,7 +49,9 @@ This single command will:
 
 **Access the application:**
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:1105
+- API through the app proxy: http://localhost:3000/api/me
+
+The server also listens on port `1105` **inside the container**, but the quick-start command does not publish that port to your host. This is intentional: browser and app clients should use the app-origin `/api` proxy. If you need the raw server for a local integration or diagnostic, add `-p 1105:1105` to the command and call `http://localhost:1105` explicitly.
 
 **Default credentials:**
 - Admin Email: `enfyra@admin.com`
@@ -72,11 +74,28 @@ If you need to connect to the embedded database or Redis from external tools:
 docker run -d \
   --name enfyra \
   -p 3000:3000 \
-  -p 5432:5432 \  # PostgreSQL
-  -p 6379:6379 \  # Redis
+  -p 5432:5432 \
+  -p 6379:6379 \
   -v enfyra-data:/app/data \
   enfyra/enfyra:latest
 ```
+
+#### Before Using Docker In Production
+
+Do not deploy with the image defaults. Set a unique admin password and a long, stable `SECRET_KEY` before the first start. Keep the key in your secret manager: it signs sessions and is needed to decrypt values stored with `isEncrypted=true`.
+
+```bash
+docker run -d \
+  --name enfyra \
+  -p 3000:3000 \
+  -e ADMIN_EMAIL=admin@example.com \
+  -e ADMIN_PASSWORD='use-a-unique-long-password' \
+  -e SECRET_KEY='store-a-long-random-secret-outside-this-command-in-production' \
+  -v enfyra-data:/app/data \
+  enfyra/enfyra:latest
+```
+
+After the container starts, open `http://localhost:3000`, sign in, and verify the app is healthy before connecting an external client. For production networking, TLS, backups, external database/Redis, and reverse-proxy guidance, see [Docker](../docker/README.md).
 
 #### Docker with MySQL (Embedded)
 

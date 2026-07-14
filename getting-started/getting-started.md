@@ -46,11 +46,11 @@ Once logged in, you'll see the main Enfyra interface with several key components
 - Mobile/Tablet: Collapsed by default, overlay when opened
 - Toggle button to show/hide full sidebar menu
 
-## Next Steps: Create Your First Table
+## Next Step: Build A Working First App
 
-Now that you're familiar with the interface, it's time to create your first table and start building your application.
+Do not try to learn every collection option before seeing a result. Follow the short guided path to create a collection, enter a record, and call its generated API.
 
-** [Table Creation Guide](./table-creation.md)** - Complete step-by-step guide to creating tables with all field types, relations, and constraints.
+**[Build Your First App](./first-app.md)** - The recommended next step for a new Enfyra user.
 
 This comprehensive guide covers:
 - **Table creation workflow** - Step-by-step process
@@ -58,10 +58,11 @@ This comprehensive guide covers:
 - **Advanced features** - Constraints, indexes, and relationships
 - **What happens after creation** - Automatic API generation and integration
 
-After creating your table, you'll have:
+After completing it, you'll have:
 - **4 automatic CRUD endpoints** on your backend server
 - **Frontend integration** in the Data section
 - **Full API access** for external applications
 
 **Then continue with:**
+- **[Table Creation](./table-creation.md)** - All field types, relations, indexes, and constraints.
 - **[Data Management](./data-management.md)** - Learn to add, edit, and manage records in your tables
