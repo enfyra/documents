@@ -1,18 +1,42 @@
-# MCP Server
+# Use Enfyra with an AI coding assistant
 
-Use `@enfyra/mcp-server` to connect MCP-compatible coding tools to an Enfyra instance. The server exposes focused tools for schema changes, routes, handlers, hooks, permissions, flows, websocket events, files, packages, menus, extensions, logs, and runtime checks.
+Enfyra MCP connects your Enfyra project to MCP-compatible coding assistants such as Codex, Claude Code, Cursor, VS Code with GitHub Copilot, and Google Antigravity. Once connected, you can ask the assistant to inspect and change your project using normal language instead of copying schemas, API responses, or configuration between tools.
 
-## Install And Configure
+## What you can do
 
-From the project you want the coding agent to work in:
+Use Enfyra MCP to:
+
+- Explore tables, relations, routes, permissions, flows, extensions, and runtime configuration.
+- Create or update data models while preserving existing project structure.
+- Build and test custom API endpoints, handlers, hooks, and automations.
+- Create admin pages and widgets that follow the current Enfyra theme.
+- Investigate permission errors, failed requests, logs, and runtime behavior.
+- Verify a change against the running Enfyra instance before considering it complete.
+
+The assistant reads the live project, so its work is based on the instance you connected rather than a stale description of your schema.
+
+## Before you start
+
+You need:
+
+1. An Enfyra instance you can open in the browser.
+2. A programmatic API token from **Account → API tokens** in Enfyra Admin.
+3. An MCP-compatible coding tool.
+4. A local project folder where the assistant will work.
+
+Use a token with only the permissions required for that project. Keep separate tokens for development and production.
+
+## Connect your project
+
+Open a terminal in the project folder and run:
 
 ```bash
 npx @enfyra/mcp-server config
 ```
 
-The config helper writes project-local MCP config for Codex, Claude Code, Cursor, VS Code / GitHub Copilot, and Google Antigravity. It asks for the Enfyra app/admin URL and a programmatic API token from the Enfyra admin UI `/me`.
+The setup asks for your Enfyra URL and API token, then writes the correct project-local configuration for the detected coding tool.
 
-For non-interactive setup:
+For automated setup:
 
 ```bash
 npx @enfyra/mcp-server config --yes \
@@ -20,94 +44,118 @@ npx @enfyra/mcp-server config --yes \
   --api-token efy_pat_your-token
 ```
 
-The helper derives the runtime API base from the app URL. Normal apps and demos should point at the app/admin URL, not a hidden backend host.
+Use the URL you normally open for Enfyra Admin. After configuration, restart or reload your coding tool so it can discover the new MCP server.
 
-## Authentication
+## Confirm the connection
 
-`ENFYRA_API_TOKEN` is not used directly as a Bearer JWT. The MCP server exchanges it through:
+Start with a read-only request in your coding assistant:
 
-```text
-POST {ENFYRA_API_URL}/auth/token/exchange
-```
+> Check which Enfyra instance is connected, then list the main tables in this project. Do not change anything.
 
-The exchanged short-lived access token is used for authenticated MCP tool calls. If the access token expires or is rejected, the MCP server exchanges the API token again.
+Confirm that the reported URL and tables belong to the intended environment before asking for changes.
 
-Non-root API tokens can use admin helper tools when the backing admin route has ordinary route permission. Use `get_permission_profile`, `audit_route_access`, and `ensure_route_access` to inspect or grant access.
+## Common workflows
 
-## Required Knowledge Handshake
+### Understand an existing project
 
-Before an agent saves dynamic server code or Enfyra extension code, it must call:
+Ask for an overview before changing an unfamiliar project:
 
-```text
-get_enfyra_required_knowledge
-```
+> Review this Enfyra project and explain its main tables, relations, public API routes, permissions, and automations. Highlight anything that needs attention, but do not modify it yet.
 
-That tool returns required contracts and acknowledgement keys. Code-writing tools verify those keys before saving:
+### Create a data model
 
-- Pass `dynamicCodeAckKey` as `knowledgeAckKey` when saving handlers, hooks, websocket event scripts, script or condition flow steps, and script-backed records.
-- Pass `extensionAckKey` as `extensionKnowledgeAckKey` when saving page, widget, or global extension code.
+Describe the business model and important constraints instead of specifying low-level metadata:
 
-Discovery, validation, and preview tools do not require the acknowledgement. This lets the agent inspect the instance, read required contracts, validate source, and preview patches before it saves anything.
+> Add `projects` and `project_members` so a project can have many members. Prevent duplicate membership, keep existing data unchanged, and verify the relations after applying the change.
 
-## Dynamic Repository Paths
+The assistant can inspect the current schema, choose compatible field types, apply the change, and verify the result.
 
-Dynamic scripts have two repository trust paths:
+### Build an API endpoint
 
-- `@REPOS.main` is the secure repository for the current route main table.
-- `@REPOS.secure.<table>` is the secure explicit-table repository for public or user-facing custom handlers, hooks, websocket scripts, flows that return data, and third-party app integrations.
-- `@REPOS.<table>` is the trusted internal repository for server-owned maintenance or admin logic that intentionally needs hidden fields.
+Describe who may call the endpoint and which records they may access:
 
-Do not return raw trusted-repository records to users. If trusted access is necessary, project or sanitize the response before returning it.
+> Create an endpoint that returns the signed-in user's active projects. A user must only see projects where they are a member. Test both an allowed request and an unauthorized request.
 
-Repository choice does not replace authorization. Handlers and hooks still need route access, owner or tenant filters, membership checks, and explicit mutation checks.
+Authorization requirements are part of the feature. Do not rely on route availability alone when records are owned by users, teams, or tenants.
 
-## Hidden Field Query Surfaces
+### Create an automation
 
-Unpublished fields and private relations are sensitive even when the value is not selected. User-facing APIs should not expose:
+Describe the trigger, action, and failure behavior:
 
-- Filters that act as predicate oracles over hidden fields.
-- Aggregate values such as `sum`, `avg`, `max`, or `min` over hidden fields.
-- Sort helpers such as `_max(relation.field)`, `_min(relation.field)`, or `_count(relation)` over private relations unless the endpoint intentionally exposes that fact.
+> When an order becomes paid, create an invoice record and notify the operations team. Make the flow safe to retry and show me the final flow structure before enabling it.
 
-If a normal REST read returns an `isPublished=false` field through `fields`, dotted relation fields, or `deep`, treat it as an Enfyra core bug and confirm the minimal REST repro.
+### Add an admin page or widget
 
-## Extension Rules
+Explain the job the interface should help users complete:
 
-Before writing or reviewing page, widget, or global extension UI, call:
+> Add an admin page for reviewing pending orders. Include filters for date and status, use the current Enfyra theme, and only show actions the signed-in user is allowed to perform.
 
-```text
-get_extension_theme_contract
-```
+### Diagnose a problem
 
-Call `get_theme_class_reference` when the exact `eapp-*` class or Nuxt UI color mapping matters.
+Provide the failing URL, visible error, and expected behavior:
 
-Extension code should follow the Enfyra app shell:
+> Requests to `/api/projects` return 403 for the editor role. Inspect the route, role permissions, and record-level authorization, then explain the cause. Do not change permissions until the cause is confirmed.
 
-- Use `eapp-surface-*`, `eapp-text-*`, `eapp-divide-y`, and `eapp-divider` for neutral surfaces.
-- Use `eapp-primary-*` or Nuxt UI `primary` only for runtime-primary identity or accent intent.
-- Use semantic state colors only for real status, warning, success, info, or error indicators.
-- Use `useMenuNotificationRegistry` for sidebar menu counts/dots and `useAccountPanelRegistry` `count`/`badgeColor` fields for account panel notifications.
-- Do not hard-code concrete palettes such as `color="violet"` for themeable UI.
-- Do not use raw CSS variable utilities when an app token class exists.
-- Do not add root-level page padding; page extensions already render inside the Enfyra admin shell.
-- Save extensions as Vue SFC records in `enfyra_extension.code`; do not use static import statements.
+## Writing effective requests
 
-## Recommended Tool Flow
+A useful request states:
 
-For custom API work:
+- The outcome you want.
+- The users or roles involved.
+- Which existing data or behavior must remain unchanged.
+- Important authorization or tenant boundaries.
+- How the result should be tested.
+- Whether the assistant may apply changes or should only prepare a plan.
 
-1. Call `inspect_route`, `inspect_table`, or `discover_script_contexts`.
-2. Call `get_enfyra_required_knowledge`.
-3. Validate source with `validate_dynamic_script`.
-4. Use `api_endpoint_workflow` or the focused route/handler/hook tool.
-5. Test behavior with `test_rest_endpoint`, `run_admin_test`, or `test_flow_step`.
+For larger work, ask the assistant to inspect the current project first and apply the change only after it can describe the affected tables, routes, and permissions.
 
-For extension work:
+## Work safely
 
-1. Call `get_extension_theme_contract`.
-2. Call `get_theme_class_reference` when exact classes are needed.
-3. Call `get_enfyra_required_knowledge`.
-4. Validate source with `validate_extension_code`.
-5. Save with `ensure_page_extension`, `ensure_widget_extension`, or `ensure_global_extension`.
+- Confirm the connected environment before every production change.
+- Use separate project-local configurations for different repositories or environments.
+- Ask for a preview before deleting tables, fields, routes, or data.
+- Keep backups before destructive schema changes or large data migrations.
+- Give production tokens the minimum permissions required.
+- Revoke a token immediately if it is exposed in logs, source control, or chat.
+- Test authorization with both an allowed user and a user who must be denied.
 
-Use the most specific operation tool available before falling back to generic record CRUD.
+## Switch environments
+
+MCP configuration is stored in the current project. To point the project at another Enfyra instance, run the configuration command again with the new URL and token, then restart the coding tool.
+
+Do not reuse one production token across unrelated local projects.
+
+## Troubleshooting
+
+### Enfyra tools do not appear
+
+Restart the coding tool after running the configuration command. Confirm that the generated MCP configuration is inside the current project and that Node.js can run `npx`.
+
+### Authentication fails
+
+Create a new programmatic API token in Enfyra Admin and run the configuration command again. Check that the Enfyra URL belongs to the same instance that issued the token.
+
+### A read or change is denied
+
+The connection is working, but the token's user or role does not have the required route or table permission. Grant only the missing permission, then retry the original request.
+
+### The assistant sees an old schema
+
+Ask it to refresh the relevant table or route metadata. If you changed the MCP configuration, restart the coding tool before retrying.
+
+### A large task is difficult to review
+
+Split the request by outcome: schema, API behavior, automation, interface, then final end-to-end verification. Keep each step independently testable.
+
+## Advanced configuration
+
+The setup command manages these values for you:
+
+| Setting | Purpose |
+|---|---|
+| `ENFYRA_APP_URL` | The Enfyra URL you open in the browser. |
+| `ENFYRA_API_URL` | The API base derived from the app URL. |
+| `ENFYRA_API_TOKEN` | The programmatic token used to authenticate the connection. |
+| `ENFYRA_MCP_TOOLSET` | Optional tool visibility mode; the default guided mode is recommended. |
+
+Use the full toolset only for advanced debugging or compatibility work. It exposes lower-level operations that are usually unnecessary for normal project development.

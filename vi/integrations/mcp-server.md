@@ -2,21 +2,45 @@
 slug: may-chu-mcp
 ---
 
-# MCP Server
+# Sử dụng Enfyra với trợ lý lập trình AI
 
-Dùng `@enfyra/mcp-server` để kết nối coding tool hỗ trợ MCP với Enfyra instance. Server cung cấp tool chuyên biệt cho schema change, route, handler, hook, permission, flow, websocket event, file, package, menu, extension, log và runtime check.
+Enfyra MCP kết nối dự án Enfyra với các trợ lý lập trình hỗ trợ MCP như Codex, Claude Code, Cursor, VS Code với GitHub Copilot và Google Antigravity. Sau khi kết nối, bạn có thể yêu cầu trợ lý tìm hiểu hoặc thay đổi dự án bằng ngôn ngữ tự nhiên, không cần tự sao chép schema, response API hay cấu hình qua lại giữa các công cụ.
 
-## Cài đặt và cấu hình
+## Bạn có thể làm gì?
 
-Trong project mà coding agent sẽ làm việc:
+Enfyra MCP có thể hỗ trợ bạn:
+
+- Tìm hiểu bảng, quan hệ, route, phân quyền, flow, extension và cấu hình runtime.
+- Tạo hoặc cập nhật mô hình dữ liệu mà không làm ảnh hưởng cấu trúc hiện có.
+- Xây dựng và kiểm thử API tùy chỉnh, handler, hook và tác vụ tự động.
+- Tạo trang quản trị hoặc widget phù hợp với theme hiện tại của Enfyra.
+- Điều tra lỗi phân quyền, request thất bại, log và hành vi runtime.
+- Kiểm tra thay đổi trực tiếp trên Enfyra trước khi hoàn tất công việc.
+
+Trợ lý đọc trạng thái thực tế của dự án đang kết nối, vì vậy kết quả không phụ thuộc vào một bản mô tả schema đã cũ.
+
+## Chuẩn bị
+
+Bạn cần:
+
+1. Một Enfyra instance có thể mở trên trình duyệt.
+2. Programmatic API token tại **Tài khoản → API token** trong Enfyra Admin.
+3. Một công cụ lập trình hỗ trợ MCP.
+4. Thư mục project nơi trợ lý sẽ làm việc.
+
+Chỉ cấp cho token những quyền thực sự cần thiết. Nên dùng token riêng cho môi trường development và production.
+
+## Kết nối project
+
+Mở terminal tại thư mục project rồi chạy:
 
 ```bash
 npx @enfyra/mcp-server config
 ```
 
-Config helper ghi MCP config cục bộ cho Codex, Claude Code, Cursor, VS Code / GitHub Copilot và Google Antigravity. Nó hỏi Enfyra app/admin URL cùng programmatic API token lấy từ `/me` trong Enfyra admin UI.
+Trình cấu hình sẽ hỏi URL Enfyra và API token, sau đó tạo cấu hình cục bộ phù hợp với công cụ lập trình đang dùng.
 
-Thiết lập không tương tác:
+Nếu cần cấu hình tự động:
 
 ```bash
 npx @enfyra/mcp-server config --yes \
@@ -24,75 +48,118 @@ npx @enfyra/mcp-server config --yes \
   --api-token efy_pat_your-token
 ```
 
-Helper tự suy ra runtime API base từ app URL. App và demo thông thường phải trỏ đến app/admin URL, không phải hidden backend host.
+Hãy dùng URL bạn thường mở để truy cập Enfyra Admin. Sau khi cấu hình, khởi động lại hoặc reload công cụ lập trình để công cụ nhận MCP server mới.
 
-## Xác thực
+## Kiểm tra kết nối
 
-`ENFYRA_API_TOKEN` không được dùng trực tiếp như Bearer JWT. MCP server đổi token qua:
+Bắt đầu bằng một yêu cầu chỉ đọc:
 
-```text
-POST {ENFYRA_API_URL}/auth/token/exchange
-```
+> Kiểm tra Enfyra instance đang kết nối, sau đó liệt kê các bảng chính trong project. Không thay đổi dữ liệu hay cấu hình.
 
-Access token ngắn hạn sau exchange được dùng cho MCP tool call đã xác thực. Khi token hết hạn hoặc bị từ chối, MCP server đổi API token lại.
+Hãy chắc chắn URL và các bảng được trả về thuộc đúng môi trường trước khi yêu cầu trợ lý thực hiện thay đổi.
 
-Non-root API token có thể dùng admin helper tool nếu admin route tương ứng có ordinary route permission. Dùng `get_permission_profile`, `audit_route_access`, `ensure_route_access` để kiểm tra hoặc cấp quyền.
+## Các tình huống sử dụng phổ biến
 
-## Required knowledge handshake
+### Tìm hiểu một project có sẵn
 
-Trước khi agent lưu dynamic server code hoặc Enfyra extension code, phải gọi:
+Nên yêu cầu tổng quan trước khi thay đổi một project chưa quen thuộc:
 
-```text
-get_enfyra_required_knowledge
-```
+> Rà soát project Enfyra này và giải thích các bảng, quan hệ, public API, phân quyền và tác vụ tự động chính. Chỉ ra những điểm cần lưu ý nhưng chưa thay đổi gì.
 
-```text
-get_extension_theme_contract
-```
+### Tạo mô hình dữ liệu
 
-Tool trả required contract và acknowledgement key. Code-writing tool kiểm tra key trước khi lưu:
+Mô tả nghiệp vụ và ràng buộc quan trọng thay vì tự chỉ định metadata cấp thấp:
 
-- Truyền `dynamicCodeAckKey` làm `knowledgeAckKey` khi lưu handler, hook, websocket event script, script/condition flow step và script-backed record.
-- Truyền `extensionAckKey` làm `extensionKnowledgeAckKey` khi lưu page, widget hoặc global extension code.
+> Thêm `projects` và `project_members` để một project có thể có nhiều thành viên. Không cho phép trùng thành viên, giữ nguyên dữ liệu hiện có và kiểm tra lại các quan hệ sau khi áp dụng.
 
-Discovery, validation và preview không cần acknowledgement; agent vẫn có thể inspect instance, đọc contract, validate source và preview patch trước khi lưu.
+Trợ lý có thể đọc schema hiện tại, chọn kiểu dữ liệu tương thích, thực hiện thay đổi và xác minh kết quả.
 
-## Dynamic repository path
+### Xây dựng API
 
-- `@REPOS.main`: secure repository cho main table của route hiện tại.
-- `@REPOS.secure.<table>`: secure explicit-table repository cho public/user-facing custom handler, hook, websocket script, flow trả data và third-party integration.
-- `@REPOS.<table>`: trusted internal repository cho server-owned maintenance hoặc admin logic cần hidden field.
+Nêu rõ ai được gọi API và họ được phép truy cập những bản ghi nào:
 
-Không trả raw trusted-repository record cho user. Khi cần trusted access, hãy project hoặc sanitize response trước khi trả. Lựa chọn repository không thay thế authorization: handler/hook vẫn cần route access, owner/tenant filter, membership check và mutation check tường minh.
+> Tạo endpoint trả về các project đang hoạt động của người dùng đã đăng nhập. Người dùng chỉ được thấy project mà họ là thành viên. Kiểm thử cả trường hợp hợp lệ và trường hợp không có quyền.
 
-## Hidden field query surface
+Phân quyền là một phần của tính năng. Với dữ liệu thuộc người dùng, nhóm hoặc tenant, chỉ mở quyền truy cập route là chưa đủ.
 
-Unpublished field và private relation nhạy cảm kể cả khi giá trị không được chọn. API hướng tới user không nên lộ filter dùng làm predicate oracle trên hidden field, aggregate (`sum`, `avg`, `max`, `min`) trên hidden field hoặc sort helper `_max(relation.field)`, `_min(relation.field)`, `_count(relation)` trên private relation trừ khi endpoint chủ ý lộ thông tin đó.
+### Tạo tác vụ tự động
 
-Nếu REST read bình thường trả `isPublished=false` qua `fields`, dotted relation field hoặc `deep`, coi đó là Enfyra core bug và xác nhận minimal REST repro.
+Mô tả trigger, hành động và cách xử lý khi có lỗi:
 
-## Quy tắc extension
+> Khi đơn hàng chuyển sang trạng thái đã thanh toán, tạo bản ghi hóa đơn và thông báo cho nhóm vận hành. Flow phải an toàn khi chạy lại. Cho tôi xem cấu trúc cuối cùng trước khi bật flow.
 
-Trước khi viết/review page, widget hoặc global extension UI, gọi `get_extension_theme_contract`; khi cần exact `eapp-*` class hoặc Nuxt UI color mapping, gọi `get_theme_class_reference`.
+### Thêm trang quản trị hoặc widget
 
-Extension nên theo app shell: dùng `eapp-surface-*`, `eapp-text-*`, `eapp-divide-y`, `eapp-divider` cho surface trung tính; dùng `eapp-primary-*` hoặc Nuxt UI `primary` cho runtime-primary identity/accent; semantic color chỉ cho trạng thái thật. Dùng `useMenuNotificationRegistry` cho sidebar count/dot và `useAccountPanelRegistry` `count`/`badgeColor` cho account notification. Không hard-code palette như `color="violet"`, không dùng raw CSS variable utility khi app token class đã có, không thêm root-level page padding và lưu extension như Vue SFC trong `enfyra_extension.code`, không dùng static import.
+Tập trung vào công việc mà giao diện cần hỗ trợ:
 
-## Luồng tool khuyến nghị
+> Thêm trang quản trị để duyệt các đơn hàng đang chờ xử lý. Có bộ lọc theo ngày và trạng thái, dùng theme hiện tại của Enfyra và chỉ hiển thị những thao tác người dùng có quyền thực hiện.
 
-Với custom API:
+### Điều tra lỗi
 
-1. Gọi `inspect_route`, `inspect_table` hoặc `discover_script_contexts`.
-2. Gọi `get_enfyra_required_knowledge`.
-3. Validate source bằng `validate_dynamic_script`.
-4. Dùng `api_endpoint_workflow` hoặc route/handler/hook tool chuyên biệt.
-5. Test bằng `test_rest_endpoint`, `run_admin_test` hoặc `test_flow_step`.
+Cung cấp URL bị lỗi, thông báo nhìn thấy và hành vi mong đợi:
 
-Với extension:
+> Request đến `/api/projects` trả 403 với role editor. Kiểm tra route, quyền của role và điều kiện truy cập bản ghi, sau đó giải thích nguyên nhân. Chưa thay đổi quyền cho đến khi xác định được nguyên nhân.
 
-1. Gọi `get_extension_theme_contract`.
-2. Khi cần, gọi `get_theme_class_reference`.
-3. Gọi `get_enfyra_required_knowledge`.
-4. Validate bằng `validate_extension_code`.
-5. Lưu với `ensure_page_extension`, `ensure_widget_extension` hoặc `ensure_global_extension`.
+## Cách viết yêu cầu hiệu quả
 
-Ưu tiên operation tool chuyên biệt trước khi fallback về generic record CRUD.
+Một yêu cầu rõ ràng nên nêu:
+
+- Kết quả cần đạt được.
+- Người dùng hoặc role liên quan.
+- Dữ liệu và hành vi hiện có cần được giữ nguyên.
+- Ranh giới phân quyền hoặc tenant quan trọng.
+- Cách kiểm tra kết quả.
+- Trợ lý được phép áp dụng thay đổi hay chỉ cần chuẩn bị phương án.
+
+Với công việc lớn, hãy yêu cầu trợ lý đọc project trước. Chỉ nên áp dụng thay đổi sau khi trợ lý xác định được các bảng, route và quyền sẽ bị ảnh hưởng.
+
+## Làm việc an toàn
+
+- Xác nhận đúng môi trường trước mỗi thay đổi trên production.
+- Dùng cấu hình cục bộ riêng cho từng project hoặc môi trường.
+- Yêu cầu xem trước khi xóa bảng, field, route hoặc dữ liệu.
+- Sao lưu trước khi thay đổi schema có tính phá vỡ hoặc chạy data migration lớn.
+- Chỉ cấp cho production token những quyền cần thiết.
+- Thu hồi token ngay nếu token xuất hiện trong log, source control hoặc nội dung trao đổi.
+- Luôn kiểm thử bằng cả người dùng được phép và người dùng phải bị từ chối.
+
+## Chuyển môi trường
+
+Cấu hình MCP được lưu trong project hiện tại. Muốn chuyển sang Enfyra instance khác, hãy chạy lại lệnh cấu hình với URL và token mới, sau đó khởi động lại công cụ lập trình.
+
+Không nên dùng chung một production token cho nhiều project cục bộ không liên quan.
+
+## Xử lý sự cố
+
+### Không thấy công cụ Enfyra
+
+Khởi động lại công cụ lập trình sau khi chạy lệnh cấu hình. Kiểm tra file cấu hình MCP đã được tạo trong đúng project và Node.js có thể chạy `npx`.
+
+### Xác thực thất bại
+
+Tạo programmatic API token mới trong Enfyra Admin rồi chạy lại lệnh cấu hình. URL Enfyra phải thuộc đúng instance đã cấp token.
+
+### Không có quyền đọc hoặc thay đổi
+
+Kết nối đã hoạt động nhưng người dùng hoặc role của token chưa có quyền với route hay bảng cần thiết. Chỉ bổ sung quyền còn thiếu rồi thử lại yêu cầu ban đầu.
+
+### Trợ lý vẫn thấy schema cũ
+
+Yêu cầu trợ lý tải lại metadata của bảng hoặc route liên quan. Nếu vừa thay đổi cấu hình MCP, hãy khởi động lại công cụ lập trình trước khi thử lại.
+
+### Công việc lớn khó kiểm soát
+
+Chia yêu cầu theo kết quả: schema, hành vi API, flow, giao diện và cuối cùng là kiểm tra end-to-end. Mỗi phần nên có thể kiểm thử độc lập.
+
+## Cấu hình nâng cao
+
+Lệnh cấu hình sẽ tự quản lý các giá trị sau:
+
+| Thiết lập | Mục đích |
+|---|---|
+| `ENFYRA_APP_URL` | URL Enfyra bạn mở trên trình duyệt. |
+| `ENFYRA_API_URL` | API base được suy ra từ URL của ứng dụng. |
+| `ENFYRA_API_TOKEN` | Programmatic token dùng để xác thực kết nối. |
+| `ENFYRA_MCP_TOOLSET` | Chế độ hiển thị công cụ; nên giữ chế độ guided mặc định. |
+
+Chỉ dùng full toolset khi cần debug nâng cao hoặc xử lý vấn đề tương thích. Chế độ này hiển thị thêm các thao tác cấp thấp thường không cần thiết trong quá trình phát triển thông thường.
