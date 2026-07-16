@@ -2,7 +2,7 @@
 slug: ung-dung
 ---
 
-# Tài liệu về ứng dụng Enfyra (Giao diện người dùng)
+# Ứng dụng
 
 Phần này hướng dẫn các phần chạy trong **ứng dụng quản trị Enfyra (cổng 3000)**: giao diện, tiện ích mở rộng, biểu mẫu, quyền và cách ứng dụng giao tiếp với backend.
 

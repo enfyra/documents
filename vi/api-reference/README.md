@@ -2,11 +2,11 @@
 slug: tham-chieu-api
 ---
 
-# Tài liệu tham chiếu API
+# API
 
-Hướng dẫn **xây dựng ứng dụng** với Enfyra API. Dùng các endpoint này để xác thực người dùng, đọc và thay đổi dữ liệu, cũng như làm việc với file từ frontend riêng, ứng dụng mobile hoặc dịch vụ bên ngoài.
+Hướng dẫn **xây dựng ứng dụng** với Enfyra API. Dùng các endpoint này để xác thực người dùng, đọc và thay đổi dữ liệu, cũng như làm việc với file từ frontend riêng, ứng dụng di động hoặc dịch vụ bên ngoài.
 
-Mọi API request đều dùng **URL của app** với prefix `/api`.
+Mọi yêu cầu API đều dùng **URL của ứng dụng** với prefix `/api`.
 
 ## Base URL
 
@@ -19,7 +19,7 @@ Mọi API request đều dùng **URL của app** với prefix `/api`.
 - Môi trường development: `http://localhost:3000/api/me`
 - Production: `https://your-app.enfyra.com/api/products`
 
-Enfyra App proxy request đến backend, vì vậy ứng dụng của bạn gọi `{appUrl}/api/...`; không cần giao tiếp trực tiếp với backend.
+Enfyra App chuyển tiếp yêu cầu đến backend, vì vậy ứng dụng của bạn chỉ cần gọi `{appUrl}/api/...` mà không phải giao tiếp trực tiếp với backend.
 
 ## Điều hướng nhanh
 
@@ -29,7 +29,7 @@ Enfyra App proxy request đến backend, vì vậy ứng dụng của bạn gọ
 | **Xác thực** | Đăng nhập, đăng xuất, refresh token, OAuth, `/me` | [authentication.md](./authentication.md) |
 | **CRUD** | Liệt kê, tạo, cập nhật, xóa bản ghi | [crud-operations.md](./crud-operations.md) |
 | **Tham số query** | `filter`, `fields`, `sort`, `limit`, `page` | [query-parameters.md](./query-parameters.md) |
-| **File và Storage** | Upload file, liệt kê folder, tải asset | [file-storage.md](./file-storage.md) |
+| **Tệp và lưu trữ** | Tải file lên, liệt kê folder, phân phối asset | [file-storage.md](./file-storage.md) |
 
 ## Dùng API
 
@@ -96,8 +96,8 @@ Với Nuxt, Next hoặc app SSR khác, hãy proxy mọi lệnh gọi Enfyra qua 
 ## Những gì bạn có
 
 - **Auth** — Đăng nhập, đăng xuất, refresh token, OAuth (Google, Facebook, GitHub).
-- **Table của bạn** — Mỗi table tạo ra có CRUD endpoint (ví dụ `/products`, `/orders`).
+- **Table của bạn** — Mỗi table tạo ra có các endpoint CRUD (ví dụ `/products`, `/orders`).
 - **Query** — Lọc, sắp xếp và phân trang bằng operator theo kiểu MongoDB.
-- **File** — Upload, sắp xếp trong folder và phân phối asset.
+- **File** — Tải lên, sắp xếp trong folder và phân phối asset.
 
 Để quản trị và cấu hình Enfyra (route, hook, handler, v.v.), xem [Tài liệu Server](../server/README.md).

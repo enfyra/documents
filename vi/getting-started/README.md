@@ -2,7 +2,7 @@
 slug: bat-dau
 ---
 
-# Bắt đầu với Enfyra
+# Bắt đầu
 
 Phần này hướng dẫn bạn cài đặt Enfyra, đăng nhập lần đầu, tạo dữ liệu và kiểm tra API sinh tự động.
 

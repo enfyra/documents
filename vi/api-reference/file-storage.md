@@ -2,9 +2,9 @@
 slug: tham-chieu-api/tep-va-luu-tru
 ---
 
-# File và Storage
+# Tệp và lưu trữ
 
-Dùng các endpoint này để tải file lên, sắp xếp chúng theo folder và phân phối asset từ ứng dụng. Base URL: `{appUrl}/api`
+Dùng các endpoint này để tải file lên, sắp xếp theo folder và phân phối asset từ ứng dụng. Base URL: `{appUrl}/api`
 
 ## File
 
@@ -22,7 +22,7 @@ Dùng `multipart/form-data` với field `file`. Khi cần, thêm `folder`, `titl
 POST {appUrl}/api/enfyra_file
 ```
 
-### Lấy metadata / cập nhật / xóa file
+### Lấy metadata, cập nhật hoặc xóa file
 
 ```
 GET    {appUrl}/api/enfyra_file?filter={"id":{"_eq":123}}&limit=1
@@ -67,4 +67,4 @@ Phân phối file theo ID (ảnh, PDF, v.v.):
 GET {appUrl}/api/assets/{id}
 ```
 
-Endpoint trả về dữ liệu nhị phân của file với `Content-Type` phù hợp. File công khai có thể được phân phối không cần xác thực khi `enfyra_file.isPublic=true`; file riêng tư phải đi qua luồng request đã xác thực thông thường.
+Endpoint trả về dữ liệu nhị phân của file với `Content-Type` phù hợp. File công khai có thể được phân phối không cần xác thực khi `enfyra_file.isPublic=true`; file riêng tư phải đi qua luồng yêu cầu đã xác thực thông thường.
