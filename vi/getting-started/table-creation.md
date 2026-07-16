@@ -10,16 +10,16 @@ Hướng dẫn này đi từ việc tạo bảng đầu tiên đến những gì
 
 ## Mở màn hình tạo bảng
 
-1. Click **Collections** ở sidebar.
-2. Click **+ Create New Table** trong panel bên trái.
+1. Chọn **Collections** trên thanh bên.
+2. Chọn **+ Create New Table** trong khu vực bên trái.
 
 ## Quan trọng: thứ tự tạo
 
 Để relation hoạt động, tạo theo thứ tự đúng:
 
 1. **Tạo target table trước.** Muốn quan hệ `Post → Category` thì tạo `Category` trước `Post`.
-2. **Thêm cột trước constraint.** Unique constraint và index cần cột có sẵn để tham chiếu.
-3. **Thêm cột/relation trước constraint.** Cả unique constraint lẫn index đều cần field có sẵn.
+2. **Thêm cột và relation.** Khai báo đầy đủ các field mà constraint hoặc index sẽ tham chiếu.
+3. **Tạo constraint và index sau cùng.** Chỉ chọn những field đã tồn tại.
 
 ## Form tạo bảng
 
@@ -32,7 +32,7 @@ Hướng dẫn này đi từ việc tạo bảng đầu tiên đến những gì
 
 **Columns** là các field của bảng. Enfyra tự thêm primary key phù hợp database.
 
-- Click **+ Add Column** để thêm field.
+- Chọn **+ Add Column** để thêm field.
 - Cấu hình property của cột trong drawer.
 
 #### Primary key mặc định
@@ -88,14 +88,14 @@ Với MongoDB, mọi collection tự có primary field `_id` kiểu `ObjectId`. 
 #### Unique constraint
 
 - Chỉ hiện sau khi đã thêm cột.
-- Click **+ Add** để tạo nhóm constraint.
+- Chọn **+ Add** để tạo nhóm constraint.
 - Chọn một hay nhiều field phải unique cùng nhau.
 - Tạo unique constraint tự tạo index, không cần index riêng cho cùng các field.
 
 #### Index
 
 - Chỉ hiện sau khi đã thêm cột và relation; có thể index cột lẫn relation field.
-- Click **+ Add** để tạo nhóm index.
+- Chọn **+ Add** để tạo nhóm index.
 - Chọn một hay nhiều field để index chung.
 - Không tạo index cho field đã có unique constraint.
 
@@ -103,7 +103,7 @@ Với MongoDB, mọi collection tự có primary field `_id` kiểu `ObjectId`. 
 
 - Chỉ hiện table đã tồn tại; luôn tạo target table trước.
 - Danh sách relation hiện type, target table và nullable status.
-- Click relation để sửa hoặc **+ Add Relation** để thêm.
+- Chọn relation để sửa hoặc **+ Add Relation** để thêm.
 - Trong drawer cấu hình: `type` (`one-to-one`, `one-to-many`, `many-to-one`, `many-to-many`), `propertyName`, `inversePropertyName` (tùy chọn, bắt buộc cho O2M), `targetTable`, `isNullable`, `description`.
 - Relation đã tạo xuất hiện như field có icon bút chì trong form; xem [Relation Picker System](../app/relation-picker.md).
 
@@ -125,7 +125,7 @@ Ví dụ: `user.profile` 1-1 `CASCADE` xóa user sẽ xóa profile và ngược 
 
 ## Lưu bảng
 
-Sau khi cấu hình, click **+ Create New Table** màu xanh ở góc trên bên phải.
+Sau khi cấu hình, chọn **+ Create New Table** màu xanh ở góc trên bên phải.
 
 ## Điều gì xảy ra sau khi tạo bảng
 
@@ -141,11 +141,11 @@ Sau khi cấu hình, click **+ Create New Table** màu xanh ở góc trên bên 
 
 ### 2. Route tự tạo
 
-Backend tự tạo `/[your-table-name]`, xử lý bốn CRUD operation. Vào **Settings > Routings** ở sidebar để xem các table route.
+Backend tự tạo `/[your-table-name]` và xử lý bốn thao tác CRUD. Vào **Settings > Routings** trên thanh bên để xem các route của table.
 
 ### 3. Tích hợp frontend
 
-Bảng mới xuất hiện trong **Data** ở sidebar. Frontend gọi backend API để tương tác dữ liệu; click **Data** để thấy bảng và thêm record.
+Bảng mới xuất hiện trong **Data** trên thanh bên. Frontend gọi backend API để tương tác dữ liệu; chọn **Data** để mở bảng và thêm record.
 
 ## Bước tiếp theo và thực hành tốt
 

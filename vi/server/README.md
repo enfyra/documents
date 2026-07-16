@@ -2,7 +2,7 @@
 slug: may-chu-enfyra
 ---
 
-# Tài liệu Enfyra Server
+# Server
 
 Tài liệu này bao quát kiến trúc, API và hướng dẫn phát triển của Enfyra server. Nội dung được tổ chức để giúp bạn tìm thông tin nhanh, dù bạn đang học những điều cơ bản hay tra cứu chi tiết cụ thể.
 

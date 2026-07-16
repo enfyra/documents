@@ -2,11 +2,11 @@
 slug: tong-quan-kien-truc
 ---
 
-# Tổng quan kiến trúc
+# Kiến trúc
 
-Enfyra là nền tảng backend có thể lập trình. Bạn định nghĩa dữ liệu, route, permission, hook, handler, flow và realtime event bằng metadata; Enfyra biến metadata đó thành API đang chạy mà không cần restart server.
+Enfyra là nền tảng backend có thể lập trình. Bạn định nghĩa dữ liệu, route, quyền truy cập, hook, handler, flow và sự kiện realtime bằng metadata; Enfyra biến metadata đó thành API đang chạy mà không cần khởi động lại máy chủ.
 
-Trang này mô tả các thành phần chính và luồng request, dành cho builder muốn hiểu Enfyra trước khi xây app thực tế.
+Trang này mô tả các thành phần chính và luồng xử lý yêu cầu, dành cho người muốn hiểu Enfyra trước khi xây ứng dụng thực tế.
 
 ## Bức tranh tổng thể
 
@@ -26,7 +26,7 @@ Máy chủ Enfyra
 Cơ sở dữ liệu + Redis
 ```
 
-App là điểm truy cập công khai mà người dùng thường tương tác; server là runtime engine. Database lưu dữ liệu nghiệp vụ lẫn metadata Enfyra. Redis phối hợp cache, realtime fanout, queue và hoạt động đa instance.
+Enfyra App là điểm truy cập công khai mà người dùng thường tương tác; Enfyra Server là runtime xử lý phía sau. Cơ sở dữ liệu lưu cả dữ liệu nghiệp vụ lẫn metadata Enfyra. Redis phối hợp cache, realtime fanout, hàng đợi và hoạt động giữa nhiều instance.
 
 ## Thành phần chạy ở đâu
 
@@ -45,13 +45,13 @@ App không kết nối trực tiếp database.
 
 Server biến metadata thành thực thi:
 
-- Load definition table, route, permission, hook, handler, flow, websocket, storage và package.
-- Sinh REST endpoint cho route-backed table.
+- Nạp định nghĩa table, route, quyền truy cập, hook, handler, flow, WebSocket, storage và package.
+- Sinh REST endpoint cho các table có route.
 - Chạy route guard, pre-hook, handler, canonical CRUD, post-hook và field permission.
-- Chạy flow step, websocket event script, auth session, OAuth, refresh token, file upload, GraphQL và cache reload.
+- Chạy flow step, script sự kiện WebSocket, phiên đăng nhập, OAuth, refresh token, tải file, GraphQL và nạp lại cache.
 - Phối hợp nhiều instance qua Redis.
 
-Khi metadata thay đổi, server nạp lại runtime cache bị ảnh hưởng. Trong vận hành thông thường, không cần restart để thêm table, route, hook, handler, flow, extension hoặc WebSocket event.
+Khi metadata thay đổi, máy chủ nạp lại phần runtime cache bị ảnh hưởng. Trong vận hành thông thường, không cần khởi động lại để thêm table, route, hook, handler, flow, extension hoặc sự kiện WebSocket.
 
 ### Database và Redis
 
@@ -85,10 +85,10 @@ GET /api/post?filter={"id":{"_eq":1}}&limit=1
 
 MongoDB thường dùng `_id`.
 
-## Luồng request
+## Luồng xử lý yêu cầu
 
 ```text
-HTTP request
+Yêu cầu HTTP
   -> nhận diện route
   -> tra cứu auth/session
   -> guard và route permission
@@ -96,7 +96,7 @@ HTTP request
   -> handler tùy chỉnh hoặc CRUD mặc định
   -> post-hook
   -> lọc field theo permission
-  -> JSON response
+  -> phản hồi JSON
 ```
 
 Ví dụ tạo post:

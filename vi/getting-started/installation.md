@@ -7,19 +7,19 @@ slug: cai-dat
 ## Điều kiện cần có
 
 - **Node.js** >= 24.0.0 nếu cài thủ công
-- **Package manager** (`npm`, `yarn` hoặc `pnpm`)
-- **Database server** (MySQL, PostgreSQL hoặc MongoDB — MariaDB dùng protocol `mysql://`)
-- **Redis server**
+- **Trình quản lý package** (`npm`, `yarn` hoặc `pnpm`)
+- **Máy chủ cơ sở dữ liệu** (MySQL, PostgreSQL hoặc MongoDB — MariaDB dùng giao thức `mysql://`)
+- **Máy chủ Redis**
 
 Hoặc dùng Docker để có bộ all-in-one hoàn chỉnh, được khuyến nghị khi bắt đầu nhanh.
 
 ## Các cách cài đặt
 
-### Lựa chọn 0: Enfyra Cloud (managed hosting)
+### Lựa chọn 0: Enfyra Cloud (dịch vụ được quản lý)
 
-Nếu không muốn tự vận hành server, database, Redis, TLS, reverse proxy hoặc pipeline triển khai, hãy dùng Enfyra Cloud. Cloud tạo project Enfyra trên dashboard; mỗi project có ranh giới runtime riêng. Cloud quản lý năng lực của database, edge và các dịch vụ hỗ trợ dùng chung bằng ngưỡng dự phòng và cơ chế bảo vệ. Gói cao hơn dành mức năng lực vận hành lớn hơn cho từng project.
+Nếu không muốn tự vận hành máy chủ, cơ sở dữ liệu, Redis, TLS, reverse proxy hoặc pipeline triển khai, hãy dùng Enfyra Cloud. Cloud tạo dự án Enfyra từ dashboard; mỗi dự án có runtime riêng. Cloud điều phối tài nguyên cơ sở dữ liệu, edge và các dịch vụ hỗ trợ dùng chung bằng ngưỡng dự phòng cùng cơ chế bảo vệ. Gói cao hơn có thêm dư địa vận hành cho từng dự án.
 
-Dùng Cloud khi muốn xây app Enfyra mà không quản lý hạ tầng. Dùng Docker hoặc cài thủ công bên dưới nếu cần tự sở hữu runtime environment. Xem [Enfyra Cloud](../cloud/README.md) để biết mô hình hosting, luồng tạo project, checkout và khác biệt với self-hosting.
+Dùng Cloud khi muốn xây ứng dụng Enfyra mà không tự quản lý hạ tầng. Dùng Docker hoặc cài đặt thủ công bên dưới nếu cần toàn quyền kiểm soát môi trường runtime. Xem [Enfyra Cloud](../cloud/README.md) để hiểu mô hình vận hành, luồng tạo dự án, thanh toán và sự khác biệt với hình thức tự vận hành.
 
 ### Lựa chọn 1: Docker (khuyến nghị để bắt đầu nhanh)
 

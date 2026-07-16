@@ -188,7 +188,7 @@ Sau năm bước này, bạn đã có một mô hình dữ liệu hoạt động
 7. [Xác thực](./api-reference/authentication.md) — đăng nhập, refresh, OAuth và `/me`.
 8. [CRUD](./api-reference/crud-operations.md) — đọc và thay đổi dữ liệu.
 9. [Tham số truy vấn](./api-reference/query-parameters.md) — filter, fields, sort, page, limit và deep relation.
-10. [File và Storage](./api-reference/file-storage.md) — asset, thư mục và upload.
+10. [Tệp và lưu trữ](./api-reference/file-storage.md) — asset, folder và tải file lên.
 
 Nếu xây frontend riêng, đọc tiếp [Tích hợp API](./app/api-integration.md) và [SSR framework](./integrations/ssr-frameworks.md).
 
