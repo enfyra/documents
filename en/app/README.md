@@ -1,6 +1,8 @@
-# Enfyra App (Frontend) Documentation
+# Enfyra App and Extension Documentation
 
-This section covers everything that runs in the Enfyra **admin app (port 3000)** – the UI, extensions, forms, permissions, and how the app talks to the backend server.
+This section covers UI and extension work that runs inside **Enfyra Admin**: pages, widgets, forms, permissions, menus, header actions, and operator workflows.
+
+If you are building a separately deployed web app, mobile backend, CLI, or service, use the [SDK documentation](../sdk/README.md). SDK applications and Enfyra Admin extensions have different runtime APIs.
 
 The app is a **pure API client**: it never connects directly to your database. All data comes from the **Enfyra Server (port 1105)** via HTTP APIs.
 
@@ -8,8 +10,8 @@ The app is a **pure API client**: it never connects directly to your database. A
 
 ## Quick Navigation
 
-- **API Integration**
-  - **[API Integration](./api-integration.md)** – How to call backend APIs directly using `fetch` through `appUrl/api/` (e.g., `http://localhost:3000/api/enfyra_user`)
+- **Extension API Integration**
+  - **[API Integration](./api-integration.md)** – Call backend APIs from pages, widgets, and extensions running inside Enfyra Admin
 
 - **Extensions & Widgets**  
   - **[Extension System](./extension-system.md)** – Create custom pages, widgets, and global shell extensions with Vue components  
@@ -77,8 +79,10 @@ If you are **building on top of the Enfyra App UI**, this is a suggested order:
 
 - The **Server docs** (`../server/README.md`) describe **what APIs exist and how they behave**.  
 - The **App docs** (this folder) describe **how the admin app uses those APIs** through forms, tables, extensions, and permissions.
+- The **SDK docs** (`../sdk/README.md`) describe **how a separately deployed third-party application uses Enfyra as its backend**.
 
 When in doubt:
 
 - If you are asking **“Which endpoint / field / filter can I use?”** – go to the **server docs**.  
 - If you are asking **“How do I show this in the UI / extension?”** – stay in the **app docs**.
+- If you are asking **“How does my own Nuxt, Vue, React, Node.js, or mobile-facing service call Enfyra?”** – go to the **SDK docs**.

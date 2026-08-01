@@ -2,9 +2,11 @@
 slug: ung-dung
 ---
 
-# Ứng dụng
+# Enfyra App và Extension
 
-Phần này hướng dẫn các phần chạy trong **ứng dụng quản trị Enfyra (cổng 3000)**: giao diện, tiện ích mở rộng, biểu mẫu, quyền và cách ứng dụng giao tiếp với backend.
+Phần này hướng dẫn UI và extension chạy bên trong **Enfyra Admin**: page, widget, form, permission, menu, header action và operator workflow.
+
+Nếu bạn đang xây web app, backend cho mobile app, CLI hoặc service được deploy riêng, hãy dùng [tài liệu SDK](../sdk/README.md). SDK app và Enfyra Admin extension có runtime API khác nhau.
 
 Đây là một **API client**: ứng dụng không bao giờ kết nối trực tiếp với cơ sở dữ liệu. Mọi dữ liệu đều đến từ **Máy chủ Enfyra (cổng 1105)** qua HTTP API.
 
@@ -12,8 +14,8 @@ Phần này hướng dẫn các phần chạy trong **ứng dụng quản trị 
 
 ## Điều hướng nhanh
 
-- **Tích hợp API**
-  - **[Tích hợp API](./api-integration.md)** – Gọi API backend bằng `fetch` tới `appUrl/api/` (ví dụ: `http://localhost:3000/api/enfyra_user`)
+- **Tích hợp API trong extension**
+  - **[Tích hợp API](./api-integration.md)** – Gọi backend API từ page, widget và extension chạy bên trong Enfyra Admin
 
 - **Tiện ích mở rộng & Widget**  
   - **[Hệ thống tiện ích mở rộng](./extension-system.md)** – Tạo trang, widget tùy chỉnh và tiện ích mở rộng shell toàn cục bằng component Vue  
@@ -81,8 +83,10 @@ Nếu bạn đang **xây dựng trên giao diện người dùng ứng dụng En
 
 - **Tài liệu máy chủ** (`../server/README.md`) mô tả **những API tồn tại và cách chúng hoạt động**.  
 - **Tài liệu ứng dụng** (thư mục này) mô tả **cách ứng dụng quản trị viên sử dụng các API đó** thông qua biểu mẫu, bảng, tiện ích mở rộng và quyền.
+- **Tài liệu SDK** (`../sdk/README.md`) mô tả **cách third-party app được deploy riêng dùng Enfyra làm backend**.
 
 Khi nghi ngờ:
 
 - Nếu bạn hỏi **“Tôi có thể sử dụng điểm cuối/trường/bộ lọc nào?”** – hãy truy cập **tài liệu máy chủ**.  
 - Nếu bạn hỏi **“Làm cách nào để hiển thị thông tin này trong giao diện người dùng / tiện ích mở rộng?”** – hãy ở trong **tài liệu ứng dụng**.
+- Nếu bạn hỏi **“Nuxt, Vue, React, Node.js hoặc service riêng của tôi gọi Enfyra thế nào?”** – hãy đọc **tài liệu SDK**.

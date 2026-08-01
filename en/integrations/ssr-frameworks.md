@@ -1,6 +1,22 @@
 # SSR Frameworks
 
-Connect a Nuxt, Next.js, Angular, SvelteKit, or Remix app to Enfyra with same-origin REST, OAuth cookies, refresh-token support, and Socket.IO.
+Connect an SSR or CSR app to Enfyra with same-origin REST, OAuth cookies, refresh-token support, and Socket.IO.
+
+## Frameworks with SDK support — use the SDK instead of manual proxy setup
+
+If your app uses one of the frameworks below, start with the corresponding SDK package. Nuxt and Next.js configure their framework proxy for you. Vue and React remain CSR-only and still need a same-origin proxy; follow their SDK guides before using the manual reference below. Realtime availability and setup are package-specific.
+
+| Framework | Package | Guide |
+|---|---|---|
+| Nuxt 3/4 | `@enfyra/sdk-nuxt` | [SDK Nuxt](../sdk/nuxt.md) |
+| Next.js App Router | `@enfyra/sdk-next` | [SDK Next.js](../sdk/next.md) |
+| Vue 3 (CSR) | `@enfyra/sdk-vue` | [SDK Vue](../sdk/vue.md) |
+| React (CSR) | `@enfyra/sdk-react` | [SDK React](../sdk/react.md) |
+| Node.js / worker / edge | `@enfyra/sdk-core` | [SDK Core Client](../sdk/core-client.md) |
+
+Only continue reading below if your framework **does not have an SDK** (Angular, SvelteKit, Remix) or you need to understand the proxy/cookie mechanics that the SDK abstracts.
+
+---
 
 ## Integration Model
 
@@ -94,6 +110,8 @@ The user does not handle tokens manually.
 
 ## Nuxt
 
+> **SDK available:** If you are starting a new Nuxt project with Enfyra, use [`@enfyra/sdk-nuxt`](../sdk/nuxt.md) instead of manual proxy configuration. The section below is for understanding or customizing the proxy manually.
+
 Use `routeRules`.
 
 ```ts
@@ -117,6 +135,8 @@ export default defineNuxtConfig({
 `redirect: "manual"` keeps OAuth and set-cookie redirects under your app origin.
 
 ## Next.js
+
+> **SDK available:** If you are starting a new Next.js project with Enfyra, use [`@enfyra/sdk-next`](../sdk/next.md) instead of manual rewrites. The section below is for understanding or customizing the proxy manually.
 
 Use `rewrites()`.
 
@@ -151,6 +171,8 @@ const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/enfyra/me`, {
 ```
 
 ## Angular
+
+> **No SDK yet.** Angular does not have an Enfyra SDK package. Use the manual proxy configuration below.
 
 Use the Angular dev-server proxy for local development and configure the same routes in your production reverse proxy.
 
@@ -330,6 +352,8 @@ Route guards are for browser navigation only. Keep Enfyra route permissions, gua
 
 ## SvelteKit
 
+> **No SDK yet.** SvelteKit does not have an Enfyra SDK package. Use the manual server hook proxy below.
+
 Use a server hook for the REST/auth prefix.
 
 ```ts
@@ -363,6 +387,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 Configure your deployment proxy to forward `/socket.io/**` to `https://demo.enfyra.io/ws/socket.io/**`.
 
 ## Remix
+
+> **No SDK yet.** Remix does not have an Enfyra SDK package. Use the manual catch-all resource route below.
 
 Create a catch-all resource route for `/enfyra/*`.
 

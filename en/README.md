@@ -21,7 +21,7 @@
 Choose the path that matches what you want to do today:
 
 - **I want to build my first app in Enfyra** — start with [Build Your First App](./getting-started/first-app.md). You will create data, add a record, and verify a generated API before learning advanced schema options.
-- **I want to connect an existing frontend or mobile app** — start with [API Reference](./api-reference/README.md), then [SSR Frameworks](./integrations/ssr-frameworks.md) if your app needs cookie-based authentication.
+- **I want to connect an existing frontend or mobile app** — start with [Enfyra SDKs](./sdk/README.md), then use [API Reference](./api-reference/README.md) for the underlying REST contract.
 - **I want to run Enfyra myself** — start with [Installation](./getting-started/installation.md), then [Docker](./docker/README.md) for deployment configuration.
 
 Once you have a working first result, use the capability map and learning paths below to go deeper.
@@ -164,8 +164,11 @@ Database  Backend (API Server)  Frontend (Admin App)
 - **Dynamic Table Management** - Create and modify database tables on the fly
 - **Package Management** - Install and manage NPM packages directly from the UI for use in handlers and hooks
 - **Official SDKs**  
-  - Nuxt: `@enfyra/sdk-nuxt` ([docs](https://github.com/enfyra/sdk-nuxt)) – `useApi`, `useEnfyraAuth`, and related composables with custom error handling  
-  - Next.js: `@enfyra/sdk-next` ([docs](https://github.com/enfyra/sdk-next)) – API client and auth utilities for custom Next.js apps
+  - Core: `@enfyra/sdk-core` — framework-neutral client for Node.js, workers, and custom integrations
+  - Nuxt: `@enfyra/sdk-nuxt` — SSR-safe Nuxt 3/4 module and composables
+  - Next.js: `@enfyra/sdk-next` — App Router preset, providerless client hooks, and request-scoped server clients
+  - Vue and React: `@enfyra/sdk-vue` and `@enfyra/sdk-react` — CSR integrations
+  - See the [SDK package guide](./sdk/README.md) for setup and package selection.
 - **TypeScript Support** - Full type safety throughout the application
 
 ###  User Interface  
@@ -211,6 +214,19 @@ enfyra-docs/
 │   ├── README.md                # Framework integration overview
 │   └── ssr-frameworks.md        # Nuxt, Next.js, SvelteKit, Remix proxy/auth/realtime setup
 │
+├──  sdk/                         # Official SDKs for separately deployed third-party applications
+│   ├── README.md                 # Package selection and learning path
+│   ├── core-client.md            # Framework-neutral client setup and lifecycle
+│   ├── authentication.md         # Cookie, token, OAuth, API token, and public access
+│   ├── data-queries.md           # Query Builder, filters, relations, and CRUD
+│   ├── custom-http.md            # Custom routes, response transforms, fetch, and Axios
+│   ├── storage.md                # Uploads, downloads, folders, and storage configurations
+│   ├── realtime.md               # Socket.IO gateway connections and events
+│   ├── nuxt.md                   # Nuxt 3/4 SSR integration
+│   ├── next.md                   # Next.js App Router integration
+│   ├── vue.md                    # Vue 3 CSR integration
+│   └── react.md                  # React CSR integration
+│
 ├──  examples/
 │   ├── README.md                # Example overview and recommended usage
 │   ├── api-examples.md          # Small REST API examples
@@ -249,7 +265,7 @@ enfyra-docs/
 │   └── third-party-chat-app.md      # SSR chat app using Enfyra REST and Socket.IO
 │
 ├──  app/
-│   ├── api-integration.md        # API integration with Enfyra SDK and examples for extensions
+│   ├── api-integration.md        # API integration inside Enfyra Admin extensions
 │   ├── filter-system.md         # Interactive UI filtering for data tables and forms
 │   ├── relation-picker.md       # Working with related data in forms (powered by Filter System)
 │   ├── routing-management.md    # UI guide for creating custom API endpoints and route permissions
@@ -350,7 +366,7 @@ enfyra-docs/
 -  **Building an MVP?**  Phases 1-2 (4-5 hours total)
 -  **Need custom functionality?**  Focus on Phase 3: API Integration + Extensions
 -  **Building a dashboard?**  [Extension System](./app/extension-system.md) + [API Integration](./app/api-integration.md)
--  **Building a third-party SSR app?**  [SSR Framework Integrations](./integrations/ssr-frameworks.md) + [Third-Party Chat App Example](./examples/third-party-chat-app.md)
+-  **Building a third-party app?**  [Enfyra SDKs](./sdk/README.md) + [SSR Framework Integrations](./integrations/ssr-frameworks.md) when the app is server-rendered
 -  **Need role-based access?**  [Permission Builder](./app/permission-builder.md)
 -  **Complex business logic?**  [Custom Handlers](./app/hooks-handlers/custom-handlers.md) + [Context Reference](./server/context-reference/) + [Hooks and Handlers](./server/hooks-handlers/)
 -  **Real-time features?**  [WebSocket Guide](./server/websocket.md)
@@ -380,8 +396,15 @@ enfyra-docs/
 - **[Integrations](./integrations/README.md)** - Connect external apps to Enfyra
 - **[SSR Frameworks](./integrations/ssr-frameworks.md)** - Nuxt, Next.js, SvelteKit, and Remix setup for REST, OAuth cookies, refresh, and Socket.IO
 
-** Frontend (User Interface)**
-- **[API Integration](./app/api-integration.md)** - API integration with Enfyra SDK and examples for extensions
+** SDKs for Third-Party Applications**
+- **[SDK Overview](./sdk/README.md)** - Choose Core, Nuxt, Next.js, Vue, or React and follow the application integration path
+- **[Authentication](./sdk/authentication.md)** - Cookie, token, OAuth, API token, and public access
+- **[Data Queries and CRUD](./sdk/data-queries.md)** - Query Builder, filters, relations, and mutations
+- **[Custom Routes and Transforms](./sdk/custom-http.md)** - Typed HTTP, response transforms, fetch, Axios, and errors
+
+** Enfyra Admin and Extensions**
+- **[App and Extension Overview](./app/README.md)** - Build UI that runs inside Enfyra Admin
+- **[Extension API Integration](./app/api-integration.md)** - Call APIs from Enfyra Admin pages, widgets, and extensions
 - **[Filter System](./app/filter-system.md)** - Interactive UI filtering for data tables and forms
 - **[Relation Picker](./app/relation-picker.md)** - Working with related data in forms (powered by Filter System)
 - **[Routing Management](./app/routing-management.md)** - UI guide for creating custom API endpoints and route permissions
