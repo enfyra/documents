@@ -4,7 +4,23 @@ slug: framework-ssr
 
 # Framework SSR
 
-Kết nối app Nuxt, Next.js, Angular, SvelteKit hoặc Remix với Enfyra bằng REST cùng origin, OAuth cookie, refresh-token support và Socket.IO.
+Kết nối app SSR hoặc CSR với Enfyra bằng REST cùng origin, OAuth cookie, refresh-token support và Socket.IO.
+
+## Framework đã có SDK — dùng SDK thay vì tự cấu hình proxy
+
+Nếu app của bạn dùng một trong các framework dưới đây, hãy bắt đầu bằng SDK package tương ứng. Nuxt và Next.js tự cấu hình framework proxy. Vue và React chỉ chạy CSR nên vẫn cần same-origin proxy; hãy làm theo hướng dẫn SDK của package trước khi dùng phần tham khảo thủ công bên dưới. Khả năng realtime và cách cấu hình phụ thuộc vào từng package.
+
+| Framework | Package | Hướng dẫn |
+|---|---|---|
+| Nuxt 3/4 | `@enfyra/sdk-nuxt` | [SDK Nuxt](../sdk/nuxt.md) |
+| Next.js App Router | `@enfyra/sdk-next` | [SDK Next.js](../sdk/next.md) |
+| Vue 3 (CSR) | `@enfyra/sdk-vue` | [SDK Vue](../sdk/vue.md) |
+| React (CSR) | `@enfyra/sdk-react` | [SDK React](../sdk/react.md) |
+| Node.js / worker / edge | `@enfyra/sdk-core` | [SDK Core Client](../sdk/core-client.md) |
+
+Chỉ tiếp tục đọc phần bên dưới khi framework của bạn **chưa có SDK** (Angular, SvelteKit, Remix) hoặc bạn cần hiểu cơ chế proxy/cookie mà SDK đang trừu tượng hóa.
+
+---
 
 ## Mô hình tích hợp
 
@@ -96,6 +112,8 @@ Người dùng không tự xử lý token.
 
 ## Nuxt
 
+> **Đã có SDK:** Nếu bạn đang bắt đầu project Nuxt mới với Enfyra, dùng [`@enfyra/sdk-nuxt`](../sdk/nuxt.md) thay vì tự cấu hình proxy. Phần bên dưới chỉ dành cho trường hợp cần hiểu hoặc tùy chỉnh proxy thủ công.
+
 Dùng `routeRules`:
 
 ```ts
@@ -119,6 +137,8 @@ export default defineNuxtConfig({
 `redirect: "manual"` giữ OAuth và set-cookie redirect dưới app origin.
 
 ## Next.js
+
+> **Đã có SDK:** Nếu bạn đang bắt đầu project Next.js mới với Enfyra, dùng [`@enfyra/sdk-next`](../sdk/next.md) thay vì tự cấu hình rewrites. Phần bên dưới chỉ dành cho trường hợp cần hiểu hoặc tùy chỉnh proxy thủ công.
 
 Dùng `rewrites()`:
 
@@ -153,6 +173,8 @@ const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/enfyra/me`, {
 ```
 
 ## Angular
+
+> **Chưa có SDK.** Angular chưa có Enfyra SDK package. Dùng cấu hình proxy thủ công bên dưới.
 
 Dùng Angular dev-server proxy ở local và cấu hình route tương tự trong production reverse proxy:
 
@@ -330,6 +352,8 @@ export class EnfyraRealtimeService {
 
 ## SvelteKit
 
+> **Chưa có SDK.** SvelteKit chưa có Enfyra SDK package. Dùng server hook proxy thủ công bên dưới.
+
 Dùng server hook cho REST/auth prefix:
 
 ```ts
@@ -363,6 +387,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 Cấu hình deployment proxy để chuyển `/socket.io/**` tới `https://demo.enfyra.io/ws/socket.io/**`.
 
 ## Remix
+
+> **Chưa có SDK.** Remix chưa có Enfyra SDK package. Dùng catch-all resource route thủ công bên dưới.
 
 Tạo catch-all resource route cho `/enfyra/*`:
 

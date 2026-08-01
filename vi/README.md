@@ -21,7 +21,7 @@ Khi nghiệp vụ phức tạp hơn, bạn có thể bổ sung handler, hook, fl
 Chọn lộ trình gần nhất với việc bạn cần làm:
 
 - **Tạo ứng dụng đầu tiên:** đọc [Xây dựng ứng dụng đầu tiên](./getting-started/first-app.md), sau đó học [Tạo bảng](./getting-started/table-creation.md) và [Quản lý dữ liệu](./getting-started/data-management.md).
-- **Kết nối frontend hoặc mobile app:** bắt đầu từ [Tài liệu API](./api-reference/README.md), rồi đọc [Tích hợp SSR framework](./integrations/ssr-frameworks.md) nếu ứng dụng cần cookie, OAuth hoặc realtime.
+- **Kết nối frontend hoặc mobile app:** bắt đầu từ [Enfyra SDK](./sdk/README.md), rồi dùng [Tài liệu API](./api-reference/README.md) để tra REST contract nền tảng.
 - **Dùng trợ lý lập trình AI:** đọc [Sử dụng Enfyra với trợ lý lập trình AI](./integrations/mcp-server.md).
 - **Tự vận hành Enfyra:** đọc [Cài đặt](./getting-started/installation.md), sau đó đến [Enfyra Docker](./docker/README.md).
 - **Dùng dịch vụ được quản lý:** đọc [Enfyra Cloud](./cloud/README.md).
@@ -67,6 +67,18 @@ vi/
 │   ├── README.md
 │   ├── ssr-frameworks.md
 │   └── mcp-server.md
+├── sdk/
+│   ├── README.md
+│   ├── core-client.md
+│   ├── authentication.md
+│   ├── data-queries.md
+│   ├── custom-http.md
+│   ├── storage.md
+│   ├── realtime.md
+│   ├── nuxt.md
+│   ├── next.md
+│   ├── vue.md
+│   └── react.md
 ├── app/
 │   ├── README.md
 │   ├── api-integration.md
@@ -190,7 +202,7 @@ Sau năm bước này, bạn đã có một mô hình dữ liệu hoạt động
 9. [Tham số truy vấn](./api-reference/query-parameters.md) — filter, fields, sort, page, limit và deep relation.
 10. [Tệp và lưu trữ](./api-reference/file-storage.md) — asset, folder và tải file lên.
 
-Nếu xây frontend riêng, đọc tiếp [Tích hợp API](./app/api-integration.md) và [SSR framework](./integrations/ssr-frameworks.md).
+Nếu xây frontend riêng, đọc [Enfyra SDK](./sdk/README.md) và [SSR framework](./integrations/ssr-frameworks.md) khi ứng dụng có server rendering. Tài liệu `app/` dành cho extension chạy trong Enfyra Admin.
 
 ### Giai đoạn 3: giao diện quản trị
 
@@ -241,7 +253,8 @@ Nếu xây frontend riêng, đọc tiếp [Tích hợp API](./app/api-integratio
 
 - **MVP CRUD:** Giai đoạn 1 → 2 → form và permission ở Giai đoạn 3.
 - **Dashboard nội bộ:** [API integration](./app/api-integration.md) → [Extension](./app/extension-system.md) → [Permission component](./app/permission-components.md).
-- **Ứng dụng SSR bên ngoài:** [SSR framework](./integrations/ssr-frameworks.md) → [Authentication](./api-reference/authentication.md) → [Third-party chat](./examples/third-party-chat-app.md).
+- **Ứng dụng bên thứ ba:** [Enfyra SDK](./sdk/README.md) → [Xác thực bằng SDK](./sdk/authentication.md) → [Query dữ liệu](./sdk/data-queries.md).
+- **Ứng dụng SSR bên ngoài:** [Nuxt SDK](./sdk/nuxt.md) hoặc [Next.js SDK](./sdk/next.md) → [SSR framework](./integrations/ssr-frameworks.md) → [Third-party chat](./examples/third-party-chat-app.md).
 - **API nghiệp vụ:** [Routing](./app/routing-management.md) → [Custom handler](./app/hooks-handlers/custom-handlers.md) → [Context](./server/context-reference/README.md).
 - **SaaS multi-tenant:** [Guard](./server/guards.md) → [Field permission](./server/field-permissions.md) → [Multi-tenant RLS](./examples/multi-tenant-rls-example.md).
 - **Hệ thống realtime:** [WebSocket](./server/websocket.md) → [Realtime notification](./examples/files-realtime/realtime-notifications.md) → [Activity feed](./examples/files-realtime/activity-feed.md).

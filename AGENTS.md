@@ -26,6 +26,7 @@ This repository owns user-facing Enfyra documentation. Keep this file as a thin 
 - `getting-started/`: installation and first result.
 - `api-reference/`: public REST usage.
 - `integrations/`: external frameworks and MCP user setup.
+- `sdk/`: official SDK usage for separately deployed third-party applications; keep this distinct from Enfyra Admin extension runtime guidance.
 - `app/`: Enfyra Admin usage and UI extension behavior.
 - `server/`: runtime concepts and developer scripting references.
 - `examples/`: task-oriented recipes.
