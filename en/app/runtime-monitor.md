@@ -5,7 +5,14 @@ Runtime Monitor is available at **Settings > Admin > Runtime Monitor**. It helps
 ## Tabs
 
 - **Overview**: process, request, database, queue, websocket, and health metrics.
+- **Requests**: recent HTTP request logs with method, path, status, and duration.
+- **Cache**: runtime cache state, reload history, and invalidation events.
 - **Redis**: current-app Redis usage, key categories, key browser, and editable user-cache values.
+- **Database**: connection pool pressure, query metrics, and backend health.
+- **Flows**: flow execution metrics, recent runs, and failed queue jobs.
+- **Workers**: BullMQ worker status and job processing metrics.
+- **Connections**: live websocket connections and handler queue depth.
+- **Guards**: guard rejection alerts — repeated offenders and recent rejections.
 
 The monitor updates over a websocket connection. The Redis tab shows a countdown until the next server snapshot so you know when fresh metrics should arrive.
 
@@ -45,3 +52,19 @@ The browser loads keys in pages of 10. Use **Load more** to fetch the next page 
 Only **user cache** keys are editable. The editor uses the same service as `$cache` / `@CACHE`, so values created in the UI are visible in server scripts and values created by scripts are visible in the UI.
 
 Values are parsed for display when possible and stringified before saving. System keys are read-only to avoid corrupting Enfyra runtime state.
+
+## Guards Tab
+
+The Guards tab displays guard rejection alerts recorded by the server when rate-limit or IP-filter rules block a request.
+
+**Repeated Offenders** groups alerts by scope and subject (e.g. the same IP hitting limits repeatedly), sorted by hit count. Use this to identify abusive clients.
+
+**Recent Rejections** shows a chronological table of the last 50 rejections with:
+- Time (relative, e.g. "3m ago")
+- Scope (`ip`, `user`, or `route`) — color-coded
+- Subject identifier
+- Route path and HTTP method
+- Error code badge (`RATE_LIMIT_EXCEEDED` in amber, `IP_NOT_ALLOWED` / `IP_BLOCKED` in red)
+- Guard name
+
+Use the **Refresh** button to reload the latest alerts. Data comes from the `enfyra_guard_alert` system table via REST — see [Guards — Guard Alerts](../server/guards.md#guard-alerts) for the server-side contract.

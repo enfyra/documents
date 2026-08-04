@@ -34,7 +34,7 @@ Guard tự động chạy tại hai thời điểm trong vòng đời của requ
 
 Quy tắc IP hỗ trợ **ký hiệu CIDR**: `10.0.0.0/8`, `192.168.1.0/24`, `172.16.0.0/12`.
 
-Khi vượt hạn mức, response trả về **429** cùng các header `Retry-After`, `X-RateLimit-Limit`, `X-RateLimit-Remaining` và `X-RateLimit-Reset`.
+Khi vượt hạn mức, response trả về **429** cùng các header có cấu trúc (xem [Response khi bị từ chối](#response-khi-bi-tu-choi) bên dưới).
 
 ## Cây guard
 
@@ -295,6 +295,125 @@ POST /api/enfyra_guard_rule
   "users": [{ "id": "<user_id_1>" }, { "id": "<user_id_2>" }]
 }
 ```
+
+## Response khi bị từ chối
+
+Khi guard chặn một request, response có **cấu trúc rõ ràng** để client có thể xác định lý do bị chặn và thời điểm có thể thử lại.
+
+### Mã lỗi
+
+| Lý do | `errorCode` | HTTP Status |
+|---|---|---|
+| Vượt giới hạn tần suất | `RATE_LIMIT_EXCEEDED` | 429 |
+| IP không thuộc whitelist | `IP_NOT_ALLOWED` | 403 |
+| IP nằm trong blacklist | `IP_BLOCKED` | 403 |
+
+### Body response REST
+
+```json
+{
+  "statusCode": 429,
+  "message": "Too Many Requests",
+  "errorCode": "RATE_LIMIT_EXCEEDED",
+  "details": {
+    "reason": "rate_limit",
+    "scope": "ip",
+    "limit": 100,
+    "remaining": 0,
+    "windowSeconds": 60,
+    "retryAfterSeconds": 42,
+    "resetAt": 1722650400000
+  }
+}
+```
+
+Với từ chối IP, `details` tối giản:
+
+```json
+{
+  "statusCode": 403,
+  "message": "Forbidden",
+  "errorCode": "IP_BLOCKED",
+  "details": { "reason": "ip_blocked" }
+}
+```
+
+### Header response
+
+**Khi bị từ chối (429):**
+
+| Header | Mô tả |
+|---|---|
+| `Retry-After` | Số giây chờ trước khi thử lại |
+| `X-RateLimit-Limit` | Số request tối đa trong cửa sổ |
+| `X-RateLimit-Remaining` | Số request còn lại (0 khi bị chặn) |
+| `X-RateLimit-Reset` | Epoch ms khi cửa sổ đặt lại |
+| `X-RateLimit-Window` | Thời lượng cửa sổ (giây) |
+| `X-RateLimit-Scope` | `ip`, `user`, hoặc `route` |
+| `X-RateLimit-Used` | Số request đã dùng trong cửa sổ |
+| `X-Enfyra-Guard-Reason` | `rate_limit`, `ip_not_allowed`, hoặc `ip_blocked` |
+| `X-Enfyra-Guard-Error-Code` | Giống `errorCode` trong body |
+| `X-Enfyra-Guard-Scope` | Phạm vi giới hạn (chỉ rate limit) |
+
+**Khi request thành công qua guard:**
+
+Ngay cả khi request được chấp nhận, Enfyra trả về header của bucket giới hạn nghiêm ngặt nhất (tỷ lệ `remaining / limit` thấp nhất) để client có thể chủ động điều tiết:
+
+| Header | Mô tả |
+|---|---|
+| `X-RateLimit-Limit` | Số request tối đa trong cửa sổ |
+| `X-RateLimit-Remaining` | Số request còn lại |
+| `X-RateLimit-Reset` | Epoch ms khi cửa sổ đặt lại |
+| `X-RateLimit-Window` | Thời lượng cửa sổ (giây) |
+| `X-RateLimit-Scope` | `ip`, `user`, hoặc `route` |
+| `X-RateLimit-Used` | Số request đã dùng |
+
+### Từ chối trong GraphQL
+
+Guard từ chối trong GraphQL resolver trả về extensions có cấu trúc:
+
+```json
+{
+  "errors": [{
+    "message": "Too Many Requests",
+    "extensions": {
+      "code": "RATE_LIMIT_EXCEEDED",
+      "statusCode": 429,
+      "details": {
+        "reason": "rate_limit",
+        "scope": "ip",
+        "limit": 100,
+        "remaining": 0,
+        "windowSeconds": 60,
+        "retryAfterSeconds": 42,
+        "resetAt": 1722650400000
+      }
+    }
+  }]
+}
+```
+
+### Những gì không bao giờ lộ ra
+
+Thông tin nội bộ của guard không gửi tới client: tên guard, ID quy tắc, khóa Redis, danh sách IP đã cấu hình, và user ID gốc không xuất hiện trong response.
+
+## Cảnh báo guard
+
+Mỗi lần guard từ chối được tự động ghi vào bảng hệ thống `enfyra_guard_alert` để giám sát.
+
+| Cột | Mô tả |
+|---|---|
+| `scope` | `ip`, `user`, hoặc `route` |
+| `scopeKey` | Đối tượng bị chặn (địa chỉ IP, user ID, hoặc route path) |
+| `routePath` | Route đã từ chối request |
+| `method` | HTTP method của request bị từ chối |
+| `errorCode` | `RATE_LIMIT_EXCEEDED`, `IP_NOT_ALLOWED`, hoặc `IP_BLOCKED` |
+| `guardName` | Tên guard đã từ chối (tham khảo cho quản trị) |
+| `createdAt` | Thời điểm từ chối |
+
+Cảnh báo hiển thị tại **Cài đặt > Quản trị > Giám sát runtime > tab Guard**, gồm phần tổng hợp đối tượng vi phạm lặp lại và nhật ký từ chối theo thời gian.
+
+Route cảnh báo (`/enfyra_guard_alert`) chỉ hỗ trợ `GET` và `DELETE` — bản ghi được tạo tự động bởi middleware guard, không thể chèn qua API.
 
 ## Guard và giới hạn tần suất trong preHook
 

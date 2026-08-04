@@ -34,52 +34,28 @@ When you create a table in Enfyra, the system automatically generates forms for 
 | **enum**         | Dropdown         | Single selection from options        |
 | **array-select** | Multi-select     | Multiple selections from options     |
 
-### Rich Text Editor (column.metadata.richText)
+### Rich Text Editor (`column.metadata.richText`)
 
-For `richtext` columns, you can customize the editor by setting `metadata.richText` on the column. This is configured in the table schema (column metadata field as JSON).
+For a `richtext` column, the editor configuration lives at `column.metadata.richText` in the table schema. You can use the same shape in the column metadata JSON editor or in the app-level `enfyra.config.ts` defaults. Column metadata must be JSON-safe; function callbacks and theme resolver functions are only available in the app-level config.
 
 **Example column metadata:**
 ```json
 {
   "richText": {
+    "plugins": ["link", "lists", "code", "table"],
+    "toolbar": "clear | h1 h2 h3 | bold italic underline | bullist numlist | link image table blockquote hr codeblock",
     "customButtons": [
-      { "name": "codeinline", "text": "Code", "tooltip": "Inline code", "format": "code" },
-      { "name": "codeblock", "text": "Code Block", "tooltip": "Code block", "format": "pre" }
+      { "name": "callout", "text": "Callout", "tooltip": "Insert a callout", "format": "callout" }
     ],
     "formats": {
-      "code": {
-        "inline": true,
-        "tag": "code",
+      "callout": {
+        "wrapper": true,
+        "tag": "aside",
+        "classes": "callout",
         "css": {
-          "backgroundColor": "#2d2d2d",
-          "color": "#ccc",
-          "padding": "2px 4px",
-          "borderRadius": "3px",
-          "fontFamily": "monospace"
-        }
-      },
-      "pre": {
-        "block": true,
-        "tag": "pre",
-        "css": {
-          "light": {
-            "backgroundColor": "#e1e1e1",
-            "padding": "12px",
-            "borderRadius": "4px",
-            "overflow": "auto",
-            "fontFamily": "monospace",
-            "whiteSpace": "pre",
-            "color": "#333"
-          },
-          "dark": {
-            "backgroundColor": "#1e1e1e",
-            "padding": "12px",
-            "borderRadius": "4px",
-            "overflow": "auto",
-            "fontFamily": "monospace",
-            "whiteSpace": "pre",
-            "color": "#ccc"
-          }
+          "backgroundColor": "var(--surface-muted)",
+          "borderLeft": "4px solid var(--primary-500)",
+          "padding": "12px"
         }
       }
     }
@@ -96,20 +72,24 @@ For `richtext` columns, you can customize the editor by setting `metadata.richTe
 | `wrapper: true` | Wrapper node that contains other blocks (e.g. `<blockquote>`). |
 | `tag` | HTML tag name (e.g. `"code"`, `"pre"`). Optional; uses format key if not specified. |
 
-#### Format properties
+#### Editor and format properties
 
+- **`plugins`**: Optional feature groups. `link`, `lists`, `code`, and `table` control their corresponding extensions and toolbar buttons; when omitted, all built-in groups remain enabled.
 - **`css`**: CSS styles injected as stylesheet (not inline). Supports:
   - Flat object: applies to both light and dark themes
   - `{ light: {...}, dark: {...} }`: theme-specific styles
   - Function: `(theme: 'light' | 'dark') => Record<string, string>`
 - **`classes`**: CSS classes for the tag (string, array, or function)
+- **`classStyles`**: Styles for named CSS classes, with the same static or theme-aware forms as `css`
 - **`attributes`**: HTML attributes for the element
 
 #### Toolbar
 
-Default toolbar: `clear | h1 h2 h3 h4 h5 h6 | bold italic underline strike | bullist numlist | alignleft aligncenter alignright alignjustify | link image table blockquote hr | codeblock`
+Default toolbar: `clear | h1 h2 h3 h4 h5 h6 | bold italic underline strike | bullist numlist | alignleft aligncenter alignright alignjustify | link image table blockquote hr codeblock`
 
-Add custom buttons via `customButtons` and reference them in `toolbar` string. Each custom button can use `format` to toggle a format (e.g. `format: "code"` toggles the `code` format).
+Set `toolbar` to replace the default. Add custom buttons via `customButtons`; when `toolbar` is omitted, custom button names are appended automatically. When `toolbar` is set explicitly, include each custom button name in the toolbar string. A custom button can use `format` to toggle a configured format (for example, `format: "callout"`).
+
+For app-level defaults, `buttonActions` can map a string `onAction` name to a JavaScript callback. This callback mechanism is not available in column metadata JSON.
 
 ### Special Field Types
 

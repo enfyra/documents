@@ -287,4 +287,4 @@ Khi cập nhật tài liệu:
 - [Issues](https://github.com/dothinh115/enfyra/issues)
 - [Discussions](https://github.com/dothinh115/enfyra/discussions)
 
-Tài liệu được phát hành theo giấy phép MIT.
+Tài liệu được phát hành theo giấy phép MIT. Lưu ý: lõi Enfyra (`server/` và `kernel/`) được phát hành theo [Elastic License 2.0](https://www.elastic.co/licensing/elastic-license); các package khác (app, SDK, MCP server, cloud) theo giấy phép MIT.

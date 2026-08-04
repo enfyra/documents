@@ -9,7 +9,14 @@ Giám sát runtime có tại **Cài đặt > Quản trị > Giám sát runtime**
 ## Các tab
 
 - **Tổng quan**: chỉ số về tiến trình, request, cơ sở dữ liệu, hàng đợi, websocket và tình trạng hoạt động.
+- **Requests**: nhật ký HTTP request gần đây với method, đường dẫn, status và thời gian xử lý.
+- **Cache**: trạng thái runtime cache, lịch sử reload và sự kiện invalidation.
 - **Redis**: mức sử dụng Redis của ứng dụng hiện tại, nhóm khóa, trình duyệt khóa và giá trị user cache có thể chỉnh sửa.
+- **Database**: áp lực connection pool, chỉ số truy vấn và tình trạng backend.
+- **Flows**: chỉ số thực thi flow, các lần chạy gần đây và job thất bại trong hàng đợi.
+- **Workers**: trạng thái BullMQ worker và chỉ số xử lý job.
+- **Connections**: kết nối websocket đang hoạt động và độ sâu hàng đợi handler.
+- **Guards**: cảnh báo từ chối của guard — đối tượng vi phạm lặp lại và nhật ký từ chối gần đây.
 
 Màn hình giám sát cập nhật qua kết nối websocket. Tab Redis hiển thị thời gian đếm ngược đến lần chụp trạng thái máy chủ tiếp theo để bạn biết khi nào có chỉ số mới.
 
@@ -49,3 +56,19 @@ Trình duyệt tải khóa theo từng trang 10 mục. Dùng **Tải thêm** đ�
 Chỉ khóa **user cache** mới có thể chỉnh sửa. Trình sửa dùng cùng service với `$cache` / `@CACHE`, vì vậy giá trị tạo trong giao diện có thể dùng trong script máy chủ và giá trị do script tạo cũng hiện trong giao diện.
 
 Giá trị được phân tích để hiển thị khi có thể và chuyển thành chuỗi trước khi lưu. Khóa hệ thống chỉ đọc để tránh làm hỏng trạng thái runtime của Enfyra.
+
+## Tab Guards
+
+Tab Guards hiển thị cảnh báo từ chối do guard ghi lại khi quy tắc giới hạn tần suất hoặc bộ lọc IP chặn một request.
+
+**Đối tượng vi phạm lặp lại** nhóm cảnh báo theo scope và đối tượng (ví dụ: cùng một IP liên tục vượt giới hạn), sắp xếp theo số lần. Dùng phần này để phát hiện client lạm dụng.
+
+**Từ chối gần đây** hiển thị bảng theo thời gian với 50 lần từ chối mới nhất:
+- Thời gian (tương đối, ví dụ "3 phút trước")
+- Scope (`ip`, `user`, hoặc `route`) — có màu phân biệt
+- Định danh đối tượng
+- Đường dẫn route và HTTP method
+- Mã lỗi (`RATE_LIMIT_EXCEEDED` màu hổ phách, `IP_NOT_ALLOWED` / `IP_BLOCKED` màu đỏ)
+- Tên guard
+
+Dùng nút **Làm mới** để tải lại cảnh báo mới nhất. Dữ liệu lấy từ bảng hệ thống `enfyra_guard_alert` qua REST — xem [Guard — Cảnh báo guard](../server/guards.md#cảnh-báo-guard) để biết contract phía server.
