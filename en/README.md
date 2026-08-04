@@ -468,7 +468,7 @@ We welcome contributions! Please feel free to submit a Pull Request. For major c
 
 ## License
 
-This project is licensed under the MIT License.
+This documentation is licensed under the MIT License. Note: the Enfyra core (`server/` and `kernel/`) is licensed under the [Elastic License 2.0](https://www.elastic.co/licensing/elastic-license); other packages (app, SDKs, MCP server, cloud) are MIT licensed.
 
 ## Support
 

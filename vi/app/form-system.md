@@ -38,52 +38,28 @@ Khi bạn tạo bảng trong Enfyra, hệ thống sẽ tự động tạo biểu
 | **enum** | Thả xuống | Lựa chọn duy nhất từ ​​​​các tùy chọn |
 | **chọn mảng** | Chọn nhiều | Nhiều lựa chọn từ các tùy chọn |
 
-### Trình soạn thảo văn bản đa dạng thức (column.metadata.richText)
+### Trình soạn thảo văn bản đa dạng thức (`column.metadata.richText`)
 
-Đối với cột `richtext`, bạn có thể tùy chỉnh trình chỉnh sửa bằng cách đặt `metadata.richText` trên cột. Điều này được định cấu hình trong lược đồ bảng (trường siêu dữ liệu cột dưới dạng JSON).
+Với cột `richtext`, cấu hình editor nằm tại `column.metadata.richText` trong schema bảng. Bạn có thể dùng cùng một cấu trúc trong ô JSON metadata của column hoặc trong các giá trị mặc định ở `enfyra.config.ts`. Metadata của column phải là JSON-safe; callback và hàm resolver theo theme chỉ dùng được trong cấu hình cấp source của app.
 
-**Siêu dữ liệu cột ví dụ:**
+**Ví dụ column metadata:**
 ```json
 {
   "richText": {
+    "plugins": ["link", "lists", "code", "table"],
+    "toolbar": "clear | h1 h2 h3 | bold italic underline | bullist numlist | link image table blockquote hr codeblock",
     "customButtons": [
-      { "name": "codeinline", "text": "Code", "tooltip": "Inline code", "format": "code" },
-      { "name": "codeblock", "text": "Code Block", "tooltip": "Code block", "format": "pre" }
+      { "name": "callout", "text": "Callout", "tooltip": "Insert a callout", "format": "callout" }
     ],
     "formats": {
-      "code": {
-        "inline": true,
-        "tag": "code",
+      "callout": {
+        "wrapper": true,
+        "tag": "aside",
+        "classes": "callout",
         "css": {
-          "backgroundColor": "#2d2d2d",
-          "color": "#ccc",
-          "padding": "2px 4px",
-          "borderRadius": "3px",
-          "fontFamily": "monospace"
-        }
-      },
-      "pre": {
-        "block": true,
-        "tag": "pre",
-        "css": {
-          "light": {
-            "backgroundColor": "#e1e1e1",
-            "padding": "12px",
-            "borderRadius": "4px",
-            "overflow": "auto",
-            "fontFamily": "monospace",
-            "whiteSpace": "pre",
-            "color": "#333"
-          },
-          "dark": {
-            "backgroundColor": "#1e1e1e",
-            "padding": "12px",
-            "borderRadius": "4px",
-            "overflow": "auto",
-            "fontFamily": "monospace",
-            "whiteSpace": "pre",
-            "color": "#ccc"
-          }
+          "backgroundColor": "var(--surface-muted)",
+          "borderLeft": "4px solid var(--primary-500)",
+          "padding": "12px"
         }
       }
     }
@@ -92,27 +68,31 @@ Khi bạn tạo bảng trong Enfyra, hệ thống sẽ tự động tạo biểu
 ```
 #### Các loại định dạng
 
-| Bất động sản | Mô tả |
+| Thuộc tính | Mô tả |
 |----------|-------------|
-| `nội tuyến: đúng` | Phần tử nội tuyến (ví dụ: `<code>`, `<span>`). `thẻ` mặc định là `span`. |
-| `chặn: đúng` hoặc bỏ qua | Phần tử khối (ví dụ: `<pre>`, `<div>`). **Mặc định** khi cả nội tuyến và trình bao bọc đều không được đặt. |
-| `trình bao bọc: đúng` | Nút trình bao bọc chứa các khối khác (ví dụ: `<blockquote>`). |
-| `thẻ` | Tên thẻ HTML (ví dụ: `"code"`, `"pre"`). Không bắt buộc; sử dụng khóa định dạng nếu không được chỉ định. |
+| `inline: true` | Phần tử inline (ví dụ: `<code>`, `<span>`). `tag` mặc định là `span`. |
+| `block: true` hoặc bỏ qua | Phần tử block (ví dụ: `<pre>`, `<div>`). Đây là mặc định khi không đặt `inline` hoặc `wrapper`. |
+| `wrapper: true` | Node bao quanh chứa các block khác (ví dụ: `<blockquote>`). |
+| `tag` | Tên thẻ HTML (ví dụ: `"code"`, `"pre"`). Không bắt buộc; mặc định dùng key của format. |
 
-#### Thuộc tính định dạng
+#### Thuộc tính editor và format
 
+- **`plugins`**: Nhóm tính năng tùy chọn. `link`, `lists`, `code` và `table` bật/tắt extension và nút toolbar tương ứng; nếu bỏ qua thì tất cả nhóm built-in vẫn được bật.
 - **`css`**: Các kiểu CSS được chèn dưới dạng biểu định kiểu (không phải nội tuyến). Hỗ trợ:
   - Đối tượng phẳng: áp dụng cho cả chủ đề sáng và tối
   - `{ light: {...}, dark: {...} }`: kiểu theo chủ đề
   - Chức năng: `(theme: 'light' | 'dark') => Record<string, string>`
 - **`classes`**: Các lớp CSS cho thẻ (chuỗi, mảng hoặc hàm)
+- **`classStyles`**: Style cho các class đã đặt tên, hỗ trợ cùng dạng static hoặc theo theme như `css`
 - **`attributes`**: thuộc tính HTML cho phần tử
 
 #### Thanh công cụ
 
-Thanh công cụ mặc định: `clear | h1 h2 h3 h4 h5 h6 | gạch chân in nghiêng đậm | danh sách số tăng giá | căn trái căn giữa căn giữa căn phải căn đều | link ảnh bảng blockquote hr | khối mã`
+Thanh công cụ mặc định: `clear | h1 h2 h3 h4 h5 h6 | bold italic underline strike | bullist numlist | alignleft aligncenter alignright alignjustify | link image table blockquote hr codeblock`
 
-Thêm các nút tùy chỉnh thông qua `customButtons` và tham chiếu chúng trong chuỗi `thanh công cụ`. Mỗi nút tùy chỉnh có thể sử dụng `format` để chuyển đổi một định dạng (ví dụ: `format: "code"` chuyển đổi định dạng `code`).
+Đặt `toolbar` để thay thế toolbar mặc định. Thêm nút qua `customButtons`; nếu bỏ qua `toolbar`, tên các nút tùy chỉnh sẽ được nối tự động. Nếu đặt `toolbar` rõ ràng, hãy thêm tên từng nút tùy chỉnh vào chuỗi toolbar. Nút tùy chỉnh có thể dùng `format` để bật/tắt format đã cấu hình (ví dụ `format: "callout"`).
+
+Ở cấu hình cấp app, `buttonActions` có thể ánh xạ tên `onAction` thành callback JavaScript. Cơ chế callback này không áp dụng cho JSON metadata của column.
 
 ### Các loại trường đặc biệt
 

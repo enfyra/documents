@@ -30,7 +30,7 @@ Guards run automatically at two points in the request lifecycle:
 
 IP rules support **CIDR notation**: `10.0.0.0/8`, `192.168.1.0/24`, `172.16.0.0/12`.
 
-When a rate limit is hit, the response returns **429** with headers: `Retry-After`, `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`.
+When a rate limit is hit, the response returns **429** with structured headers (see [Rejection Response](#rejection-response) below).
 
 ## Guard Tree
 
@@ -291,6 +291,125 @@ POST /api/enfyra_guard_rule
   "users": [{ "id": "<user_id_1>" }, { "id": "<user_id_2>" }]
 }
 ```
+
+## Rejection Response
+
+When a guard blocks a request, the response is **structured** so clients can programmatically determine why they were blocked and when to retry.
+
+### Error Codes
+
+| Reason | `errorCode` | HTTP Status |
+|---|---|---|
+| Rate limit exceeded | `RATE_LIMIT_EXCEEDED` | 429 |
+| IP not in whitelist | `IP_NOT_ALLOWED` | 403 |
+| IP in blacklist | `IP_BLOCKED` | 403 |
+
+### REST Response Body
+
+```json
+{
+  "statusCode": 429,
+  "message": "Too Many Requests",
+  "errorCode": "RATE_LIMIT_EXCEEDED",
+  "details": {
+    "reason": "rate_limit",
+    "scope": "ip",
+    "limit": 100,
+    "remaining": 0,
+    "windowSeconds": 60,
+    "retryAfterSeconds": 42,
+    "resetAt": 1722650400000
+  }
+}
+```
+
+For IP rejections, `details` is minimal:
+
+```json
+{
+  "statusCode": 403,
+  "message": "Forbidden",
+  "errorCode": "IP_BLOCKED",
+  "details": { "reason": "ip_blocked" }
+}
+```
+
+### Response Headers
+
+**On rejection (429):**
+
+| Header | Description |
+|---|---|
+| `Retry-After` | Seconds until the client can retry |
+| `X-RateLimit-Limit` | Max requests in the window |
+| `X-RateLimit-Remaining` | Requests remaining (0 when blocked) |
+| `X-RateLimit-Reset` | Epoch ms when the window resets |
+| `X-RateLimit-Window` | Window duration in seconds |
+| `X-RateLimit-Scope` | `ip`, `user`, or `route` |
+| `X-RateLimit-Used` | Requests consumed in this window |
+| `X-Enfyra-Guard-Reason` | `rate_limit`, `ip_not_allowed`, or `ip_blocked` |
+| `X-Enfyra-Guard-Error-Code` | Same as body `errorCode` |
+| `X-Enfyra-Guard-Scope` | Rate-limit scope (rate limit only) |
+
+**On successful guarded requests:**
+
+Even when the request passes, Enfyra exposes the strictest evaluated rate-limit bucket (lowest `remaining / limit` ratio) so clients can proactively throttle:
+
+| Header | Description |
+|---|---|
+| `X-RateLimit-Limit` | Max requests in the window |
+| `X-RateLimit-Remaining` | Requests remaining |
+| `X-RateLimit-Reset` | Epoch ms when the window resets |
+| `X-RateLimit-Window` | Window duration in seconds |
+| `X-RateLimit-Scope` | `ip`, `user`, or `route` |
+| `X-RateLimit-Used` | Requests consumed |
+
+### GraphQL Rejection
+
+Guard rejections in GraphQL resolvers return structured extensions:
+
+```json
+{
+  "errors": [{
+    "message": "Too Many Requests",
+    "extensions": {
+      "code": "RATE_LIMIT_EXCEEDED",
+      "statusCode": 429,
+      "details": {
+        "reason": "rate_limit",
+        "scope": "ip",
+        "limit": 100,
+        "remaining": 0,
+        "windowSeconds": 60,
+        "retryAfterSeconds": 42,
+        "resetAt": 1722650400000
+      }
+    }
+  }]
+}
+```
+
+### What Is Never Exposed
+
+Guard internals stay server-side: guard names, rule IDs, Redis keys, configured IP lists, and raw user IDs are never included in client-facing responses.
+
+## Guard Alerts
+
+Every guard rejection is automatically recorded in the `enfyra_guard_alert` system table for admin monitoring.
+
+| Column | Description |
+|---|---|
+| `scope` | `ip`, `user`, or `route` |
+| `scopeKey` | The subject that was blocked (IP address, user ID, or route path) |
+| `routePath` | The route that rejected the request |
+| `method` | HTTP method of the rejected request |
+| `errorCode` | `RATE_LIMIT_EXCEEDED`, `IP_NOT_ALLOWED`, or `IP_BLOCKED` |
+| `guardName` | Name of the guard that rejected (for admin reference) |
+| `createdAt` | When the rejection occurred |
+
+Alerts are visible in **Settings > Admin > Runtime Monitor > Guards** tab, which shows repeated offenders grouped by subject and a chronological rejection log.
+
+The alert route (`/enfyra_guard_alert`) supports `GET` and `DELETE` only — records are created automatically by the guard middleware and cannot be inserted via API.
 
 ## Guards vs. preHook Rate Limiting
 
