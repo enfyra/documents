@@ -332,24 +332,15 @@ const savedFile = await @STORAGE.$upload({
   description: @BODY.description
 });
 
-// Stream response (cho file lớn hoặc xử lý ảnh)
-const { Readable } = require('stream');
-const sharp = @PKGS.sharp;
+// Stream response upstream (cho file lớn hoặc SSE)
+const upstream = await @PKGS.undici.request(@QUERY.imageUrl, { method: 'GET' });
 
-// Tải xuống và thay đổi kích thước ảnh
-const response = await fetch(@QUERY.imageUrl);
-const stream = Readable.fromWeb(response.body);
-
-const transformer = sharp()
-  .resize(800, 600, { fit: 'inside' })
-  .jpeg({ quality: 85 });
-
-// Stream tới client (tiết kiệm bộ nhớ)
-@RES.stream(stream.pipe(transformer), {
-  mimetype: 'image/jpeg',
-  filename: 'resized-image.jpg'
+await @RES.stream(upstream.body, {
+  mimetype: upstream.headers['content-type'] || 'application/octet-stream'
 });
 ```
+
+`@RES.stream` cần readable từ một server package đã cài đặt. `fetch`, `Readable` và `AbortController` native không phải API template portable. `@HELPERS.$fetch` buffer toàn bộ response nên không dùng cho SSE hoặc chat streaming.
 
 ** Xem [File Handling](./file-handling.md)** để biết đầy đủ về tải file lên, streaming và xử lý ảnh.
 

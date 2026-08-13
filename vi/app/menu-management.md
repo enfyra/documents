@@ -127,47 +127,32 @@ Mỗi mục menu trong cây có các thao tác nhanh sau:
 
 **Cảnh báo**: Việc xóa menu cũng ảnh hưởng đến các menu con phụ thuộc vào menu đó với vai trò mục cha. Hệ thống sẽ tự động sắp xếp lại cấu trúc phân cấp.
 
-## Hệ thống quyền
+## Hiển thị menu
 
-### Cách quyền của menu hoạt động
+Hiển thị menu chỉ là contract điều hướng, tách biệt với quyền route và không cấp quyền gọi API.
 
-Hệ thống menu sử dụng `PermissionGate` và `usePermissions` ở bên trong để tự động hiện hoặc ẩn mục menu theo quyền của người dùng. Khi bạn cấu hình quyền cho một menu, hệ thống sẽ:
+### Menu public
 
-1. **Đánh giá quyền** khi tải menu.
-2. **Chỉ hiển thị menu** nếu người dùng có đủ quyền cần thiết.
-3. **Ẩn menu cha** nếu người dùng không thể truy cập bất kỳ mục con nào.
-4. **Tự động cập nhật** khi quyền thay đổi.
+Menu mới mặc định là private (`isPublic: false`), ngoại trừ Dashboard tích hợp (`/dashboard`) được public ngay từ lần cài đầu. Chỉ bật **Public** (`isPublic`) cho menu khác khi mọi role đều phải thấy. Đây là trạng thái tường minh; không được tự hiểu “không có role row” là public đối với menu private. Ở lần cài mới, role không phải root sẽ chưa thấy các menu khác cho đến khi được thêm role rule hoặc menu được bật public.
 
-**Xem [Các thành phần quyền](./permission-components.md) để biết chi tiết kỹ thuật.**
+### Menu giới hạn theo role
 
-### Thiết lập quyền cho menu
+1. Tắt **Public** (`isPublic: false`) trong trình chỉnh sửa menu.
+2. Trong phần **Role visibility**, nhấn **Add role**.
+3. Chọn từng role được phép thấy menu rồi lưu rule.
+4. Tắt hoặc xóa role rule khi role đó không còn được thấy menu.
 
-1. Nhấn **"Cấu hình quyền"** trong biểu mẫu menu.
-2. Dùng [Trình tạo quyền](./permission-builder.md) để tạo quy tắc:
-   - **Cho phép tất cả**: Hiển thị menu với mọi người.
-   - **Tuyến + Thao tác**: Chỉ định các quyền tuyến bắt buộc.
-   - **Logic AND/OR**: Kết hợp nhiều điều kiện quyền.
+Menu private không có role rule đang bật sẽ không hiển thị với role thông thường nào. Root admin vẫn thấy menu đang bật.
 
-### Các ví dụ phân quyền thường gặp
+### Menu cha
 
-**Chỉ quản trị viên:**
+Menu cha vẫn hiển thị nếu còn ít nhất một menu con mà role được phép thấy, để người dùng giữ được đường dẫn điều hướng tới menu con đó.
 
-- Chọn tuyến: `/admin`.
-- Bật thao tác: Đọc.
+### Quyền API và action
 
-**Truy cập một trong nhiều tuyến (OR):**
+`PermissionGate` bên trong page tiếp tục kiểm soát button, form, tab và action bằng điều kiện route/method. Quyền route phía backend vẫn là authority, nên menu có thể hiện nhưng API vẫn trả `403` nếu role chưa được cấp quyền. Cấu hình các gate này độc lập; không đặt JSON route/method vào cấu hình hiển thị menu.
 
-- Thêm nhóm OR.
-- Thêm quyền 1: Tuyến `/users`, thao tác Đọc.
-- Thêm quyền 2: Tuyến `/settings`, thao tác Cập nhật.
-
-**Quyền phức tạp (AND/OR):**
-
-- Thêm nhóm AND.
-- Thêm quyền: Tuyến `/products`, thao tác Đọc.
-- Thêm nhóm con OR:
-  - Quyền 1: Tuyến `/products`, thao tác Tạo.
-  - Quyền 2: Tuyến `/products`, thao tác Cập nhật.
+Field JSON `enfyra_menu.permission` cũ không còn được dùng để quyết định menu hiển thị. Dùng `isPublic` và các role visibility rule thay thế.
 
 ## Ví dụ về cấu trúc menu
 

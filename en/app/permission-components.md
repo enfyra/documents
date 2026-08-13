@@ -148,50 +148,41 @@ The system maps actions to HTTP methods:
 
 ## Integration with Menu System
 
-The menu system uses both `PermissionGate` and `usePermissions` internally to control menu visibility.
+Menu visibility is a separate role-to-menu contract. It does not reuse route/method conditions and it does not grant API access.
 
-### How Menus Use Permissions
-
-When you set permissions on a menu item:
+### Menu visibility contract
 
 ```javascript
-// Menu configuration
+// enfyra_menu
 {
   label: 'User Management',
-  route: '/settings/users',
-  permission: {
-    or: [
-      { route: '/users', methods: ['GET'] },
-      { route: '/users', methods: ['POST'] }
-    ]
-  }
+  path: '/settings/users',
+  isPublic: false,
+  menuPermissions: [
+    { isEnabled: true, role: { id: 7, name: 'operator' } }
+  ]
 }
 ```
 
-The menu system:
-1. Uses `checkPermissionCondition` to evaluate the permission
-2. Only renders the menu item if permission check passes
-3. Automatically hides parent menus if no child items are accessible
+- `isPublic: true` shows an enabled menu to every role.
+- New menus default to `isPublic: false`; the built-in Dashboard (`/dashboard`) is the initial public exception. Other menus are hidden from non-root roles on a fresh install until a rule is added.
+- `isPublic: false` requires an enabled `enfyra_menu_permission` row for the user's role.
+- A private menu with no enabled role rows is hidden from non-root roles.
+- A parent remains visible when any child is visible.
 
-### Menu Components
+The app sidebar evaluates this contract through `usePermissions().hasMenuPermission()`. The old `enfyra_menu.permission` JSON field is not used for navigation visibility.
 
-**Menu System** uses permissions:
+### Menu visibility and action gates
+
+Keep route/method `PermissionGate` conditions inside the page for buttons, forms, tabs, and actions:
+
 ```vue
-// Internally filters menu items based on permissions
-const visibleItems = menuGroups.filter(item => {
-  if (!item.permission) return true;
-  return checkPermissionCondition(item.permission);
-});
-```
-
-**Menu Items** wrapped in PermissionGate:
-```vue
-<PermissionGate :condition="menuItem.permission">
-  <MenuItem :item="menuItem" />
+<PermissionGate :condition="{ route: '/enfyra_user', methods: ['POST'] }">
+  <UButton @click="createUser">Create user</UButton>
 </PermissionGate>
 ```
 
-**Result**: Menus automatically adapt to user permissions without manual configuration.
+The backend route permission remains authoritative. A menu may be visible while an API call returns `403`; configure `PermissionGate` and route access independently.
 
 ## Common Patterns
 

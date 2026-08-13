@@ -267,6 +267,8 @@ Distributed user-cache and locking operations. All cache functions require `awai
 
 The user cache has a soft allocation controlled by `REDIS_USER_CACHE_LIMIT_MB` (default `30`). If the allocation is exceeded, Enfyra evicts least-recently-used user-cache keys only. System Redis keys such as runtime cache snapshots, BullMQ queues, Socket.IO, runtime telemetry, and locks are not counted or evicted by this quota.
 
+For high-volume proxy checks, cache only derived catalog or access data with a short explicit TTL. Keep credentials, token revocation, and other security decisions live; a cache hit must never be treated as proof that a credential is still valid.
+
 ### Get Cached Value
 
 ```javascript

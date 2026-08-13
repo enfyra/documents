@@ -155,53 +155,41 @@ Hệ thống ánh xạ các hành động sang phương thức HTTP như sau:
 
 ## Tích hợp với hệ thống menu
 
-Hệ thống menu sử dụng cả `PermissionGate` và `usePermissions` ở bên trong để kiểm soát việc hiển thị menu.
+Hiển thị menu là một contract riêng giữa role và menu. Nó chỉ điều khiển điều hướng, không cấp quyền gọi API.
 
-### Cách menu sử dụng quyền
-
-Khi bạn đặt quyền cho một mục menu:
+### Contract hiển thị menu
 
 ```javascript
-// Menu configuration
+// enfyra_menu
 {
   label: 'User Management',
-  route: '/settings/users',
-  permission: {
-    or: [
-      { route: '/users', methods: ['GET'] },
-      { route: '/users', methods: ['POST'] }
-    ]
-  }
+  path: '/settings/users',
+  isPublic: false,
+  menuPermissions: [
+    { isEnabled: true, role: { id: 7, name: 'operator' } }
+  ]
 }
 ```
 
-Hệ thống menu sẽ:
+- `isPublic: true` hiển thị menu đang bật cho mọi role.
+- Menu mới mặc định `isPublic: false`; Dashboard tích hợp (`/dashboard`) là ngoại lệ public ngay từ đầu. Các menu khác bị ẩn với role không phải root ở lần cài mới nếu chưa có rule.
+- `isPublic: false` yêu cầu một dòng `enfyra_menu_permission` đang bật cho role hiện tại.
+- Menu private không có role rule đang bật sẽ bị ẩn; root admin vẫn thấy menu đang bật.
+- Menu cha vẫn hiện nếu có ít nhất một menu con mà role được phép thấy.
 
-1. Dùng `checkPermissionCondition` để đánh giá điều kiện quyền.
-2. Chỉ render mục menu khi điều kiện quyền được đáp ứng.
-3. Tự động ẩn menu cha nếu người dùng không thể truy cập bất kỳ mục con nào.
+Sidebar đánh giá contract này qua `usePermissions().hasMenuPermission()`. Field JSON `enfyra_menu.permission` cũ không còn dùng cho điều hướng.
 
-### Các component menu
+### Hiển thị action trong page
 
-**Hệ thống menu** sử dụng quyền:
-
-```vue
-// Internally filters menu items based on permissions
-const visibleItems = menuGroups.filter(item => {
-  if (!item.permission) return true;
-  return checkPermissionCondition(item.permission);
-});
-```
-
-**Các mục menu** được bao bọc bằng `PermissionGate`:
+Giữ điều kiện route/method của `PermissionGate` bên trong page cho button, form, tab và action:
 
 ```vue
-<PermissionGate :condition="menuItem.permission">
-  <MenuItem :item="menuItem" />
+<PermissionGate :condition="{ route: '/enfyra_user', methods: ['POST'] }">
+  <UButton @click="createUser">Create user</UButton>
 </PermissionGate>
 ```
 
-**Kết quả**: Menu tự động thay đổi theo quyền của người dùng mà không cần cấu hình thủ công.
+Quyền route phía backend vẫn là authority. Menu có thể hiển thị nhưng API vẫn trả `403`; cấu hình `PermissionGate` và route access độc lập.
 
 ## Các mẫu sử dụng phổ biến
 

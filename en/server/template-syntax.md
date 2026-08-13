@@ -328,24 +328,15 @@ const savedFile = await @STORAGE.$upload({
   description: @BODY.description
 });
 
-// Stream response (for large files or image processing)
-const { Readable } = require('stream');
-const sharp = @PKGS.sharp;
+// Stream an upstream response (for large files or SSE)
+const upstream = await @PKGS.undici.request(@QUERY.imageUrl, { method: 'GET' });
 
-// Download and resize image
-const response = await fetch(@QUERY.imageUrl);
-const stream = Readable.fromWeb(response.body);
-
-const transformer = sharp()
-  .resize(800, 600, { fit: 'inside' })
-  .jpeg({ quality: 85 });
-
-// Stream to client (memory efficient!)
-@RES.stream(stream.pipe(transformer), {
-  mimetype: 'image/jpeg',
-  filename: 'resized-image.jpg'
+await @RES.stream(upstream.body, {
+  mimetype: upstream.headers['content-type'] || 'application/octet-stream'
 });
 ```
+
+`@RES.stream` expects a readable from an installed server package. Native `fetch`, `Readable`, and `AbortController` are not portable template APIs. `@HELPERS.$fetch` buffers the response and should not be used for SSE or chat streaming.
 
 ** See [File Handling](./file-handling.md)** for complete guide on file uploads, streaming, and image processing.
 

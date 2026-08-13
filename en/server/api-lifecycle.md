@@ -214,6 +214,18 @@ The processed response is sent back to the client.
 - HTTP status code
 - Headers
 
+## Streaming a Proxy Response
+
+Use a streaming response when an upstream service sends chunks (for example, an AI response or a large file).
+
+- Call `await @RES.stream(readable, options)` with a readable returned by an installed server package.
+- Set the content type deliberately and forward only safe response headers. Keep upstream credentials server-side.
+- Do not return a second JSON value after starting the stream.
+- If you inspect chunks with `observer`, treat each callback as a fragment rather than a complete message. Buffer framing such as SSE lines before parsing it.
+- Put required audit, usage, or billing writes in a Flow so they are not lost when the client disconnects.
+
+The timeout configured on the matching `enfyra_route_handler` method covers the complete upstream request and response stream. Choose it per method and do not add a separate full timeout for every phase.
+
 ## Context Sharing
 
 The `$ctx` object is the **same reference** throughout the entire request lifecycle. This means:
@@ -458,4 +470,3 @@ if (resource.data[0].userId !== $ctx.$user.id && $ctx.$user.role !== 'admin') {
 - Learn about [Repository Methods](./repository-methods/) for database operations
 - See [Context Reference](./context-reference/) for all available properties
 - Check [Hooks and Handlers](./hooks-handlers/) for creating custom logic
-
