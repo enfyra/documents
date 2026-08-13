@@ -113,44 +113,32 @@ Each menu item in the tree provides quick actions:
 
 **Warning**: Deleting a menu also removes any child menus that depend on it as a parent. The system will automatically reorganize the hierarchy.
 
-## Permission System  
+## Menu Visibility
 
-### How Menu Permissions Work
+Menu visibility is a navigation-only contract. It is separate from route permissions and never grants access to an API call.
 
-The menu system uses `PermissionGate` and `usePermissions` internally to automatically show/hide menu items based on user permissions. When you configure permissions for a menu, the system:
+### Public menus
 
-1. **Evaluates permissions** when the menu loads
-2. **Shows menu** only if user has required permissions
-3. **Hides parent menus** if user can't access any child items
-4. **Updates automatically** when permissions change
+New menus are private by default (`isPublic: false`), except the built-in Dashboard menu (`/dashboard`), which is public from the initial install. Enable **Public** (`isPublic`) for any other menu when every role should see it. This is explicit; a missing role row must not silently make a private menu public. On a fresh install, no non-root role sees other menus until a role rule is added or a menu is made public.
 
-**See [Permission Components](./permission-components.md) for technical details**
+### Role-restricted menus
 
-### Setting Menu Permissions
+1. Disable **Public** (`isPublic: false`) in the menu editor.
+2. In **Role visibility**, click **Add role**.
+3. Select each role that should see the menu and save the rule.
+4. Disable or remove a role rule when that role should no longer see the menu.
 
-1. Click **"Configure Permission"** in the menu form
-2. Use the [Permission Builder](./permission-builder.md) to create rules:
-   - **Allow All**: Makes menu visible to everyone
-   - **Route + Actions**: Specify which route permissions are required
-   - **AND/OR Logic**: Combine multiple permission conditions
+A private menu with no enabled role rules is visible to no non-root role. Root admins can always see enabled menus.
 
-### Common Permission Examples
+### Parent menus
 
-**Admin Only:**
-- Select route: `/admin`
-- Enable action: Read
+A parent menu remains visible when at least one visible child remains, even if the parent itself is private. This keeps the navigation path to an allowed child intact.
 
-**Multiple Route Access (OR):**
-- Add OR group
-- Add permission 1: Route `/users`, Action: Read
-- Add permission 2: Route `/settings`, Action: Update
+### API and action permissions
 
-**Complex Permissions (AND/OR):**
-- Add AND group
-- Add permission: Route `/products`, Action: Read
-- Add OR sub-group:
-  - Permission 1: Route `/products`, Action: Create
-  - Permission 2: Route `/products`, Action: Update
+`PermissionGate` inside the page continues to control buttons, forms, tabs, and other actions using route/method conditions. The backend route permission remains authoritative, so a visible menu can still lead to a `403` when the target role lacks API access. Configure those action gates independently; do not put route/method JSON in the menu visibility setting.
+
+The old `enfyra_menu.permission` JSON field is not used for menu visibility. Use `isPublic` and role visibility rules instead.
 
 ## Menu Hierarchy Examples
 

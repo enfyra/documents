@@ -41,6 +41,20 @@ if ($ctx.$uploadedFile) {
 }
 ```
 
+### Streaming response HTTP
+
+Với endpoint proxy, dùng một server package đã cài đặt để lấy readable stream rồi truyền thẳng vào `@RES.stream`:
+
+```javascript
+const upstream = await @PKGS.undici.request(@QUERY.url, { method: 'GET' });
+
+await @RES.stream(upstream.body, {
+  mimetype: 'text/event-stream'
+});
+```
+
+`@HELPERS.$fetch` buffer toàn bộ response nên không phù hợp với SSE hoặc chat streaming. Giữ authorization header của upstream ở server, chỉ chuyển tiếp response header an toàn, và không return payload khác sau khi `@RES.stream` bắt đầu. Nếu dùng `observer`, hãy buffer các fragment trước khi parse ranh giới message.
+
 ## Thông tin API
 
 Truy cập thông tin chi tiết về request và response API hiện tại.

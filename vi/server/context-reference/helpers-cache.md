@@ -271,6 +271,8 @@ Các thao tác user cache và khóa phân tán. Mọi hàm cache đều cần `a
 
 Bộ nhớ cache của người dùng có phân bổ mềm được kiểm soát bởi`REDIS_USER_CACHE_LIMIT_MB`(mặc định`30`). Nếu phân bổ vượt quá, Enfyra chỉ loại bỏ các khóa bộ nhớ cache người dùng ít được sử dụng gần đây nhất. Các phím System Redis như ảnh chụp nhanh bộ nhớ cache thời gian chạy, hàng đợi BullMQ, Socket.IO, đo từ xa thời gian chạy và khóa không được tính hoặc loại bỏ bởi hạn ngạch này.
 
+Với các kiểm tra proxy có lưu lượng lớn, chỉ cache catalog hoặc dữ liệu quyền đã suy ra bằng TTL ngắn, rõ ràng. Credential, thu hồi token và quyết định bảo mật khác phải được kiểm tra trực tiếp; cache hit không bao giờ tự chứng minh credential còn hợp lệ.
+
 ### Lấy giá trị cache
 
 ```javascript

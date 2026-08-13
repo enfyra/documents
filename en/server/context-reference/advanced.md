@@ -37,6 +37,20 @@ if ($ctx.$uploadedFile) {
 }
 ```
 
+### Streaming an HTTP response
+
+For a proxy endpoint, use an installed server package that returns a readable stream and pass it directly to `@RES.stream`:
+
+```javascript
+const upstream = await @PKGS.undici.request(@QUERY.url, { method: 'GET' });
+
+await @RES.stream(upstream.body, {
+  mimetype: 'text/event-stream'
+});
+```
+
+`@HELPERS.$fetch` buffers a response and is not suitable for SSE or chat streaming. Keep upstream authorization headers on the server, forward only safe response headers, and do not return another payload after `@RES.stream` starts. If an `observer` is used, buffer fragments before parsing message boundaries.
+
 ## API Information
 
 Access detailed information about the current API request and response.

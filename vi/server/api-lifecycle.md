@@ -218,6 +218,18 @@ Response đã được xử lý được gửi về client.
 - Mã trạng thái HTTP
 - Header
 
+## Stream response proxy
+
+Dùng streaming response khi dịch vụ upstream trả dữ liệu theo từng chunk (ví dụ response AI hoặc file lớn).
+
+- Gọi `await @RES.stream(readable, options)` với readable do một server package đã cài đặt trả về.
+- Chọn content type rõ ràng và chỉ chuyển tiếp các response header an toàn. Giữ credential của upstream ở phía server.
+- Sau khi bắt đầu stream, không return thêm một JSON response khác.
+- Nếu dùng `observer` để đọc chunk, hãy coi mỗi callback là một mảnh dữ liệu, không phải một message hoàn chỉnh. Cần buffer các dòng SSE/JSON trước khi parse.
+- Audit, usage hoặc billing bắt buộc nên ghi qua Flow để không mất khi client ngắt kết nối.
+
+Timeout của method `enfyra_route_handler` tương ứng bao phủ toàn bộ request tới upstream và response stream. Cấu hình theo từng method, không đặt lại một timeout đầy đủ cho từng phase.
+
 ## Chia sẻ context
 
 Đối tượng `$ctx` là **cùng một tham chiếu** trong toàn bộ vòng đời request. Điều này có nghĩa:
