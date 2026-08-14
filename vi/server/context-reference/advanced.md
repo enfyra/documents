@@ -49,11 +49,15 @@ Với endpoint proxy, dùng một server package đã cài đặt để lấy re
 const upstream = await @PKGS.undici.request(@QUERY.url, { method: 'GET' });
 
 await @RES.stream(upstream.body, {
-  mimetype: 'text/event-stream'
+  mimetype: 'text/event-stream',
+  transform: (text, kind) => {
+    if (kind === 'end') return 'data: [DONE]\n\n';
+    return text.replace(/^data:/gm, 'event: converted\ndata:');
+  }
 });
 ```
 
-`@HELPERS.$fetch` buffer toàn bộ response nên không phù hợp với SSE hoặc chat streaming. Giữ authorization header của upstream ở server, chỉ chuyển tiếp response header an toàn, và không return payload khác sau khi `@RES.stream` bắt đầu. Nếu dùng `observer`, hãy buffer các fragment trước khi parse ranh giới message.
+`transform(text, kind)` chạy trước khi relay mỗi `chunk` và lần `end` cuối. Return string để thay output, `null` để bỏ output, hoặc `undefined` để giữ nguyên. Nó dùng để điều chỉnh stream mà client nhận; lỗi bị ném sẽ làm stream thất bại. `@HELPERS.$fetch` buffer toàn bộ response nên không phù hợp với SSE hoặc chat streaming. Giữ authorization header của upstream ở server, chỉ chuyển tiếp response header an toàn, và không return payload khác sau khi `@RES.stream` bắt đầu. Nếu dùng `observer`, hãy buffer fragment gốc trước khi parse ranh giới message. Parser trong `transform` cũng phải buffer fragment vì SSE frame có thể trải qua nhiều chunk.
 
 ## Thông tin API
 

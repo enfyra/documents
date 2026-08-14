@@ -225,8 +225,25 @@ Dùng streaming response khi dịch vụ upstream trả dữ liệu theo từng 
 - Gọi `await @RES.stream(readable, options)` với readable do một server package đã cài đặt trả về.
 - Chọn content type rõ ràng và chỉ chuyển tiếp các response header an toàn. Giữ credential của upstream ở phía server.
 - Sau khi bắt đầu stream, không return thêm một JSON response khác.
+- Chỉ dùng `transform(text, kind)` khi client cần streamed body hoặc protocol khác. Callback nhận các fragment `chunk` đã decode và một lần `end` rỗng: return string để thay output, `null` để bỏ output, hoặc `undefined` để chuyển tiếp nguyên trạng. Lỗi trong transform làm stream thất bại thay vì âm thầm trộn hai protocol.
 - Nếu dùng `observer` để đọc chunk, hãy coi mỗi callback là một mảnh dữ liệu, không phải một message hoàn chỉnh. Cần buffer các dòng SSE/JSON trước khi parse.
 - Audit, usage hoặc billing bắt buộc nên ghi qua Flow để không mất khi client ngắt kết nối.
+
+Ví dụ, protocol adapter có thể thay mỗi SSE frame và thêm terminal event:
+
+```javascript
+const upstream = await @PKGS.undici.request(upstreamUrl, requestOptions);
+
+await @RES.stream(upstream.body, {
+  mimetype: 'text/event-stream',
+  transform: (text, kind) => {
+    if (kind === 'end') return 'data: [DONE]\n\n';
+    return text.replace(/^data:/gm, 'event: converted\ndata:');
+  }
+});
+```
+
+Nếu conversion cần parse message SSE hoặc JSON, hãy giữ buffer giữa các lần gọi vì một frame logic có thể nằm trên nhiều chunk. Dùng `observer` để quan sát best-effort stream gốc; dùng `transform` cho byte gửi về client.
 
 Timeout của method `enfyra_route_handler` tương ứng bao phủ toàn bộ request tới upstream và response stream. Cấu hình theo từng method, không đặt lại một timeout đầy đủ cho từng phase.
 
