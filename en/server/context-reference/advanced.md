@@ -45,11 +45,15 @@ For a proxy endpoint, use an installed server package that returns a readable st
 const upstream = await @PKGS.undici.request(@QUERY.url, { method: 'GET' });
 
 await @RES.stream(upstream.body, {
-  mimetype: 'text/event-stream'
+  mimetype: 'text/event-stream',
+  transform: (text, kind) => {
+    if (kind === 'end') return 'data: [DONE]\n\n';
+    return text.replace(/^data:/gm, 'event: converted\ndata:');
+  }
 });
 ```
 
-`@HELPERS.$fetch` buffers a response and is not suitable for SSE or chat streaming. Keep upstream authorization headers on the server, forward only safe response headers, and do not return another payload after `@RES.stream` starts. If an `observer` is used, buffer fragments before parsing message boundaries.
+`transform(text, kind)` runs before each `chunk` and the final `end` relay. Return a string to replace output, `null` to suppress it, or `undefined` to keep it. It is for adapting the client-visible stream; a thrown error fails the stream. `@HELPERS.$fetch` buffers a response and is not suitable for SSE or chat streaming. Keep upstream authorization headers on the server, forward only safe response headers, and do not return another payload after `@RES.stream` starts. If an `observer` is used, buffer original fragments before parsing message boundaries. A parser in `transform` must also buffer fragments because SSE frames can cross chunk boundaries.
 
 ## API Information
 

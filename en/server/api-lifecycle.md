@@ -221,8 +221,25 @@ Use a streaming response when an upstream service sends chunks (for example, an 
 - Call `await @RES.stream(readable, options)` with a readable returned by an installed server package.
 - Set the content type deliberately and forward only safe response headers. Keep upstream credentials server-side.
 - Do not return a second JSON value after starting the stream.
+- Use `transform(text, kind)` only when the client needs a different streamed body or protocol. It receives arbitrary decoded `chunk` fragments and one empty `end` call: return a string to replace output, `null` to suppress it, or `undefined` to relay the original. A transform error fails the stream instead of silently forwarding mixed protocols.
 - If you inspect chunks with `observer`, treat each callback as a fragment rather than a complete message. Buffer framing such as SSE lines before parsing it.
 - Put required audit, usage, or billing writes in a Flow so they are not lost when the client disconnects.
+
+For example, a protocol adapter can replace each SSE frame and add its terminal event:
+
+```javascript
+const upstream = await @PKGS.undici.request(upstreamUrl, requestOptions);
+
+await @RES.stream(upstream.body, {
+  mimetype: 'text/event-stream',
+  transform: (text, kind) => {
+    if (kind === 'end') return 'data: [DONE]\n\n';
+    return text.replace(/^data:/gm, 'event: converted\ndata:');
+  }
+});
+```
+
+If a conversion must parse SSE or JSON messages, keep a buffer across calls because one logical frame can span multiple chunks. Use `observer` for best-effort observation of the original stream; use `transform` for the bytes sent to the client.
 
 The timeout configured on the matching `enfyra_route_handler` method covers the complete upstream request and response stream. Choose it per method and do not add a separate full timeout for every phase.
 
