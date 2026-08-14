@@ -648,6 +648,28 @@ const handleClick = () => {
 - `useNuxtApp()` - Phiên bản ứng dụng Nuxt
 - `useToast()` - Thông báo bánh mì nướng
 
+**Giao diện (Theme):**
+- `useColorMode()` - Chế độ màu phản ứng (`light` / `dark` / `system`). Theo dõi `colorMode.value` để phản ứng trực tiếp với thay đổi theme — không dùng hack `MutationObserver` trên `<html>` / `<body>`.
+
+### Biểu đồ nhận biết theme
+
+Các thư viện biểu đồ giải quyết biến CSS tại thời điểm khởi tạo (ví dụ ECharts) sẽ lưu đệm các giá trị đó, nên việc chuyển đổi theme không tô lại màu cho biểu đồ đã tạo. Hãy phản ứng với thay đổi theme bằng `useColorMode()` và tạo lại phiên bản biểu đồ thay vì thao tác DOM:
+
+```js
+const colorMode = useColorMode()
+let chart = null
+
+watch(() => colorMode.value, () => {
+  if (chart && series.value.length > 0) {
+    chart.dispose()
+    chart = null
+    nextTick(() => prepareChart().then(() => drawChart()))
+  }
+})
+```
+
+Giữ guard tái sử dụng thông thường trong `prepareChart()` (`if (chart && chart.getDom() === chartElement.value) return`) cho các lần làm mới dữ liệu. Hủy phiên bản trước sẽ khiến guard đó vượt qua ở lần khởi tạo tiếp theo, để thay đổi theme tạo lại biểu đồ với biến CSS mới.
+
 ### Composition API của Vue 3 (Truy cập toàn cầu)
 **Composition API Vue 3 hoàn chỉnh có sẵn trên toàn cầu:**
 
