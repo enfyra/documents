@@ -653,6 +653,28 @@ const handleClick = () => {
 - `useNuxtApp()` - Nuxt app instance
 - `useToast()` - Toast notifications
 
+**Theme:**
+- `useColorMode()` - Reactive color mode (`light` / `dark` / `system`). Watch `colorMode.value` to react to theme changes directly — no `MutationObserver` hacks on `<html>` / `<body>`.
+
+### Theme-Aware Charts
+
+Chart libraries that resolve CSS variables at init (for example ECharts) cache those values, so toggling the theme does not recolor an already-created chart. React to theme changes with `useColorMode()` and re-create the chart instance instead of mutating the DOM:
+
+```js
+const colorMode = useColorMode()
+let chart = null
+
+watch(() => colorMode.value, () => {
+  if (chart && series.value.length > 0) {
+    chart.dispose()
+    chart = null
+    nextTick(() => prepareChart().then(() => drawChart()))
+  }
+})
+```
+
+Keep the normal re-use guard in `prepareChart()` (`if (chart && chart.getDom() === chartElement.value) return`) for data refreshes. Disposing the instance first makes that guard pass on the next re-init, so a theme change re-creates the chart with fresh CSS variables.
+
 ### Vue 3 Composition API (Global Access)
 **Complete Vue 3 Composition API is available globally:**
 
