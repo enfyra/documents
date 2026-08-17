@@ -53,7 +53,7 @@ await @RES.stream(upstream.body, {
 });
 ```
 
-`transform(text, kind)` runs before each `chunk` and the final `end` relay. Return a string to replace output, `null` to suppress it, or `undefined` to keep it. It is for adapting the client-visible stream; a thrown error fails the stream. `@HELPERS.$fetch` buffers a response and is not suitable for SSE or chat streaming. Keep upstream authorization headers on the server, forward only safe response headers, and do not return another payload after `@RES.stream` starts. If an `observer` is used, buffer original fragments before parsing message boundaries. A parser in `transform` must also buffer fragments because SSE frames can cross chunk boundaries.
+`transform(text, kind)` runs before each `chunk` and the final `end` relay. Return a string to replace output, `null` to suppress it, or `undefined` to keep it. It is for adapting the client-visible stream; a thrown error fails the stream. Enfyra uses one incremental UTF-8 decoder for the full stream before it calls `transform`, so a character split across network bytes remains intact in `text`. `text` can still end in the middle of an SSE line, JSON object, or event. Keep a request-local SSE buffer and parse only records terminated by a blank line (`\n\n`, or its CRLF form); do not use a fixed chunk size or spaces as a boundary. `@HELPERS.$fetch` buffers a response and is not suitable for SSE or chat streaming. Keep upstream authorization headers on the server, forward only safe response headers, and do not return another payload after `@RES.stream` starts.
 
 ## API Information
 
