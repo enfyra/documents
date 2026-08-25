@@ -92,6 +92,21 @@ Bắt đầu OAuth provider đã được bật từ browser action:
 </button>
 ```
 
+### Giữ opaque client state qua OAuth
+
+Mọi SDK dùng cùng OAuth redirect contract của core. Truyền chuỗi opaque `state` tùy chọn khi bắt đầu OAuth; Enfyra ký nó vào provider transaction và trả lại đúng chuỗi đó qua query parameter `state` sau cả callback thành công lẫn thất bại.
+
+```ts
+const callbackUrl = new URL('/login', window.location.origin).toString()
+const url = client.auth.getOAuthRedirectUrl('google', callbackUrl, {
+  state: JSON.stringify({ referralCode: 'REF-ABC123DEF456' }),
+})
+
+window.location.assign(url)
+```
+
+Đọc giá trị trả về bằng `new URLSearchParams(window.location.search).get('state')`. State giới hạn 4096 ký tự và chỉ dùng để khôi phục client context như mã giới thiệu hoặc màn hình đích. Không đưa secret, credential hoặc quyết định phân quyền vào state.
+
 ## Next.js
 
 Sau khi cấu hình `@enfyra/sdk-next`, dùng providerless client hook trong Client Component:

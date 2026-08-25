@@ -172,6 +172,50 @@ const updatedUser = await @REPOS.enfyra_user.update({
 await @REPOS.enfyra_user.delete({ id: userId });
 ```
 
+#### Thao tác batch
+
+Chỉ dùng `createMany`, `updateMany` hoặc `deleteMany` trong dynamic handler, hook hoặc flow khi cùng một thao tác phải tác động đến nhiều bản ghi. Đây là repository method, không phải REST batch endpoint public.
+
+Batch mutation chỉ hỗ trợ bảng generic thuần túy. Nó từ chối metadata/schema route và bảng có normalization hoặc lifecycle tùy chỉnh. Enfyra kiểm tra validation và quyền trên từng dữ liệu đầu vào trước khi ghi, sau đó thực hiện một bulk write, một lần reload runtime và một mutation event. Với code phục vụ người dùng, dùng secure repository (`@REPOS.main`, `@REPOS.secure.<table>` hoặc `#secure.<table>`); việc kiểm tra owner, tenant và membership vẫn thuộc về handler của bạn.
+
+`createMany` nhận một mảng record body và trả `data` cùng `count`:
+
+```javascript
+const records = @BODY.records;
+if (!Array.isArray(records) || records.length === 0) {
+  @THROW400('records must be a non-empty array');
+}
+
+const result = await #secure.orders.createMany({
+  data: records,
+  fields: ['id', 'status']
+});
+
+return { data: result.data, count: result.count };
+```
+
+`updateMany` áp dụng một object `data` cho mọi ID được truyền vào. Relation payload bị từ chối có chủ đích; nếu cần connect, disconnect hoặc cascade relation, hãy dùng update từng bản ghi.
+
+```javascript
+const result = await #secure.orders.updateMany({
+  ids: @BODY.ids,
+  data: { status: 'archived' },
+  fields: ['id', 'status']
+});
+
+return { data: result.data, count: result.count };
+```
+
+`deleteMany` nhận các ID và trả về `count` bị tác động:
+
+```javascript
+const result = await #secure.orders.deleteMany({
+  ids: @BODY.ids
+});
+
+return { deleted: result.count };
+```
+
 #### Dùng cú pháp #table_name (ngắn hơn):
 ```javascript
 // Tìm bản ghi có filter và phân trang

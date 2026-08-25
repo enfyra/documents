@@ -25,7 +25,7 @@ if ($ctx.$repos.products) {
 
 ## Repository Methods
 
-Each repository provides these methods:
+Each repository provides record methods and a separate `aggregate()` method for computed results:
 
 ```javascript
 // Find records
@@ -54,9 +54,15 @@ const updateResult = await $ctx.$repos.products.update({
 const deleteResult = await $ctx.$repos.products.delete({
   id: 123
 });
+
+// Compute a filtered summary without loading raw records
+const summaryResult = await $ctx.$repos.products.aggregate({
+  filter: { isActive: { _eq: true } },
+  measures: { products: { count: 'id' } }
+});
 ```
 
-**Important:** All repository methods return `{ data: [...], meta: {...} }` format.
+**Important:** Record methods return `{ data: [...], meta: {...} }`. `aggregate()` returns computed rows under `data` and does not return `meta.aggregate`.
 
 See [Repository Methods Guide](../repository-methods/) for complete documentation.
 

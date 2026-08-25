@@ -27,14 +27,33 @@ return result.data[0] || null
 
 ### Count Rows
 
+Use `aggregate()` for a computed count instead of loading records or requesting legacy `meta` aggregate data.
+
 ```js
-const result = await #post.find({
-  fields: "id",
-  limit: 1,
-  meta: "totalCount"
+const result = await #post.aggregate({
+  filter: { status: { _eq: "published" } },
+  measures: {
+    posts: { count: "id" }
+  }
 })
 
-return result.meta.totalCount
+return result.data[0]?.posts ?? 0
+```
+
+### Group Rows by Day
+
+```js
+const result = await #post.aggregate({
+  dimensions: [
+    { field: "createdAt", bucket: "day", timezone: "Asia/Ho_Chi_Minh" }
+  ],
+  measures: {
+    posts: { count: "id" }
+  },
+  sort: [{ field: "createdAt", direction: "asc" }]
+})
+
+return result.data
 ```
 
 ## Repository Writes
