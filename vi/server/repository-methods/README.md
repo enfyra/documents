@@ -8,7 +8,7 @@ Repository là cách chính để làm việc với bảng cơ sở dữ liệu 
 
 ## Tham chiếu nhanh
 
-**Mọi phương thức repository trả dữ liệu theo dạng:**
+**Các phương thức làm việc với bản ghi trả dữ liệu theo dạng:**
 ```javascript
 {
   data: [...],        // Array of records
@@ -19,11 +19,15 @@ Repository là cách chính để làm việc với bảng cơ sở dữ liệu 
 }
 ```
 
+`aggregate()` cũng trả `{ data: [...] }`, nhưng các row chỉ chứa dimension và measure đã tính toán; không trả raw record và không dùng `meta.aggregate`.
+
 **Các phương thức có sẵn:**
-- [Tìm](./find.md) — Truy vấn bản ghi, lọc, sắp xếp và phân trang
+- [Tìm](./find.md) — Truy vấn raw record với filter, sắp xếp và phân trang
+- [Aggregate](./find.md#aggregate-ket-qua-tinh-toan) — Trả summary đơn giản hoặc grouped analytics
 - [Tạo](./create-update-delete.md#create) — Tạo bản ghi mới
 - [Cập nhật](./create-update-delete.md#update) — Cập nhật bản ghi theo ID
 - [Xóa](./create-update-delete.md#delete) — Xóa bản ghi theo ID
+- [Batch mutation](./create-update-delete.md#batch-create-update-va-delete) — Tạo, cập nhật hoặc xóa nhiều bản ghi trong một generic-table operation
 
 ## Truy cập repository
 

@@ -119,6 +119,12 @@ For larger work, ask the assistant to inspect the current project first and appl
 - Revoke a token immediately if it is exposed in logs, source control, or chat.
 - Test authorization with both an allowed user and a user who must be denied.
 
+## Test execution timeouts
+
+When the assistant runs an Enfyra script, flow-step, WebSocket, REST, or GraphQL test, MCP always sends an explicit execution or request timeout. The default is 60 seconds. Ask for a different positive timeout only when the behavior being tested has a known longer or shorter bound.
+
+This test timeout does not change a saved route handler's production timeout. Configure the handler timeout on its HTTP method; if it is unset, ESV uses a 60-second fallback for that request.
+
 ## Switch environments
 
 MCP configuration is stored in the current project. To point the project at another Enfyra instance, run the configuration command again with the new URL and token, then restart the coding tool.

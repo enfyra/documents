@@ -176,6 +176,66 @@ const result = await $ctx.$repos.posts.find({
 - Thực hành tốt về hiệu năng
 - URL query examples
 
+## Aggregate kết quả tính toán
+
+Dùng `aggregate()` khi cần các giá trị đã tính toán thay vì raw record. Đây là phương thức riêng, không phải option của `find()`. Kết quả nằm trong `data`, không trả raw record và không dùng `meta.aggregate`.
+
+### Summary đơn giản
+
+Bỏ qua `dimensions` để nhận một summary row cho tập dữ liệu sau filter:
+
+```javascript
+const result = await $ctx.$repos.orders.aggregate({
+  filter: {
+    status: { _eq: 'paid' }
+  },
+  measures: {
+    orders: { count: 'id' },
+    revenue: { sum: 'amount' },
+    averageOrderValue: { avg: 'amount' }
+  }
+});
+
+// result.data[0] = { orders: 42, revenue: 18400, averageOrderValue: 438.1 }
+```
+
+Các operation được hỗ trợ là `count`, `countDistinct`, `sum`, `avg`, `min` và `max`. Các operation tính trên số yêu cầu field dạng số. Dùng `countDistinct` để đếm giá trị duy nhất, chẳng hạn số khách hàng.
+
+### Grouped analytics
+
+Thêm `dimensions` khi cần một row cho từng giá trị hoặc time bucket:
+
+```javascript
+const result = await $ctx.$repos.ai_usage.aggregate({
+  filter: {
+    createdAt: {
+      _gte: '2026-08-01T00:00:00+07:00',
+      _lte: '2026-08-31T23:59:59.999+07:00'
+    }
+  },
+  dimensions: [
+    {
+      field: 'createdAt',
+      bucket: 'day',
+      timezone: 'Asia/Ho_Chi_Minh'
+    }
+  ],
+  measures: {
+    requests: { count: 'id' },
+    totalTokens: { sum: 'totalTokens' },
+    creditChargedMilli: { sum: 'creditChargedMilli' }
+  },
+  sort: [{ field: 'createdAt', direction: 'asc' }],
+  limit: 100
+});
+```
+
+Dimension có thể là scalar field hoặc date bucket với `hour`, `day`, `week`, `month` hay `year`. Field trong `sort` phải trỏ tới output key của dimension hoặc tên measure. Dùng `page` và `limit` để phân trang các grouped row.
+
+Các field dùng trong aggregate vẫn chịu kiểm tra authorization và giới hạn với field được mã hóa như các repository query khác. Khi query đi qua ranh giới bảo mật của user, hãy dùng repository có enforcement quyền trường như `$ctx.$repos.main` hoặc `$ctx.$repos.secure.<tableName>`.
+
+Không đặt `aggregate` bên trong `find()`; dạng cũ này không còn được hỗ trợ.
+
 ## Sắp xếp
 
 ### Sort ascending

@@ -182,3 +182,9 @@ To configure rules per column, see the admin app guide: [Column Rules](../app/co
 ## Custom Routes
 
 You can add custom routes (e.g. `/register`, `/orders/:orderId/items`) in Enfyra Settings. Each route exposes the HTTP methods configured for it. Use the same base URL and authentication as for table routes.
+
+## Batch work belongs in server scripts
+
+The generated REST CRUD endpoints operate on one record per `POST`, `PATCH`, or `DELETE` request. They do not expose public batch-create, batch-update, or batch-delete endpoints.
+
+When an internal handler, hook, or flow must change many records efficiently, use the dynamic repository `createMany`, `updateMany`, or `deleteMany` methods. See [Template Syntax](../server/template-syntax.md#database-operations) for the accepted payloads, security boundaries, and batch restrictions.

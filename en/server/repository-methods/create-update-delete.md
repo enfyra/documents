@@ -295,6 +295,52 @@ try {
 }
 ```
 
+---
+
+## Batch create, update, and delete
+
+Use batch repository methods only in dynamic handlers, hooks, and flows. Generated REST CRUD endpoints remain single-record endpoints.
+
+Batch methods are deliberately limited to plain generic tables. Enfyra rejects schema/metadata tables and tables with custom normalization or lifecycle behavior. It validates and authorizes every supplied target before one bulk write, then runs one runtime reload and emits one mutation event. Use a secure repository for user-facing code and still enforce owner, tenant, and membership rules in the handler.
+
+### Create many
+
+```javascript
+const result = await $ctx.$repos.secure.products.createMany({
+  data: [
+    { name: 'Keyboard', price: 99.99 },
+    { name: 'Mouse', price: 49.99 }
+  ],
+  fields: ['id', 'name', 'price']
+});
+
+// result.data contains created records; result.count is 2
+```
+
+### Update many
+
+`updateMany` applies the same data object to every ID. It does not accept relation payloads; update one record at a time when relation changes are required.
+
+```javascript
+const result = await $ctx.$repos.secure.products.updateMany({
+  ids: [101, 102, 103],
+  data: { isActive: false },
+  fields: ['id', 'isActive']
+});
+
+// result.data contains updated records; result.count is 3
+```
+
+### Delete many
+
+```javascript
+const result = await $ctx.$repos.secure.products.deleteMany({
+  ids: [101, 102, 103]
+});
+
+// result: { message: 'Delete successfully!', statusCode: 200, count: 3 }
+```
+
 ## Next Steps
 
 - See [Find Records](./find.md) for querying records

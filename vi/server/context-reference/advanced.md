@@ -57,7 +57,7 @@ await @RES.stream(upstream.body, {
 });
 ```
 
-`transform(text, kind)` chạy trước khi relay mỗi `chunk` và lần `end` cuối. Return string để thay output, `null` để bỏ output, hoặc `undefined` để giữ nguyên. Nó dùng để điều chỉnh stream mà client nhận; lỗi bị ném sẽ làm stream thất bại. `@HELPERS.$fetch` buffer toàn bộ response nên không phù hợp với SSE hoặc chat streaming. Giữ authorization header của upstream ở server, chỉ chuyển tiếp response header an toàn, và không return payload khác sau khi `@RES.stream` bắt đầu. Nếu dùng `observer`, hãy buffer fragment gốc trước khi parse ranh giới message. Parser trong `transform` cũng phải buffer fragment vì SSE frame có thể trải qua nhiều chunk.
+`transform(text, kind)` chạy trước khi relay mỗi `chunk` và lần `end` cuối. Return string để thay output, `null` để bỏ output, hoặc `undefined` để giữ nguyên. Nó dùng để điều chỉnh stream mà client nhận; lỗi bị ném sẽ làm stream thất bại. Enfyra dùng một UTF-8 decoder incremental cho toàn bộ stream trước khi gọi `transform`, nên ký tự bị cắt giữa các byte network vẫn còn nguyên trong `text`. Tuy vậy, `text` vẫn có thể kết thúc giữa một dòng SSE, JSON object hoặc event. Hãy giữ SSE buffer theo từng request và chỉ parse record kết thúc bằng dòng trống (`\n\n` hoặc dạng CRLF); không dùng kích thước chunk cố định hay dấu cách làm ranh giới. `@HELPERS.$fetch` buffer toàn bộ response nên không phù hợp với SSE hoặc chat streaming. Giữ authorization header của upstream ở server, chỉ chuyển tiếp response header an toàn, và không return payload khác sau khi `@RES.stream` bắt đầu.
 
 ## Thông tin API
 

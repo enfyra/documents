@@ -29,7 +29,7 @@ if ($ctx.$repos.products) {
 
 ## Phương thức repository
 
-Mỗi repository cung cấp các phương thức sau:
+Mỗi repository cung cấp các phương thức cho raw record và phương thức riêng `aggregate()` cho kết quả tính toán:
 
 ```javascript
 // Find records
@@ -58,9 +58,15 @@ const updateResult = await $ctx.$repos.products.update({
 const deleteResult = await $ctx.$repos.products.delete({
   id: 123
 });
+
+// Tính summary theo filter mà không tải raw record
+const summaryResult = await $ctx.$repos.products.aggregate({
+  filter: { isActive: { _eq: true } },
+  measures: { products: { count: 'id' } }
+});
 ```
 
-**Lưu ý:** Mọi phương thức repository đều trả về theo dạng `{ data: [...], meta: {...} }`.
+**Lưu ý:** Các phương thức làm việc với record trả về `{ data: [...], meta: {...} }`. `aggregate()` trả các row đã tính trong `data` và không trả `meta.aggregate`.
 
 Xem [hướng dẫn về phương thức repository](../repository-methods/) để biết đầy đủ.
 

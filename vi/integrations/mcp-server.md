@@ -123,6 +123,12 @@ Với công việc lớn, hãy yêu cầu trợ lý đọc project trước. Ch�
 - Thu hồi token ngay nếu token xuất hiện trong log, source control hoặc nội dung trao đổi.
 - Luôn kiểm thử bằng cả người dùng được phép và người dùng phải bị từ chối.
 
+## Timeout khi chạy test
+
+Khi trợ lý chạy test script, flow step, WebSocket, REST hoặc GraphQL của Enfyra, MCP luôn gửi timeout thực thi hoặc request một cách tường minh. Giá trị mặc định là 60 giây. Chỉ yêu cầu timeout dương khác khi hành vi cần kiểm tra có giới hạn thời gian dài hơn hoặc ngắn hơn đã biết.
+
+Timeout cho test không thay đổi timeout production của route handler đã lưu. Hãy cấu hình timeout ở HTTP method của handler; nếu chưa cấu hình, ESV dùng fallback 60 giây cho request đó.
+
 ## Chuyển môi trường
 
 Cấu hình MCP được lưu trong project hiện tại. Muốn chuyển sang Enfyra instance khác, hãy chạy lại lệnh cấu hình với URL và token mới, sau đó khởi động lại công cụ lập trình.

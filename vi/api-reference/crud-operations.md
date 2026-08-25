@@ -156,3 +156,9 @@ Response lỗi (HTTP 400):
 ## Custom route
 
 Bạn có thể thêm custom route (ví dụ `/register`, `/orders/:orderId/items`) trong Enfyra Settings. Mỗi route cung cấp các HTTP method đã cấu hình và dùng cùng base URL, cơ chế xác thực như table route.
+
+## Batch thuộc về server script
+
+REST CRUD endpoint được tạo sẵn chỉ thao tác một bản ghi cho mỗi request `POST`, `PATCH` hoặc `DELETE`. Hệ thống không mở public batch-create, batch-update hay batch-delete endpoint.
+
+Khi handler, hook hoặc flow nội bộ cần thay đổi nhiều bản ghi hiệu quả, hãy dùng dynamic repository `createMany`, `updateMany` hoặc `deleteMany`. Xem [Template Syntax](../server/template-syntax.md#thao-tac-database) để biết payload được hỗ trợ, ranh giới bảo mật và các giới hạn của batch.

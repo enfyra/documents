@@ -31,14 +31,33 @@ return result.data[0] || null
 
 ### Đếm dòng
 
+Dùng `aggregate()` để tính số lượng thay vì tải các bản ghi hoặc dùng dữ liệu aggregate legacy trong `meta`.
+
 ```js
-const result = await #post.find({
-  fields: "id",
-  limit: 1,
-  meta: "totalCount"
+const result = await #post.aggregate({
+  filter: { status: { _eq: "published" } },
+  measures: {
+    posts: { count: "id" }
+  }
 })
 
-return result.meta.totalCount
+return result.data[0]?.posts ?? 0
+```
+
+### Gom nhóm theo ngày
+
+```js
+const result = await #post.aggregate({
+  dimensions: [
+    { field: "createdAt", bucket: "day", timezone: "Asia/Ho_Chi_Minh" }
+  ],
+  measures: {
+    posts: { count: "id" }
+  },
+  sort: [{ field: "createdAt", direction: "asc" }]
+})
+
+return result.data
 ```
 
 ## Ghi repository

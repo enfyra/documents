@@ -172,6 +172,66 @@ const result = await $ctx.$repos.posts.find({
 - Performance best practices
 - URL query examples
 
+## Aggregate Computed Results
+
+Use `aggregate()` when you need calculated values instead of raw records. It is separate from `find()` and returns computed rows under `data`; it never returns raw records or `meta.aggregate`.
+
+### Scalar summary
+
+Omit `dimensions` to return one summary row for the filtered set:
+
+```javascript
+const result = await $ctx.$repos.orders.aggregate({
+  filter: {
+    status: { _eq: 'paid' }
+  },
+  measures: {
+    orders: { count: 'id' },
+    revenue: { sum: 'amount' },
+    averageOrderValue: { avg: 'amount' }
+  }
+});
+
+// result.data[0] = { orders: 42, revenue: 18400, averageOrderValue: 438.1 }
+```
+
+Supported measure operations are `count`, `countDistinct`, `sum`, `avg`, `min`, and `max`. Numeric operations require numeric fields. Use `countDistinct` for values such as unique customers.
+
+### Grouped analytics
+
+Add `dimensions` when you need one row per value or time bucket:
+
+```javascript
+const result = await $ctx.$repos.ai_usage.aggregate({
+  filter: {
+    createdAt: {
+      _gte: '2026-08-01T00:00:00+07:00',
+      _lte: '2026-08-31T23:59:59.999+07:00'
+    }
+  },
+  dimensions: [
+    {
+      field: 'createdAt',
+      bucket: 'day',
+      timezone: 'Asia/Ho_Chi_Minh'
+    }
+  ],
+  measures: {
+    requests: { count: 'id' },
+    totalTokens: { sum: 'totalTokens' },
+    creditChargedMilli: { sum: 'creditChargedMilli' }
+  },
+  sort: [{ field: 'createdAt', direction: 'asc' }],
+  limit: 100
+});
+```
+
+A dimension can be a scalar field or a date bucket using `hour`, `day`, `week`, `month`, or `year`. `sort` fields reference dimension output keys or measure names. `page` and `limit` paginate grouped rows.
+
+Aggregate fields are subject to the same authorization and encrypted-field restrictions as other repository queries. Use a field-permission-enforced repository such as `$ctx.$repos.main` or `$ctx.$repos.secure.<tableName>` when the query crosses a user-facing security boundary.
+
+Do not put `aggregate` inside `find()`; that legacy shape is no longer supported.
+
 ## Sorting
 
 ### Sort ascending

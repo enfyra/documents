@@ -168,6 +168,50 @@ const updatedUser = await @REPOS.enfyra_user.update({
 await @REPOS.enfyra_user.delete({ id: userId });
 ```
 
+#### Batch mutations
+
+Use `createMany`, `updateMany`, or `deleteMany` only inside a dynamic handler, hook, or flow when the same operation must affect multiple records. These are repository methods, not public REST batch endpoints.
+
+Batch mutations are available only for plain generic tables. They reject metadata/schema routes and tables with custom normalization or lifecycle behavior. Enfyra validates and authorizes every input record before the write, then performs one bulk write followed by one runtime reload and one mutation event. Use a secure repository (`@REPOS.main`, `@REPOS.secure.<table>`, or `#secure.<table>`) for user-facing code; ownership, tenant, and membership checks remain your responsibility.
+
+`createMany` accepts an array of record bodies and returns `data` plus `count`:
+
+```javascript
+const records = @BODY.records;
+if (!Array.isArray(records) || records.length === 0) {
+  @THROW400('records must be a non-empty array');
+}
+
+const result = await #secure.orders.createMany({
+  data: records,
+  fields: ['id', 'status']
+});
+
+return { data: result.data, count: result.count };
+```
+
+`updateMany` applies one `data` object to every supplied ID. Relation payloads are intentionally rejected, so use individual updates when the change must connect, disconnect, or cascade relations.
+
+```javascript
+const result = await #secure.orders.updateMany({
+  ids: @BODY.ids,
+  data: { status: 'archived' },
+  fields: ['id', 'status']
+});
+
+return { data: result.data, count: result.count };
+```
+
+`deleteMany` accepts IDs and returns the affected `count`:
+
+```javascript
+const result = await #secure.orders.deleteMany({
+  ids: @BODY.ids
+});
+
+return { deleted: result.count };
+```
+
 #### Using #table_name syntax (shorter):
 ```javascript
 // Find records with filtering and pagination

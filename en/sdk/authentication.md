@@ -88,6 +88,21 @@ Start an enabled OAuth provider from a browser action:
 </button>
 ```
 
+### Preserve opaque client state through OAuth
+
+Every SDK package uses the same core OAuth redirect contract. Pass an optional opaque `state` string when starting OAuth; Enfyra signs it into the provider transaction and returns the identical string as the `state` query parameter after both successful and failed callbacks.
+
+```ts
+const callbackUrl = new URL('/login', window.location.origin).toString()
+const url = client.auth.getOAuthRedirectUrl('google', callbackUrl, {
+  state: JSON.stringify({ referralCode: 'REF-ABC123DEF456' }),
+})
+
+window.location.assign(url)
+```
+
+Read the returned value with `new URLSearchParams(window.location.search).get('state')`. State is limited to 4096 characters and is for restoring client context such as a referral code or intended screen. Do not put secrets, credentials, or authorization decisions in it.
+
 ## Next.js
 
 After configuring `@enfyra/sdk-next`, use its providerless client hook from a Client Component:

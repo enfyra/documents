@@ -4,7 +4,7 @@ Repositories are the main way to interact with your database tables in Enfyra. E
 
 ## Quick Reference
 
-**All repository methods return data in this format:**
+**Record methods return data in this format:**
 ```javascript
 {
   data: [...],        // Array of records
@@ -15,11 +15,15 @@ Repositories are the main way to interact with your database tables in Enfyra. E
 }
 ```
 
+`aggregate()` also returns `{ data: [...] }`, but its rows contain only computed dimensions and measures, never raw records or `meta.aggregate`.
+
 **Available Methods:**
-- [Find](./find.md) - Query records with filtering, sorting, and pagination
+- [Find](./find.md) - Query raw records with filtering, sorting, and pagination
+- [Aggregate](./find.md#aggregate-computed-results) - Return scalar summaries or grouped analytics
 - [Create](./create-update-delete.md#create) - Create new records
 - [Update](./create-update-delete.md#update) - Update existing records by ID
 - [Delete](./create-update-delete.md#delete) - Delete records by ID
+- [Batch mutations](./create-update-delete.md#batch-create-update-and-delete) - Create, update, or delete many records in one generic-table operation
 
 ## Accessing Repositories
 

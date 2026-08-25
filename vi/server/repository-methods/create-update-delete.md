@@ -299,6 +299,52 @@ try {
 }
 ```
 
+---
+
+## Batch create, update và delete
+
+Chỉ dùng batch repository method trong dynamic handler, hook và flow. REST CRUD endpoint được tạo sẵn vẫn là endpoint thao tác từng bản ghi.
+
+Batch method được giới hạn có chủ đích cho bảng generic thuần túy. Enfyra từ chối schema/metadata table và bảng có normalization hoặc lifecycle tùy chỉnh. Hệ thống kiểm tra validation và quyền trên mọi target trước một bulk write, sau đó chạy một runtime reload và phát một mutation event. Với code phục vụ người dùng, dùng secure repository và vẫn phải tự áp dụng quy tắc owner, tenant và membership trong handler.
+
+### Create nhiều bản ghi
+
+```javascript
+const result = await $ctx.$repos.secure.products.createMany({
+  data: [
+    { name: 'Keyboard', price: 99.99 },
+    { name: 'Mouse', price: 49.99 }
+  ],
+  fields: ['id', 'name', 'price']
+});
+
+// result.data chứa các bản ghi đã tạo; result.count là 2
+```
+
+### Update nhiều bản ghi
+
+`updateMany` áp dụng cùng một object data cho mọi ID. Method này không nhận relation payload; hãy update từng bản ghi nếu cần thay đổi relation.
+
+```javascript
+const result = await $ctx.$repos.secure.products.updateMany({
+  ids: [101, 102, 103],
+  data: { isActive: false },
+  fields: ['id', 'isActive']
+});
+
+// result.data chứa các bản ghi đã update; result.count là 3
+```
+
+### Delete nhiều bản ghi
+
+```javascript
+const result = await $ctx.$repos.secure.products.deleteMany({
+  ids: [101, 102, 103]
+});
+
+// result: { message: 'Delete successfully!', statusCode: 200, count: 3 }
+```
+
 ## Tiếp theo
 
 - Xem [Tìm bản ghi](./find.md) để truy vấn bản ghi
