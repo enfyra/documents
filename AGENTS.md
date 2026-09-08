@@ -10,6 +10,7 @@ This repository owns user-facing Enfyra documentation. Keep this file as a thin 
 - Write user documentation around goals, workflows, expected results, safety, and troubleshooting. Internal tool-call sequences, acknowledgement keys, repository macros, and implementation contracts belong in source skills or developer references unless a user must type them directly.
 - Preserve Markdown heading hierarchy, code-fence balance, links, tables, and executable examples across languages.
 - Do not seed documentation manually. The source-controlled Markdown is synchronized only through `../enfyra-landing-page/scripts/sync_docs.py` under the `enfyra-landing-docs-sync` skill.
+- Every change to published Markdown under `en/` or `vi/` must run `yarn docs:check` and then the smallest applicable bounded `scripts/sync_docs.py` synchronization from `../enfyra-landing-page`; do not finish until the selected EN and VI writes are confirmed.
 - Do not commit, push, publish, or run a production synchronization unless the user has authorized that action.
 
 ## Required Skill Routing

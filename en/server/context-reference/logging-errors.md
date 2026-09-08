@@ -4,7 +4,7 @@ Add logs to API responses and throw HTTP errors with proper status codes.
 
 ## Logging
 
-Add logs to API responses. Logs are automatically included in the response.
+Call `@LOGS(...)` or `$ctx.$logs(...)` to record script checkpoints. Output is retained in `enfyra_user_log` and can be inspected under **Settings → Server Logs → User logs**. Use the request correlation ID to find related system errors. See [Trace Errors and Script Logs](../../app/log-viewing.md) for the interface workflow, permissions, retention, and limits.
 
 ### Basic Logging
 
@@ -103,4 +103,3 @@ if ($ctx.$api.error) {
 - See [Error Handling](../error-handling.md) for complete error handling guide
 - Check [Advanced Features](./advanced.md) for API information and error details
 - Learn about [Hooks and Handlers](../hooks-handlers/) for using logging in hooks
-

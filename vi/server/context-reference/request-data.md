@@ -88,6 +88,8 @@ if ($ctx.$data && Array.isArray($ctx.$data.data)) {
 }
 ```
 
+Trong OAuth lifecycle script, `$ctx.$data` dùng một contract ổn định khác: `$ctx.$data.oauth.event` là `user_created` hoặc `login`, `profile` chứa các field identity đã chuẩn hóa và không phụ thuộc provider, còn `claims` chứa phần mở rộng đặc thù của provider. Dùng `$ctx.$user` để truy cập user đã persist và được resolve. Xem [Endpoint xác thực](../../api-reference/authentication.md#oauth-lifecycle-script) để biết cấu trúc đầy đủ và transaction behavior.
+
 ## $ctx.$statusCode
 
 Mã trạng thái HTTP. Có thể thay đổi trong hook.

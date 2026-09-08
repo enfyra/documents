@@ -135,6 +135,61 @@ https://demo.enfyra.io/api/auth/google?redirect=https%3A%2F%2Fchat.example.com%2
 - If `enfyra_oauth_config.autoSetCookies = true`, the backend redirects through `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, sets auth cookies for that origin through the proxy response, then redirects to `redirect`. If `cookieBridgePrefix` is omitted, the prefix defaults to `/api`.
 - If `enfyra_oauth_config.autoSetCookies = false`, the backend redirects to `enfyra_oauth_config.appCallbackUrl` with a short-lived, single-use `code` and `redirect` on the query string. It never places tokens in the URL.
 
+### OAuth Lifecycle Script
+
+Each `enfyra_oauth_config` record can define one optional `sourceCode` lifecycle script. Enfyra runs it once for every successful provider callback, after resolving the persisted user and OAuth account and before creating the session. The script runs inside the server-owned database transaction; it does not need to open its own `@TRANSACTION` scope.
+
+- `@USER` is the resolved persisted `enfyra_user` record.
+- `@DATA.oauth.event` is `user_created` when this callback inserted the user, or `login` for an existing linked OAuth identity.
+- An unlinked provider identity whose email already belongs to an Enfyra user returns a conflict. OAuth login never links accounts by email automatically.
+- Return values are ignored. Perform database changes through `@REPOS` and do not return a value.
+- If the script throws, Enfyra rolls back the user, OAuth account, session, refresh-token hash, and repository mutations, then returns no Enfyra auth tokens.
+- Direct `$fetch`, storage, cache, socket, and flow-trigger effects are external to the database transaction and cannot be rolled back.
+
+The normalized OAuth context is:
+
+```ts
+@DATA.oauth = {
+  event: 'user_created' | 'login',
+  provider: 'google' | 'facebook' | 'github',
+  profile: {
+    providerUserId: string,
+    email: string,
+    emailVerified: boolean | null,
+    name: string | null,
+    givenName: string | null,
+    familyName: string | null,
+    username: string | null,
+    avatarUrl: string | null,
+    profileUrl: string | null,
+    locale: string | null,
+  },
+  claims: Record<string, unknown>,
+  accessToken: string,
+  token: {
+    type: string | null,
+    scopes: string[],
+    expiresAt: string | null,
+  },
+}
+```
+
+`profile` is provider-independent. `claims` contains provider-specific fields not represented by the normalized profile. `accessToken` is ephemeral for this execution; do not log it or persist it unless your integration explicitly requires and protects it.
+
+The following example assumes that your `enfyra_user` schema has non-system `name` and `avatar` columns:
+
+```ts
+if (@DATA.oauth.event === 'user_created') {
+  await @REPOS.enfyra_user.update({
+    id: @USER.id,
+    data: {
+      name: @DATA.oauth.profile.name,
+      avatar: @DATA.oauth.profile.avatarUrl,
+    },
+  })
+}
+```
+
 ---
 
 ## GET /auth/:provider/callback
