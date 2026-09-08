@@ -127,6 +127,61 @@ Response: HTTP 302 redirect đến OAuth provider.
 - Nếu `enfyra_oauth_config.autoSetCookies = true`, backend redirect qua `{redirect.origin}{cookieBridgePrefix}/auth/set-cookies`, đặt auth cookie trên origin đó qua proxy response, rồi redirect đến `redirect`. Bỏ `cookieBridgePrefix` thì mặc định là `/api`.
 - Nếu `autoSetCookies = false`, backend redirect đến `enfyra_oauth_config.appCallbackUrl` với `code` ngắn hạn, dùng một lần cùng `redirect` trên query string. Token không bao giờ nằm trên URL.
 
+### OAuth Lifecycle Script
+
+Mỗi record `enfyra_oauth_config` có thể khai báo một lifecycle script tùy chọn trong `sourceCode`. Enfyra chạy script đúng một lần cho mỗi provider callback thành công, sau khi resolve user và OAuth account đã persist nhưng trước khi tạo session. Script nằm trong database transaction do server sở hữu nên không cần tự mở scope `@TRANSACTION`.
+
+- `@USER` là record `enfyra_user` đã persist và được resolve cho lần đăng nhập.
+- `@DATA.oauth.event` là `user_created` khi callback này vừa insert user, hoặc `login` với OAuth identity đã liên kết.
+- Nếu provider identity chưa liên kết nhưng email đã thuộc một Enfyra user, callback trả conflict. OAuth login không tự liên kết account theo email.
+- Return value bị bỏ qua. Hãy thay đổi dữ liệu qua `@REPOS` và không return giá trị.
+- Nếu script throw, Enfyra rollback user, OAuth account, session, refresh-token hash và các repository mutation, đồng thời không trả Enfyra auth token.
+- Các effect gọi trực tiếp qua `$fetch`, storage, cache, socket và flow trigger nằm ngoài database transaction nên không thể rollback.
+
+OAuth context đã chuẩn hóa có cấu trúc:
+
+```ts
+@DATA.oauth = {
+  event: 'user_created' | 'login',
+  provider: 'google' | 'facebook' | 'github',
+  profile: {
+    providerUserId: string,
+    email: string,
+    emailVerified: boolean | null,
+    name: string | null,
+    givenName: string | null,
+    familyName: string | null,
+    username: string | null,
+    avatarUrl: string | null,
+    profileUrl: string | null,
+    locale: string | null,
+  },
+  claims: Record<string, unknown>,
+  accessToken: string,
+  token: {
+    type: string | null,
+    scopes: string[],
+    expiresAt: string | null,
+  },
+}
+```
+
+`profile` không phụ thuộc provider. `claims` chứa các field đặc thù của provider chưa được biểu diễn trong profile chuẩn. `accessToken` chỉ tồn tại trong lần thực thi này; không log hoặc persist token nếu integration không có yêu cầu rõ ràng và cơ chế bảo vệ phù hợp.
+
+Ví dụ sau giả định schema `enfyra_user` đã có các column non-system `name` và `avatar`:
+
+```ts
+if (@DATA.oauth.event === 'user_created') {
+  await @REPOS.enfyra_user.update({
+    id: @USER.id,
+    data: {
+      name: @DATA.oauth.profile.name,
+      avatar: @DATA.oauth.profile.avatarUrl,
+    },
+  })
+}
+```
+
 ## GET /auth/:provider/callback
 
 OAuth provider redirect về đây sau khi người dùng chấp thuận. Backend đổi code thành token, rồi:

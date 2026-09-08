@@ -61,6 +61,7 @@ Trong tuỳ chọn **`find()`**, truyền điều kiện qua **`filter`**. Endpo
 | `@API` | `$ctx.$api` | Thông tin request/response API |
 | `@SOCKET` | `$ctx.$socket` | Thao tác WebSocket (join, leave, reply, emitToUser, emitToRoom, emitToCurrentRoom, broadcastToRoom, emitToGateway, broadcast; `disconnect` chỉ trong connection handler) |
 | `@TRIGGER` | `$ctx.$trigger` | Kích hoạt flow theo id hoặc tên (`@TRIGGER(flowIdOrName, payload?)`) |
+| `@TRANSACTION` | `$ctx.$transaction` | Phạm vi mutation repository nguyên tử; dùng `await @TRANSACTION.run(async () => { ... })` |
 | `@FLOW` | `$ctx.$flow` | Flow context hiện tại trong flow step (payload, output step trước, meta) |
 | `@FLOW_PAYLOAD` | `$ctx.$flow.$payload` | Payload gốc truyền vào flow |
 | `@FLOW_LAST` | `$ctx.$flow.$last` | Output của flow step trước |

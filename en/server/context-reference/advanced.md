@@ -2,6 +2,22 @@
 
 Advanced context features including file uploads, API information, shared context, and package access.
 
+## Transactions
+
+Use `await @TRANSACTION.run(async () => { ... })` when repository mutations must either all commit or all roll back. It is equivalent to `$ctx.$transaction.run(...)` and works across the configured database backend.
+
+```javascript
+await @TRANSACTION.run(async () => {
+  await @REPOS.orders.create({ data: @BODY.order });
+  await @REPOS.inventory.update({
+    id: @BODY.inventoryId,
+    data: { reserved: true }
+  });
+});
+```
+
+Only repository operations participate in the transaction. Do not assume `@FETCH`, `@STORAGE`, `@CACHE`, `@SOCKET`, or `@TRIGGER` can be rolled back; defer those effects until after a successful transaction when that distinction matters.
+
 ## File Uploads
 
 Access information about uploaded files.

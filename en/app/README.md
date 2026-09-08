@@ -43,7 +43,7 @@ The app is a **pure API client**: it never connects directly to your database. A
   - **[Storage Management](./storage-management.md)** – File uploads, folders, and storage configurations
 
 - **Operations**
-  - **[Server Logs](./log-viewing.md)** – Read and tail backend logs from the admin app
+  - **[Server Logs](./log-viewing.md)** – Trace database-backed system errors and user script logs by correlation ID
   - **[Runtime Monitor](./runtime-monitor.md)** – Process, database, queue, websocket, and Redis visibility
 
 ## Frontend Learning Path

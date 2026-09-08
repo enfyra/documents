@@ -6,6 +6,22 @@ slug: context-nang-cao
 
 Các tính năng context nâng cao gồm tải tệp lên, thông tin API, context dùng chung và truy cập package.
 
+## Transaction
+
+Dùng `await @TRANSACTION.run(async () => { ... })` khi các mutation qua repository phải cùng commit hoặc cùng rollback. Nó tương đương với `$ctx.$transaction.run(...)` và hoạt động trên database backend đang cấu hình.
+
+```javascript
+await @TRANSACTION.run(async () => {
+  await @REPOS.orders.create({ data: @BODY.order });
+  await @REPOS.inventory.update({
+    id: @BODY.inventoryId,
+    data: { reserved: true }
+  });
+});
+```
+
+Chỉ các thao tác repository mới thuộc transaction. Không được giả định `@FETCH`, `@STORAGE`, `@CACHE`, `@SOCKET` hoặc `@TRIGGER` có thể rollback; khi cần, chỉ thực hiện các side effect này sau khi transaction thành công.
+
 ## Tải tệp lên
 
 Truy cập thông tin về tệp đã tải lên.

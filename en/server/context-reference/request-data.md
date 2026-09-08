@@ -84,6 +84,8 @@ if ($ctx.$data && Array.isArray($ctx.$data.data)) {
 }
 ```
 
+In the OAuth lifecycle script, `$ctx.$data` has a different stable contract: `$ctx.$data.oauth.event` is `user_created` or `login`, while `profile` contains normalized provider-independent identity fields and `claims` contains provider-specific extras. Use `$ctx.$user` for the resolved persisted user. See [Authentication Endpoints](../../api-reference/authentication.md#oauth-lifecycle-script) for the complete shape and transaction behavior.
+
 ## $ctx.$statusCode
 
 HTTP status code. Can be modified in hooks.

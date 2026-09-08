@@ -8,7 +8,7 @@ Ghi log vào response API và ném lỗi HTTP với mã trạng thái phù hợp
 
 ## Ghi log
 
-Thêm log vào response API. Các log này tự động xuất hiện trong response.
+Gọi `@LOGS(...)` hoặc `$ctx.$logs(...)` để ghi các mốc xử lý của script. Output được lưu vào `enfyra_user_log` và có thể xem tại **Settings → Server Logs → User logs**. Dùng correlation ID của request để tìm các lỗi hệ thống liên quan. Xem [Trace lỗi và log của script](../../app/log-viewing.md) để biết thao tác trên giao diện, quyền truy cập, thời gian lưu và giới hạn.
 
 ### Ghi log cơ bản
 

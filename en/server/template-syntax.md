@@ -57,6 +57,7 @@ In **`find()`** options, pass predicates as **`filter`**. REST list endpoints al
 | `@API` | `$ctx.$api` | API request/response information |
 | `@SOCKET` | `$ctx.$socket` | WebSocket operations (join, leave, reply, emitToUser, emitToRoom, emitToCurrentRoom, broadcastToRoom, emitToGateway, broadcast; `disconnect` only in connection handlers) |
 | `@TRIGGER` | `$ctx.$trigger` | Trigger a flow by id or name (`@TRIGGER(flowIdOrName, payload?)`) |
+| `@TRANSACTION` | `$ctx.$transaction` | Atomic repository mutation scope; use `await @TRANSACTION.run(async () => { ... })` |
 | `@FLOW` | `$ctx.$flow` | Current flow context inside flow steps (payload, last step output, meta) |
 | `@FLOW_PAYLOAD` | `$ctx.$flow.$payload` | Original payload passed into the flow |
 | `@FLOW_LAST` | `$ctx.$flow.$last` | Output of the previous flow step |

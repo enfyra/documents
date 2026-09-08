@@ -1,106 +1,57 @@
-# Server Logs Viewing
+---
+slug: app/log-viewing
+---
 
-The Server Logs page (`/settings/admin/logs`) provides a modern interface for monitoring and inspecting backend log files.
+# Trace Errors and Script Logs
 
-## Access Requirements
+Open **Settings → Server Logs** (`/settings/admin/logs`) to investigate a failed operation or inspect output from `@LOGS(...)`. The page reads database records across server instances.
 
-- **Root Admin**: Full access
-- **Permission**: `read` action on `/logs` route
+## Access
 
-## Overview
+Root administrators can read both tabs and their details. Other administrators need menu visibility and `GET` permission on `/enfyra_system_error` or `/enfyra_user_log`. Private `stack`, `details`, and `entries` fields also require the corresponding field read permissions. A route permission alone does not reveal private fields.
 
-The logs interface displays:
+## Find a Failed Request
 
-- **Stats Cards**: Total files count, total size, and live monitoring status
-- **File List**: Grid of log files with download buttons
-- **Log Viewer**: Full-screen viewer with search and actions
+1. Copy the `correlationId` from the error response, and note when the request failed.
+2. Select **System errors**.
+3. Choose a time window, paste the ID into **Correlation ID**, then press **Search / Refresh**.
+4. Open an entry to inspect its error code, component, instance, source, status, and available diagnostic details.
+5. Press **Find related user logs** to view script output with the same correlation ID.
 
-## Log File Types
+If you do not have an ID, start with the time window. You can filter by the exact component or error code. Results show the newest records first, with 25 records per page. Refresh is manual.
 
-| Icon | Type | Description |
-|------|------|-------------|
-|  Skull | `crash-*.log` | Fatal crashes, uncaught exceptions |
-|  Alert | `error-*.log` | Error-level logs (HTTP 500+) |
-|  Globe | `access-*.log` | Access logs |
-|  Bug | `debug-*.log` | Debug logs |
-|  File | `app-*.log` | General application logs |
+## Understand the Two Tabs
 
-## Viewing Log Content
+| Tab | Content |
+|---|---|
+| System errors | Server and script execution failures, worker crashes, and database or bootstrap errors that reached the error recorder |
+| User logs | Explicit `@LOGS(...)` / `$ctx.$logs(...)` output, including script console output captured by the executor |
 
-1. Click on any log file card to open the viewer
-2. The viewer displays log entries in JSON format
-3. Use browser back button or close button to return to file list
+A worker crash entry can include the exit code, exit signal, last sampled memory usage, and active script IDs. Use those details when investigating; the text “Worker crashed” alone does not establish an out-of-memory failure.
 
-### Log Viewer Actions
+Expected validation or permission rejections are not automatically system failures. Flow execution history and Runtime Monitor remain useful for their own execution state and live metrics.
 
-| Action | Description |
-|--------|-------------|
-|  Search | Search by Log ID or Correlation ID |
-|  Copy | Copy visible content to clipboard |
-| ⬇ Download | Download last 10,000 lines |
-|  Reload | Refresh log content |
-|  Close | Return to file list |
+## Add Useful Script Logs
 
-## Searching Logs
-
-### Smart ID Detection
-
-The search input automatically detects ID type:
-
-- **Log ID** (starts with `log_`): Find specific log entry
-- **Correlation ID** (starts with `req_`): Find all logs for a request
-
-### Examples
-
-```
-log_mmtajhqm_003e_0n5p     Find specific log entry
-req_1773672046211_abc123   Find all logs for request
+```javascript
+@LOGS('order validation started', { orderId: @BODY.orderId });
+// Perform the operation.
+@LOGS('order validation finished');
 ```
 
-### Search Behavior
+Log checkpoints and identifiers that help explain the operation. Do not log passwords, API keys, authorization headers, complete request bodies, or other confidential data. Stored output is sanitized, but automatic redaction cannot recognize every secret embedded in arbitrary text.
 
-- Debounced search (500ms delay)
-- Shows "No results" message if nothing found
-- Clear search to return to full content
+Script output is grouped by executor task. A route batch can include pre-hook, handler, and post-hook output together; a flow can produce several records under one correlation ID. Large output is bounded and the detail view reports truncation. Private entries may be absent when your field permissions do not allow reading them.
 
-## Pagination
+## Retention and Missing Records
 
-Log content is paginated:
+Records are retained for 30 days and expired records are removed in bounded batches. Database writes run outside the request's business transaction, so a business rollback does not roll back its diagnostic record.
 
-- Default: 20 lines per page
-- Click "Load More" button at the bottom to load the next page
-- Continue loading until no more content (`hasMore: false`)
-- Download for full content (up to 10,000 lines)
+If the database is temporarily unavailable, the server retains a bounded in-memory buffer and retries. A full buffer or a process termination can lose unpersisted records. A failure before the diagnostic schema exists may also have no database record. An empty search therefore does not prove the system was healthy. Check the time window, permissions, and container stdout/stderr when investigating a database outage or fatal startup failure.
 
-## Downloading Logs
+The application does not write or read local log files. During an upgrade, run the complete bootstrap upgrade so both log tables exist before using the page.
 
-Click the download button on any file card or in the viewer:
+## Next Steps
 
-- Downloads last 10,000 lines
-- Format: Plain text with JSON entries
-- Filename matches the log file name
-
-## Stats Dashboard
-
-The stats cards at the top show:
-
-| Stat | Description |
-|------|-------------|
-| Total Files | Number of log files |
-| Total Size | Combined size of all files |
-| Live | Monitoring status indicator |
-
-## Tips
-
-1. **Trace Requests**: Use correlation IDs from error responses to trace request lifecycle
-2. **Check Error Logs First**: For 500 errors, check `error.log` before `app.log`
-3. **Crash Investigation**: Empty `crash.log` = healthy server
-4. **Download for Analysis**: Download large logs for offline analysis
-
-## Responsive Design
-
-The interface adapts to screen size:
-
-- **Desktop**: 3-4 column grid for files, horizontal toolbar in viewer
-- **Tablet**: 2 column grid, compact toolbar
-- **Mobile**: Single column, stacked toolbar buttons
+- [Runtime Monitor](./runtime-monitor.md) for current worker, queue, and database health.
+- [Logging and Error Handling](../server/context-reference/logging-errors.md) for script examples.

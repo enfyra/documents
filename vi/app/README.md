@@ -47,7 +47,7 @@ Nếu bạn đang xây web app, backend cho mobile app, CLI hoặc service đư�
   - **[Quản lý lưu trữ](./storage-management.md)** – Tải lên tệp, thư mục và cấu hình lưu trữ
 
 - **Hoạt động**
-  - **[Nhật ký máy chủ](./log-viewing.md)** – Đọc và theo dõi log backend từ ứng dụng quản trị
+  - **[Nhật ký máy chủ](./log-viewing.md)** – Trace lỗi hệ thống và log của script trong database theo correlation ID
   - **[Theo dõi runtime](./runtime-monitor.md)** – Theo dõi tiến trình, database, queue, websocket và Redis
 
 ## Lộ trình học cho Enfyra App
