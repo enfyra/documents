@@ -1,69 +1,90 @@
 # Enfyra Cloud
 
-Enfyra Cloud is the managed hosting option for Enfyra. Use it when you want an Enfyra project online without provisioning your own server, database, Redis, reverse proxy, TLS, and deployment pipeline.
+Enfyra Cloud is a management plane for Enfyra projects that run in infrastructure accounts you own. Enfyra connects to supported providers through OAuth, creates and manages the resources selected for each project, and gives you one console for provisioning, deployments, updates, credentials, domains, backups, and runtime operations.
 
-Self-hosted Enfyra and Enfyra Cloud use the same product model: an Enfyra runtime, the admin app, generated REST APIs, optional GraphQL, realtime events, flows, extensions, users, roles, files, and metadata-driven schema management. The difference is operational ownership. With self-hosting, you own the infrastructure. With Cloud, Enfyra operates the runtime boundary, shared services, deployment, payment-gated provisioning, and platform maintenance.
+Enfyra does not resell compute. The management subscription is `$11.99` per project per month. Your infrastructure provider bills compute, memory, storage, network traffic, backups, and provider features directly to your provider account.
+
+Railway is the first supported provider. The Cloud project model is provider-neutral, so additional OAuth-capable providers can be added without changing the ownership contract.
 
 ## When To Use Cloud
 
 Choose Enfyra Cloud when you want to:
 
-- Start with a hosted Enfyra instance instead of installing Docker or managing a VPS.
-- Create projects from the Cloud dashboard and receive the project URL and first admin credentials after provisioning.
-- Use Enfyra for production apps while keeping infrastructure work outside your team.
-- Keep a clear upgrade path from managed hosting to self-hosting if your infrastructure needs become more specialized.
+- Operate Enfyra without maintaining a VPS or building a deployment control plane.
+- Keep infrastructure, usage, data, and provider billing in your own account.
+- Let Enfyra manage provisioning, deployments, pinned runtime updates, restarts, environment variables, domains, credentials, and backups.
+- Choose a supported provider for each project instead of locking every project to one infrastructure vendor.
 
-Choose self-hosting when you need to:
+Choose self-hosting when you need complete control over the host, network, deployment pipeline, and every backing service without granting Enfyra management access.
 
-- Control the server, database, Redis, storage, network, and deployment environment yourself.
-- Run inside a private network or compliance boundary that cannot use managed hosting.
-- Customize infrastructure beyond the Cloud plan model.
+## Project And Provider Ownership
 
-## Project Isolation
+The Enfyra Cloud project is the management unit. Each project selects one supported provider and maps to one provider project. You authorize Enfyra through the provider's OAuth flow; you never paste a personal access token into Enfyra Cloud.
 
-Each Cloud project runs in its own Enfyra runtime boundary. App logic, configuration, credentials, tenant metadata, and project access are isolated per project.
+Provider resources remain in your account. Disconnecting OAuth, stopping subscription renewal, losing management entitlement, or removing the Cloud management record does not silently stop or delete provider services and does not stop provider billing. A destructive provider-resource action is separate and always requires explicit confirmation.
 
-Cloud infrastructure uses shared supporting services where that improves operational efficiency. Database, edge, and related platform services are capacity-managed rather than carved into fixed idle slices for every project. This lets active projects benefit from available room when nearby workloads are quiet.
+## Creating A Project
 
-The platform uses a headroom model: capacity is planned with spare operating room, and edge/runtime guardrails prevent one active project from consuming the shared pool in a way that blocks other active projects. Higher plans reserve more headroom per project, so fewer projects share the same capacity envelope and each project has more operating room during busy periods.
+1. Open `https://cloud.enfyra.io` and sign in.
+2. Create the Enfyra Cloud project record.
+3. Choose a supported infrastructure provider.
+4. Connect the provider through OAuth if it is not connected yet.
+5. Configure the provider project, region, subdomain, administrator email, and runtime options.
+6. Review the separate Enfyra and provider billing responsibilities.
+7. Activate the `$11.99` Enfyra management subscription through PayPal.
+8. Start provisioning.
 
-Cloud plan pages describe customer-facing limits such as storage, transfer, region availability, checkout availability, and support level. Raw host package details, provider location codes, and internal CPU/RAM placement values are intentionally not part of the public plan contract.
+Payment is the final setup gate. Enfyra provisions provider resources only after the project configuration is complete and the management subscription is active.
 
-## Creating A Cloud Project
+## Current Railway Topology
 
-1. Open the Cloud dashboard at `https://cloud.enfyra.io`.
-2. Sign in or create an account.
-3. Verify your email address if the project creation flow requires it.
-4. Choose an available plan and region.
-5. Enter the project name, subdomain, and project `SECRET_KEY`.
-6. Review the project details.
-7. Complete checkout when online payment is available.
+For Railway, Enfyra creates:
 
-After payment confirmation, Cloud provisions the project asynchronously. The project URL, login email, and one-time admin password are sent to the account email after provisioning succeeds.
+- One Railway project for one Enfyra Cloud project.
+- A dedicated always-on Railway PostgreSQL service with its own persistent database volume.
+- An Enfyra service connected to PostgreSQL through Railway's private network.
+- Embedded Redis inside the Enfyra service, with persistent runtime data under `/app/data`.
+- A Railway service domain and an Enfyra-managed custom domain.
 
-If checkout is paused, use the early-access or contact flow from the public site instead of creating a paid project from the dashboard.
+The production database is never embedded in the Enfyra container. Restarting or updating the runtime leaves the PostgreSQL volume attached.
 
-## Billing And Checkout
+## File Storage
 
-Cloud checkout is payment-gated. Creating or upgrading a project first creates a payment order; the project is provisioned only after the payment provider confirms the order.
+File uploads require external object storage. Configure Amazon S3, Cloudflare R2, Google Cloud Storage, or another supported S3-compatible backend after provisioning. Railway runtime and database volumes are not the permanent upload store.
 
-Cloud pricing pages show the plan subtotal before buyer-country tax unless the checkout provider displays otherwise. Taxes and payment-provider checkout details are handled during checkout. For billing records, pending checkout recovery, and past orders, use the Cloud dashboard Orders page.
+## Railway Serverless
 
-Cloud does not require a separate customer billing dashboard while the payment provider owns checkout and renewal management. Project billing details remain attached to project and order surfaces in the Cloud dashboard.
+Railway Serverless is optional for the Enfyra runtime service. PostgreSQL remains always on.
 
-## Regions
+Enabling or disabling Serverless requires a new Railway deployment before the setting takes effect. Enfyra warns before applying the change and starts the redeployment after confirmation. A sleeping runtime can make the first request slower or temporarily return a provider error while the container wakes. Outbound traffic, open WebSocket or database connections, and background work can also prevent a service from sleeping.
 
-Cloud regions are selected from the available region catalog in the dashboard. Customer-facing region labels describe the location in plain language. Internal provider names, host location codes, and server package details are not exposed in the customer UI.
+## Billing And Cancellation
 
-Unavailable regions may be shown as future or disabled capacity. A project can only be created in a region that is currently available.
+The Enfyra subscription and the provider bill are independent:
 
-## Cloud And The Open-Source Runtime
+- PayPal processes `$11.99` per managed project per month for Enfyra management.
+- The connected provider bills infrastructure usage directly.
+- Enfyra does not add a provider-usage surcharge or include compute in the management price.
 
-Cloud projects are normal Enfyra projects from the builder's point of view. Once provisioned, you use the Enfyra admin app the same way you would in a self-hosted install:
+Cloud offers **Stop renewal**, not a voluntary refund. Stopping renewal prevents the next subscription charge and keeps management access until the end of the paid period. Paid subscription periods are not refunded or prorated except where applicable law requires a correction.
+
+When management access ends, Enfyra-managed operations are disabled. Your provider resources continue under your provider account until you change or delete them there or use a separate explicitly confirmed provider-resource action.
+
+## Backups And Drift
+
+Backup capabilities depend on the selected provider and account tier. On Railway, built-in volume backups require a Pro or Enterprise workspace. Other workspaces must use an external PostgreSQL backup target, such as scheduled `pg_dump` uploads to S3-compatible storage.
+
+A restore replaces current database data and always requires explicit confirmation.
+
+Changes made directly in the provider console are detected during reconciliation. Missing or changed services, volumes, mount paths, domains, images, or regions appear as drift. Unsafe managed operations are disabled until the mapping is reviewed; Enfyra does not overwrite or recreate customer-owned resources automatically.
+
+## Using The Enfyra Runtime
+
+After provisioning, open the project URL and use Enfyra normally:
 
 - Create tables and relations.
-- Configure roles, route permissions, hooks, handlers, flows, files, and extensions.
+- Configure roles, route permissions, hooks, handlers, flows, and extensions.
 - Use generated REST APIs, optional GraphQL, and Socket.IO events.
-- Connect external Nuxt, Next.js, SvelteKit, Remix, mobile, or server clients through the same API patterns documented in this repository.
+- Create application API tokens without exposing the Cloud management credential.
 
-For local development, Docker, or infrastructure ownership, start with the [Installation Guide](../getting-started/installation.md). For managed hosting, start with Enfyra Cloud.
+For a locally operated runtime, Docker, or full infrastructure ownership, start with the [Installation Guide](../getting-started/installation.md).
