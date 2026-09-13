@@ -29,24 +29,28 @@ Provider resources remain in your account. Disconnecting OAuth, stopping subscri
 2. Create the Enfyra Cloud project record.
 3. Choose a supported infrastructure provider.
 4. Connect the provider through OAuth if it is not connected yet.
-5. Configure the provider project, region, subdomain, administrator email, and runtime options.
-6. Review the separate Enfyra and provider billing responsibilities.
-7. Activate the `$11.99` Enfyra management subscription through PayPal.
-8. Start provisioning.
+5. Configure the runtime region, administrator email, and compute options.
+6. Choose either a dedicated Railway PostgreSQL service or an external PostgreSQL connection URL.
+7. Review the complete deployment and the separate Enfyra, infrastructure-provider, and database-provider billing responsibilities.
+8. Activate the `$11.99` Enfyra management subscription through PayPal. Provisioning starts only after payment is confirmed.
 
 Payment is the final setup gate. Enfyra provisions provider resources only after the project configuration is complete and the management subscription is active.
 
 ## Current Railway Topology
 
-For Railway, Enfyra creates:
+For Railway, Enfyra always creates:
 
 - One Railway project for one Enfyra Cloud project.
-- A dedicated always-on Railway PostgreSQL service with its own persistent database volume.
-- An Enfyra service connected to PostgreSQL through Railway's private network.
+- An Enfyra service connected to the PostgreSQL mode selected before billing.
 - Embedded Redis inside the Enfyra service, with persistent runtime data under `/app/data`.
 - A Railway service domain and an Enfyra-managed custom domain.
 
-The production database is never embedded in the Enfyra container. Restarting or updating the runtime leaves the PostgreSQL volume attached.
+The database choice is exactly one of:
+
+- **Railway PostgreSQL:** Enfyra creates a dedicated always-on PostgreSQL service with its own persistent database volume and connects through Railway's private network.
+- **External PostgreSQL:** Enfyra encrypts the supplied connection URL, injects it into the runtime, and does not create a Railway PostgreSQL service. Database availability, billing, and backups remain with the external database provider.
+
+The production database is never embedded in the Enfyra container. The external connection URL is write-only in Cloud and is not returned to the browser.
 
 ## File Storage
 
@@ -54,7 +58,7 @@ File uploads require external object storage. Configure Amazon S3, Cloudflare R2
 
 ## Railway Serverless
 
-Railway Serverless is optional for the Enfyra runtime service. PostgreSQL remains always on.
+Railway Serverless is optional for the Enfyra runtime service. Railway PostgreSQL remains always on; an external database follows its provider's availability policy.
 
 Enabling or disabling Serverless requires a new Railway deployment before the setting takes effect. Enfyra warns before applying the change and starts the redeployment after confirmation. A sleeping runtime can make the first request slower or temporarily return a provider error while the container wakes. Outbound traffic, open WebSocket or database connections, and background work can also prevent a service from sleeping.
 
@@ -72,7 +76,7 @@ When management access ends, Enfyra-managed operations are disabled. Your provid
 
 ## Backups And Drift
 
-Backup capabilities depend on the selected provider and account tier. On Railway, built-in volume backups require a Pro or Enterprise workspace. Other workspaces must use an external PostgreSQL backup target, such as scheduled `pg_dump` uploads to S3-compatible storage.
+Backup capabilities depend on the selected database mode and provider tier. Railway PostgreSQL built-in volume backups require a Pro or Enterprise workspace; other Railway workspaces must use an external backup target. For external PostgreSQL, configure and restore backups with that database provider.
 
 A restore replaces current database data and always requires explicit confirmation.
 

@@ -33,24 +33,28 @@ Tài nguyên provider vẫn nằm trong tài khoản của bạn. Disconnect OAu
 2. Tạo Enfyra Cloud project record.
 3. Chọn provider hạ tầng được hỗ trợ.
 4. Kết nối provider qua OAuth nếu chưa kết nối.
-5. Cấu hình provider project, region, subdomain, administrator email và runtime option.
-6. Xem lại trách nhiệm billing tách biệt giữa Enfyra và provider.
-7. Kích hoạt thuê bao quản lý Enfyra `$11.99` qua PayPal.
-8. Bắt đầu provisioning.
+5. Cấu hình runtime region, administrator email và compute option.
+6. Chọn một trong hai: Railway PostgreSQL riêng hoặc external PostgreSQL connection URL.
+7. Xem lại toàn bộ deployment và trách nhiệm billing tách biệt giữa Enfyra, provider hạ tầng và provider database.
+8. Kích hoạt thuê bao quản lý Enfyra `$11.99` qua PayPal. Provisioning chỉ bắt đầu sau khi thanh toán được xác nhận.
 
 Thanh toán là gate cuối cùng của quá trình setup. Enfyra chỉ provision tài nguyên provider sau khi cấu hình project hoàn tất và management subscription đã active.
 
 ## Topology Railway hiện tại
 
-Với Railway, Enfyra tạo:
+Với Railway, Enfyra luôn tạo:
 
 - Một Railway project cho một Enfyra Cloud project.
-- Một Railway PostgreSQL service luôn bật với persistent database volume riêng.
-- Một Enfyra service kết nối PostgreSQL qua private network của Railway.
+- Một Enfyra service kết nối tới PostgreSQL mode đã chọn trước Billing.
 - Redis embedded trong Enfyra service, với runtime data được giữ bền vững tại `/app/data`.
 - Một Railway service domain và một custom domain do Enfyra quản lý.
 
-Production database không nằm embedded trong Enfyra container. Restart hoặc update runtime không tháo PostgreSQL volume.
+Database chỉ có một trong hai mode:
+
+- **Railway PostgreSQL:** Enfyra tạo PostgreSQL service luôn bật với persistent database volume riêng và kết nối qua private network của Railway.
+- **External PostgreSQL:** Enfyra mã hóa connection URL được cung cấp, inject vào runtime và không tạo Railway PostgreSQL service. Availability, billing và backup database thuộc provider database bên ngoài.
+
+Production database không bao giờ nằm embedded trong Enfyra container. External connection URL là write-only trong Cloud và không được trả lại browser.
 
 ## File storage
 
@@ -58,7 +62,7 @@ File upload bắt buộc dùng external object storage. Sau khi provisioning, h�
 
 ## Railway Serverless
 
-Railway Serverless là tùy chọn cho Enfyra runtime service. PostgreSQL luôn bật.
+Railway Serverless là tùy chọn cho Enfyra runtime service. Railway PostgreSQL luôn bật; external database tuân theo chính sách availability của provider đó.
 
 Bật hoặc tắt Serverless đều cần một Railway deployment mới thì cấu hình mới có hiệu lực. Enfyra cảnh báo trước khi áp dụng và bắt đầu redeploy sau khi bạn xác nhận. Runtime đang sleep có thể làm request đầu tiên chậm hơn hoặc tạm nhận provider error trong lúc container thức dậy. Outbound traffic, kết nối WebSocket hoặc database còn mở và background work cũng có thể làm service không sleep.
 
@@ -76,7 +80,7 @@ Khi management access kết thúc, các thao tác managed của Enfyra bị vô 
 
 ## Backup và drift
 
-Khả năng backup phụ thuộc vào provider và account tier đã chọn. Trên Railway, built-in volume backup yêu cầu workspace Pro hoặc Enterprise. Workspace khác phải dùng external PostgreSQL backup target, chẳng hạn chạy `pg_dump` theo lịch rồi upload vào S3-compatible storage.
+Khả năng backup phụ thuộc vào database mode và tier của provider. Railway PostgreSQL built-in volume backup yêu cầu workspace Pro hoặc Enterprise; Railway workspace khác phải dùng external backup target. Với external PostgreSQL, cấu hình và restore backup tại provider database đó.
 
 Restore thay dữ liệu database hiện tại nên luôn cần xác nhận rõ ràng.
 
