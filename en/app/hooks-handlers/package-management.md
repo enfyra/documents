@@ -9,7 +9,7 @@ Package Management lets you install NPM packages directly from the Enfyra interf
 - **Extend Functionality**: Add powerful libraries like axios, lodash, moment.js to your handlers
 - **No Configuration**: Packages are instantly available in your custom code without setup
 - **Visual Interface**: Search and install packages without touching package.json
-- **Sandboxed handler context**: Installed server packages are exposed to handlers via `$ctx.$pkgs` inside the same **`vm`** execution model as other script logic—strong module blocklists, but not full process or OS isolation.
+- **Isolated handler context**: Installed server packages are exposed through task-scoped package handles inside the isolated executor. Dynamic scripts do not receive raw host streams, sockets, or package-child objects.
 
 ## Installing a Package
 
@@ -132,6 +132,137 @@ export default async function handler({ $ctx }) {
   };
 }
 ```
+
+## Consuming Package-Backed Readable Streams
+
+Some Server packages, such as `undici`, return a readable response body instead of a buffered value. Enfyra exposes a package-backed readable as a single-consumer `AsyncIterable<Uint8Array>` and provides `$ctx.$streams` helpers for safe pre-response and buffered consumption.
+
+Choose one consumption path for each body:
+
+- Use `$ctx.$streams.preflight()` before `@RES.stream()` when the handler must wait for the first raw bytes before committing the public response.
+- Use `$ctx.$streams.readText()` or `readBytes()` when the handler must consume and validate the complete upstream body before returning JSON or another buffered response.
+- Use `for await...of` for custom pull-based processing.
+- Pass the body directly to `@RES.stream()` only when immediate response commit is acceptable and the handler does not need a no-byte retry.
+
+A body cannot be consumed twice. Do not preflight or collect a body and then pass the original body to `@RES.stream()`.
+
+### Preflight Before Committing a Streaming Response
+
+`preflight()` waits for the first non-empty raw chunk. Any bytes count as activity, including an SSE event containing only reasoning or thinking data. It does not parse SSE and does not wait for visible text.
+
+```js
+const upstream = await @PKGS.undici.request("https://api.example.com/stream", {
+  method: "POST",
+  headers: {
+    authorization: `Bearer ${@ENV.UPSTREAM_API_KEY}`,
+    "content-type": "application/json"
+  },
+  body: JSON.stringify(@BODY)
+})
+
+const guarded = await $ctx.$streams.preflight(upstream.body, {
+  timeoutMs: 15_000
+})
+
+await @RES.stream(guarded.stream, {
+  statusCode: upstream.statusCode,
+  mimetype: upstream.headers["content-type"] || "text/event-stream"
+})
+```
+
+`guarded.stream` replays the first chunk exactly once and then pulls the remaining chunks in order. `guarded.firstChunk` is a safe copy for inspection; changing it does not change the replay stream.
+
+### Retry a No-Byte Upstream in the Same Task
+
+A preflight timeout is scoped to that upstream stream. Enfyra closes the timed-out source without aborting the executor task, so application code may create a new request. Kernel never retries network requests automatically.
+
+```js
+let selected = null
+
+for (let attempt = 0; attempt < 2; attempt++) {
+  const upstream = await @PKGS.undici.request("https://api.example.com/stream", {
+    method: "POST",
+    body: JSON.stringify(@BODY)
+  })
+
+  try {
+    const guarded = await $ctx.$streams.preflight(upstream.body, {
+      timeoutMs: 15_000
+    })
+    selected = { upstream, guarded }
+    break
+  } catch (error) {
+    const retryableNoByte =
+      error.code === "ERR_PACKAGE_STREAM_TIMEOUT" ||
+      error.code === "ERR_PACKAGE_STREAM_EMPTY"
+
+    if (!retryableNoByte || attempt === 1) throw error
+  }
+}
+
+if (!selected) @THROW.externalService("upstream", "No stream is available")
+
+await @RES.stream(selected.guarded.stream, {
+  statusCode: selected.upstream.statusCode,
+  mimetype: "text/event-stream"
+})
+```
+
+An error after the first chunk is a normal stream failure. Enfyra propagates it through the existing response-stream error path and does not retry automatically.
+
+### Consume and Validate Before Returning a Buffered Response
+
+`readText()` and `readBytes()` consume a package stream without starting `@RES`. Both default to an 8 MiB limit, enforce `maxBytes` on raw bytes, and reject source errors instead of returning partial success. `readText()` preserves UTF-8 characters split across chunks.
+
+```js
+const upstream = await @PKGS.undici.request("https://api.example.com/result", {
+  method: "POST",
+  body: JSON.stringify(@BODY)
+})
+
+const text = await $ctx.$streams.readText(upstream.body, {
+  timeoutMs: 60_000,
+  maxBytes: 8 * 1024 * 1024
+})
+
+const result = JSON.parse(text)
+if (!result.id) @THROW.http(502, "Upstream response is missing id")
+
+return { result }
+```
+
+For binary data, use `readBytes()` and handle the returned `Uint8Array`. An empty stream returns an empty string or zero-length byte array.
+
+### Stream Errors and Deadlines
+
+| Condition | Result |
+|---|---|
+| No non-empty chunk before `timeoutMs` | `ERR_PACKAGE_STREAM_TIMEOUT`; target stream is closed and the task may continue |
+| EOF before the first non-empty chunk | `ERR_PACKAGE_STREAM_EMPTY`; the task may continue |
+| `maxBytes` exceeded | `ERR_PACKAGE_STREAM_MAX_BYTES`; target stream is closed |
+| Body consumed more than once | `ERR_PACKAGE_STREAM_ALREADY_CONSUMED` |
+| Concurrent `next()` calls | `ERR_PACKAGE_STREAM_CONCURRENT_NEXT` |
+| Handler/flow-step timeout or client disconnect | The enclosing task and all task-owned streams are canceled |
+
+A stream helper timeout cannot extend the enclosing handler or flow-step deadline. Set the handler timeout high enough for the complete upstream request, preflight or collection, transformation, and response relay.
+
+### Observer and Transform Are Post-Commit Callbacks
+
+`observer` and `transform` belong to `@RES.stream()` response relay. They are not first-byte or pre-response primitives. Their text values are arbitrary UTF-8-decoded fragments, not complete SSE events; buffer until a blank-line event boundary before parsing.
+
+```js
+await @RES.stream(guarded.stream, {
+  observer: async (text, kind) => {
+    // Best-effort inspection. Errors are ignored.
+  },
+  transform: async (text, kind) => {
+    if (kind === "end") return undefined
+    return text
+  }
+})
+```
+
+Return a string from `transform` to replace a fragment, `null` to suppress it, or `undefined` to preserve the original bytes. A transform error fails the stream.
 
 ## Managing Installed Packages
 
