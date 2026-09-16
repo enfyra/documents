@@ -222,6 +222,44 @@ return {
 })
 ```
 
+## Package Streams
+
+See [Package Management](../app/hooks-handlers/package-management.md) for single-consumer, timeout, cancellation, error, and `observer`/`transform` semantics.
+
+### Preflight Then Relay Exact Bytes
+
+```js
+const upstream = await @PKGS.undici.request("https://api.example.com/stream", {
+  method: "POST",
+  body: JSON.stringify(@BODY)
+})
+
+const guarded = await $ctx.$streams.preflight(upstream.body, {
+  timeoutMs: 15_000
+})
+
+await @RES.stream(guarded.stream, {
+  statusCode: upstream.statusCode,
+  mimetype: "text/event-stream"
+})
+```
+
+### Consume Before Returning JSON
+
+```js
+const upstream = await @PKGS.undici.request("https://api.example.com/result", {
+  method: "POST",
+  body: JSON.stringify(@BODY)
+})
+
+const text = await $ctx.$streams.readText(upstream.body, {
+  timeoutMs: 60_000,
+  maxBytes: 8 * 1024 * 1024
+})
+
+return { result: JSON.parse(text) }
+```
+
 ## Cache
 
 ### Set Cache

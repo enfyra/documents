@@ -13,7 +13,7 @@ Quản lý gói cho phép bạn cài đặt các gói NPM trực tiếp từ gia
 - **Mở rộng chức năng**: Thêm các thư viện mạnh mẽ như axios, lodash, moment.js vào trình xử lý của bạn
 - **Không có cấu hình**: Các gói có sẵn ngay lập tức trong mã tùy chỉnh của bạn mà không cần thiết lập
 - **Giao diện trực quan**: Tìm kiếm và cài đặt các gói mà không cần chạm vào package.json
-- **Ngữ cảnh trình xử lý hộp cát**: Các gói máy chủ đã cài đặt được hiển thị cho trình xử lý thông qua `$ctx.$pkgs` bên trong cùng một mô hình thực thi **`vm`** như logic tập lệnh khác—danh sách chặn mô-đun mạnh, nhưng không cách ly toàn bộ quá trình hoặc hệ điều hành.
+- **Ngữ cảnh handler được cô lập**: Các Server package đã cài đặt được cung cấp qua package handle theo từng task trong isolated executor. Dynamic script không nhận raw host stream, socket hoặc object nội bộ của package child.
 
 ## Cài đặt gói
 
@@ -132,6 +132,138 @@ export default async function handler({ $ctx }) {
   };
 }
 ```
+
+## Consume readable stream từ Server package
+
+Một số Server package, chẳng hạn `undici`, trả về readable response body thay vì giá trị đã buffer. Enfyra cung cấp package-backed readable dưới dạng `AsyncIterable<Uint8Array>` chỉ có một consumer, cùng các helper `$ctx.$streams` để đọc an toàn trước response hoặc consume toàn bộ body.
+
+Chọn đúng một cách consume cho mỗi body:
+
+- Dùng `$ctx.$streams.preflight()` trước `@RES.stream()` khi handler phải chờ raw byte đầu tiên trước khi commit public response.
+- Dùng `$ctx.$streams.readText()` hoặc `readBytes()` khi handler phải consume và validate toàn bộ upstream body trước khi trả JSON hoặc response đã buffer.
+- Dùng `for await...of` khi cần tự xử lý theo cơ chế pull.
+- Chỉ truyền body trực tiếp vào `@RES.stream()` khi có thể commit response ngay và handler không cần retry trường hợp upstream chưa trả byte nào.
+
+Một body không thể được consume hai lần. Không preflight hoặc collect một body rồi truyền body gốc vào `@RES.stream()`.
+
+### Preflight trước khi commit streaming response
+
+`preflight()` chờ chunk raw đầu tiên không rỗng. Bất kỳ byte nào cũng được tính là activity, kể cả SSE event chỉ chứa reasoning hoặc thinking. Helper không parse SSE và không chờ visible text.
+
+```js
+const upstream = await @PKGS.undici.request("https://api.example.com/stream", {
+  method: "POST",
+  headers: {
+    authorization: `Bearer ${@ENV.UPSTREAM_API_KEY}`,
+    "content-type": "application/json"
+  },
+  body: JSON.stringify(@BODY)
+})
+
+const guarded = await $ctx.$streams.preflight(upstream.body, {
+  timeoutMs: 15_000
+})
+
+await @RES.stream(guarded.stream, {
+  statusCode: upstream.statusCode,
+  mimetype: upstream.headers["content-type"] || "text/event-stream"
+})
+```
+
+`guarded.stream` relay lại chunk đầu đúng một lần rồi pull các chunk còn lại theo đúng thứ tự. `guarded.firstChunk` là bản sao an toàn để kiểm tra; thay đổi giá trị này không làm thay đổi replay stream.
+
+### Retry upstream không có byte trong cùng task
+
+Preflight timeout chỉ áp dụng cho upstream stream đó. Enfyra đóng source bị timeout mà không abort executor task, nên code ứng dụng có thể tạo request mới. Kernel không tự động retry network request.
+
+```js
+let selected = null
+
+for (let attempt = 0; attempt < 2; attempt++) {
+  const upstream = await @PKGS.undici.request("https://api.example.com/stream", {
+    method: "POST",
+    body: JSON.stringify(@BODY)
+  })
+
+  try {
+    const guarded = await $ctx.$streams.preflight(upstream.body, {
+      timeoutMs: 15_000
+    })
+    selected = { upstream, guarded }
+    break
+  } catch (error) {
+    const retryableNoByte =
+      error.code === "ERR_PACKAGE_STREAM_TIMEOUT" ||
+      error.code === "ERR_PACKAGE_STREAM_EMPTY"
+
+    if (!retryableNoByte || attempt === 1) throw error
+  }
+}
+
+if (!selected) @THROW.externalService("upstream", "No stream is available")
+
+await @RES.stream(selected.guarded.stream, {
+  statusCode: selected.upstream.statusCode,
+  mimetype: "text/event-stream"
+})
+```
+
+Lỗi xảy ra sau chunk đầu là stream failure thông thường. Enfyra chuyển lỗi qua response-stream error path hiện có và không tự động retry.
+
+### Consume và validate trước khi trả buffered response
+
+`readText()` và `readBytes()` consume package stream mà không khởi động `@RES`. Cả hai mặc định giới hạn 8 MiB, áp dụng `maxBytes` trên raw bytes và reject source error thay vì trả partial success. `readText()` giữ nguyên ký tự UTF-8 bị tách qua nhiều chunk.
+
+```js
+const upstream = await @PKGS.undici.request("https://api.example.com/result", {
+  method: "POST",
+  body: JSON.stringify(@BODY)
+})
+
+const text = await $ctx.$streams.readText(upstream.body, {
+  timeoutMs: 60_000,
+  maxBytes: 8 * 1024 * 1024
+})
+
+const result = JSON.parse(text)
+if (!result.id) @THROW.http(502, "Upstream response is missing id")
+
+return { result }
+```
+
+Với dữ liệu binary, dùng `readBytes()` và xử lý `Uint8Array` trả về. Stream rỗng trả về chuỗi rỗng hoặc byte array có độ dài bằng 0.
+
+### Lỗi stream và deadline
+
+| Điều kiện | Kết quả |
+|---|---|
+| Không có chunk không rỗng trước `timeoutMs` | `ERR_PACKAGE_STREAM_TIMEOUT`; target stream bị đóng và task có thể tiếp tục |
+| EOF trước chunk không rỗng đầu tiên | `ERR_PACKAGE_STREAM_EMPTY`; task có thể tiếp tục |
+| Vượt `maxBytes` | `ERR_PACKAGE_STREAM_MAX_BYTES`; target stream bị đóng |
+| Body bị consume nhiều hơn một lần | `ERR_PACKAGE_STREAM_ALREADY_CONSUMED` |
+| Gọi `next()` đồng thời | `ERR_PACKAGE_STREAM_CONCURRENT_NEXT` |
+| Handler/flow-step timeout hoặc client disconnect | Enclosing task và mọi stream thuộc task đều bị cancel |
+
+Timeout của stream helper không thể kéo dài deadline của handler hoặc flow step. Hãy đặt handler timeout đủ cho toàn bộ upstream request, preflight hoặc collect, transform và response relay.
+
+### Observer và transform là callback sau commit
+
+`observer` và `transform` thuộc response relay của `@RES.stream()`. Chúng không phải first-byte hoặc pre-response primitive. Giá trị text là fragment đã decode UTF-8 tùy ý, không phải SSE event hoàn chỉnh; hãy buffer đến blank-line event boundary trước khi parse.
+
+```js
+await @RES.stream(guarded.stream, {
+  observer: async (text, kind) => {
+    // Best-effort inspection. Errors are ignored.
+  },
+  transform: async (text, kind) => {
+    if (kind === "end") return undefined
+    return text
+  }
+})
+```
+
+Trả về string từ `transform` để thay fragment, `null` để loại bỏ hoặc `undefined` để giữ nguyên bytes gốc. Transform error làm stream thất bại.
+
 ## Quản lý các gói đã cài đặt
 
 ### Xem tất cả các gói
