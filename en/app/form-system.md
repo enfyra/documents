@@ -36,14 +36,14 @@ When you create a table in Enfyra, the system automatically generates forms for 
 
 ### Rich Text Editor (`column.metadata.richText`)
 
-For a `richtext` column, the editor configuration lives at `column.metadata.richText` in the table schema. You can use the same shape in the column metadata JSON editor or in the app-level `enfyra.config.ts` defaults. Column metadata must be JSON-safe; function callbacks and theme resolver functions are only available in the app-level config.
+For a `richtext` column, the editor configuration lives at `column.metadata.richText` in the table schema. You can use the same shape in the column metadata JSON editor or in the app-level `enfyra.config.ts` defaults. Dynamic extensions use the same contract through the registered `<RichTextEditor v-model="content" :editor-config="editorConfig" />` component. Column metadata must be JSON-safe; function callbacks and theme resolver functions are available only in app source or dynamic extension source.
 
 **Example column metadata:**
 ```json
 {
   "richText": {
     "plugins": ["link", "lists", "code", "table"],
-    "toolbar": "clear | h1 h2 h3 | bold italic underline | bullist numlist | link image table blockquote hr codeblock",
+    "toolbar": "undo redo | headings lists blockquote codeblock | bold italic underline strike code | link image table | align | callout",
     "customButtons": [
       { "name": "callout", "text": "Callout", "tooltip": "Insert a callout", "format": "callout" }
     ],
@@ -85,11 +85,11 @@ For a `richtext` column, the editor configuration lives at `column.metadata.rich
 
 #### Toolbar
 
-Default toolbar: `clear | h1 h2 h3 h4 h5 h6 | bold italic underline strike | bullist numlist | alignleft aligncenter alignright alignjustify | link image table blockquote hr codeblock`
+Default toolbar: `undo redo | headings lists blockquote codeblock | bold italic underline strike code | link image table | align`
 
-Set `toolbar` to replace the default. Add custom buttons via `customButtons`; when `toolbar` is omitted, custom button names are appended automatically. When `toolbar` is set explicitly, include each custom button name in the toolbar string. A custom button can use `format` to toggle a configured format (for example, `format: "callout"`).
+This default uses Nuxt UI's `UEditorToolbar` groups and controls. Enfyra's table dropdown supports inserting tables, changing rows and columns, toggling headers, merging or splitting cells, and deleting tables. Set `toolbar` to replace the toolbar items. The legacy tokens `h1`–`h6`, `bullist`, `numlist`, `alignleft`, `aligncenter`, `alignright`, `alignjustify`, `table`, `hr`, `clear`, `paragraph`, and the built-in action tokens remain available for explicit toolbars. Add custom buttons via `customButtons`; when `toolbar` is omitted, custom button names are appended automatically. When `toolbar` is set explicitly, include each custom button name in the toolbar string. A custom button can use `format` to toggle a configured format (for example, `format: "callout"`).
 
-For app-level defaults, `buttonActions` can map a string `onAction` name to a JavaScript callback. This callback mechanism is not available in column metadata JSON.
+For app-level or dynamic extension configuration, `buttonActions` can map a string `onAction` name to a JavaScript callback. The callback receives Enfyra's stable editor controller with `focus`, `getHTML`, `setHTML`, `insertContent`, `toggleFormat`, `isFormatActive`, `undo`, and `redo`. It does not receive a raw Tiptap editor instance. Function callbacks are not available in column metadata JSON.
 
 ### Special Field Types
 
