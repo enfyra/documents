@@ -57,7 +57,7 @@ const userRole = $ctx.$user.role;
 
 // Check if user is authenticated
 if (!$ctx.$user) {
-  $ctx.$throw['401']('Unauthorized');
+  @THROW401('Unauthorized');
   return;
 }
 ```

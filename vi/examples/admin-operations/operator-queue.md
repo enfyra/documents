@@ -50,7 +50,7 @@ Tạo `POST /review-cases/claim`.
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 const id = @BODY.id;

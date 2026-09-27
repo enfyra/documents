@@ -25,7 +25,7 @@ if (@USER?.isRootAdmin) {
 }
 
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 @QUERY.filter = {
@@ -47,7 +47,7 @@ Create a custom `POST /profile/me` handler.
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 const existing = await #user_profile.find({

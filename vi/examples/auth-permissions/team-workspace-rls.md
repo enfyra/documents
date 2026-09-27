@@ -44,7 +44,7 @@ if (@USER?.isRootAdmin) {
 }
 
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 @QUERY.filter = {
@@ -90,7 +90,7 @@ const membership = await #workspace_member.find({
 });
 
 if (!membership.data?.[0]) {
-  @THROW403();
+  @THROW403('Access denied');
 }
 ```
 
@@ -102,7 +102,7 @@ Một custom handler `POST /workspaces` có thể tạo workspace cùng membersh
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 const created = await #workspace.create({

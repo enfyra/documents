@@ -57,7 +57,7 @@ Add a `POST /blog_comment` pre-hook.
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 if (!@BODY.post) {

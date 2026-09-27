@@ -64,16 +64,16 @@ In **`find()`** options, pass predicates as **`filter`**. REST list endpoints al
 | `@FLOW_META` | `$ctx.$flow.$meta` | Flow execution metadata (id, name, runId, etc.) |
 | `@UPLOADED_FILE` | `$ctx.$uploadedFile` | Uploaded file information |
 | `@PKGS` | `$ctx.$pkgs` | Installed npm packages for use in handlers |
-| `@THROW` | `$ctx.$throw` | Error throwing functions |
-| `@THROW400` | `$ctx.$throw['400']` | HTTP 400 Bad Request (shortcut) |
-| `@THROW401` | `$ctx.$throw['401']` | HTTP 401 Unauthorized (shortcut) |
-| `@THROW403` | `$ctx.$throw['403']` | HTTP 403 Forbidden (shortcut) |
-| `@THROW404` | `$ctx.$throw['404']` | HTTP 404 Not Found (shortcut) |
-| `@THROW409` | `$ctx.$throw['409']` | HTTP 409 Conflict (shortcut) |
-| `@THROW422` | `$ctx.$throw['422']` | HTTP 422 Validation Error (shortcut) |
-| `@THROW429` | `$ctx.$throw['429']` | HTTP 429 Rate Limit Exceeded (shortcut) |
-| `@THROW500` | `$ctx.$throw['500']` | HTTP 500 Internal Error (shortcut) |
-| `@THROW503` | `$ctx.$throw['503']` | HTTP 503 Service Unavailable (shortcut) |
+| `@THROW.http(statusCode, message?)` | `$ctx.$throw.http(statusCode, message?)` | Quick generic HTTP error with a dynamic status |
+| `@THROW400(message)` | `$ctx.$throw.http(400, message)` | Quick HTTP 400 Bad Request; message is required |
+| `@THROW401(message)` | `$ctx.$throw.http(401, message)` | Quick HTTP 401 Unauthorized; message is required |
+| `@THROW403(message)` | `$ctx.$throw.http(403, message)` | Quick HTTP 403 Forbidden; message is required |
+| `@THROW404(message)` | `$ctx.$throw.http(404, message)` | Quick HTTP 404 Not Found; message is required |
+| `@THROW409(message)` | `$ctx.$throw.http(409, message)` | Quick HTTP 409 Conflict; message is required |
+| `@THROW422(message)` | `$ctx.$throw.http(422, message)` | Quick HTTP 422 Validation Error; message is required |
+| `@THROW429(message)` | `$ctx.$throw.http(429, message)` | Quick HTTP 429 Rate Limit Exceeded; message is required |
+| `@THROW500(message)` | `$ctx.$throw.http(500, message)` | Quick HTTP 500 Internal Error; message is required |
+| `@THROW503(message)` | `$ctx.$throw.http(503, message)` | Quick HTTP 503 Service Unavailable; message is required |
 | `#table_name` | `$ctx.$repos.table_name` | Direct table access (e.g., `#enfyra_user`, `#product`) |
 | `%pkg_name` | `$ctx.$pkgs.pkg_name` | Shorthand package access (e.g., `%axios`, `%lodash`, `%moment`) |
 
@@ -387,60 +387,71 @@ await @RES.stream(upstream.body, {
 
 ### Error Handling
 
-**HTTP Status Code Errors (`@THROW`):**
+Use `@THROW.http(statusCode, message?)` for a quick generic Enfyra HTTP error with a dynamic status. The fixed-status helpers remain available as readable source syntax; each requires exactly one message and compiles to the same `.http` method. The generic envelope always includes trace fields under `error` and omits `error.details` when no details exist.
 
-**Option 1: With brackets and quotes**
 ```javascript
-// Throw HTTP 400 Bad Request
-@THROW['400']('Email is required');
-
-// Throw HTTP 401 Unauthorized
-@THROW['401']('Invalid credentials');
-
-// Throw HTTP 403 Forbidden
-@THROW['403']('Insufficient permissions');
-
-// Throw HTTP 404 Not Found
-@THROW['404']('User not found', 'user_id_123');
-
-// Throw HTTP 409 Conflict (for duplicates)
-@THROW['409']('Email already exists', 'email', 'user@example.com');
-
-// Throw HTTP 422 Validation Error
-@THROW['422']('Invalid data format');
-
-// Throw HTTP 500 Internal Server Error
-@THROW['500']('Database connection failed');
+@THROW.http(502, 'The upstream service failed');
+@THROW400('Email is required');
+@THROW401('Invalid credentials');
+@THROW403('Insufficient permissions');
+@THROW404('User not found');
+@THROW409('Email already exists');
+@THROW422('Invalid data format');
+@THROW429('Too many requests');
+@THROW500('Database connection failed');
+@THROW503('Service unavailable');
 ```
 
-**Option 2: Direct shortcuts (no quotes needed)**
+Do not call numeric properties such as `$ctx.$throw['400']`, and do not pass details or semantic arguments to a fixed-status helper. For custom JSON error fields, status, and headers, use `@THROW.json`. The body and optional `body.error` must be objects. ESV preserves non-reserved custom fields, writes root `success: false` and root `statusCode` equal to the HTTP response status, removes `error.statusCode`, and merges server-owned `timestamp`, pathname-only `path`, `method`, and `correlationId` into `error`. Do not declare `body.success`, `body.statusCode`, or `body.error.statusCode`; select the status only through `options.statusCode`. `X-Correlation-ID` carries the same identifier as `error.correlationId`. The call terminates the handler, defaults to status `500`, and accepts only `400`–`599`:
+
 ```javascript
-// Throw HTTP 400 Bad Request
-@THROW400('Email is required');
+@THROW.json(
+  {
+    error: {
+      type: 'api_error',
+      code: 'upstream_error',
+      message: 'Please retry shortly.',
+      should_retry: true,
+      retry_after_seconds: 5
+    }
+  },
+  {
+    statusCode: 502,
+    headers: {
+      'x-should-retry': 'true',
+      'Retry-After': '5'
+    }
+  }
+);
+```
 
-// Throw HTTP 401 Unauthorized  
-@THROW401('Invalid credentials');
+The client receives the custom fields plus the server trace:
 
-// Throw HTTP 403 Forbidden
-@THROW403('Insufficient permissions');
+```json
+{
+  "success": false,
+  "statusCode": 502,
+  "error": {
+    "type": "api_error",
+    "code": "upstream_error",
+    "message": "Please retry shortly.",
+    "should_retry": true,
+    "retry_after_seconds": 5,
+    "timestamp": "<server ISO timestamp>",
+    "path": "<request path>",
+    "method": "POST",
+    "correlationId": "<server correlation ID>"
+  }
+}
+```
 
-// Throw HTTP 404 Not Found
-@THROW404('User not found', 'user_id_123');
+`@RES.json` is the separate success-only boundary. It accepts statuses `200`–`399` and should be returned as the terminal handler statement:
 
-// Throw HTTP 409 Conflict (for duplicates)
-@THROW409('Email already exists');
-
-// Throw HTTP 422 Validation Error
-@THROW422('Invalid data format');
-
-// Throw HTTP 429 Rate Limit Exceeded
-@THROW429(100, 'per minute');
-
-// Throw HTTP 500 Internal Server Error
-@THROW500('Database connection failed');
-
-// Throw HTTP 503 Service Unavailable
-@THROW503('Service unavailable');
+```javascript
+return await @RES.json(
+  { data: { id: 'project-1' }, success: true },
+  { statusCode: 201, headers: { 'x-resource-created': 'true' } }
+);
 ```
 
 ## Advanced Usage

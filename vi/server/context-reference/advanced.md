@@ -193,7 +193,7 @@ if ($ctx.$pkgs.axios) {
 ```javascript
 // Validate required fields
 if (!$ctx.$body.email) {
-  $ctx.$throw['400']('Email is required');
+  @THROW400('Email is required');
   return;
 }
 
@@ -205,12 +205,12 @@ $ctx.$body.email = $ctx.$body.email.toLowerCase().trim();
 
 ```javascript
 if (!$ctx.$user) {
-  $ctx.$throw['401']('Authentication required');
+  @THROW401('Authentication required');
   return;
 }
 
 if ($ctx.$user.role !== 'admin') {
-  $ctx.$throw['403']('Admin access required');
+  @THROW403('Admin access required');
   return;
 }
 ```

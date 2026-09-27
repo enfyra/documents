@@ -134,7 +134,7 @@ Xem [Hướng dẫn phương thức Repository](repository-methods/find.md) đ�
 - **Helpers**: `$ctx.$helpers` cho JWT, bcrypt, thao tác tệp
 - **Cache**: `$ctx.$cache` cho các thao tác Redis
 - **Ghi log**: `$ctx.$logs()` để thêm log vào response
-- **Xử lý lỗi**: `$ctx.$throw['400']()` để ném lỗi
+- **Xử lý lỗi**: `@THROW400(message)` để ném lỗi
 
 Xem [Tham chiếu Context](context-reference/request-data.md) để biết đầy đủ chi tiết.
 

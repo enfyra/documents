@@ -27,7 +27,7 @@ const current = await $ctx.$repos.products.find({
 });
 
 if (current.data.length === 0) {
-  $ctx.$throw['404']('Product not found');
+  @THROW404('Product not found');
   return;
 }
 
@@ -77,13 +77,13 @@ const product = await $ctx.$repos.products.find({
 });
 
 if (product.data.length === 0) {
-  $ctx.$throw['404']('Product not found');
+  @THROW404('Product not found');
   return;
 }
 
 // Check business rules
 if (product.data[0].status === 'active') {
-  $ctx.$throw['400']('Cannot delete active product');
+  @THROW400('Cannot delete active product');
   return;
 }
 

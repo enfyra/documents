@@ -122,7 +122,7 @@ const row = await #post.find({
 })
 
 if (!row.data[0]) {
-  @THROW404("post", @PARAMS.id)
+  @THROW404("Post not found")
 }
 ```
 

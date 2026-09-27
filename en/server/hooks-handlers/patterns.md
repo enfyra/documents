@@ -9,7 +9,7 @@ Common patterns and best practices for working with hooks and handlers.
 ```javascript
 // preHook
 if (!$ctx.$body.email) {
-  $ctx.$throw['400']('Email is required');
+  @THROW400('Email is required');
   return;
 }
 
@@ -104,7 +104,7 @@ const result = await $ctx.$helpers.$rateLimit.byIp({
 });
 
 if (!result.allowed) {
-  $ctx.$throw['429'](`Rate limit exceeded. Try again in ${result.retryAfter}s`);
+  @THROW429(`Rate limit exceeded. Try again in ${result.retryAfter}s`);
   return;
 }
 ```
@@ -120,7 +120,7 @@ if (!$ctx.$user?.isRootAdmin) {
   });
 
   if (!result.allowed) {
-    $ctx.$throw['429']('API rate limit exceeded');
+    @THROW429('API rate limit exceeded');
     return;
   }
 }
@@ -136,7 +136,7 @@ const result = await $ctx.$helpers.$rateLimit.byIp({
 });
 
 if (!result.allowed) {
-  $ctx.$throw['429'](`Too many login attempts. Try again in ${result.retryAfter}s`);
+  @THROW429(`Too many login attempts. Try again in ${result.retryAfter}s`);
   return;
 }
 ```

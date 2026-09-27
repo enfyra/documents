@@ -52,31 +52,31 @@ Ném lỗi HTTP với mã trạng thái phù hợp.
 
 ```javascript
 // Bad Request
-$ctx.$throw['400']('Invalid input data');
+@THROW400('Invalid input data');
 
 // Unauthorized
-$ctx.$throw['401']('Authentication required');
+@THROW401('Authentication required');
 
 // Forbidden
-$ctx.$throw['403']('Insufficient permissions');
+@THROW403('Insufficient permissions');
 
 // Not Found
-$ctx.$throw['404']('Resource not found');
+@THROW404('Resource not found');
 
 // Conflict
-$ctx.$throw['409']('Email already exists');
+@THROW409('Email already exists');
 
 // Unprocessable Entity
-$ctx.$throw['422']('Validation failed');
+@THROW422('Validation failed');
 
 // Too Many Requests (Rate Limiting)
-$ctx.$throw['429']('Rate limit exceeded. Try again later');
+@THROW429('Rate limit exceeded. Try again later');
 
 // Internal Server Error
-$ctx.$throw['500']('Internal server error');
+@THROW500('Internal server error');
 
 // Service Unavailable
-$ctx.$throw['503']('Service temporarily unavailable');
+@THROW503('Service temporarily unavailable');
 ```
 
 ### Xử lý lỗi trong postHook

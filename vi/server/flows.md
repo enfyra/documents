@@ -54,7 +54,7 @@ Flow step hỗ trợ cùng các macro mẫu như handler/hook, đồng thời c�
 | `#table_name` | `$ctx.$repos.table_name` | Repository của bảng |
 | `@HELPERS` | `$ctx.$helpers` | Helper (jwt, bcrypt, autoSlug) |
 | `@USER` | `$ctx.$user` | Người dùng hiện tại (null với cron) |
-| `@THROW400` … `@THROW503`, `@THROW` | `$ctx.$throw['400']`, …, `$ctx.$throw` | Helper lỗi HTTP (dùng key dạng số, không dùng `'4xx'`) |
+| `@THROW400(message)` … `@THROW503(message)`, `@THROW.http(statusCode, message?)` | `$ctx.$throw.http(fixedStatus, message)`, `$ctx.$throw.http(statusCode, message?)` | Lỗi HTTP Enfyra nhanh; helper status cố định bắt buộc một message |
 | `%package` | `$ctx.$pkgs.package` | Package đã cài |
 
 ## Chuỗi dữ liệu

@@ -136,7 +136,7 @@ Sử dụng các macro này trong mã bước Tập lệnh và Điều kiện. C
 | `@NGƯỜI GIÚP ĐỠ` | `$ctx.$helpers` |
 | `@TRIGGER(...)` | Kích hoạt một luồng khác từ trình xử lý |
 | `@USER` | `$ctx.$user` |
-| `@THROW404(tin nhắn)` | `$ctx.$throw['404'](msg)` |
+| `@THROW404(message)` | `$ctx.$throw.http(404, message)` |
 | `%dayjs` | `$ctx.$pkgs.dayjs` |
 
 ### Ví dụ

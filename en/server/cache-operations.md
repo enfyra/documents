@@ -147,7 +147,7 @@ const lockValue = $ctx.$user.id;
 const lockAcquired = await $ctx.$cache.acquire(lockKey, lockValue, 10000);
 
 if (!lockAcquired) {
-  $ctx.$throw['409']('Record is currently being modified');
+  @THROW409('Record is currently being modified');
   return;
 }
 
@@ -225,7 +225,7 @@ const result = await $ctx.$helpers.$rateLimit.byUser({
 });
 
 if (!result.allowed) {
-  $ctx.$throw['429'](`Rate limit exceeded. Try again in ${result.retryAfter}s`);
+  @THROW429(`Rate limit exceeded. Try again in ${result.retryAfter}s`);
   return;
 }
 
@@ -240,7 +240,7 @@ const rateLimitKey = `rate-limit:${$ctx.$user.id}:${$ctx.$req.url}`;
 const currentCount = await $ctx.$cache.get(rateLimitKey) || 0;
 
 if (currentCount >= 10) {
-  $ctx.$throw['429']('Rate limit exceeded. Please try again later.');
+  @THROW429('Rate limit exceeded. Please try again later.');
   return;
 }
 
@@ -261,7 +261,7 @@ const lockValue = $ctx.$user.id;
 
 const lockAcquired = await $ctx.$cache.acquire(lockKey, lockValue, 10000);
 if (!lockAcquired) {
-  $ctx.$throw['409']('Record is currently being modified by another user');
+  @THROW409('Record is currently being modified by another user');
   return;
 }
 
@@ -272,7 +272,7 @@ try {
   });
   
   if (current.data.length === 0) {
-    $ctx.$throw['404']('Product not found');
+    @THROW404('Product not found');
     return;
   }
   
@@ -333,7 +333,7 @@ await $ctx.$cache.set(`session:${sessionId}`, sessionData, 7 * 24 * 60 * 60 * 10
 // Later: Retrieve session
 const session = await $ctx.$cache.get(`session:${sessionId}`);
 if (!session) {
-  $ctx.$throw['401']('Session expired');
+  @THROW401('Session expired');
   return;
 }
 ```

@@ -50,7 +50,7 @@ Flow steps support the same template macros as handlers/hooks, plus flow-specifi
 | `#table_name` | `$ctx.$repos.table_name` | Table repository |
 | `@HELPERS` | `$ctx.$helpers` | Helpers (jwt, bcrypt, autoSlug) |
 | `@USER` | `$ctx.$user` | Current user (null for cron) |
-| `@THROW400` … `@THROW503`, `@THROW` | `$ctx.$throw['400']`, …, `$ctx.$throw` | HTTP error helpers (use numeric keys, not `'4xx'`) |
+| `@THROW400(message)` … `@THROW503(message)`, `@THROW.http(statusCode, message?)` | `$ctx.$throw.http(fixedStatus, message)`, `$ctx.$throw.http(statusCode, message?)` | Quick generic HTTP errors; fixed-status helpers require one message |
 | `%package` | `$ctx.$pkgs.package` | Installed packages |
 
 ## Data Chain

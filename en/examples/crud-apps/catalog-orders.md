@@ -50,7 +50,7 @@ Create a custom `POST /shop/checkout` route. The route handler creates the order
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 const items = Array.isArray(@BODY.items) ? @BODY.items : [];

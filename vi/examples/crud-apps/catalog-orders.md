@@ -54,7 +54,7 @@ Tạo custom route `POST /shop/checkout`. Route handler tạo bản ghi đơn h�
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 const items = Array.isArray(@BODY.items) ? @BODY.items : [];

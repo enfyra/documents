@@ -12,7 +12,7 @@ Tạo custom route `POST /profile/avatar` nhận upload multipart. Handler lưu 
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 if (!@UPLOADED_FILE) {

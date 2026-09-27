@@ -50,7 +50,7 @@ Create a Socket.IO gateway `/projects` and an event `project:join`.
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 const projectId = @BODY.project;
@@ -64,7 +64,7 @@ const access = await #project_member.find({
 });
 
 if (!access.data?.[0] && !@USER.isRootAdmin) {
-  @THROW403();
+  @THROW403('Access denied');
 }
 
 @SOCKET.join(`project:${projectId}`);

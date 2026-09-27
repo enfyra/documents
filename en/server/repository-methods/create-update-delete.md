@@ -195,7 +195,7 @@ const findResult = await $ctx.$repos.products.find({
 });
 
 if (findResult.data.length === 0) {
-  $ctx.$throw['404']('Product not found');
+  @THROW404('Product not found');
   return;
 }
 
@@ -265,7 +265,7 @@ const findResult = await $ctx.$repos.products.find({
 });
 
 if (findResult.data.length === 0) {
-  $ctx.$throw['404']('Product not found');
+  @THROW404('Product not found');
   return;
 }
 

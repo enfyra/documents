@@ -20,38 +20,38 @@ Dùng `$ctx.$throw` để ném lỗi HTTP với mã trạng thái phù hợp.
 ### Cú pháp cơ bản
 
 ```javascript
-$ctx.$throw['STATUS_CODE']('Error message');
+@THROW.http(statusCode, 'Error message');
 ```
 
 ### Các mã trạng thái HTTP thường dùng
 
 ```javascript
 // Bad Request (400)
-$ctx.$throw['400']('Invalid input data');
+@THROW400('Invalid input data');
 
 // Unauthorized (401)
-$ctx.$throw['401']('Authentication required');
+@THROW401('Authentication required');
 
 // Forbidden (403)
-$ctx.$throw['403']('Insufficient permissions');
+@THROW403('Insufficient permissions');
 
 // Not Found (404)
-$ctx.$throw['404']('Resource not found');
+@THROW404('Resource not found');
 
 // Conflict (409)
-$ctx.$throw['409']('Email already exists');
+@THROW409('Email already exists');
 
 // Unprocessable Entity (422)
-$ctx.$throw['422']('Validation failed');
+@THROW422('Validation failed');
 
 // Too Many Requests (429) - Rate Limiting
-$ctx.$throw['429']('Rate limit exceeded. Try again later');
+@THROW429('Rate limit exceeded. Try again later');
 
 // Internal Server Error (500)
-$ctx.$throw['500']('Internal server error');
+@THROW500('Internal server error');
 
 // Service Unavailable (503)
-$ctx.$throw['503']('Service temporarily unavailable');
+@THROW503('Service temporarily unavailable');
 ```
 
 ## Mã trạng thái HTTP
@@ -62,12 +62,12 @@ Dùng cho dữ liệu đầu vào không hợp lệ hoặc request sai định d
 
 ```javascript
 if (!$ctx.$body.email) {
-  $ctx.$throw['400']('Email is required');
+  @THROW400('Email is required');
   return;
 }
 
 if (!isValidEmail($ctx.$body.email)) {
-  $ctx.$throw['400']('Invalid email format');
+  @THROW400('Invalid email format');
   return;
 }
 ```
@@ -78,12 +78,12 @@ Dùng khi cần xác thực nhưng request không cung cấp thông tin xác th�
 
 ```javascript
 if (!$ctx.$user) {
-  $ctx.$throw['401']('Authentication required');
+  @THROW401('Authentication required');
   return;
 }
 
 if (!isValidToken($ctx.$req.headers.authorization)) {
-  $ctx.$throw['401']('Invalid or expired token');
+  @THROW401('Invalid or expired token');
   return;
 }
 ```
@@ -94,7 +94,7 @@ Dùng khi user đã xác thực nhưng không có quyền.
 
 ```javascript
 if ($ctx.$user.role !== 'admin') {
-  $ctx.$throw['403']('Admin access required');
+  @THROW403('Admin access required');
   return;
 }
 
@@ -104,7 +104,7 @@ const resource = await $ctx.$repos.resources.find({
 });
 
 if (resource.data[0].userId !== $ctx.$user.id) {
-  $ctx.$throw['403']('Access denied');
+  @THROW403('Access denied');
   return;
 }
 ```
@@ -119,7 +119,7 @@ const product = await $ctx.$repos.products.find({
 });
 
 if (product.data.length === 0) {
-  $ctx.$throw['404']('Product not found');
+  @THROW404('Product not found');
   return;
 }
 ```
@@ -135,7 +135,7 @@ const existing = await $ctx.$repos.enfyra_user.find({
 });
 
 if (existing.data.length > 0) {
-  $ctx.$throw['409']('Email already exists');
+  @THROW409('Email already exists');
   return;
 }
 ```
@@ -146,12 +146,12 @@ Dùng cho lỗi kiểm tra khi định dạng dữ liệu đúng nhưng vi phạ
 
 ```javascript
 if ($ctx.$body.password && $ctx.$body.password.length < 6) {
-  $ctx.$throw['422']('Password must be at least 6 characters');
+  @THROW422('Password must be at least 6 characters');
   return;
 }
 
 if ($ctx.$body.age && ($ctx.$body.age < 0 || $ctx.$body.age > 120)) {
-  $ctx.$throw['422']('Age must be between 0 and 120');
+  @THROW422('Age must be between 0 and 120');
   return;
 }
 ```
@@ -168,7 +168,7 @@ const result = await $ctx.$helpers.$rateLimit.byIp({
 });
 
 if (!result.allowed) {
-  $ctx.$throw['429'](`Rate limit exceeded. Try again in ${result.retryAfter}s`);
+  @THROW429(`Rate limit exceeded. Try again in ${result.retryAfter}s`);
   return;
 }
 
@@ -180,7 +180,7 @@ if (!$ctx.$user?.isRootAdmin) {
   });
 
   if (!rateResult.allowed) {
-    $ctx.$throw['429']('API rate limit exceeded');
+    @THROW429('API rate limit exceeded');
     return;
   }
 }
@@ -195,7 +195,7 @@ try {
   // Some operation
 } catch (error) {
   $ctx.$logs(`Unexpected error: ${error.message}`);
-  $ctx.$throw['500']('Internal server error');
+  @THROW500('Internal server error');
   return;
 }
 ```
@@ -275,7 +275,7 @@ const requiredFields = ['email', 'password', 'name'];
 
 for (const field of requiredFields) {
   if (!$ctx.$body[field]) {
-    $ctx.$throw['400'](`${field} is required`);
+    @THROW400(`${field} is required`);
     return;
   }
 }
@@ -290,7 +290,7 @@ const resource = await $ctx.$repos.products.find({
 });
 
 if (resource.data.length === 0) {
-  $ctx.$throw['404']('Product not found');
+  @THROW404('Product not found');
   return;
 }
 
@@ -306,7 +306,7 @@ if ($ctx.$body.email) {
   // Check email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test($ctx.$body.email)) {
-    $ctx.$throw['422']('Invalid email format');
+    @THROW422('Invalid email format');
     return;
   }
   
@@ -316,7 +316,7 @@ if ($ctx.$body.email) {
   });
   
   if (existing.data.length > 0) {
-    $ctx.$throw['409']('Email already exists');
+    @THROW409('Email already exists');
     return;
   }
 }
@@ -327,12 +327,12 @@ if ($ctx.$body.email) {
 ```javascript
 // In preHook
 if (!$ctx.$user) {
-  $ctx.$throw['401']('Authentication required');
+  @THROW401('Authentication required');
   return;
 }
 
 if ($ctx.$user.role !== 'admin') {
-  $ctx.$throw['403']('Admin access required');
+  @THROW403('Admin access required');
   return;
 }
 
@@ -342,12 +342,12 @@ const resource = await $ctx.$repos.resources.find({
 });
 
 if (resource.data.length === 0) {
-  $ctx.$throw['404']('Resource not found');
+  @THROW404('Resource not found');
   return;
 }
 
 if (resource.data[0].userId !== $ctx.$user.id && $ctx.$user.role !== 'admin') {
-  $ctx.$throw['403']('Access denied');
+  @THROW403('Access denied');
   return;
 }
 ```
@@ -396,7 +396,7 @@ try {
   return result;
 } catch (error) {
   $ctx.$logs(`External API error: ${error.message}`);
-  $ctx.$throw['500']('Failed to process request');
+  @THROW500('Failed to process request');
   return;
 }
 ```
@@ -407,12 +407,12 @@ try {
 // In preHook
 if ($ctx.$body.price !== undefined) {
   if (typeof $ctx.$body.price !== 'number') {
-    $ctx.$throw['400']('Price must be a number');
+    @THROW400('Price must be a number');
     return;
   }
 
   if ($ctx.$body.price < 0) {
-    $ctx.$throw['422']('Price cannot be negative');
+    @THROW422('Price cannot be negative');
     return;
   }
 }
@@ -428,7 +428,7 @@ const result = await $ctx.$helpers.$rateLimit.byIp({
 });
 
 if (!result.allowed) {
-  $ctx.$throw['429'](`Rate limit exceeded. Try again in ${result.retryAfter}s`);
+  @THROW429(`Rate limit exceeded. Try again in ${result.retryAfter}s`);
   return;
 }
 
@@ -439,7 +439,7 @@ const loginResult = await $ctx.$helpers.$rateLimit.byIp({
 });
 
 if (!loginResult.allowed) {
-  $ctx.$throw['429'](`Too many login attempts. Try again in ${loginResult.retryAfter}s`);
+  @THROW429(`Too many login attempts. Try again in ${loginResult.retryAfter}s`);
   return;
 }
 
@@ -451,7 +451,7 @@ if (!$ctx.$user?.isRootAdmin) {
   });
 
   if (!apiResult.allowed) {
-    $ctx.$throw['429']('API rate limit exceeded');
+    @THROW429('API rate limit exceeded');
     return;
   }
 }

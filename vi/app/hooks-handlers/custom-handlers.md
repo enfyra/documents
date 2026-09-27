@@ -273,8 +273,8 @@ return {
 - **Kiểm tra mảng dữ liệu**: Các phương thức lưu trữ trả về `{data: []}`, luôn kiểm tra `data.length`
 
 ### Xử lý lỗi
-- **Sử dụng phương thức $throw**: Sử dụng `$ctx.$throw['400']()` thay vì `throw new Error()` để xử lý lỗi nhất quán
-- **Mã trạng thái HTTP**: Sử dụng các phương thức số như `$ctx.$throw['404']()` cho các lỗi HTTP tiêu chuẩn
+- **Sử dụng phương thức $throw**: Sử dụng `@THROW400(message)` thay vì `throw new Error()` để xử lý lỗi nhất quán
+- **Mã trạng thái HTTP**: Sử dụng helper status cố định như `@THROW404(message)` cho các lỗi HTTP tiêu chuẩn
 - **Lỗi ngữ nghĩa**: Sử dụng các phương thức mô tả như `$ctx.$throw.businessLogic()` cho các lỗi logic nghiệp vụ
 - **Phục hồi lỗi**: Kiểm tra `$ctx.$api.error` trong postHook để xử lý lỗi một cách khéo léo (chỉ có trong postHook)
 - **Thông báo mô tả**: Cung cấp thông báo lỗi rõ ràng và chi tiết để gỡ lỗi
