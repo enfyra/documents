@@ -44,7 +44,7 @@ const nextConfig = {
 export default withEnfyra(nextConfig)
 ```
 
-Các rewrite, redirect, header và `basePath` hiện có vẫn được giữ nguyên. Có thể truyền `{ appUrl, routePrefix, realtime }` làm argument thứ hai khi cần thay đổi mặc định.
+Các rewrite, redirect, header, `basePath` và experimental option khác vẫn được giữ nguyên. Có thể truyền `{ appUrl, routePrefix, realtime, proxyTimeout }` làm argument thứ hai khi cần thay đổi mặc định.
 
 ## Authentication
 
@@ -136,6 +136,19 @@ export async function createPost(formData: FormData): Promise<void> {
 | `appUrl` | `ENFYRA_APP_URL` | Enfyra App origin không có `/api` |
 | `routePrefix` | `/api/enfyra` | Same-origin prefix phía browser |
 | `realtime` | `false` | Thêm Socket.IO rewrite bên dưới SDK prefix |
+| `proxyTimeout` | `300000` | Thời gian upstream socket không hoạt động tối đa, tính bằng mili giây, cho external rewrite |
+
+Cấu hình timeout dài hơn qua `withEnfyra()` khi request tới Enfyra có thể chờ lâu trước response header hoặc im lặng lâu giữa các body chunk được stream:
+
+```ts
+import { withEnfyra } from '@enfyra/sdk-next'
+
+export default withEnfyra(nextConfig, {
+  proxyTimeout: 650_000,
+})
+```
+
+`proxyTimeout` là inactivity timeout, không phải giới hạn tổng thời gian request. Stream đang truyền dữ liệu sẽ reset timer. Khi không truyền option này, SDK giữ nguyên `experimental.proxyTimeout` đã có; nếu app chưa đặt giá trị thì SDK dùng mặc định 5 phút.
 
 Dùng preset có cấu hình khi muốn truyền giá trị trực tiếp:
 
@@ -145,6 +158,7 @@ import enfyra from '@enfyra/sdk-next'
 export default enfyra({
   appUrl: 'https://admin.example.com',
   realtime: true,
+  proxyTimeout: 650_000,
 })
 ```
 

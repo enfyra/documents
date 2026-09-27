@@ -54,6 +54,22 @@ export default defineNuxtConfig({
 
 The module keeps the private App origin server-only and exposes only the local prefix to the browser.
 
+For long-running requests or streams, configure the proxy timeouts independently:
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@enfyra/sdk-nuxt'],
+  enfyra: {
+    proxy: {
+      headersTimeout: 650_000,
+      bodyTimeout: 650_000,
+    },
+  },
+})
+```
+
+Both values default to `300000` milliseconds. `headersTimeout` limits the wait for upstream response headers. `bodyTimeout` limits inactivity between response body chunks. Set either value to `0` to disable that timeout.
+
 ## Call Enfyra Directly
 
 All SDK composables are auto-imported:

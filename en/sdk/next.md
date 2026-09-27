@@ -40,7 +40,7 @@ const nextConfig = {
 export default withEnfyra(nextConfig)
 ```
 
-Existing rewrites, redirects, headers, and `basePath` are preserved. You can pass `{ appUrl, routePrefix, realtime }` as the second argument when the defaults do not fit.
+Existing rewrites, redirects, headers, `basePath`, and other experimental options are preserved. You can pass `{ appUrl, routePrefix, realtime, proxyTimeout }` as the second argument when the defaults do not fit.
 
 ## Authentication
 
@@ -132,6 +132,19 @@ export async function createPost(formData: FormData): Promise<void> {
 | `appUrl` | `ENFYRA_APP_URL` | Enfyra App origin without `/api` |
 | `routePrefix` | `/api/enfyra` | Browser-facing same-origin prefix |
 | `realtime` | `false` | Also add the Socket.IO rewrite under the SDK prefix |
+| `proxyTimeout` | `300000` | Maximum upstream socket inactivity in milliseconds for external rewrites |
+
+Configure a longer timeout through `withEnfyra()` when Enfyra requests may wait longer before response headers or stay idle between streamed body chunks:
+
+```ts
+import { withEnfyra } from '@enfyra/sdk-next'
+
+export default withEnfyra(nextConfig, {
+  proxyTimeout: 650_000,
+})
+```
+
+`proxyTimeout` is an inactivity timeout, not a total request deadline. Active streaming traffic resets the timer. When the option is omitted, the SDK preserves an existing `experimental.proxyTimeout`; otherwise it supplies the five-minute default.
 
 Use the configured preset when you prefer explicit values:
 
@@ -141,6 +154,7 @@ import enfyra from '@enfyra/sdk-next'
 export default enfyra({
   appUrl: 'https://admin.example.com',
   realtime: true,
+  proxyTimeout: 650_000,
 })
 ```
 

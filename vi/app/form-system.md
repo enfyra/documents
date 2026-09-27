@@ -40,14 +40,14 @@ Khi bạn tạo bảng trong Enfyra, hệ thống sẽ tự động tạo biểu
 
 ### Trình soạn thảo văn bản đa dạng thức (`column.metadata.richText`)
 
-Với cột `richtext`, cấu hình editor nằm tại `column.metadata.richText` trong schema bảng. Bạn có thể dùng cùng một cấu trúc trong ô JSON metadata của column hoặc trong các giá trị mặc định ở `enfyra.config.ts`. Metadata của column phải là JSON-safe; callback và hàm resolver theo theme chỉ dùng được trong cấu hình cấp source của app.
+Với cột `richtext`, cấu hình editor nằm tại `column.metadata.richText` trong schema bảng. Bạn có thể dùng cùng một cấu trúc trong ô JSON metadata của column hoặc trong các giá trị mặc định ở `enfyra.config.ts`. Dynamic extension dùng cùng contract qua component đã đăng ký `<RichTextEditor v-model="content" :editor-config="editorConfig" />`. Metadata của column phải là JSON-safe; callback và hàm resolver theo theme chỉ dùng được trong source của app hoặc dynamic extension.
 
 **Ví dụ column metadata:**
 ```json
 {
   "richText": {
     "plugins": ["link", "lists", "code", "table"],
-    "toolbar": "clear | h1 h2 h3 | bold italic underline | bullist numlist | link image table blockquote hr codeblock",
+    "toolbar": "undo redo | headings lists blockquote codeblock | bold italic underline strike code | link image table | align | callout",
     "customButtons": [
       { "name": "callout", "text": "Callout", "tooltip": "Insert a callout", "format": "callout" }
     ],
@@ -88,11 +88,11 @@ Với cột `richtext`, cấu hình editor nằm tại `column.metadata.richText
 
 #### Thanh công cụ
 
-Thanh công cụ mặc định: `clear | h1 h2 h3 h4 h5 h6 | bold italic underline strike | bullist numlist | alignleft aligncenter alignright alignjustify | link image table blockquote hr codeblock`
+Thanh công cụ mặc định: `undo redo | headings lists blockquote codeblock | bold italic underline strike code | link image table | align`
 
-Đặt `toolbar` để thay thế toolbar mặc định. Thêm nút qua `customButtons`; nếu bỏ qua `toolbar`, tên các nút tùy chỉnh sẽ được nối tự động. Nếu đặt `toolbar` rõ ràng, hãy thêm tên từng nút tùy chỉnh vào chuỗi toolbar. Nút tùy chỉnh có thể dùng `format` để bật/tắt format đã cấu hình (ví dụ `format: "callout"`).
+Toolbar mặc định dùng các nhóm và control của `UEditorToolbar` trong Nuxt UI. Dropdown table của Enfyra hỗ trợ chèn bảng, thay đổi hàng và cột, bật/tắt header, gộp hoặc tách ô và xóa bảng. Đặt `toolbar` để thay thế các item trên toolbar. Các token cũ `h1`–`h6`, `bullist`, `numlist`, `alignleft`, `aligncenter`, `alignright`, `alignjustify`, `table`, `hr`, `clear`, `paragraph` và các action built-in vẫn dùng được khi khai báo toolbar rõ ràng. Thêm nút qua `customButtons`; nếu bỏ qua `toolbar`, tên các nút tùy chỉnh sẽ được nối tự động. Nếu đặt `toolbar` rõ ràng, hãy thêm tên từng nút tùy chỉnh vào chuỗi toolbar. Nút tùy chỉnh có thể dùng `format` để bật/tắt format đã cấu hình (ví dụ `format: "callout"`).
 
-Ở cấu hình cấp app, `buttonActions` có thể ánh xạ tên `onAction` thành callback JavaScript. Cơ chế callback này không áp dụng cho JSON metadata của column.
+Ở cấu hình cấp app hoặc dynamic extension, `buttonActions` có thể ánh xạ tên `onAction` thành callback JavaScript. Callback nhận editor controller ổn định của Enfyra với `focus`, `getHTML`, `setHTML`, `insertContent`, `toggleFormat`, `isFormatActive`, `undo` và `redo`; callback không nhận raw Tiptap editor instance. Function callback không áp dụng cho JSON metadata của column.
 
 ### Các loại trường đặc biệt
 
