@@ -130,7 +130,7 @@ All matching preHooks execute sequentially before the handler.
 ```javascript
 // preHook: Validate and transform
 if (!$ctx.$body.email) {
-  $ctx.$throw['400']('Email is required');
+  @THROW400('Email is required');
   return;
 }
 
@@ -345,12 +345,12 @@ All matching hooks run **sequentially** (one after another), not in parallel. Th
 ```javascript
 // preHook: Validate request
 if (!$ctx.$body.email) {
-  $ctx.$throw['400']('Email is required');
+  @THROW400('Email is required');
   return;
 }
 
 if (!$ctx.$body.password || $ctx.$body.password.length < 6) {
-  $ctx.$throw['422']('Password must be at least 6 characters');
+  @THROW422('Password must be at least 6 characters');
   return;
 }
 
@@ -427,12 +427,12 @@ if (@ERROR) {
 ```javascript
 // preHook: Check permissions
 if (!$ctx.$user) {
-  $ctx.$throw['401']('Authentication required');
+  @THROW401('Authentication required');
   return;
 }
 
 if ($ctx.$user.role !== 'admin') {
-  $ctx.$throw['403']('Admin access required');
+  @THROW403('Admin access required');
   return;
 }
 
@@ -442,12 +442,12 @@ const resource = await $ctx.$repos.resources.find({
 });
 
 if (resource.data.length === 0) {
-  $ctx.$throw['404']('Resource not found');
+  @THROW404('Resource not found');
   return;
 }
 
 if (resource.data[0].userId !== $ctx.$user.id && $ctx.$user.role !== 'admin') {
-  $ctx.$throw['403']('Access denied');
+  @THROW403('Access denied');
   return;
 }
 ```

@@ -26,7 +26,7 @@ Thêm pre-hook cho `POST /todo_task` để client không thể gán công việc
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 @BODY.owner = { id: @USER.id };
@@ -45,7 +45,7 @@ if (@USER?.isRootAdmin) {
 }
 
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 @QUERY.filter = {

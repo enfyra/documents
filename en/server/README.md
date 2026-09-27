@@ -130,7 +130,7 @@ The `$ctx` (context) object is available in all hooks and handlers. It provides 
 - **Helpers**: `$ctx.$helpers` for JWT, bcrypt, file operations
 - **Cache**: `$ctx.$cache` for Redis operations
 - **Logging**: `$ctx.$logs()` for adding logs to responses
-- **Error Handling**: `$ctx.$throw['400']()` for throwing errors
+- **Error Handling**: `@THROW400(message)` for throwing errors
 
 See [Context Reference](context-reference/request-data.md) for complete details.
 

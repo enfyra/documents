@@ -133,7 +133,7 @@ Use these macros in Script and Condition step code. They are auto-transpiled to 
 | `@HELPERS` | `$ctx.$helpers` |
 | `@TRIGGER(...)` | Trigger another flow from handler |
 | `@USER` | `$ctx.$user` |
-| `@THROW404(msg)` | `$ctx.$throw['404'](msg)` |
+| `@THROW404(message)` | `$ctx.$throw.http(404, message)` |
 | `%dayjs` | `$ctx.$pkgs.dayjs` |
 
 ### Example

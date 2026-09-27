@@ -69,7 +69,7 @@ for (const item of $ctx.$body.items) {
   });
   
   if (productResult.data.length === 0) {
-    $ctx.$throw['404'](`Product ${item.productId} not found`);
+    @THROW404(`Product ${item.productId} not found`);
     return;
   }
   

@@ -273,8 +273,8 @@ return {
 - **Check Data Arrays**: Repository methods return `{data: []}`, always check `data.length`
 
 ### Error Handling
-- **Use $throw Methods**: Use `$ctx.$throw['400']()` instead of `throw new Error()` for consistent error handling
-- **HTTP Status Codes**: Use numeric methods like `$ctx.$throw['404']()` for standard HTTP errors
+- **Use $throw Methods**: Use `@THROW400(message)` instead of `throw new Error()` for consistent error handling
+- **HTTP Status Codes**: Use fixed-status helpers like `@THROW404(message)` for standard HTTP errors
 - **Semantic Errors**: Use descriptive methods like `$ctx.$throw.businessLogic()` for business logic errors
 - **Error Recovery**: Check `$ctx.$api.error` in postHook to handle errors gracefully (only available in postHook)
 - **Descriptive Messages**: Provide clear error messages and details for debugging

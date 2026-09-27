@@ -40,7 +40,7 @@ if (@USER?.isRootAdmin) {
 }
 
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 @QUERY.filter = {
@@ -86,7 +86,7 @@ const membership = await #workspace_member.find({
 });
 
 if (!membership.data?.[0]) {
-  @THROW403();
+  @THROW403('Access denied');
 }
 ```
 
@@ -98,7 +98,7 @@ A custom `POST /workspaces` handler can create the workspace and owner membershi
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 const created = await #workspace.create({

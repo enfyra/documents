@@ -8,7 +8,7 @@ Create a custom `POST /profile/avatar` route that accepts multipart uploads. The
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 if (!@UPLOADED_FILE) {

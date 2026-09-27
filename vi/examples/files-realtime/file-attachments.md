@@ -36,7 +36,7 @@ Thêm pre-hook cho `POST /task_attachment`.
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 @BODY.uploadedBy = { id: @USER.id };

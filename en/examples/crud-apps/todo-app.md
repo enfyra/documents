@@ -22,7 +22,7 @@ Add a `POST /todo_task` pre-hook so the client cannot assign a task to another u
 
 ```javascript
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 @BODY.owner = { id: @USER.id };
@@ -41,7 +41,7 @@ if (@USER?.isRootAdmin) {
 }
 
 if (!@USER?.id) {
-  @THROW401();
+  @THROW401('Authentication required');
 }
 
 @QUERY.filter = {

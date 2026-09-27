@@ -68,16 +68,16 @@ Trong tuỳ chọn **`find()`**, truyền điều kiện qua **`filter`**. Endpo
 | `@FLOW_META` | `$ctx.$flow.$meta` | Metadata thực thi flow (id, name, runId, v.v.) |
 | `@UPLOADED_FILE` | `$ctx.$uploadedFile` | Thông tin file đã tải lên |
 | `@PKGS` | `$ctx.$pkgs` | npm package đã cài để dùng trong handler |
-| `@THROW` | `$ctx.$throw` | Hàm ném lỗi |
-| `@THROW400` | `$ctx.$throw['400']` | HTTP 400 Bad Request (lối tắt) |
-| `@THROW401` | `$ctx.$throw['401']` | HTTP 401 Unauthorized (lối tắt) |
-| `@THROW403` | `$ctx.$throw['403']` | HTTP 403 Forbidden (lối tắt) |
-| `@THROW404` | `$ctx.$throw['404']` | HTTP 404 Not Found (lối tắt) |
-| `@THROW409` | `$ctx.$throw['409']` | HTTP 409 Conflict (lối tắt) |
-| `@THROW422` | `$ctx.$throw['422']` | HTTP 422 Validation Error (lối tắt) |
-| `@THROW429` | `$ctx.$throw['429']` | HTTP 429 Rate Limit Exceeded (lối tắt) |
-| `@THROW500` | `$ctx.$throw['500']` | HTTP 500 Internal Error (lối tắt) |
-| `@THROW503` | `$ctx.$throw['503']` | HTTP 503 Service Unavailable (lối tắt) |
+| `@THROW.http(statusCode, message?)` | `$ctx.$throw.http(statusCode, message?)` | Lỗi HTTP Enfyra chung với status động |
+| `@THROW400(message)` | `$ctx.$throw.http(400, message)` | Lỗi nhanh HTTP 400 Bad Request; bắt buộc có message |
+| `@THROW401(message)` | `$ctx.$throw.http(401, message)` | Lỗi nhanh HTTP 401 Unauthorized; bắt buộc có message |
+| `@THROW403(message)` | `$ctx.$throw.http(403, message)` | Lỗi nhanh HTTP 403 Forbidden; bắt buộc có message |
+| `@THROW404(message)` | `$ctx.$throw.http(404, message)` | Lỗi nhanh HTTP 404 Not Found; bắt buộc có message |
+| `@THROW409(message)` | `$ctx.$throw.http(409, message)` | Lỗi nhanh HTTP 409 Conflict; bắt buộc có message |
+| `@THROW422(message)` | `$ctx.$throw.http(422, message)` | Lỗi nhanh HTTP 422 Validation Error; bắt buộc có message |
+| `@THROW429(message)` | `$ctx.$throw.http(429, message)` | Lỗi nhanh HTTP 429 Rate Limit Exceeded; bắt buộc có message |
+| `@THROW500(message)` | `$ctx.$throw.http(500, message)` | Lỗi nhanh HTTP 500 Internal Error; bắt buộc có message |
+| `@THROW503(message)` | `$ctx.$throw.http(503, message)` | Lỗi nhanh HTTP 503 Service Unavailable; bắt buộc có message |
 | `#table_name` | `$ctx.$repos.table_name` | Truy cập bảng trực tiếp (ví dụ `#enfyra_user`, `#product`) |
 | `%pkg_name` | `$ctx.$pkgs.pkg_name` | Truy cập package viết tắt (ví dụ `%axios`, `%lodash`, `%moment`) |
 
@@ -391,60 +391,71 @@ await @RES.stream(upstream.body, {
 
 ### Xử lý lỗi
 
-**Lỗi HTTP status code (`@THROW`):**
+Dùng `@THROW.http(statusCode, message?)` cho lỗi HTTP Enfyra chung với status động. Các helper status cố định vẫn là cú pháp source dễ đọc; mỗi helper bắt buộc đúng một message và được compile về cùng phương thức `.http`. Envelope chung luôn có các trace field bên trong `error` và bỏ `error.details` khi không có details thực sự.
 
-**Cách 1: Dùng ngoặc vuông và dấu nháy**
 ```javascript
-// Ném lỗi HTTP 400 Bad Request
-@THROW['400']('Email is required');
-
-// Ném lỗi HTTP 401 Unauthorized
-@THROW['401']('Invalid credentials');
-
-// Ném lỗi HTTP 403 Forbidden
-@THROW['403']('Insufficient permissions');
-
-// Ném lỗi HTTP 404 Not Found
-@THROW['404']('User not found', 'user_id_123');
-
-// Ném lỗi HTTP 409 Conflict (khi trùng lặp)
-@THROW['409']('Email already exists', 'email', 'user@example.com');
-
-// Ném lỗi HTTP 422 Validation Error
-@THROW['422']('Invalid data format');
-
-// Ném lỗi HTTP 500 Internal Server Error
-@THROW['500']('Database connection failed');
+@THROW.http(502, 'Upstream service failed');
+@THROW400('Email is required');
+@THROW401('Invalid credentials');
+@THROW403('Insufficient permissions');
+@THROW404('User not found');
+@THROW409('Email already exists');
+@THROW422('Invalid data format');
+@THROW429('Too many requests');
+@THROW500('Database connection failed');
+@THROW503('Service unavailable');
 ```
 
-**Cách 2: Lối tắt trực tiếp (không cần dấu nháy)**
+Không gọi property dạng số như `$ctx.$throw['400']`, và không truyền details hay semantic arguments vào helper status cố định. Khi cần custom các JSON error field, status và headers, dùng `@THROW.json`. `body` và `body.error` nếu có phải là object. ESV giữ các custom field không thuộc nhóm reserved, luôn ghi root `success: false`, ghi root `statusCode` bằng HTTP response status, xóa `error.statusCode`, rồi merge `timestamp`, `path` chỉ chứa pathname, `method`, `correlationId` do server sở hữu vào `error`. Không khai báo `body.success`, `body.statusCode` hoặc `body.error.statusCode`; chỉ chọn status qua `options.statusCode`. Header `X-Correlation-ID` dùng cùng identifier với `error.correlationId`. API này kết thúc handler, mặc định status `500`, và chỉ chấp nhận `400`–`599`:
+
 ```javascript
-// Ném lỗi HTTP 400 Bad Request
-@THROW400('Email is required');
+@THROW.json(
+  {
+    error: {
+      type: 'api_error',
+      code: 'upstream_error',
+      message: 'Please retry shortly.',
+      should_retry: true,
+      retry_after_seconds: 5
+    }
+  },
+  {
+    statusCode: 502,
+    headers: {
+      'x-should-retry': 'true',
+      'Retry-After': '5'
+    }
+  }
+);
+```
 
-// Ném lỗi HTTP 401 Unauthorized  
-@THROW401('Invalid credentials');
+Client nhận các custom field cùng trace do server bổ sung:
 
-// Ném lỗi HTTP 403 Forbidden
-@THROW403('Insufficient permissions');
+```json
+{
+  "success": false,
+  "statusCode": 502,
+  "error": {
+    "type": "api_error",
+    "code": "upstream_error",
+    "message": "Please retry shortly.",
+    "should_retry": true,
+    "retry_after_seconds": 5,
+    "timestamp": "<server ISO timestamp>",
+    "path": "<request path>",
+    "method": "POST",
+    "correlationId": "<server correlation ID>"
+  }
+}
+```
 
-// Ném lỗi HTTP 404 Not Found
-@THROW404('User not found', 'user_id_123');
+`@RES.json` là boundary riêng chỉ dành cho response thành công. API này chấp nhận status `200`–`399` và nên được return ở statement kết thúc handler:
 
-// Ném lỗi HTTP 409 Conflict (khi trùng lặp)
-@THROW409('Email already exists');
-
-// Ném lỗi HTTP 422 Validation Error
-@THROW422('Invalid data format');
-
-// Ném lỗi HTTP 429 Rate Limit Exceeded
-@THROW429(100, 'per minute');
-
-// Ném lỗi HTTP 500 Internal Server Error
-@THROW500('Database connection failed');
-
-// Ném lỗi HTTP 503 Service Unavailable
-@THROW503('Service unavailable');
+```javascript
+return await @RES.json(
+  { data: { id: 'project-1' }, success: true },
+  { statusCode: 201, headers: { 'x-resource-created': 'true' } }
+);
 ```
 
 ## Cách dùng nâng cao

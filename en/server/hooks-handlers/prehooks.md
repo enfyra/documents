@@ -15,12 +15,12 @@ preHooks execute before the handler. Use them for validation, data transformatio
 ```javascript
 // Validate required fields
 if (!$ctx.$body.email) {
-  $ctx.$throw['400']('Email is required');
+  @THROW400('Email is required');
   return;
 }
 
 if (!$ctx.$body.password) {
-  $ctx.$throw['400']('Password is required');
+  @THROW400('Password is required');
   return;
 }
 
@@ -53,13 +53,13 @@ $ctx.$body.createdAt = new Date();
 ```javascript
 // Check authentication
 if (!$ctx.$user) {
-  $ctx.$throw['401']('Authentication required');
+  @THROW401('Authentication required');
   return;
 }
 
 // Check role
 if ($ctx.$user.role !== 'admin') {
-  $ctx.$throw['403']('Admin access required');
+  @THROW403('Admin access required');
   return;
 }
 
@@ -69,12 +69,12 @@ const resource = await $ctx.$repos.resources.find({
 });
 
 if (resource.data.length === 0) {
-  $ctx.$throw['404']('Resource not found');
+  @THROW404('Resource not found');
   return;
 }
 
 if (resource.data[0].userId !== $ctx.$user.id) {
-  $ctx.$throw['403']('Access denied');
+  @THROW403('Access denied');
   return;
 }
 ```
@@ -106,7 +106,7 @@ const result = await $ctx.$helpers.$rateLimit.byIp({
 });
 
 if (!result.allowed) {
-  $ctx.$throw['429'](`Rate limit exceeded. Try again in ${result.retryAfter}s`);
+  @THROW429(`Rate limit exceeded. Try again in ${result.retryAfter}s`);
   return;
 }
 ```
@@ -121,7 +121,7 @@ const result = await $ctx.$helpers.$rateLimit.byIp({
 });
 
 if (!result.allowed) {
-  $ctx.$throw['429'](`Too many login attempts. Try again in ${result.retryAfter}s`);
+  @THROW429(`Too many login attempts. Try again in ${result.retryAfter}s`);
   return;
 }
 ```
@@ -136,7 +136,7 @@ const result = await $ctx.$helpers.$rateLimit.byUser({
 });
 
 if (!result.allowed) {
-  $ctx.$throw['429']('API rate limit exceeded');
+  @THROW429('API rate limit exceeded');
   return;
 }
 ```
@@ -152,7 +152,7 @@ if (!$ctx.$user?.isRootAdmin) {
   });
 
   if (!result.allowed) {
-    $ctx.$throw['429']('Rate limit exceeded');
+    @THROW429('Rate limit exceeded');
     return;
   }
 }
@@ -169,7 +169,7 @@ const result = await $ctx.$helpers.$rateLimit.check(
 );
 
 if (!result.allowed) {
-  $ctx.$throw['429']('Too many requests to this resource');
+  @THROW429('Too many requests to this resource');
   return;
 }
 ```

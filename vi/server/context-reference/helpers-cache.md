@@ -150,7 +150,7 @@ const result = await $ctx.$helpers.$rateLimit.byIp({
 });
 
 if (!result.allowed) {
-  $ctx.$throw['429'](`Rate limit exceeded. Try again in ${result.retryAfter}s`);
+  @THROW429(`Rate limit exceeded. Try again in ${result.retryAfter}s`);
 }
 ```
 
@@ -200,7 +200,7 @@ const result = await $ctx.$helpers.$rateLimit.byIp({
 });
 
 if (!result.allowed) {
-  $ctx.$throw['429'](`Too many login attempts. Try again in ${result.retryAfter}s`);
+  @THROW429(`Too many login attempts. Try again in ${result.retryAfter}s`);
 }
 ```
 
@@ -213,7 +213,7 @@ const result = await $ctx.$helpers.$rateLimit.byUser({
 });
 
 if (!result.allowed) {
-  $ctx.$throw['429'](`API rate limit exceeded. Try again in ${result.retryAfter}s`);
+  @THROW429(`API rate limit exceeded. Try again in ${result.retryAfter}s`);
 }
 ```
 
@@ -226,7 +226,7 @@ if (!$ctx.$user?.isRootAdmin) {
   });
 
   if (!result.allowed) {
-    $ctx.$throw['429']('Rate limit exceeded');
+    @THROW429('Rate limit exceeded');
   }
 }
 ```
@@ -240,7 +240,7 @@ const result = await $ctx.$helpers.$rateLimit.check(
 );
 
 if (!result.allowed) {
-  $ctx.$throw['429']('Too many requests to this resource');
+  @THROW429('Too many requests to this resource');
 }
 ```
 
@@ -253,7 +253,7 @@ const status = await $ctx.$helpers.$rateLimit.status(
 );
 
 if (!status.allowed) {
-  $ctx.$throw['429']('Daily limit reached');
+  @THROW429('Daily limit reached');
 }
 ```
 
