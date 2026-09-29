@@ -39,7 +39,7 @@ The built-in Settings lists use `DataTableSettingsTable` to add row actions, a b
 
 `useDataTableColumns().buildActionsColumn({ actions })` builds the `…` dropdown column. Its `actions` can be a fixed array or a function of the current record. Keep the menu narrow by returning only actions that the record and permissions allow. For row selection, use the table's native `v-model:row-selection`, a checkbox column, and `getRowId` with a stable record identifier. Do not infer selection from row position or paginate an already paged response a second time.
 
-On the built-in `/data/<table>` page, a column may declare `metadata.tableCell.formatter`. This eApp-only formatter receives the column metadata and cell value and returns a display value. It changes presentation, not stored data or server responses. For extension-specific formatting, use the table column's `cell` renderer instead.
+On the built-in `/data/<table>` page, a column may declare `metadata.tableCell.formatter` as a string containing a restricted `(metadata, value) => expression` function. It returns a string, number, boolean, or `{ text, color?, variant? }` for display; invalid/empty results fall back to the ordinary cell value (`_` for empty values). This eApp-only formatter changes presentation, not stored data or server responses. For extension-specific formatting, use the table column's `cell` renderer instead.
 
 ## When a table appears wrong
 

@@ -39,7 +39,7 @@ Các danh sách Settings tích hợp dùng `DataTableSettingsTable` để bổ s
 
 `useDataTableColumns().buildActionsColumn({ actions })` tạo cột menu `…`. `actions` có thể là mảng cố định hoặc hàm nhận bản ghi hiện tại. Chỉ trả về các thao tác mà bản ghi và quyền truy cập cho phép. Để chọn dòng, dùng `v-model:row-selection` gốc của bảng, cột checkbox và `getRowId` dựa trên định danh ổn định. Không suy ra trạng thái chọn từ vị trí dòng hoặc phân trang lần nữa trên kết quả đã phân trang.
 
-Ở trang `/data/<table>` tích hợp, một cột có thể khai báo `metadata.tableCell.formatter`. Formatter chỉ chạy ở eApp, nhận metadata của cột cùng giá trị ô và trả về giá trị hiển thị. Nó không thay đổi dữ liệu lưu trữ hay phản hồi của server. Trong extension, dùng renderer `cell` của cột để định dạng theo nhu cầu riêng.
+Ở trang `/data/<table>` tích hợp, một cột có thể khai báo `metadata.tableCell.formatter` dưới dạng chuỗi chứa hàm `(metadata, value) => expression` trong phạm vi biểu thức được hỗ trợ. Kết quả có thể là chuỗi, số, boolean hoặc `{ text, color?, variant? }` để hiển thị; kết quả không hợp lệ/trống trở về giá trị ô thông thường (`_` nếu giá trị rỗng). Formatter chỉ chạy ở eApp và không thay đổi dữ liệu lưu trữ hay phản hồi của server. Trong extension, dùng renderer `cell` của cột để định dạng theo nhu cầu riêng.
 
 ## Khi bảng hiển thị không đúng
 
