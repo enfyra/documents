@@ -521,7 +521,7 @@ Tất cả các thành phần UI được hệ thống tiện ích mở rộng t
 - `UForm` - Thùng chứa biểu mẫu
 
 **Thành phần Enfyra tùy chỉnh:**
-- `DataTable` - Bảng dữ liệu nâng cao có tính năng lọc
+- `DataTable` - Wrapper bảng Nuxt UI cho danh sách bản ghi; xem [hướng dẫn DataTable](./data-table.md) để cấu hình cột, thao tác và phân trang theo server
 - `PermissionGate` - Hiển thị nội dung dựa trên quyền
 - `FormEditor` - Tạo biểu mẫu động
 - `FilterDrawer` - Giao diện lọc nâng cao
@@ -566,7 +566,7 @@ Sử dụng `UTabs` cho các phần trang thay vì thanh tab tùy chỉnh. Các 
     </UButton>
 
     <!-- Data Display -->
-    <UTable :rows="data" :columns="columns" />
+    <DataTable :data="data" :columns="columns" />
     <UBadge color="success">Status: Active</UBadge>
 
     <!-- Advanced Components -->
@@ -591,9 +591,9 @@ const data = [
   { id: 2, name: 'Item 2', status: 'Inactive' }
 ];
 const columns = [
-  { key: 'id', label: 'ID' },
-  { key: 'name', label: 'Name' },
-  { key: 'status', label: 'Status' }
+  { accessorKey: 'id', header: 'ID' },
+  { accessorKey: 'name', header: 'Name' },
+  { accessorKey: 'status', header: 'Status' }
 ];
 
 const handleClick = () => {

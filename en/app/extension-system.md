@@ -520,7 +520,7 @@ All UI components are automatically injected by the extension system and can be 
 - `UForm` - Form containers
 
 **Custom Enfyra Components:**
-- `DataTable` - Advanced data tables with filtering
+- `DataTable` - Nuxt UI table wrapper for record lists; see the [DataTable guide](./data-table.md) for columns, actions, and server pagination
 - `PermissionGate` - Permission-based content visibility
 - `FormEditor` - Dynamic form generation
 - `FilterDrawer` - Advanced filtering interface
@@ -570,7 +570,7 @@ Use `UTabs` for page sections instead of custom tab bars. Enfyra styles tabs glo
     </UButton>
 
     <!-- Data Display -->
-    <UTable :rows="data" :columns="columns" />
+    <DataTable :data="data" :columns="columns" />
     <UBadge color="success">Status: Active</UBadge>
 
     <!-- Advanced Components -->
@@ -595,9 +595,9 @@ const data = [
   { id: 2, name: 'Item 2', status: 'Inactive' }
 ];
 const columns = [
-  { key: 'id', label: 'ID' },
-  { key: 'name', label: 'Name' },
-  { key: 'status', label: 'Status' }
+  { accessorKey: 'id', header: 'ID' },
+  { accessorKey: 'name', header: 'Name' },
+  { accessorKey: 'status', header: 'Status' }
 ];
 
 const handleClick = () => {

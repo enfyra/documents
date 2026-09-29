@@ -99,6 +99,7 @@ vi/
 │   ├── menu-management.md
 │   ├── theme-color-contract.md
 │   ├── extension-system.md
+│   ├── data-table.md
 │   ├── header-actions.md
 │   ├── page-header.md
 │   ├── runtime-monitor.md

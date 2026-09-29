@@ -25,6 +25,7 @@ Nếu bạn đang xây web app, backend cho mobile app, CLI hoặc service đư�
   - **[Hệ thống biểu mẫu](./form-system.md)** – Biểu mẫu tạo tự động, validation, relation và theo dõi thay đổi  
   - **[Bộ chọn relation](./relation-picker.md)** – Chọn bản ghi liên quan trong biểu mẫu  
   - **[Hệ thống lọc](./filter-system.md)** – Bộ lọc nâng cao cho bảng và bộ chọn
+  - **[DataTable](./data-table.md)** – Hiển thị danh sách bản ghi có giới hạn với cột và thao tác gốc của bảng
 
 - **Quyền và khả năng hiển thị**  
   - **[Trình dựng quyền](./permission-builder.md)** – Tạo quy tắc phân quyền trực quan  

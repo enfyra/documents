@@ -274,6 +274,7 @@ enfyra-docs/
 │   ├── package-management.md    # Install and manage NPM packages for handlers and hooks
 │   ├── menu-management.md       # UI guide for creating custom navigation menus
 │   ├── extension-system.md      # Create custom pages with Vue.js components (linked to menus)
+│   ├── data-table.md            # Display paginated records in Enfyra Admin
 │   ├── header-actions.md        # Inject custom actions into header and sub-header areas
 │   ├── page-header.md           # Register custom page headers with stats and gradients
 │   ├── permission-builder.md    # Visual interface for creating complex permission rules
