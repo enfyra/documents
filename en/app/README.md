@@ -21,6 +21,7 @@ The app is a **pure API client**: it never connects directly to your database. A
   - **[Form System](./form-system.md)** – Auto-generated forms, validation, relations, and change tracking  
   - **[Relation Picker](./relation-picker.md)** – Selecting related records inside forms  
   - **[Filter System](./filter-system.md)** – Advanced filtering for tables and pickers
+  - **[DataTable](./data-table.md)** – Display bounded record lists with native table columns and actions
 
 - **Permissions & Visibility**  
   - **[Permission Builder](./permission-builder.md)** – Visual permission rule builder  
