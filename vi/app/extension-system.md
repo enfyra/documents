@@ -521,7 +521,8 @@ Tất cả các thành phần UI được hệ thống tiện ích mở rộng t
 - `UForm` - Thùng chứa biểu mẫu
 
 **Thành phần Enfyra tùy chỉnh:**
-- `DataTable` - Wrapper bảng Nuxt UI cho danh sách bản ghi; xem [hướng dẫn DataTable](./data-table.md) để cấu hình cột, thao tác và phân trang theo server
+- `DataTable` - Wrapper bảng Nuxt UI cho danh sách bản ghi, hỗ trợ phân trang số hoặc cursor Previous/Next. Cursor dùng `hasNextPage`, `:page` và `@update:page`; trang tự fetch rồi thay dữ liệu. Xem [hướng dẫn DataTable](./data-table.md) để có ví dụ cursor hoàn chỉnh, thanh mini mobile, cách xử lý lỗi và các bước nâng phiên bản.
+- `TabbedPanel` - Header tabs và khung nội dung dùng chung; mặc định giữ các panel ẩn ở trạng thái mounted
 - `PermissionGate` - Hiển thị nội dung dựa trên quyền
 - `FormEditor` - Tạo biểu mẫu động
 - `FilterDrawer` - Giao diện lọc nâng cao
@@ -545,11 +546,23 @@ Tất cả các thành phần UI được hệ thống tiện ích mở rộng t
   </template>
 </CommonModal>
 ```
-Hủy các hành động mặc định theo kiểu dáng phác thảo trung tính. Sử dụng `angerAction` cho hành động phá hoại không thể đảo ngược, chẳng hạn như xóa, thu hồi hoặc xóa vĩnh viễn. Trong hộp thoại loại bỏ, hãy sử dụng `tone: "chính"` cho `Tiếp tục chỉnh sửa` vì nó giúp người dùng duy trì quy trình chỉnh sửa an toàn.
+Hành động Cancel mặc định dùng màu neutral và variant outline. Dùng `dangerAction` cho hành động không thể đảo ngược như xóa hoặc thu hồi. Trong hộp thoại bỏ thay đổi, dùng `tone: "primary"` cho `Keep editing` để người dùng tiếp tục chỉnh sửa.
 
 Sử dụng `USkeleton` hoặc các thành phần tải được chia sẻ để tải phần giữ chỗ. Enfyra ánh xạ các màu khung trên toàn cầu, vì vậy mã mở rộng không được mã hóa cứng các gradient tải hoặc bảng màu.
 
-Sử dụng `UTabs` cho các phần trang thay vì thanh tab tùy chỉnh. Các tab kiểu Enfyra trên toàn cầu, vì vậy các tab tiện ích mở rộng của bạn sẽ tự động khớp với các trang hệ thống.
+Page extension kế thừa dashboard shell native: khung inset và header đứng yên, chỉ phần thân cuộn, nội dung được căn giữa trong container tối đa 75rem (1200px). Đăng ký tiêu đề và hành động trang qua shell registry. Tiêu đề và nội dung dùng cùng chiều rộng; `eapp-page-constrained` và `eapp-page-constrained-wide` tuân theo giới hạn chung này. Workspace dùng nền trung tính dịu với tint theme rất nhẹ ở cả light và dark mode, còn vùng nội dung có khung giữ bề mặt mặc định. Dùng `eapp-form-region` hoặc `eapp-bordered-region` để form đứng riêng hay vùng dữ liệu có một border trung tính, radius chung và nền nội dung mặc định. Bảng, panel tabs, drawer và modal đã có khung riêng nên nội dung bên trong giữ phẳng.
+
+Dùng `TabbedPanel` được inject sẵn cho các nhóm nội dung cấp trang. Component đặt `UTabs` native trong header nền muted, căn border trùng active indicator và giữ form draft mounted khi đổi tab. Trang tự quản lý tab đang chọn và có thể đồng bộ với URL query. Với các nhóm con bên trong panel, dùng `UTabs` native dạng pill phẳng, tránh lồng thêm panel có border.
+
+```vue
+<TabbedPanel v-model="activeTab" :items="tabs">
+  <template #content="{ item }">
+    <p>{{ item.label }}</p>
+  </template>
+</TabbedPanel>
+```
+
+Đặt Save/Reset của form cấp trang trong header action và thao tác trên tab đang chỉnh sửa. Form trong drawer/modal vẫn dùng các hành động footer do component quản lý. Với danh sách bản ghi, bind trạng thái request vào `DataTable.loading`; thanh tiến trình native dưới header thay skeleton hàng và giữ dữ liệu khi refresh.
 ```vue
 <template>
   <!-- Components are injected and can be used directly -->
