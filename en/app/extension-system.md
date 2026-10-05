@@ -521,7 +521,7 @@ All UI components are automatically injected by the extension system and can be 
 
 **Custom Enfyra Components:**
 - `DataTable` - Nuxt UI table wrapper for record lists with numbered or cursor Previous/Next pagination. Cursor pages use `hasNextPage`, `:page` and `@update:page`; callers fetch and replace each page. See the [DataTable guide](./data-table.md) for a complete cursor example, mobile mini pager, failure handling and upgrade steps.
-- `TabbedPanel` - Shared native tab header and content frame, with hidden panels kept mounted by default
+- `Panel` - Shared framed content region with optional section tabs, per-section headers, and a shared footer. Hidden sections stay mounted by default
 - `PermissionGate` - Permission-based content visibility
 - `FormEditor` - Dynamic form generation
 - `FilterDrawer` - Advanced filtering interface
@@ -555,14 +555,20 @@ Use `USkeleton` or shared loading components for loading placeholders. Enfyra ma
 
 Page extensions inherit the native dashboard shell: stationary inset borders and headers, a scrolling body, and a centered content container capped at 75rem (1200px). Register the page title and actions through the shell registries. The page heading and content use the same width; `eapp-page-constrained` and `eapp-page-constrained-wide` follow this shared limit. The workspace uses a quiet neutral background with a subtle theme tint in light and dark modes, while framed content keeps its default surface. Use `eapp-form-region` or `eapp-bordered-region` for one neutral border, the app radius, and the default content background around a standalone form or data region. Tables, tabbed panels, drawers, and modals already own their frame, so their contents stay flat.
 
-Use injected `TabbedPanel` for top-level page sections. It places native `UTabs` in a muted header, aligns the divider with the active indicator, and preserves mounted form drafts. The caller owns the selected tab and can synchronize it with the URL query. Use a flat native pill `UTabs` strip for secondary sections inside a panel, without nesting another framed panel.
+Use injected `Panel` for a framed page region. Pass `sections` as an array. A section with `label` or `icon` appears in the tab strip; one unlabeled section hides the strip. Render each section in its own slot, such as `#general`, and put tools for that section in `#general-header`. `#footer` is shared by the panel. The topmost tab strip or header uses the muted surface and divider; a header below tabs stays on the content surface. Hidden sections stay mounted by default. The caller owns the selected section and can synchronize it with the URL query. Use a flat native pill `UTabs` strip for secondary sections inside a panel, without nesting another framed panel.
 
 ```vue
-<TabbedPanel v-model="activeTab" :items="tabs">
-  <template #content="{ item }">
-    <p>{{ item.label }}</p>
+<Panel v-model="activeTab" :sections="sections">
+  <template #general-header>
+    <h2 class="text-sm font-semibold">General</h2>
   </template>
-</TabbedPanel>
+  <template #general>
+    <p>General settings</p>
+  </template>
+  <template #footer>
+    <p>Shared footer</p>
+  </template>
+</Panel>
 ```
 
 Put page-form Save/Reset actions in the shell header and target the active editable tab. Drawer/modal forms keep their managed footer actions. For record lists, bind the request state to `DataTable.loading`; its native header progress replaces row skeletons and keeps existing rows during refresh.
