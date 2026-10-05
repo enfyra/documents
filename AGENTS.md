@@ -15,7 +15,7 @@ This repository owns user-facing Enfyra documentation. Keep this file as a thin 
 
 ## Required Skill Routing
 
-- Writing, translating, reviewing, reorganizing, or locating documentation: `.codex/skills/enfyra-docs-authoring/SKILL.md`
+- Writing, translating, reviewing, reorganizing, or locating documentation, including app shell/Panel/DataTable contracts: `.codex/skills/enfyra-docs-authoring/SKILL.md`
 - Synchronizing Markdown into landing content sets: `../enfyra-landing-page/.codex/skills/enfyra-landing-docs-sync/SKILL.md`
 - Changing the landing docs reader, navigation, search, or rendering: `../enfyra-landing-page/.codex/skills/enfyra-landing-docs/SKILL.md`
 

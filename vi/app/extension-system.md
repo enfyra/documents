@@ -522,7 +522,7 @@ Tất cả các thành phần UI được hệ thống tiện ích mở rộng t
 
 **Thành phần Enfyra tùy chỉnh:**
 - `DataTable` - Wrapper bảng Nuxt UI cho danh sách bản ghi, hỗ trợ phân trang số hoặc cursor Previous/Next. Cursor dùng `hasNextPage`, `:page` và `@update:page`; trang tự fetch rồi thay dữ liệu. Xem [hướng dẫn DataTable](./data-table.md) để có ví dụ cursor hoàn chỉnh, thanh mini mobile, cách xử lý lỗi và các bước nâng phiên bản.
-- `TabbedPanel` - Header tabs và khung nội dung dùng chung; mặc định giữ các panel ẩn ở trạng thái mounted
+- `Panel` - Khung nội dung dùng chung, có tab theo section, header riêng từng section và footer chung. Các section ẩn mặc định vẫn mounted
 - `PermissionGate` - Hiển thị nội dung dựa trên quyền
 - `FormEditor` - Tạo biểu mẫu động
 - `FilterDrawer` - Giao diện lọc nâng cao
@@ -552,14 +552,20 @@ Sử dụng `USkeleton` hoặc các thành phần tải được chia sẻ để
 
 Page extension kế thừa dashboard shell native: khung inset và header đứng yên, chỉ phần thân cuộn, nội dung được căn giữa trong container tối đa 75rem (1200px). Đăng ký tiêu đề và hành động trang qua shell registry. Tiêu đề và nội dung dùng cùng chiều rộng; `eapp-page-constrained` và `eapp-page-constrained-wide` tuân theo giới hạn chung này. Workspace dùng nền trung tính dịu với tint theme rất nhẹ ở cả light và dark mode, còn vùng nội dung có khung giữ bề mặt mặc định. Dùng `eapp-form-region` hoặc `eapp-bordered-region` để form đứng riêng hay vùng dữ liệu có một border trung tính, radius chung và nền nội dung mặc định. Bảng, panel tabs, drawer và modal đã có khung riêng nên nội dung bên trong giữ phẳng.
 
-Dùng `TabbedPanel` được inject sẵn cho các nhóm nội dung cấp trang. Component đặt `UTabs` native trong header nền muted, căn border trùng active indicator và giữ form draft mounted khi đổi tab. Trang tự quản lý tab đang chọn và có thể đồng bộ với URL query. Với các nhóm con bên trong panel, dùng `UTabs` native dạng pill phẳng, tránh lồng thêm panel có border.
+Dùng `Panel` được inject sẵn cho một vùng nội dung có khung. Luôn truyền `sections` dạng mảng. Section có `label` hoặc `icon` sẽ hiện trong tab strip; nếu chỉ có một section không có label thì tab strip được ẩn. Render từng section bằng slot riêng, ví dụ `#general`, và đặt công cụ của section đó trong `#general-header`. `#footer` là footer chung của panel. Tab strip hoặc header nằm trên cùng dùng nền muted và divider; header nằm dưới tab giữ nền nội dung. Các section ẩn mặc định vẫn mounted. Trang tự quản lý section đang chọn và có thể đồng bộ với URL query. Với nhóm con bên trong panel, dùng `UTabs` native dạng pill phẳng, tránh lồng thêm panel có border.
 
 ```vue
-<TabbedPanel v-model="activeTab" :items="tabs">
-  <template #content="{ item }">
-    <p>{{ item.label }}</p>
+<Panel v-model="activeTab" :sections="sections">
+  <template #general-header>
+    <h2 class="text-sm font-semibold">General</h2>
   </template>
-</TabbedPanel>
+  <template #general>
+    <p>General settings</p>
+  </template>
+  <template #footer>
+    <p>Shared footer</p>
+  </template>
+</Panel>
 ```
 
 Đặt Save/Reset của form cấp trang trong header action và thao tác trên tab đang chỉnh sửa. Form trong drawer/modal vẫn dùng các hành động footer do component quản lý. Với danh sách bản ghi, bind trạng thái request vào `DataTable.loading`; thanh tiến trình native dưới header thay skeleton hàng và giữ dữ liệu khi refresh.
