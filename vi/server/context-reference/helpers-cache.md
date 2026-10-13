@@ -10,6 +10,10 @@ Các hàm tiện ích cho tác vụ phổ biến và thao tác cache phân tán.
 
 Các hàm tiện ích cho tác vụ phổ biến. Mọi hàm hỗ trợ đều cần `await`.
 
+### Thao tác dùng chung theo tên
+
+Gọi helper đã lưu và bật bằng `await @HELPERS.run('normalize_query', { query: @BODY.query })`. Source đọc `@PARAMS` tường minh, body/query/share/env rỗng và user null, nhưng vẫn giữ quyền repository do host xác định cho caller, transaction đang hoạt động và giới hạn task. Đây không phải sandbox riêng hay vòng đời route khác. Xem [Shared Helpers](../shared-helpers.md) để biết cách viết, test, điều kiện sử dụng và giới hạn.
+
 ### Tạo token JWT
 
 ```javascript

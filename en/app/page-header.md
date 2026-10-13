@@ -21,8 +21,8 @@ Page headers provide:
 - **Title and Description**: Clear page context for users
 - **Leading icon**: Optional icon beside the title (or resolved from the sidebar menu for the current route)
 - **Stats Display**: Show key metrics at a glance
-- **Visual Variants**: Different layouts for different use cases
-- **Accent strip**: When `gradient` is not `none`, a subtle **horizontal tint** runs behind the header row (not a full-page background)
+- **Native header section**: An unframed heading inside the scrolling dashboard body, aligned with the centered 75rem (1200px) content container. It has no separate border or padding; the main navigation bar remains stationary
+- **Theme appearance**: The main/header surface follows the app theme; the leading icon uses the active primary color
 - **Auto-Cleanup**: Headers automatically cleared on route change
 
 ## Basic Usage
@@ -72,7 +72,7 @@ registerPageHeader({
 ```
 
 ### Minimal Variant
-Compact layout focusing on title only.
+Uses the same native header layout as `default`. Omit `description` and `stats` for a title-only header.
 
 ```vue
 registerPageHeader({
@@ -100,19 +100,16 @@ registerPageHeader({
 
 ## Gradient Options
 
-`gradient` controls two things: (1) a **light horizontal strip** behind the header row, and (2) **colors for the leading icon tile** when an icon is shown.
-
-- **purple** / **blue** / **cyan**: Tinted strip + matching icon shell
-- **none**: No strip; icon shell uses neutral surface styling
+`gradient` accepts `purple`, `blue`, `cyan`, or `none`, with `none` as the default. The native header renders the theme's main surface for every value; this option does not create a colored strip or icon tile. Use the app appearance settings to choose the primary accent.
 
 ```vue
-// Accent strip + icon shell (purple family)
+// Native theme surface
 registerPageHeader({
   title: "Settings",
   gradient: "purple"
 });
 
-// No accent strip (neutral icon tile if icon is shown)
+// Default appearance
 registerPageHeader({
   title: "Simple Page",
   gradient: "none"
@@ -121,8 +118,8 @@ registerPageHeader({
 
 ## Leading icon
 
-- **`leadingIcon`**: Iconify / Nuxt UI icon name (e.g. `i-lucide-layout-dashboard`). Shown in a rounded tile next to the title.
-- **`hideLeadingIcon: true`**: Never show the icon tile (even if the menu has an icon for this path).
+- **`leadingIcon`**: Iconify / Nuxt UI icon name (e.g. `i-lucide-layout-dashboard`). Shown as a primary-colored icon beside the title, without a separate tile.
+- **`hideLeadingIcon: true`**: Never show the leading icon (even if the menu has an icon for this path).
 - **Default**: If you omit `leadingIcon` and do not hide it, the app tries to use the **menu icon** registered for the current route (`useMenuRegistry` / `findMenuIconForPath`).
 
 ## Stats Display
@@ -345,17 +342,10 @@ onMounted(async () => {
 { variant: "stats-focus", stats: [...] }
 ```
 
-### 2. Match Gradient to Content
+### 2. Keep Header Appearance Theme-Owned
 
 ```javascript
-// Data/collections
-{ gradient: "blue" }
-
-// Settings/configuration
-{ gradient: "purple" }
-
-// Dashboard/overview
-{ gradient: "cyan" }
+{ gradient: "none" }
 ```
 
 ### 3. Keep Descriptions Concise
@@ -403,9 +393,9 @@ interface PageHeaderConfig {
   description?: string;                    // Page description
   stats?: PageHeaderStat[];                // Statistics to display
   variant?: "default" | "minimal" | "stats-focus";  // Layout variant
-  gradient?: "purple" | "blue" | "cyan" | "none";   // Header strip + leading icon tint
+  gradient?: "purple" | "blue" | "cyan" | "none";   // Accepted config; appearance remains theme-owned
   leadingIcon?: string;                    // Icon name; if omitted, menu icon for route may be used
-  hideLeadingIcon?: boolean;               // If true, no leading icon tile
+  hideLeadingIcon?: boolean;               // If true, no leading icon
 }
 ```
 
@@ -441,8 +431,8 @@ const {
 The Page Header System provides:
 
  **Consistent page headers** across the application
- **Multiple layout variants** for different page types
- **Accent strip + optional leading icon** (menu-driven or explicit)
+ **Scrolling native page heading** aligned with the content container
+ **Optional primary-colored leading icon** (menu-driven or explicit)
  **Stats display** for key metrics
  **Auto-cleanup** on route changes
  **Update via `watch`** when title or stats change

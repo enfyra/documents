@@ -4,7 +4,7 @@ postHooks execute after the handler (or after a preHook/handler error). Use them
 
 ## Execution Behavior
 
-- postHooks **always run**, even when preHook or handler throws an error
+- postHooks run after ordinary completion, including a preHook/handler error. Cancellation and terminal stream failures use the separate opt-in audit path below
 - On error path: `@ERROR` is populated, `@DATA` is `null`, `@STATUS` is the error status code
 - On success path: `@ERROR` is `undefined`, `@DATA` is the handler result, `@STATUS` is `200`
 - postHooks run as **side effects** — on error path, the original error is always thrown after all postHooks complete
@@ -97,6 +97,40 @@ if (@ERROR) {
   }
 }
 ```
+
+## Audit terminated HTTP requests
+
+On a Server release supporting terminal failure audits, an attached post-hook can opt in by starting its source with the exact directive:
+
+```javascript
+'enfyra:client-disconnect-audit';
+if (@ERROR?.origin) {
+  @LOGS('Request terminated', {
+    executionId: @API.request.executionId,
+    origin: @ERROR.origin,
+    code: @ERROR.code,
+    statusCode: @STATUS,
+  });
+}
+```
+
+Server runs only these attached audit hooks in a fresh task with a separate five-second admission/execution budget. It does not replay inference or ordinary post-hooks, and the audit task has no live response. This is best-effort finalization, not a durable outbox; verify deployed support before relying on it.
+
+The host-owned first cause is authoritative:
+
+| Origin | Status / code |
+|---|---|
+| Client disconnect | `499 client_closed_request` |
+| Response stream failure | `502 response_stream_error` |
+| Stream total/idle deadline | `504 response_stream_timeout` |
+| Execution deadline | `504 execution_timeout` |
+| Other terminal execution failure | `500 execution_failed` |
+
+Do not reinterpret upstream HTTP 499 or a later abort flag as a client disconnect. `@ERROR` contains `origin`, `statusCode`, `code` and a safe `message`; ordinary error paths retain their normal error shape. The audit context retains authenticated identity and the last host snapshot, not guaranteed in-flight `@SHARE` changes.
+
+`@API.request.executionId` is a Server-generated UUID, independent of caller correlation/session IDs. An application writing failure rows must coordinate with successful settlement under the same transaction/lock and check authoritative persisted state so an already settled execution does not gain a duplicate failure row. Keep authenticated fallback for sparse snapshots and never record prompts, credentials or provider-private diagnostics in public audit data.
+
+Before response headers, Server-owned failures send safe JSON with matching status and paired retry signals. After a stream is committed, its wire status cannot change; Server closes it. No second response is sent after client disconnect. Required durable work still needs an outbox or flow.
 
 ## Available Context in postHooks
 

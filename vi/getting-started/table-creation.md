@@ -45,7 +45,7 @@ Với SQL, mọi bảng tự có field `id`:
 - **Nullable:** No
 - **Updatable:** No
 
-Với MongoDB, mọi collection tự có primary field `_id` kiểu `ObjectId`. Cả hai đều do hệ thống quản lý.
+Với MongoDB, mọi collection tự có primary field `_id` kiểu `objectId`. Cả hai đều do hệ thống quản lý.
 
 #### Property của cột
 
@@ -65,23 +65,26 @@ Với MongoDB, mọi collection tự có primary field `_id` kiểu `ObjectId`. 
 - `placeholder` – placeholder input của form.
 - `options` – lựa chọn cho `enum`/`array-select`.
 
-**Default value:** `boolean` dùng true/false, `int`/`number` dùng numeric input, `date` dùng date picker, `enum` dùng dropdown, `array-select` dùng multi-select, `uuid` tự tạo, còn kiểu text dùng text input.
+**Default value:** `boolean` dùng true/false, kiểu số như `int`/`float` dùng numeric input, `date` dùng date picker, `enum` dùng dropdown, `array-select` dùng multi-select, `uuid` tự tạo, còn kiểu text dùng text input.
 
 #### Kiểu field
 
-| Type | Mô tả | Trường hợp dùng |
-|------|-------|-----------------|
-| `uuid` | UUID tự tạo, tự đặt `isGenerated=true` | Định danh duy nhất |
-| `varchar` | Text độ dài biến thiên | Tên, tiêu đề, text ngắn |
-| `text` | Nội dung text dài | Mô tả, bài viết |
-| `int`, `bigint`, `number` | Giá trị số; SQL `id` là auto-increment primary key | Giá, số lượng, ID |
-| `boolean` | Giá trị true/false | Cờ, chỉ báo trạng thái |
-| `date`, `timestamp` | Ngày/giờ | Ngày tạo, deadline |
-| `enum` | Chọn một từ option định sẵn | Trạng thái, danh mục |
-| `array-select` | Chọn nhiều option định sẵn | Tag, nhiều danh mục |
-| `simple-json` | Dữ liệu JSON | Cấu trúc phức tạp |
-| `richtext` | Text có định dạng | Bài viết, mô tả có format |
-| `code` | Code có syntax highlighting | Ví dụ code, script |
+Danh sách type phụ thuộc database đang cấu hình. Chọn giá trị editor cung cấp, không đoán tên SQL/BSON. MongoDB dùng tên primitive native; semantic editor type vẫn có trên mọi backend. MySQL hỗ trợ `longtext`, PostgreSQL không hỗ trợ. `number`, `decimal` và `jsonb` không phải column type của Enfyra.
+
+| Mục đích | Type SQL | Type MongoDB |
+|---|---|---|
+| UUID | `uuid` | `uuid` |
+| Text ngắn/dài | `varchar`, `text`; MySQL có thêm `longtext` | `string` |
+| Số nguyên | `int`, `bigint` | `int`, `long` |
+| Số có phần thập phân | `float` | `double` |
+| Boolean | `boolean` | `bool` |
+| Ngày/giờ | `date`, `datetime`, `timestamp` | `date` |
+| Giá trị JSON | `simple-json` | `json`, `object`, `array` |
+| Chọn một giá trị | `enum` có options | `enum` có options |
+| Chọn nhiều giá trị | `array-select` có options | `array-select` có options |
+| Rich text/source code | `richtext`, `code` | `richtext`, `code` |
+
+Primary key MongoDB do hệ thống quản lý là `_id` / `objectId`; không thêm primary field khác. Chuẩn hóa database type không đổi tên field, permission rule hay tên property của relation.
 
 ### Cấu hình nâng cao
 

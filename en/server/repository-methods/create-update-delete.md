@@ -226,6 +226,47 @@ try {
 
 ---
 
+## Protected Read-Modify-Write with `updateLocked`
+
+Use `updateLocked` when a new value depends on the persisted record, such as deducting credit or changing a state after checking its current value. Pass one options object with the same keys as `update`: `id`, optional `fields`, and `data`. Here, `data` is a callback that receives the record inside the protected database scope and returns a partial record to persist.
+
+```javascript
+const amount = Number(@BODY.amount);
+if (!Number.isFinite(amount) || amount <= 0) @THROW400("amount must be positive");
+
+const result = await #secure.accounts.updateLocked({
+  id: @PARAMS.id,
+  fields: ['credit', 'status'],
+  data: (current) => {
+    if (current.credit < amount) @THROW400("Insufficient credit");
+    return {
+      credit: current.credit - amount,
+      status: 'active'
+    };
+  }
+});
+
+return result.data[0];
+```
+
+The computed `credit` and literal `status` returned by `data` are persisted together. The optional top-level `fields` only selects the response, exactly as in `update`; it does not select what is locked or written. Omit it to use the normal mutation response projection. Callback state is loaded independently of request pagination, field projection, and deep query options.
+
+| Backend | Protection |
+|---|---|
+| PostgreSQL and MySQL/InnoDB | A primary transaction locks the root record with `SELECT ... FOR UPDATE` before invoking the callback. |
+| MongoDB with native transactions | The read, callback, and write share a native transaction. A retryable write conflict reruns the transaction, reads the record again, and recomputes the patch. |
+| MongoDB standalone or an application saga scope | Unsupported; the method fails without invoking the callback. |
+
+Keep the `data` callback limited to computation, business validation, and returning the partial record. It can run more than once on MongoDB, so do not send HTTP requests, change cache/storage, emit socket events, trigger flows, or call other repositories inside it. Every retry must compute from its supplied `current`; do not calculate the replacement value from an earlier read. Apply owner/tenant checks that depend on current state inside the callback.
+
+`updateLocked` supports plain generic tables. Schema/metadata routes and tables with custom update normalization or lifecycle handlers are rejected. The normal mutation policy, field permissions, updatable-field rules, and cascade processing still apply. A secure repository exposes only readable fields to the callback; `#accounts` remains intentional trusted access.
+
+The method starts a transaction or joins the active one. When it joins an outer transaction, the outer scope owns commit, rollback, and MongoDB retry. Repository cache invalidations and mutation events are emitted after commit; rolled-back and retried attempts do not emit their effects. Automatic SQL lock waiting and a newly started MongoDB transaction are bounded to 30 seconds, and script cancellation remains in effect.
+
+On PostgreSQL/MySQL, the row lock is retained until the outer transaction commits or rolls back; completion of the `data` callback does not release it. Callback state and update-policy checks use locking reads, so an earlier MySQL repeatable-read snapshot cannot supply an old root value. Keep other repository operations in the outer transaction, outside the pure `data` callback. Use [`findLocked`](./find.md#findlocked) when the common owner must be locked before those dependent reads; verify the deployed runtime supports it.
+
+Root-record protection does not make unrelated records or external systems part of the same invariant. A client submitting an old absolute value still needs a separate state/revision precondition. Missing records, invalid callback results, and exhausted transaction retries are reported as errors rather than successful updates.
+
 ## Delete
 
 Delete a record by ID. Returns a success message.

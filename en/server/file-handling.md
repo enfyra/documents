@@ -4,7 +4,23 @@ Enfyra supports request file uploads, storage-backed file records, metadata upda
 
 ## Uploaded File Context
 
-Multipart requests expose the uploaded request file as `$ctx.$uploadedFile` or `@UPLOADED_FILE`.
+For a dynamic POST, PATCH, or PUT route, configure **Request body → multipart** for that method in the route editor. With no file-field entries, Enfyra accepts one file under the default field name `file`. Add named fields to set each field's required state, maximum file count, optional per-file size limit, and exact MIME allow-list. The method also has overall file-count and size limits. Other form fields remain in `@BODY`.
+
+Read a configured file with `$ctx.$uploadFile['file']` (or its declared field name). A field with maximum count 1 holds a file object; a field allowing more files holds an array. Optional fields with no uploaded file are absent from the map; reading a missing key throws an error naming that key and the available fields, so check `Object.keys($ctx.$uploadFile).includes(name)` when absence is acceptable. Request files are temporary: upload them to storage inside the handler before the response closes.
+
+```javascript
+const files = $ctx.$uploadFile['attachments'];
+const saved = [];
+for (const file of files) {
+  const result = await @STORAGE.$upload({ file });
+  saved.push(result.data[0].id);
+}
+return { fileIds: saved };
+```
+
+`$storage.$upload` stores one file and creates one `enfyra_file` record per call. Save the returned IDs in an existing array column with a repository write if the application needs a persistent list. These storage calls are external side effects: a later repository failure does not undo files already uploaded, so plan cleanup or a partial-result response for multi-file workflows. Use `_id` instead of `id` for MongoDB file records.
+
+The legacy built-in single-file upload exposes `$ctx.$uploadedFile` or `@UPLOADED_FILE`. Existing scripts using that contract remain valid.
 
 ```javascript
 const file = @UPLOADED_FILE;

@@ -28,11 +28,27 @@ const columns = [
 
 Match each `accessorKey` to a returned field. Use a `cell` renderer or named slot such as `#status-cell="{ row }"` with `row.original` for badges and custom text. Bound long values with ellipsis/tooltip rather than widening the table. A badge should remain inside its cell while its label truncates. `DataTable` renders one native table at every screen size, including phones, and owns horizontal scrolling. It does not switch to cards based on the device or user agent. Do not add another scroller or decorative card around it.
 
-Bind `loading` to the request state for both initial load and refresh. The table uses Nuxt UI's animated header progress line, with no default row skeletons, and shows the empty message only after loading finishes. Retain the last successful rows during pagination/filter refreshes within one dataset; hide stale rows when switching to a different dataset. A custom `#loading` slot remains available when the workflow needs one.
+Bind `loading` to the request state for both initial load and refresh. The table uses Nuxt UI's animated header progress line, and initial skeleton rows when pending without data (configured page size, or 10). A custom `#loading` slot replaces these skeletons. The empty message appears only after loading finishes. Retain the last successful rows during pagination/filter refreshes within one dataset; hide stale rows when switching to a different dataset. A custom `#loading` slot remains available when the workflow needs one.
 
 The table owns its neutral border and app radius. Page headings and content share the shell's centered 75rem (1200px) container. The semantic page constraint classes follow that same width so tables stay aligned with the heading. Row clicks receive the original record and can open details; keep destructive actions in a row `…` menu, check backend permissions, and confirm before deleting.
 
 Browse all data at `/data` uses the same table to list collections visible to your role, with their name, API path, description, Single/Multiple type, and pin action. Search by collection name, table name, or API path; use A–Z or Recent to sort, and click a row to open its records. Pins appear first and remain available in the sidebar. The directory defaults to 20 rows per page and remembers your chosen page size; it paginates the loaded collection catalog, while record lists inside a collection use server pagination.
+
+## Compose the table header
+
+The left header owns an optional dataset heading, Search, quick filters and optional count. Custom controls belong in `#toolbar-actions` on the right; native Columns is last. Avoid repeating the page heading beside a single-dataset search.
+
+| Prop | Purpose |
+|---|---|
+| `headerName` | Optional distinct dataset heading. |
+| `showRecordCount` | Show the table-owned count badge; false by default. |
+| `recordCount` | Exact known count. Falls back to `paginationConfig.total`, then current `data.length`. |
+
+`SettingsTable` enables the count and supplies its query-scoped `total`. For cursor datasets without a known total, omit the badge or label a separately known scope; do not represent current rows as a population total.
+
+Search forms in `#toolbar` use `eapp-search-field min-w-0 w-full md:max-w-sm md:flex-1`. Below `md`, DataTable places that form first at full width, with all other controls below. Keep it a direct toolbar child, or use a `contents` wrapper rather than trapping it inside another flex group. Use one joined `UFieldGroup`, a 32px input/Search button and Enter submission; preserve theme-owned corners and focus styling. `#toolbar-actions` is for custom controls, not a replacement Columns menu.
+
+The footer keeps the current range on the left and page-size/navigation on the right at desktop widths. On mobile the range/selector remain on the first row and navigation moves to the separated second row. See [Settings quick search](./settings-search.md) for the built-in single-field mapping and submitted URL behavior.
 
 ## Use the shared footer
 
@@ -47,14 +63,14 @@ Pass `paginationConfig` to enable the built-in footer without copying selectors,
 | `total` | Matching server count for offset pagination. Cursor does not require a total. |
 | `hasNextPage` | Enables Next in cursor mode; defaults to false. |
 | `rowCount` | Optional number of records on the current cursor page; defaults to `data.length`. |
-| `floating` | Enables the mini pager; defaults to true. Offset supports it at all widths, cursor below 768px. |
+| `floating` | Enables the mini pager; defaults to true. Both offset and cursor support it at all widths. |
 | `to` | Optional page-link function for route-backed offset navigation. |
 
 Offset uses `v-model:page`. Cursor binds the committed `:page` and handles `@update:page` with the requested page number. Both modes emit `page-size-change` with the selected size. The caller owns API requests and the current page of rows; DataTable does not fetch, append, or slice server records.
 
 Both control modes occupy the same position: after the page-size selector on the right at desktop widths, and centered on a second row below 768px. The mobile row has a full-width separator and a horizontally scrollable control strip. Buttons remain visible without wrapping. Cursor buttons are 32px high, matching the page-size select. Raw `UPagination` outside DataTable retains Nuxt UI defaults.
 
-The main footer stays in normal flow. When it leaves the viewport and its table remains visible, a fixed mini pager appears. Cursor uses this same handoff on mobile, displaying Previous/Next and the current range; offset uses numbered controls. Main and mini controls never appear together. The mini shares page, loading and end-of-data state with the main footer, and keeps controls left/range right on one row. Set `paginationConfig.floating: false` to disable it. Persist page size under one stable key per list if needed.
+The main footer stays in normal flow. When it leaves the viewport and its table remains visible, a fixed mini pager appears. Cursor uses this same handoff at all widths, displaying Previous/Next and the current range; offset uses numbered controls. Main and mini controls never appear together. The mini shares page, loading and end-of-data state with the main footer, and keeps controls left/range right on one row. Set `paginationConfig.floating: false` to disable it. Persist page size under one stable key per list if needed.
 
 ## Fetch numbered pages from the server
 
@@ -211,7 +227,7 @@ The supported cursor contract is `hasNextPage`, optional current-page `rowCount`
 
 ## Customize columns and selection
 
-Columns visibility is enabled by default, including in extensions. Pass all column definitions and bind `v-model:column-visibility` when the page must retain hidden columns. Built-in Settings tables opt out; `/data/<table>` persists visibility per table.
+Columns visibility is enabled by default, including in extensions. Pass all column definitions and bind `v-model:column-visibility` when the page must retain hidden columns. Built-in Settings tables also keep Columns enabled; `/data/<table>` persists visibility per table.
 
 `useDataTableColumns().buildActionsColumn({ actions })` builds a row `…` menu from a fixed action list or a function of the record. For selection, use native `v-model:row-selection`, a checkbox column, and `getRowId` based on a stable identifier; never infer selection from row position.
 
@@ -223,7 +239,7 @@ On built-in `/data/<table>`, `metadata.tableCell.formatter` accepts a restricted
 - Next always disabled: set `mode: 'cursor'` and update `hasNextPage` from a request for `itemsPerPage + 1` rows.
 - Clicking Next fetches the same records: inspect the query in the page-change handler. A changed local page number does not select a cursor; send the saved boundary for that page.
 - Previous cannot return: retain earlier cursor boundaries rather than resetting history on every request.
-- Cursor mini pager absent: it appears only below 768px while the main footer is off screen, the table is visible, navigation is available and `floating` is true.
+- Cursor mini pager absent: it appears at all widths while the main footer is off screen, the table is visible, navigation is available and `floating` is true.
 - Footer absent: pass `paginationConfig` to `DataTable` or `DataTableLazy`, not to `UTable`, and ensure the running app supports that prop.
 - Empty rows: confirm the response has a `data` array and fields match column accessors.
 - A stale response replaces a newer page: guard response commits and cancel superseded reads.

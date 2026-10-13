@@ -25,6 +25,7 @@ Nếu bạn đang xây web app, backend cho mobile app, CLI hoặc service đư�
   - **[Hệ thống biểu mẫu](./form-system.md)** – Biểu mẫu tạo tự động, validation, relation và theo dõi thay đổi  
   - **[Bộ chọn relation](./relation-picker.md)** – Chọn bản ghi liên quan trong biểu mẫu  
   - **[Hệ thống lọc](./filter-system.md)** – Bộ lọc nâng cao cho bảng và bộ chọn
+  - **[Tìm nhanh Settings](./settings-search.md)** – Tìm trên một field và giữ scope của danh sách
   - **[DataTable](./data-table.md)** – Hiển thị danh sách bản ghi có giới hạn với cột và thao tác gốc của bảng
 
 - **Quyền và khả năng hiển thị**  
@@ -37,7 +38,10 @@ Nếu bạn đang xây web app, backend cho mobile app, CLI hoặc service đư�
 - **Điều hướng & Bố cục**  
   - **[Quản lý menu](./menu-management.md)** – Cấu hình thanh bên và menu  
   - **[Quản lý phương thức](./method-management.md)** – Bản ghi HTTP method và màu badge dùng trong biểu mẫu route
-  - **[Tiêu đề trang](./page-header.md)** – Tiêu đề trang có số liệu và nền chuyển sắc
+  - **[Tiêu đề trang](./page-header.md)** – Header native với ngữ cảnh, hành động và số liệu tùy chọn
+
+- **Thao tác server dùng chung**
+  - **[Helpers](../server/shared-helpers.md)** – Tạo, test và gọi thao tác theo tên tại Settings → Helpers
 
 - **Móc, Trình xử lý & Gói (phía giao diện người dùng)**  
   - **[Hooks](hooks-handlers/hooks.md)** – Quản lý hook từ giao diện người dùng ứng dụng  

@@ -4,7 +4,7 @@ slug: kien-truc-cum
 
 # Kiến trúc cụm
 
-Nhiều process Enfyra **server** có thể cùng chạy trên một database và Redis. Chúng phối hợp qua **Redis Pub/Sub** (tín hiệu nạp lại cache), **BullMQ dùng Redis** (tác vụ nền), **Redis cho Socket.IO** (`@socket.io/redis-adapter`) và **Redis lock** chỉ dành cho bootstrap script.
+Nhiều process Enfyra **server** có thể cùng chạy trên một database và Redis. Chúng phối hợp qua **Redis Pub/Sub** (tín hiệu nạp lại cache), **BullMQ dùng Redis** (tác vụ nền), **Redis cho Socket.IO** (`@socket.io/redis-adapter`) và **Redis lease** theo namespace cho provisioning hệ thống và đăng ký scheduler.
 
 Nội dung trang này phản ánh server mã nguồn mở hiện tại trong repository [`server`](https://github.com/enfyra/server).
 
@@ -28,7 +28,7 @@ Khi một cache service reload (từ Admin, invalidation metadata...), mẫu x�
 2. Không phát toàn bộ payload cache qua Redis; các instance còn lại luôn **truy vấn lại database**.
 3. Subscriber cùng channel đọc thông điệp. Nếu `instanceId` không phải của mình, nó tự **reload từ DB** và làm mới state trong bộ nhớ.
 
-**Lưu ý:** Code hiện tại không có distributed lock kiểu “chỉ một instance được truy vấn database” cho cache reload thông thường. Hằng số `RELOAD_LOCK_TTL` có tồn tại nhưng **chưa** được nối vào luồng reload. Khi invalidation dồn dập, nhiều instance có thể reload metadata/route **song song**; phần việc DB bị lặp nhưng phù hợp với phần lớn deployment.
+**Lưu ý:** Chế độ cache trong bộ nhớ có thể dựng lại định nghĩa độc lập trên nhiều instance. Chế độ Redis runtime-cache dùng refresh lock theo snapshot và snapshot dùng chung. Cả hai chế độ đều không bảo đảm side effect ứng dụng chạy đúng một lần.
 
 ## `NODE_NAME` và Redis channel
 
@@ -62,21 +62,15 @@ BullMQ dùng cùng Redis connection với app. **Key prefix** của queue là na
 
 - Trong **một cluster logic**, mọi Enfyra server instance nên dùng **cùng** `NODE_NAME` (hoặc đều không đặt để process nào cũng dùng prefix `bull`). Nếu không, mỗi instance chỉ xử lý queue cô lập của riêng nó; chẳng hạn session cleanup hoặc websocket worker có thể không chạy trên toàn cluster như kỳ vọng.
 
-## Bootstrap script (distributed lock)
+## Khởi tạo và nâng cấp hệ thống
 
-`BootstrapScriptService` dùng Redis lock để **chỉ một** instance chạy các script `enfyra_bootstrap_script` đang bật khi khởi động (hoặc reload):
+Provisioning schema và migration schema/data đã khai báo chạy khi database chưa khởi tạo hoặc `enfyraVersion` đã lưu cũ hơn server đang chạy. Lease có gia hạn và kiểm tra chủ sở hữu phối hợp các replica; readiness chỉ được công bố sau khi trạng thái đích đã được xác minh. Database đã khởi tạo ở đúng phiên bản đang chạy bỏ qua bước này.
 
-- Lock key: `bootstrap-script-execution` (xem `BOOTSTRAP_SCRIPT_EXECUTION_LOCK_KEY`)
-- TTL: **30 giây** (`REDIS_TTL.BOOTSTRAP_LOCK_TTL`)
-- Giá trị: `instanceId` của instance phát lock; lock được giải phóng trong `finally`
+Tự động hóa ứng dụng nằm trong flow, route handler, hook và các lifecycle script được hỗ trợ. Startup và cache reload không thực thi một registry startup script do quản trị viên viết.
 
-Nếu không lấy được lock, instance sẽ **bỏ qua** việc chạy script vì một instance khác chịu trách nhiệm.
+## Dọn dẹp session
 
-Hằng số `enfyra:bootstrap-script-reload` tồn tại dưới tên `BOOTSTRAP_SCRIPT_RELOAD_EVENT_KEY`, nhưng server hiện tại **không** có subscriber riêng nối với nó. Bootstrap được phối hợp bằng **lock** ở trên và cache invalidation thông thường khi `enfyra_bootstrap_script` thay đổi.
-
-## Dọn dẹp session (không dùng Redis lock)
-
-Bản ghi `enfyra_session` hết hạn được xóa bởi repeatable job **BullMQ** trong queue `sys_session-cleanup` (`SYSTEM_QUEUES.SESSION_CLEANUP`), processor có **concurrency 1**, lịch **`0 2 * * *`** (mỗi ngày). Bản triển khai hiện tại **không** có Redis lock một giờ cho session cleanup.
+Bản ghi `enfyra_session` hết hạn được xóa bởi repeatable job **BullMQ** trong queue `sys_session-cleanup` (`SYSTEM_QUEUES.SESSION_CLEANUP`), processor có **concurrency 1**, lịch **`0 2 * * *`** (mỗi ngày). Mỗi process chạy một worker; đăng ký scheduler theo namespace ngăn các replica tạo lại cùng scheduler. Concurrency của worker áp dụng cho từng process, không bảo đảm side effect ứng dụng chạy đúng một lần trên toàn cluster.
 
 ## WebSocket giữa các node
 
@@ -86,7 +80,7 @@ Client vẫn cần chiến lược load balancer tương thích WebSocket, ví d
 
 ## Tên Redis Pub/Sub channel (base key)
 
-Được định nghĩa tại `src/shared/utils/constant.ts` của server (lưu ý quy tắc hậu tố `NODE_NAME`):
+Cache builder định nghĩa các base channel; `RedisPubSubService` thêm hậu tố `NODE_NAME`:
 
 | Base channel | Mục đích |
 | --- | --- |
@@ -107,13 +101,12 @@ Tại thời điểm viết tài liệu này, cây server mã nguồn mở **kh�
 
 ## Invalidation nào reload cache nào
 
-`CACHE_INVALIDATION_MAP` tại `src/shared/utils/cache-events.constants.ts` ánh xạ các bảng metadata tới cache chịu ảnh hưởng (metadata, route, GraphQL, storage, websocket, package, bootstrap, OAuth, folder tree, flow, guard, setting). Sau một lần ghi phù hợp, instance phát internal event; các cache liên quan reload rồi phát `RELOAD_SIGNAL` tới instance khác.
+`RELOAD_CHAINS` tại `src/engines/cache/services/cache-orchestrator.service.ts` ánh xạ các bảng metadata tới cache chịu ảnh hưởng (metadata, helper, route, GraphQL, storage, websocket, package, OAuth, folder tree, flow, guard, setting). Sau một lần ghi phù hợp, orchestrator reload chuỗi phụ thuộc, kích hoạt snapshot rồi phát tín hiệu có version tới các instance khác. Reload thất bại ở instance nhận được thử lại trong giới hạn; Pub/Sub không phải log lưu bền để replay.
 
 ## Khả năng chịu lỗi trong thực tế
 
 - **Redis không chạy khi khởi động:** khởi tạo Pub/Sub client có thể thất bại, process có thể không khởi động sạch; hãy kiểm tra log (`RedisPubSub`).
 - **Mất Redis khi đang chạy:** cache trong bộ nhớ đã tải vẫn phục vụ dữ liệu **cũ** cho tới TTL hoặc khi vận hành reload. Tín hiệu reload mới không thể publish/subscribe đến khi Redis hoạt động lại.
-- **Bootstrap lock TTL (30 giây):** nếu instance giữ lock bị crash, lock sẽ hết hạn để instance khác có thể chạy script ở lần thử sau.
 
 ## Checklist mở rộng theo chiều ngang
 
@@ -130,4 +123,4 @@ Mật khẩu chứa ký tự đặc biệt trong URI phải được URL-encode,
 
 - Mở rộng HTTP bằng cách thêm process phía sau load balancer.
 - Redis adapter và DB dùng chung giúp hành vi websocket/API nhất quán giữa các node.
-- Bootstrap script và Bull worker tránh chạy trùng rõ ràng tại nơi có lock hoặc single-concurrency.
+- Provisioning lease có gia hạn và scheduler được phối hợp giúp replica chia sẻ khởi tạo và tác vụ nền; side effect ứng dụng vẫn nên có tính idempotent.

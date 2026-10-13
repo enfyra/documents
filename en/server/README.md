@@ -13,6 +13,7 @@ This documentation covers the Enfyra server architecture, APIs, and development 
 
 ### Core Concepts
 - **[Hooks and Handlers](hooks-handlers/prehooks.md)** - Creating preHooks, postHooks, and custom handlers
+- **[Shared Helpers](./shared-helpers.md)** - Reuse named operations with explicit params and the caller transaction
 - **[Guards](./guards.md)** - Declarative route protection (IP blocking, rate limiting)
 - **[Query Filtering](./query-filtering.md)** - MongoDB-like filtering operators and examples
 - **[Error Handling](./error-handling.md)** - Throwing errors and handling exceptions

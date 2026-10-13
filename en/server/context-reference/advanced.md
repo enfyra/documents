@@ -22,6 +22,8 @@ Only repository operations participate in the transaction. Do not assume `@FETCH
 
 Access information about uploaded files.
 
+Named multipart methods expose `$ctx.$uploadFile` by configured field name; count-one fields hold a file and multi-file fields hold arrays. Optional fields are absent, and reading a missing key throws. Check `Object.keys` before optional access. See [File Handling](../file-handling.md) for configuration, temporary-file lifetime and storage side effects.
+
 ### $ctx.$uploadedFile
 
 Information about the uploaded file (if any).
@@ -55,21 +57,34 @@ if ($ctx.$uploadedFile) {
 
 ### Streaming an HTTP response
 
-For a proxy endpoint, use an installed server package that returns a readable stream and pass it directly to `@RES.stream`:
+Use an installed Server package with a single-consumer readable body. Resolve an allow-listed server-owned upstream URL and private credentials; do not use a caller-controlled URL for a privileged proxy.
 
 ```javascript
-const upstream = await @PKGS.undici.request(@QUERY.url, { method: 'GET' });
-
-await @RES.stream(upstream.body, {
+const upstream = await @PKGS.undici.request(configuredUpstreamUrl, {
+  method: 'GET',
+  headers: configuredPrivateHeaders,
+});
+const ready = await $ctx.$streams.preflight(upstream.body, {
+  timeoutMs: 5000,
+  maxFirstChunkBytes: 65536,
+});
+return await @RES.stream(ready.stream, {
   mimetype: 'text/event-stream',
-  transform: (text, kind) => {
-    if (kind === 'end') return 'data: [DONE]\n\n';
-    return text.replace(/^data:/gm, 'event: converted\ndata:');
-  }
 });
 ```
 
-`transform(text, kind)` runs before each `chunk` and the final `end` relay. Return a string to replace output, `null` to suppress it, or `undefined` to keep it. It is for adapting the client-visible stream; a thrown error fails the stream. Enfyra uses one incremental UTF-8 decoder for the full stream before it calls `transform`, so a character split across network bytes remains intact in `text`. `text` can still end in the middle of an SSE line, JSON object, or event. Keep a request-local SSE buffer and parse only records terminated by a blank line (`\n\n`, or its CRLF form); do not use a fixed chunk size or spaces as a boundary. `@HELPERS.$fetch` buffers a response and is not suitable for SSE or chat streaming. Keep upstream authorization headers on the server, forward only safe response headers, and do not return another payload after `@RES.stream` starts.
+`preflight` observes the first non-empty raw chunk **before** response commit and returns `{ stream, firstChunk, cancel }`. Relay `stream`, not the original body, so the first chunk appears once. Direct `@RES.stream(upstream.body)` commits before reading; use it when that is the intended contract. Reasoning-only SSE or other raw bytes count as activity, not semantic generation success.
+
+The composed `$ctx.$streams` helpers share the task budget:
+
+- `readBytes` / `readText` consume without opening a response, with `timeoutMs`, `idleTimeoutMs` and `maxBytes` (8 MiB by default). `readText` decodes split UTF-8 incrementally.
+- `guard` returns a readable with total/idle/byte bounds. `tap` observes raw chunks with serialized callback backpressure. `cancel` closes the owned stream; preflight also returns a cancel function.
+- Each readable has one consumer. Do not preflight/collect then reuse the original body or issue concurrent pulls. Preflight's first-byte deadline does not become the replay deadline; bound the remaining relay under the enclosing method budget.
+- `ERR_PACKAGE_STREAM_TIMEOUT` closes the target stream; `ERR_PACKAGE_STREAM_EMPTY` means EOF before a first byte. Task cancellation still closes task-owned resources. Verify deployed Server/Kernel support for these APIs.
+
+`@RES.stream` is terminal: await it and return no second payload. `transform(text, kind)` receives arbitrary UTF-8-decoded chunk/end fragments; return string/null/undefined to replace/suppress/preserve output. Buffer complete SSE records across callbacks rather than assuming network chunk boundaries. A transform error fails the stream; `observer` is best-effort inspection after commit, not readiness or required settlement. `@HELPERS.$fetch` buffers a body and is not a streaming transport. Keep provider headers and secrets private.
+
+See [postHooks](../hooks-handlers/posthooks.md#audit-terminated-http-requests) for the separate best-effort terminal audit path; upstream errors, client disconnects and Server stream deadlines are different causes.
 
 ## API Information
 
@@ -82,6 +97,7 @@ const method = $ctx.$api.request.method;           // HTTP method
 const url = $ctx.$api.request.url;                 // Request URL
 const timestamp = $ctx.$api.request.timestamp;     // Request timestamp
 const correlationId = $ctx.$api.request.correlationId;  // Unique request ID
+const executionId = $ctx.$api.request.executionId;
 const userAgent = $ctx.$api.request.userAgent;     // User agent
 const ip = $ctx.$api.request.ip;                   // Client IP
 ```

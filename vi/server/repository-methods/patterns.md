@@ -25,26 +25,14 @@ const newProduct = result.data[0];
 ### Mẫu 2: Cập nhật theo dữ liệu hiện tại
 
 ```javascript
-// Get current record
-const current = await $ctx.$repos.products.find({
-  filter: { id: { _eq: 123 } }
-});
-
-if (current.data.length === 0) {
-  @THROW404('Product not found');
-  return;
-}
-
-const product = current.data[0];
-
-// Update based on current data
-const result = await $ctx.$repos.products.update({
+const result = await $ctx.$repos.secure.products.updateLocked({
   id: 123,
-  data: {
-    stock: (product.stock || 0) + 10  // Increment stock
-  }
+  fields: ['id', 'stock'],
+  data: current => ({ stock: Number(current.stock || 0) + 10 })
 });
 ```
+
+Tính từ row hiện tại được callback nhận, không dùng snapshot của một lần `find()` riêng. Callback chỉ tính toán và trả patch; các bước repository khác đặt trong outer transaction. Xem yêu cầu database và transaction của [`updateLocked`](./create-update-delete.md#doc-tinh-va-ghi-an-toan-voi-updatelocked) và [`findLocked`](./find.md#findlocked).
 
 ### Mẫu 3: Cập nhật hoặc tạo có điều kiện
 
@@ -73,6 +61,8 @@ if (existing.data.length > 0) {
 ```
 
 ### Mẫu 4: Xóa kèm xác thực
+
+Nếu kiểm tra và xóa phải nhất quán với writer chạy đồng thời trên PostgreSQL/MySQL, đặt chúng trong cùng outer transaction và gọi `findLocked` trước khi kiểm tra trạng thái hiện tại. Đọc thường rồi xóa không tạo ra ranh giới concurrency đó.
 
 ```javascript
 // Check if record can be deleted

@@ -100,6 +100,7 @@ vi/
 │   ├── theme-color-contract.md
 │   ├── extension-system.md
 │   ├── data-table.md
+│   ├── settings-search.md
 │   ├── header-actions.md
 │   ├── page-header.md
 │   ├── runtime-monitor.md
@@ -114,6 +115,7 @@ vi/
 │   │   ├── find.md
 │   │   ├── create-update-delete.md
 │   │   └── patterns.md
+│   ├── shared-helpers.md
 │   ├── context-reference/
 │   │   ├── README.md
 │   │   ├── repositories.md

@@ -41,7 +41,7 @@ For SQL backends, every table automatically gets an `id` field with these proper
 - **Nullable**: No
 - **Updatable**: No
 
-For MongoDB, every collection automatically gets an `_id` primary field with the `ObjectId` type. The primary field is system-managed in both cases.
+For MongoDB, every collection automatically gets an `_id` primary field with the `objectId` type. The primary field is system-managed in both cases.
 
 #### Column Properties
 
@@ -62,7 +62,7 @@ For MongoDB, every collection automatically gets an `_id` primary field with the
 **Default Values:**
 - **defaultValue** - Default value for new records:
   - For `boolean`: true/false selector
-  - For `int`/`number`: numeric input
+  - For numeric types such as `int`/`float`: numeric input
   - For `date`: date picker
   - For `enum`: dropdown from options
   - For `array-select`: multi-select from options
@@ -71,19 +71,22 @@ For MongoDB, every collection automatically gets an `_id` primary field with the
 
 #### Field Types
 
-| Type | Description | Use Case |
-|------|-------------|----------|
-| `uuid` | Auto-generated UUID (sets isGenerated to true automatically) | Unique identifiers |
-| `varchar` | Variable length text | Names, titles, short text |
-| `text` | Long text content | Descriptions, articles |
-| `int`, `bigint`, `number` | Numeric values. On SQL backends, the generated `id` field is an auto-increment primary key | Prices, quantities, IDs |
-| `boolean` | True/false values | Flags, status indicators |
-| `date`, `timestamp` | Date/time values | Created dates, deadlines |
-| `enum` | Single selection from predefined options | Status, categories |
-| `array-select` | Multiple selection from predefined options | Tags, multiple categories |
-| `simple-json` | JSON data | Complex structured data |
-| `richtext` | Rich text with formatting | Articles, descriptions with formatting |
-| `code` | Code snippets with syntax highlighting | Code examples, scripts |
+Type choices depend on the configured database. Use the values offered by the editor, not a guessed SQL/BSON label. MongoDB uses native primitive names; semantic editor types remain available on every backend. MySQL supports `longtext`; PostgreSQL does not. `number`, `decimal` and `jsonb` are not Enfyra column types.
+
+| Purpose | SQL type | MongoDB type |
+|---|---|---|
+| UUID | `uuid` | `uuid` |
+| Short/long text | `varchar`, `text`; MySQL also `longtext` | `string` |
+| Integer quantities | `int`, `bigint` | `int`, `long` |
+| Fractional numbers | `float` | `double` |
+| Boolean | `boolean` | `bool` |
+| Date/time | `date`, `datetime`, `timestamp` | `date` |
+| JSON values | `simple-json` | `json`, `object`, `array` |
+| Constrained choice | `enum` with options | `enum` with options |
+| Multiple choices | `array-select` with options | `array-select` with options |
+| Rich text/source code | `richtext`, `code` | `richtext`, `code` |
+
+The system-managed MongoDB primary key uses `_id` / `objectId`. Do not add another primary field. Database type normalization does not change field names, permission rules or relation property names.
 
 ### Advanced Configuration
 

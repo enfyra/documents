@@ -21,26 +21,14 @@ const newProduct = result.data[0];
 ### Pattern 2: Update Based on Current Data
 
 ```javascript
-// Get current record
-const current = await $ctx.$repos.products.find({
-  filter: { id: { _eq: 123 } }
-});
-
-if (current.data.length === 0) {
-  @THROW404('Product not found');
-  return;
-}
-
-const product = current.data[0];
-
-// Update based on current data
-const result = await $ctx.$repos.products.update({
+const result = await $ctx.$repos.secure.products.updateLocked({
   id: 123,
-  data: {
-    stock: (product.stock || 0) + 10  // Increment stock
-  }
+  fields: ['id', 'stock'],
+  data: current => ({ stock: Number(current.stock || 0) + 10 })
 });
 ```
+
+Calculate from the callback's current row, not from a separate `find()` snapshot. Keep the callback pure; repository orchestration belongs in an outer transaction. See [`updateLocked`](./create-update-delete.md#protected-read-modify-write-with-updatelocked) and [`findLocked`](./find.md#findlocked) for their database and transaction requirements.
 
 ### Pattern 3: Conditional Update or Create
 
@@ -69,6 +57,8 @@ if (existing.data.length > 0) {
 ```
 
 ### Pattern 4: Delete with Validation
+
+When the validation and deletion must stay consistent with concurrent writes on PostgreSQL/MySQL, put them in one outer transaction and acquire `findLocked` before checking the current state. An ordinary read followed by a delete does not provide that concurrency boundary.
 
 ```javascript
 // Check if record can be deleted

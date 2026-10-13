@@ -17,7 +17,7 @@ $ctx.$body.email = $ctx.$body.email.toLowerCase();
 
 ## $ctx.$params
 
-URL path parameters from route definitions.
+In HTTP scripts, these are URL path parameters from route definitions. Inside a [Shared Helper](../shared-helpers.md), `$ctx.$params` / `@PARAMS` is the explicit argument passed to `@HELPERS.run(name, params)` and can be an object, array, primitive, null or undefined. It is not implicitly copied from the caller.
 
 ```javascript
 // Route: /users/:id

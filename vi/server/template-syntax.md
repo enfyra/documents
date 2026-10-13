@@ -20,7 +20,7 @@ $ctx.$logs('Operation completed');
 //  Cú pháp template (lối tắt tiện dụng)
 const data = await @CACHE.get('key');
 const users = await @REPOS.enfyra_user.find({...});
-const slug = @HELPERS.autoSlug('Hello World');
+const slug = await @HELPERS.autoSlug('Hello World');
 @LOGS('Operation completed');
 const userId = @USER.id;
 const bodyData = @BODY.name;
@@ -272,6 +272,8 @@ await #enfyra_user.delete({ id: userId });
 ```
 
 ### Hàm helper
+
+Gọi [Shared Helper](./shared-helpers.md) đã lưu và bật bằng `await @HELPERS.run(name, params)`. Source helper đọc `@PARAMS`, không có `input` ngầm; data context mới nhưng giữ capability thực thi và transaction của caller.
 
 ```javascript
 // Tạo JWT token (gọi $jwt như một hàm: payload, expiresIn)
@@ -644,7 +646,7 @@ if (!user) {
 
 - ** Hỗ trợ cả ba cú pháp**: Dùng `$ctx.$property`, `@TEMPLATE` hoặc `#table_name` theo lựa chọn của bạn.
 - ** Có thể kết hợp**: Bạn có thể dùng bất kỳ tổ hợp nào trong cùng một file.
-- ** Dùng ở mọi context**: Hoạt động trong Bootstrap Script, Hook và Custom Handler.
+- ** Dùng ở mọi context**: Hoạt động trong Hook, Custom Handler, Flow Script và các lifecycle script được hỗ trợ.
 - ** Hỗ trợ IDE**: `$ctx.$property` có autocomplete tốt hơn.
 - ** Debugging**: Stack trace hiển thị cú pháp `$ctx.$property` sau xử lý.
 - ** Không ảnh hưởng hiệu năng**: Thay template chỉ là xử lý chuỗi.

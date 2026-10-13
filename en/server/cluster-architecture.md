@@ -1,6 +1,6 @@
 # Cluster Architecture
 
-Multiple Enfyra **server** processes can run against the same database and Redis. Coordination uses **Redis Pub/Sub** (cache reload signals), **Redis-backed BullMQ** (background jobs), **Redis for Socket.IO** (`@socket.io/redis-adapter`), and a **Redis lock** only for bootstrap script execution.
+Multiple Enfyra **server** processes can run against the same database and Redis. Coordination uses **Redis Pub/Sub** (cache reload signals), **Redis-backed BullMQ** (background jobs), **Redis for Socket.IO** (`@socket.io/redis-adapter`), and namespace-scoped **Redis leases** for system provisioning and scheduler registration.
 
 This page reflects the current open-source server in the [`server`](https://github.com/enfyra/server) repository.
 
@@ -24,7 +24,7 @@ When a cache service reloads (admin reload, metadata invalidation, etc.), the ty
 2. **Not** included: full cache payloads over Redis (peers always **re-query the database**).
 3. Subscribers on the same channel parse the message; if `instanceId` is **not** their own, they run their own **reload from DB** and refresh local in-memory state.
 
-**Important:** There is **no** distributed “only one instance may hit the database” lock for general cache reloads in the current code. Constants define `RELOAD_LOCK_TTL`, but it is **not** wired into cache reload. Under heavy invalidation, several instances can reload metadata/routes **in parallel** (same DB work, acceptable for most deployments).
+**Important:** Local-memory cache mode can rebuild definitions independently on several instances. Redis runtime-cache mode uses per-snapshot refresh locks and shared snapshots. Neither mode makes application side effects exactly once.
 
 ## `NODE_NAME` and Redis channels
 
@@ -58,21 +58,15 @@ BullMQ uses the same Redis connection as the app. The queue **key prefix** is th
 
 - For a **single logical cluster**, every Enfyra server instance should use the **same** `NODE_NAME` (or all unset so every process uses the prefix `bull`). Otherwise each instance only processes its **own** isolated queues (e.g. session cleanup, websocket worker jobs may not run as you expect cluster-wide).
 
-## Bootstrap scripts (distributed lock)
+## System initialization and upgrades
 
-`BootstrapScriptService` uses a Redis lock so **only one** instance runs enabled `enfyra_bootstrap_script` scripts at startup (or on reload):
+Schema provisioning and declared schema/data migrations run when the database is uninitialized or its recorded `enfyraVersion` is older than the running server. A renewable, owner-checked lease coordinates replicas, and readiness is published only after the target is verified. An initialized database already at the running version skips this work.
 
-- Lock key: `bootstrap-script-execution` (see `BOOTSTRAP_SCRIPT_EXECUTION_LOCK_KEY`)
-- TTL: **30 seconds** (`REDIS_TTL.BOOTSTRAP_LOCK_TTL`)
-- Value: publishing instance’s `instanceId`; released in `finally`
+Application automation belongs in flows, route handlers, hooks, and supported lifecycle scripts. Startup and cache reload do not execute an administrator-authored startup script registry.
 
-If the lock is not acquired, the instance **skips** running scripts (another instance is responsible).
+## Session cleanup
 
-The constant `enfyra:bootstrap-script-reload` exists in code as `BOOTSTRAP_SCRIPT_RELOAD_EVENT_KEY`; there is **no** separate subscriber wired to it in the current server—bootstrap coordination is the **lock** above plus normal cache invalidation when `enfyra_bootstrap_script` changes.
-
-## Session cleanup (no Redis lock)
-
-Expired `enfyra_session` rows are removed by a **BullMQ** repeatable job on queue `sys_session-cleanup` (`SYSTEM_QUEUES.SESSION_CLEANUP`), processor **concurrency 1**, schedule **`0 2 * * *`** (daily). There is **no** one-hour Redis lock for session cleanup in the current implementation.
+Expired `enfyra_session` rows are removed by a **BullMQ** repeatable job on queue `sys_session-cleanup` (`SYSTEM_QUEUES.SESSION_CLEANUP`), processor **concurrency 1**, schedule **`0 2 * * *`** (daily). Each process runs a worker; namespace-scoped scheduler registration prevents replicas from recreating the same scheduler. Worker concurrency is per process, not a global exactly-once guarantee for application side effects.
 
 ## WebSockets across nodes
 
@@ -82,7 +76,7 @@ Clients still need a load-balancer strategy compatible with WebSockets (e.g. sti
 
 ## Redis Pub/Sub channel names (base keys)
 
-Defined in server `src/shared/utils/constant.ts` (remember the `NODE_NAME` suffix rule):
+Cache builders define these base channels; `RedisPubSubService` applies the `NODE_NAME` suffix:
 
 | Base channel | Purpose |
 | --- | --- |
@@ -103,13 +97,12 @@ There is **no** `enfyra:ai-config-cache-sync` channel in the open-source server 
 
 ## Invalidation  which cache reloads
 
-`CACHE_INVALIDATION_MAP` in `src/shared/utils/cache-events.constants.ts` maps metadata tables to affected caches (metadata, route, GraphQL, storage, websocket, package, bootstrap, OAuth, folder tree, flow, guard, setting). After a qualifying write, the instance emits internal events and affected caches reload and publish `RELOAD_SIGNAL` to peers.
+`RELOAD_CHAINS` in `src/engines/cache/services/cache-orchestrator.service.ts` maps metadata tables to affected caches (metadata, helper, route, GraphQL, storage, websocket, package, OAuth, folder tree, flow, guard, setting). After a qualifying write, the orchestrator reloads the dependency chain, activates its snapshots, and publishes a versioned signal to peer instances. Peer reload failures are retried a bounded number of times; Pub/Sub is not a durable replay log.
 
 ## Fault tolerance (realistic)
 
 - **Redis down at startup**: Pub/Sub client initialization can fail; the process may not start cleanly—check logs (`RedisPubSub`).
 - **Redis lost at runtime**: Already-loaded in-memory caches keep serving **stale** data until TTL/operational reload; new reload signals fail to publish/subscribe until Redis returns.
-- **Bootstrap lock TTL (30s)**: If a holder crashes, the lock expires so another instance can run scripts on a later attempt.
 
 ## Setup checklist for horizontal scaling
 
@@ -126,4 +119,4 @@ Passwords with special characters in URIs must be URL-encoded (same as any JDBC/
 
 - Scale HTTP by adding processes behind a load balancer.
 - Shared Redis adapter + shared DB keep websocket and API behavior consistent across nodes.
-- Bootstrap scripts and Bull workers avoid obvious duplicate execution where explicitly locked or single-concurrency.
+- Renewable provisioning leases and coordinated schedulers let replicas share initialization and background work; application side effects should still be idempotent.
