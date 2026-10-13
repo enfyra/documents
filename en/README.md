@@ -275,8 +275,9 @@ enfyra-docs/
 │   ├── menu-management.md       # UI guide for creating custom navigation menus
 │   ├── extension-system.md      # Create custom pages with Vue.js components (linked to menus)
 │   ├── data-table.md            # Display paginated records in Enfyra Admin
+│   ├── settings-search.md       # Submitted single-field Settings search
 │   ├── header-actions.md        # Inject custom actions into header and sub-header areas
-│   ├── page-header.md           # Register custom page headers with stats and gradients
+│   ├── page-header.md           # Register native page headers with context and stats
 │   ├── permission-builder.md    # Visual interface for creating complex permission rules
 │   ├── permission-components.md # PermissionGate and usePermissions for UI control
 │   ├── storage-management.md    # Upload and manage files, folders, and storage configurations
@@ -296,6 +297,7 @@ enfyra-docs/
     │   ├── find.md              # Query records with filtering, sorting, pagination
     │   ├── create-update-delete.md # Create, update, and delete operations
     │   └── patterns.md          # Common patterns and best practices
+    ├── shared-helpers.md        # Named reusable server operations
     ├── context-reference/       #  Complete $ctx object reference
     │   ├── README.md            # Overview and navigation
     │   ├── request-data.md      # Request body, params, query, user
@@ -415,7 +417,7 @@ enfyra-docs/
 - **[Menu Management](./app/menu-management.md)** - UI guide for creating custom navigation menus
 - **[Extension System](./app/extension-system.md)** - Create custom pages with Vue.js components (linked to menus)
 - **[Header Actions](./app/header-actions.md)** - Inject custom actions into header and sub-header areas
-- **[Page Header](./app/page-header.md)** - Register custom page headers with stats and gradients
+- **[Page Header](./app/page-header.md)** - Register native page headers with context and stats
 - **[Permission Builder](./app/permission-builder.md)** - Visual interface for creating complex permission rules
 - **[Permission Components](./app/permission-components.md)** - PermissionGate and usePermissions for UI control
 - **[Storage Management](./app/storage-management.md)** - Upload and manage files, folders, and storage configurations

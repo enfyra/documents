@@ -26,6 +26,8 @@ Chỉ các thao tác repository mới thuộc transaction. Không được giả
 
 Truy cập thông tin về tệp đã tải lên.
 
+Method multipart có named field cung cấp `$ctx.$uploadFile` theo tên đã cấu hình; field count-one giữ một file, multi-file giữ array. Field tùy chọn không có file sẽ vắng mặt, đọc key thiếu sẽ throw. Kiểm tra `Object.keys` trước khi đọc tùy chọn. Xem [Xử lý tệp](../file-handling.md) để biết cấu hình, vòng đời file tạm và tác động phụ storage.
+
 ### $ctx.$uploadedFile
 
 Thông tin về tệp đã tải lên (nếu có).
@@ -39,7 +41,7 @@ if ($ctx.$uploadedFile) {
 }
 ```
 
-`$ctx.$uploadedFile` describes a multipart request file. It does not expose the file body as a buffer. Pass it directly to `$ctx.$storage.$upload({ file: $ctx.$uploadedFile })` or `$ctx.$storage.$update(id, { file: $ctx.$uploadedFile })` so Enfyra streams from the temp file path.
+`$ctx.$uploadedFile` mô tả file multipart, không chứa buffer body. Truyền trực tiếp vào `$ctx.$storage.$upload({ file: $ctx.$uploadedFile })` hoặc `$ctx.$storage.$update(id, { file: $ctx.$uploadedFile })` để Enfyra stream từ đường dẫn file tạm.
 
 ### Xử lý tệp đã tải lên
 
@@ -59,21 +61,34 @@ if ($ctx.$uploadedFile) {
 
 ### Streaming response HTTP
 
-Với endpoint proxy, dùng một server package đã cài đặt để lấy readable stream rồi truyền thẳng vào `@RES.stream`:
+Dùng Server package đã cài có readable body một consumer. Lấy upstream URL thuộc allow-list và credential private từ cấu hình server; không dùng URL do caller cung cấp cho proxy có đặc quyền.
 
 ```javascript
-const upstream = await @PKGS.undici.request(@QUERY.url, { method: 'GET' });
-
-await @RES.stream(upstream.body, {
+const upstream = await @PKGS.undici.request(configuredUpstreamUrl, {
+  method: 'GET',
+  headers: configuredPrivateHeaders,
+});
+const ready = await $ctx.$streams.preflight(upstream.body, {
+  timeoutMs: 5000,
+  maxFirstChunkBytes: 65536,
+});
+return await @RES.stream(ready.stream, {
   mimetype: 'text/event-stream',
-  transform: (text, kind) => {
-    if (kind === 'end') return 'data: [DONE]\n\n';
-    return text.replace(/^data:/gm, 'event: converted\ndata:');
-  }
 });
 ```
 
-`transform(text, kind)` chạy trước khi relay mỗi `chunk` và lần `end` cuối. Return string để thay output, `null` để bỏ output, hoặc `undefined` để giữ nguyên. Nó dùng để điều chỉnh stream mà client nhận; lỗi bị ném sẽ làm stream thất bại. Enfyra dùng một UTF-8 decoder incremental cho toàn bộ stream trước khi gọi `transform`, nên ký tự bị cắt giữa các byte network vẫn còn nguyên trong `text`. Tuy vậy, `text` vẫn có thể kết thúc giữa một dòng SSE, JSON object hoặc event. Hãy giữ SSE buffer theo từng request và chỉ parse record kết thúc bằng dòng trống (`\n\n` hoặc dạng CRLF); không dùng kích thước chunk cố định hay dấu cách làm ranh giới. `@HELPERS.$fetch` buffer toàn bộ response nên không phù hợp với SSE hoặc chat streaming. Giữ authorization header của upstream ở server, chỉ chuyển tiếp response header an toàn, và không return payload khác sau khi `@RES.stream` bắt đầu.
+`preflight` quan sát raw chunk không rỗng đầu tiên **trước** khi commit response, trả `{ stream, firstChunk, cancel }`. Relay `stream`, không dùng body gốc, để chunk đầu xuất hiện đúng một lần. Gọi trực tiếp `@RES.stream(upstream.body)` sẽ commit trước khi đọc; chỉ dùng khi đó là contract mong muốn. SSE chỉ có reasoning hoặc raw byte khác cũng được tính là hoạt động, không chứng minh generation thành công.
+
+Các helper `$ctx.$streams` dùng chung giới hạn task:
+
+- `readBytes` / `readText` đọc mà không mở response, nhận `timeoutMs`, `idleTimeoutMs` và `maxBytes` (mặc định 8 MiB). `readText` decode UTF-8 incremental qua byte bị chia.
+- `guard` trả readable có giới hạn tổng/idle/byte. `tap` quan sát raw chunk với callback backpressure tuần tự. `cancel` đóng stream đang sở hữu; preflight cũng trả hàm cancel.
+- Mỗi readable chỉ có một consumer. Không preflight/đọc hết rồi dùng lại body gốc hoặc pull đồng thời. Deadline first-byte của preflight không trở thành deadline replay; relay còn lại vẫn phải nằm trong giới hạn method.
+- `ERR_PACKAGE_STREAM_TIMEOUT` đóng stream đích; `ERR_PACKAGE_STREAM_EMPTY` là EOF trước byte đầu. Task cancellation vẫn đóng resource của task. Kiểm tra Server/Kernel đã deploy hỗ trợ các API này.
+
+`@RES.stream` là ranh giới terminal: await và không trả payload thứ hai. `transform(text, kind)` nhận fragment chunk/end đã decode UTF-8; trả string/null/undefined để thay/bỏ/giữ output. Buffer SSE record hoàn chỉnh qua nhiều callback, không giả định ranh giới network chunk. Transform lỗi làm stream thất bại; `observer` chỉ quan sát best-effort sau commit, không dùng làm readiness hay settlement bắt buộc. `@HELPERS.$fetch` buffer body, không phải streaming transport. Giữ provider header và secret private.
+
+Xem [postHooks](../hooks-handlers/posthooks.md) về audit terminal best-effort riêng; upstream error, client disconnect và deadline stream do Server quản lý là các nguyên nhân khác nhau.
 
 ## Thông tin API
 
@@ -86,6 +101,7 @@ const method = $ctx.$api.request.method;           // HTTP method
 const url = $ctx.$api.request.url;                 // Request URL
 const timestamp = $ctx.$api.request.timestamp;     // Request timestamp
 const correlationId = $ctx.$api.request.correlationId;  // Unique request ID
+const executionId = $ctx.$api.request.executionId;
 const userAgent = $ctx.$api.request.userAgent;     // User agent
 const ip = $ctx.$api.request.ip;                   // Client IP
 ```

@@ -24,6 +24,43 @@ await $ctx.$repos.tableName.find({
 })
 ```
 
+## findLocked
+
+Use `findLocked` when you need to lock an existing row before dependent repository work. It accepts `{ id, fields?, deep? }` and returns the usual `{ data: [...] }` collection. It requires an explicit `$ctx.$transaction.run()` scope on PostgreSQL or MySQL/InnoDB; MongoDB and SQLite lock-only reads are unsupported. Confirm that the deployed Server and Kernel implement this method before using it.
+
+```javascript
+return await @TRANSACTION.run(async () => {
+  const result = await #secure.products.findLocked({
+    id: @PARAMS.id,
+    fields: ['id', 'stock']
+  });
+  const product = result.data[0];
+  if (!product) @THROW404('Product not found');
+  if (Number(product.stock) < 1) @THROW400('Out of stock');
+
+  const reservation = await #secure.stock_reservations.create({
+    data: { product: { id: product.id }, quantity: 1 },
+    fields: ['id']
+  });
+  await #secure.products.update({
+    id: product.id,
+    data: { stock: Number(product.stock) - 1 },
+    fields: ['id']
+  });
+  return { reservationId: reservation.data[0].id };
+});
+```
+
+The locking read does not update the row, change `updatedAt`, invalidate caches or emit a mutation event. It reads current root state even when a MySQL transaction has established an older snapshot. The root row lock remains held until the outer transaction commits or rolls back, including after `findLocked` returns. Keep every dependent read, calculation and write inside that same transaction callback. A missing root or a call outside the explicit transaction fails.
+
+Normal read authorization and field projection still apply. Secure access is not an owner/tenant check: enforce your route and record scope explicitly. `fields` and `deep` control returned data; they do not lock related rows. This method does not accept list filters, pagination or count metadata.
+
+For a record that does not exist yet, lock a common existing owner first. For example, an authenticated user's persisted row can coordinate a balance lookup and creation. Every competing creator or writer must lock that same owner before reading or calculating, and database uniqueness remains necessary wherever writes can bypass that coordination. When locking several owners, acquire them in one deterministic order across every path.
+
+Cache, socket, HTTP and flow-trigger effects are separate from database rollback. A row lock ends at commit; it does not order later publications. Keep required publication ordering or use a commit-owned revision/outbox before replacing broader application coordination with DB-only locking.
+
+Use [`updateLocked`](./create-update-delete.md#protected-read-modify-write-with-updatelocked) for a calculation and patch on one generic row. Use `findLocked` when repository orchestration must start after an early lock; do not acquire that lock by writing an identity patch or a dummy timestamp.
+
 ## Finding Records
 
 ### Get all records (no limit)

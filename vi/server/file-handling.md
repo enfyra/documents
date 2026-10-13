@@ -8,7 +8,23 @@ Enfyra hỗ trợ tải tệp lên từ request, bản ghi tệp trên storage, 
 
 ## Tệp tải lên trong context
 
-Request multipart cung cấp tệp được tải lên qua `$ctx.$uploadedFile` hoặc `@UPLOADED_FILE`.
+Với route động POST, PATCH hoặc PUT, mở cấu hình của từng method và chọn **Request body → multipart**. Nếu không khai báo file field, Enfyra nhận một tệp tại field mặc định `file`. Có thể thêm các field có tên để đặt trạng thái bắt buộc, số tệp tối đa, giới hạn kích thước từng tệp và danh sách MIME type chính xác được phép. Method cũng có giới hạn chung về số lượng và kích thước tệp. Các form field khác vẫn nằm trong `@BODY`.
+
+Đọc tệp qua `$ctx.$uploadFile['file']` hoặc tên field đã khai báo. Field có giới hạn một tệp trả về một đối tượng; field cho phép nhiều tệp trả về mảng. Field tùy chọn không có tệp sẽ vắng mặt trong object; truy cập một key không tồn tại sẽ báo rõ tên key và các field hiện có. Khi cho phép bỏ trống, kiểm tra `Object.keys($ctx.$uploadFile).includes(name)` trước. Tệp request là tệp tạm; hãy lưu vào storage trong handler trước khi response đóng.
+
+```javascript
+const files = $ctx.$uploadFile['attachments'];
+const saved = [];
+for (const file of files) {
+  const result = await @STORAGE.$upload({ file });
+  saved.push(result.data[0].id);
+}
+return { fileIds: saved };
+```
+
+Mỗi lần gọi `$storage.$upload` lưu một tệp và tạo một bản ghi `enfyra_file`. Nếu ứng dụng cần danh sách bền vững, hãy dùng repository để ghi các ID trả về vào một cột array đã có. Ghi storage là tác dụng phụ ngoài transaction của repository: nếu bước ghi dữ liệu sau đó thất bại, các tệp đã lưu không tự hoàn tác. Luồng nhiều tệp cần có cách dọn dẹp hoặc trả về kết quả một phần. Bản ghi MongoDB dùng `_id` thay vì `id`.
+
+Luồng tải lên một tệp built-in cũ vẫn cung cấp `$ctx.$uploadedFile` hoặc `@UPLOADED_FILE`; các script đang dùng contract này không phải thay đổi.
 
 ```javascript
 const file = @UPLOADED_FILE;

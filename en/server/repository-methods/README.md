@@ -19,9 +19,11 @@ Repositories are the main way to interact with your database tables in Enfyra. E
 
 **Available Methods:**
 - [Find](./find.md) - Query raw records with filtering, sorting, and pagination
+- [findLocked](./find.md#findlocked) - Lock an existing PostgreSQL/MySQL row before dependent work in an explicit transaction
 - [Aggregate](./find.md#aggregate-computed-results) - Return scalar summaries or grouped analytics
 - [Create](./create-update-delete.md#create) - Create new records
 - [Update](./create-update-delete.md#update) - Update existing records by ID
+- [updateLocked](./create-update-delete.md#protected-read-modify-write-with-updatelocked) - Compute and persist a patch from current row state
 - [Delete](./create-update-delete.md#delete) - Delete records by ID
 - [Batch mutations](./create-update-delete.md#batch-create-update-and-delete) - Create, update, or delete many records in one generic-table operation
 

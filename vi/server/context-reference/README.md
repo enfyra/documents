@@ -11,6 +11,7 @@ slug: tham-chieu-context
 - [Dữ liệu request](./request-data.md) — `$ctx.$body`, `$ctx.$params`, `$ctx.$query`, `$ctx.$user`
 - [Repository](./repositories.md) — `$ctx.$repos` cho các thao tác cơ sở dữ liệu
 - [Hàm hỗ trợ và cache](./helpers-cache.md) — `$ctx.$helpers` (JWT, bcrypt, crypto, hỗ trợ tệp, giới hạn tần suất) và `$ctx.$cache`
+- [Shared Helpers](../shared-helpers.md) — Gọi theo tên với data context mới và capability thực thi kế thừa
 - [Ghi log và xử lý lỗi](./logging-errors.md) — `$ctx.$logs()` và `$ctx.$throw`
 - [Tính năng nâng cao](./advanced.md) — tải tệp lên, `$ctx.$env`, thông tin API, context dùng chung, package và các mẫu triển khai
 

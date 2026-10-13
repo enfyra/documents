@@ -21,6 +21,7 @@ The app is a **pure API client**: it never connects directly to your database. A
   - **[Form System](./form-system.md)** – Auto-generated forms, validation, relations, and change tracking  
   - **[Relation Picker](./relation-picker.md)** – Selecting related records inside forms  
   - **[Filter System](./filter-system.md)** – Advanced filtering for tables and pickers
+  - **[Settings quick search](./settings-search.md)** – Submit a single-field search while preserving list scope
   - **[DataTable](./data-table.md)** – Display bounded record lists with native table columns and actions
 
 - **Permissions & Visibility**  
@@ -33,7 +34,10 @@ The app is a **pure API client**: it never connects directly to your database. A
 - **Navigation & Layout**  
   - **[Menu Management](./menu-management.md)** – Sidebar and menu configuration  
   - **[Method Management](./method-management.md)** – HTTP method records and badge colors used by route forms
-  - **[Page Header](./page-header.md)** – Page headers with stats and gradients
+  - **[Page Header](./page-header.md)** – Native page headers with context, actions, and optional stats
+
+- **Shared server operations**
+  - **[Helpers](../server/shared-helpers.md)** – Create, test and invoke named operations from Settings → Helpers
 
 - **Hooks, Handlers & Packages (UI side)**  
   - **[Hooks](hooks-handlers/hooks.md)** – Managing hooks from the app UI  

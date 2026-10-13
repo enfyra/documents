@@ -17,6 +17,7 @@ Tài liệu này bao quát kiến trúc, API và hướng dẫn phát triển c�
 
 ### Khái niệm cốt lõi
 - **[Hooks và Handlers](hooks-handlers/prehooks.md)** - Tạo preHooks, postHooks và handler tùy chỉnh
+- **[Shared Helpers](./shared-helpers.md)** - Tái sử dụng thao tác theo tên với params tường minh và transaction của caller
 - **[Guards](./guards.md)** - Bảo vệ route theo khai báo (chặn IP, giới hạn tốc độ)
 - **[Lọc truy vấn](./query-filtering.md)** - Toán tử lọc giống MongoDB và ví dụ
 - **[Xử lý lỗi](./error-handling.md)** - Ném lỗi và xử lý ngoại lệ

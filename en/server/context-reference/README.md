@@ -7,6 +7,7 @@ The `$ctx` (context) object is available in all hooks and handlers. It provides 
 - [Request Data](./request-data.md) - `$ctx.$body`, `$ctx.$params`, `$ctx.$query`, `$ctx.$user`
 - [Repositories](./repositories.md) - `$ctx.$repos` for database operations
 - [Helpers & Cache](./helpers-cache.md) - `$ctx.$helpers` (JWT, bcrypt, crypto, file helpers, rate limiting) and `$ctx.$cache`
+- [Shared Helpers](../shared-helpers.md) - Explicit named calls with fresh data and inherited execution capabilities
 - [Logging & Error Handling](./logging-errors.md) - `$ctx.$logs()` and `$ctx.$throw`
 - [Advanced Features](./advanced.md) - File uploads, `$ctx.$env`, API info, shared context, packages, and patterns
 

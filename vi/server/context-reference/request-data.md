@@ -21,7 +21,7 @@ $ctx.$body.email = $ctx.$body.email.toLowerCase();
 
 ## $ctx.$params
 
-Tham số trên đường dẫn URL được khai báo trong route.
+Trong HTTP script, đây là tham số đường dẫn URL được khai báo trong route. Bên trong [Shared Helper](../shared-helpers.md), `$ctx.$params` / `@PARAMS` là đối số tường minh truyền vào `@HELPERS.run(name, params)`, có thể là object, array, primitive, null hoặc undefined. Không tự sao chép params từ caller.
 
 ```javascript
 // Route: /users/:id

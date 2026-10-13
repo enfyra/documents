@@ -26,8 +26,8 @@ Hệ thống đầu trang cho phép bạn đăng ký nội dung đầu trang tù
 - **Tiêu đề và mô tả**: Giúp người dùng hiểu rõ ngữ cảnh của trang.
 - **Biểu tượng đầu dòng**: Biểu tượng không bắt buộc bên cạnh tiêu đề; cũng có thể được lấy từ menu trên thanh bên theo tuyến hiện tại.
 - **Hiển thị số liệu**: Cho biết nhanh các chỉ số quan trọng.
-- **Nhiều biến thể trực quan**: Cung cấp các bố cục phù hợp với từng trường hợp sử dụng.
-- **Dải màu nhấn**: Khi `gradient` không phải `none`, một **dải màu ngang nhẹ** sẽ chạy phía sau hàng đầu trang, không phủ toàn bộ nền trang.
+- **Header native**: Tiêu đề không có frame riêng, nằm trong body cuộn của dashboard và thẳng hàng với container nội dung 75rem (1200px) được căn giữa. Không có border hay padding riêng; thanh điều hướng chính vẫn đứng yên.
+- **Giao diện theo theme**: Nền main/header theo theme của app; biểu tượng đầu dòng dùng màu primary đang chọn.
 - **Tự động dọn dẹp**: Nội dung đầu trang tự động được xóa khi chuyển tuyến.
 
 ## Cách dùng cơ bản
@@ -79,7 +79,7 @@ registerPageHeader({
 
 ### Biến thể tối giản
 
-Bố cục gọn, tập trung vào tiêu đề.
+Dùng cùng bố cục header native như `default`. Bỏ `description` và `stats` nếu chỉ cần tiêu đề.
 
 ```vue
 registerPageHeader({
@@ -108,19 +108,16 @@ registerPageHeader({
 
 ## Tùy chọn gradient
 
-`gradient` kiểm soát hai thành phần: (1) một **dải màu ngang nhẹ** phía sau hàng đầu trang và (2) **màu của ô chứa biểu tượng đầu dòng** khi biểu tượng được hiển thị.
-
-- **purple** / **blue** / **cyan**: Dải màu và ô biểu tượng có màu tương ứng.
-- **none**: Không có dải màu; ô biểu tượng sử dụng kiểu bề mặt trung tính.
+`gradient` nhận `purple`, `blue`, `cyan` hoặc `none`, mặc định là `none`. Header native luôn render nền main theo theme với mọi giá trị; tùy chọn này không tạo dải màu hoặc ô biểu tượng riêng. Chọn màu primary qua phần Appearance của app.
 
 ```vue
-// Accent strip + icon shell (purple family)
+// Native theme surface
 registerPageHeader({
   title: "Settings",
   gradient: "purple"
 });
 
-// No accent strip (neutral icon tile if icon is shown)
+// Default appearance
 registerPageHeader({
   title: "Simple Page",
   gradient: "none"
@@ -129,8 +126,8 @@ registerPageHeader({
 
 ## Biểu tượng đầu dòng
 
-- **`leadingIcon`**: Tên biểu tượng Iconify / Nuxt UI, ví dụ `i-lucide-layout-dashboard`. Biểu tượng được đặt trong một ô bo tròn bên cạnh tiêu đề.
-- **`hideLeadingIcon: true`**: Luôn ẩn ô biểu tượng, kể cả khi menu có biểu tượng cho đường dẫn hiện tại.
+- **`leadingIcon`**: Tên biểu tượng Iconify / Nuxt UI, ví dụ `i-lucide-layout-dashboard`. Biểu tượng dùng màu primary bên cạnh tiêu đề, không có ô bao riêng.
+- **`hideLeadingIcon: true`**: Luôn ẩn biểu tượng đầu dòng, kể cả khi menu có biểu tượng cho đường dẫn hiện tại.
 - **Mặc định**: Nếu bỏ qua `leadingIcon` và không ẩn biểu tượng, ứng dụng sẽ thử dùng **biểu tượng menu** đã đăng ký cho tuyến hiện tại qua `useMenuRegistry` / `findMenuIconForPath`.
 
 ## Hiển thị số liệu
@@ -353,17 +350,10 @@ onMounted(async () => {
 { variant: "stats-focus", stats: [...] }
 ```
 
-### 2. Chọn gradient theo nội dung
+### 2. Để theme quản lý giao diện header
 
 ```javascript
-// Data/collections
-{ gradient: "blue" }
-
-// Settings/configuration
-{ gradient: "purple" }
-
-// Dashboard/overview
-{ gradient: "cyan" }
+{ gradient: "none" }
 ```
 
 ### 3. Viết mô tả ngắn gọn
@@ -411,9 +401,9 @@ interface PageHeaderConfig {
   description?: string;                    // Page description
   stats?: PageHeaderStat[];                // Statistics to display
   variant?: "default" | "minimal" | "stats-focus";  // Layout variant
-  gradient?: "purple" | "blue" | "cyan" | "none";   // Header strip + leading icon tint
+  gradient?: "purple" | "blue" | "cyan" | "none";   // Accepted config; appearance remains theme-owned
   leadingIcon?: string;                    // Icon name; if omitted, menu icon for route may be used
-  hideLeadingIcon?: boolean;               // If true, no leading icon tile
+  hideLeadingIcon?: boolean;               // If true, no leading icon
 }
 ```
 
@@ -450,9 +440,9 @@ Hệ thống đầu trang cung cấp:
 
 **Nội dung đầu trang nhất quán** trên toàn ứng dụng.
 
-**Nhiều biến thể bố cục** cho các loại trang khác nhau.
+**Tiêu đề native cuộn cùng nội dung**, thẳng hàng với container chung.
 
-**Dải màu nhấn và biểu tượng đầu dòng không bắt buộc**, được lấy từ menu hoặc chỉ định trực tiếp.
+**Biểu tượng đầu dòng màu primary không bắt buộc**, được lấy từ menu hoặc chỉ định trực tiếp.
 
 **Hiển thị số liệu** cho các chỉ số quan trọng.
 

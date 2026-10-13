@@ -28,6 +28,43 @@ await $ctx.$repos.tableName.find({
 })
 ```
 
+## findLocked
+
+Dùng `findLocked` khi cần khóa một row đang tồn tại trước các bước repository phụ thuộc. Method nhận `{ id, fields?, deep? }` và trả collection `{ data: [...] }` như các phép đọc thông thường. Phải gọi bên trong `$ctx.$transaction.run()` trên PostgreSQL hoặc MySQL/InnoDB; MongoDB và SQLite không hỗ trợ phép đọc chỉ lấy khóa này. Kiểm tra Server và Kernel đã deploy có method này trước khi sử dụng.
+
+```javascript
+return await @TRANSACTION.run(async () => {
+  const result = await #secure.products.findLocked({
+    id: @PARAMS.id,
+    fields: ['id', 'stock']
+  });
+  const product = result.data[0];
+  if (!product) @THROW404('Product not found');
+  if (Number(product.stock) < 1) @THROW400('Out of stock');
+
+  const reservation = await #secure.stock_reservations.create({
+    data: { product: { id: product.id }, quantity: 1 },
+    fields: ['id']
+  });
+  await #secure.products.update({
+    id: product.id,
+    data: { stock: Number(product.stock) - 1 },
+    fields: ['id']
+  });
+  return { reservationId: reservation.data[0].id };
+});
+```
+
+Phép đọc có khóa không cập nhật row, đổi `updatedAt`, invalidate cache hay phát mutation event. Nó đọc trạng thái hiện tại của row gốc kể cả khi transaction MySQL đã có snapshot cũ. Khóa row gốc được giữ đến khi transaction ngoài commit hoặc rollback, kể cả sau khi `findLocked` trả về. Mọi phép đọc, tính toán và ghi phụ thuộc phải nằm trong cùng callback transaction đó. Method báo lỗi khi row gốc không tồn tại hoặc khi gọi ngoài explicit transaction.
+
+Read authorization và field projection vẫn áp dụng. Secure access không thay thế kiểm tra owner/tenant: phải kiểm tra quyền route và phạm vi bản ghi của nghiệp vụ. `fields` và `deep` chọn dữ liệu trả về, không khóa các row liên quan. Method không nhận filter danh sách, pagination hay count metadata.
+
+Với bản ghi chưa tồn tại, khóa một owner chung đang tồn tại trước. Ví dụ, row của user đã xác thực có thể phối hợp việc tìm và tạo balance. Mọi creator hoặc writer cạnh tranh phải khóa cùng owner trước khi đọc hoặc tính toán; vẫn cần database uniqueness ở nơi có writer có thể đi ngoài cơ chế phối hợp đó. Khi khóa nhiều owner, mọi luồng phải lấy khóa theo cùng một thứ tự xác định.
+
+Cache, socket, HTTP và flow trigger nằm ngoài database rollback. Row lock kết thúc khi commit và không sắp thứ tự các lần phát dữ liệu sau đó. Giữ cơ chế sắp thứ tự publication cần thiết hoặc dùng revision/outbox thuộc commit trước khi thay cơ chế phối hợp rộng hơn bằng khóa DB đơn thuần.
+
+Dùng [`updateLocked`](./create-update-delete.md#doc-tinh-va-ghi-an-toan-voi-updatelocked) để tính rồi ghi patch trên một generic row. Dùng `findLocked` khi cần lấy khóa sớm trước nhiều bước repository; không lấy khóa bằng cách ghi lại giá trị cũ hoặc cập nhật timestamp giả.
+
 ## Tìm bản ghi
 
 ### Get all records (no limit)

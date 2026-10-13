@@ -8,7 +8,7 @@ postHook chạy sau handler (hoặc sau lỗi của preHook/handler). Dùng chú
 
 ## Cách thực thi
 
-- postHook **luôn chạy**, kể cả khi preHook hoặc handler ném lỗi.
+- postHook chạy sau khi hoàn tất thông thường, kể cả lỗi của preHook/handler. Cancellation và lỗi stream terminal dùng nhánh audit opt-in riêng bên dưới.
 - Trên nhánh lỗi: `@ERROR` có giá trị, `@DATA` là `null`, `@STATUS` là mã trạng thái lỗi.
 - Trên nhánh thành công: `@ERROR` là `undefined`, `@DATA` là kết quả của handler, `@STATUS` là `200`.
 - postHook chạy như **tác vụ phụ**; trên nhánh lỗi, lỗi gốc luôn được ném lại sau khi mọi postHook hoàn tất.
@@ -101,6 +101,40 @@ if (@ERROR) {
   }
 }
 ```
+
+## Audit request HTTP bị kết thúc
+
+Với Server release hỗ trợ terminal failure audit, post-hook được gắn vào route có thể opt-in bằng cách bắt đầu source bằng directive chính xác:
+
+```javascript
+'enfyra:client-disconnect-audit';
+if (@ERROR?.origin) {
+  @LOGS('Request terminated', {
+    executionId: @API.request.executionId,
+    origin: @ERROR.origin,
+    code: @ERROR.code,
+    statusCode: @STATUS,
+  });
+}
+```
+
+Server chỉ chạy các audit hook đã gắn này trong task mới, với giới hạn admission/execution riêng năm giây. Không chạy lại inference hay post-hook thông thường; task audit không có response đang hoạt động. Đây là finalization best-effort, không phải durable outbox; kiểm tra hỗ trợ trên deployment trước khi dựa vào nó.
+
+Nguyên nhân đầu tiên do host ghi nhận là nguồn có thẩm quyền:
+
+| Origin | Status / code |
+|---|---|
+| Client ngắt kết nối | `499 client_closed_request` |
+| Response stream lỗi | `502 response_stream_error` |
+| Deadline tổng/idle của stream | `504 response_stream_timeout` |
+| Deadline execution | `504 execution_timeout` |
+| Lỗi execution terminal khác | `500 execution_failed` |
+
+Không diễn giải upstream HTTP 499 hoặc abort flag xuất hiện sau thành client disconnect. `@ERROR` có `origin`, `statusCode`, `code` và `message` an toàn; nhánh lỗi thông thường giữ error shape hiện có. Audit context giữ identity đã xác thực và snapshot cuối trên host, không bảo đảm có thay đổi `@SHARE` đang diễn ra trong isolate.
+
+`@API.request.executionId` là UUID do Server sinh, độc lập với correlation/session ID của caller. Ứng dụng ghi failure row phải phối hợp với settlement thành công dưới cùng transaction/lock và kiểm tra trạng thái đã persist để execution đã settle không có thêm failure row trùng. Giữ fallback đã xác thực khi snapshot thiếu dữ liệu; không ghi prompt, credential hoặc diagnostic private của provider vào audit public.
+
+Trước response header, lỗi do Server quản lý trả JSON an toàn với status khớp và cặp retry signal. Sau khi commit stream, wire status không đổi được; Server đóng stream. Không gửi response thứ hai sau client disconnect. Tác vụ bắt buộc phải bền vững vẫn cần outbox hoặc flow.
 
 ## Context có trong postHook
 

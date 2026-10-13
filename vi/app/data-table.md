@@ -28,11 +28,27 @@ const columns = [
 
 Mỗi `accessorKey` phải khớp field được trả về. Dùng renderer `cell` hoặc slot như `#status-cell="{ row }"` với `row.original` để hiển thị badge và text tùy biến. Giới hạn giá trị dài bằng ellipsis/tooltip thay vì kéo rộng bảng. Badge phải nằm trọn trong ô, chỉ chữ bên trong bị rút gọn. `DataTable` luôn hiển thị một bảng gốc ở mọi kích thước màn hình, kể cả điện thoại, và đã có vùng cuộn ngang. Bảng không chuyển sang card theo thiết bị hoặc user agent. Không bọc thêm scroller hoặc card trang trí.
 
-Bind `loading` với trạng thái request cho cả lần tải đầu và refresh. Bảng dùng thanh tiến trình native của Nuxt UI dưới header, không có skeleton từng hàng mặc định, và chỉ hiện thông báo rỗng sau khi tải xong. Giữ các dòng thành công gần nhất khi đổi trang hoặc filter trong cùng dataset; ẩn dữ liệu cũ khi chuyển sang dataset khác. Có thể dùng slot `#loading` nếu nghiệp vụ cần nội dung riêng.
+Bind `loading` với trạng thái request cho cả lần tải đầu và refresh. Bảng dùng thanh tiến trình native của Nuxt UI dưới header, và skeleton từng hàng khi pending mà chưa có dữ liệu (theo kích thước trang, hoặc 10 dòng). Slot `#loading` riêng thay thế skeleton mặc định. Thông báo rỗng chỉ xuất hiện khi tải xong. Giữ các dòng thành công gần nhất khi đổi trang hoặc filter trong cùng dataset; ẩn dữ liệu cũ khi chuyển sang dataset khác. Có thể dùng slot `#loading` nếu nghiệp vụ cần nội dung riêng.
 
 Bảng tự quản lý border trung tính và radius chung của app. Tiêu đề và nội dung trang cùng nằm trong container 75rem (1200px) được căn giữa của shell. Các class giới hạn trang dùng cùng chiều rộng này để bảng thẳng hàng với tiêu đề. Sự kiện click dòng trả bản ghi gốc để mở chi tiết; đặt hành động xóa trong menu `…`, kiểm tra quyền backend và xác nhận trước khi xóa.
 
 Browse all data tại `/data` dùng cùng bảng để hiển thị các collection mà role của bạn được xem, gồm tên, API path, mô tả, loại Single/Multiple và nút ghim. Tìm theo tên collection, tên bảng hoặc API path; chọn A–Z hay Recent để sắp xếp rồi click dòng để mở dữ liệu. Collection đã ghim đứng đầu và vẫn xuất hiện trong sidebar. Danh sách mặc định 20 dòng mỗi trang và nhớ kích thước trang bạn chọn; nó phân trang trên catalog đã tải, còn danh sách bản ghi bên trong collection vẫn phân trang qua server.
+
+## Bố trí header của bảng
+
+Header bên trái gồm tiêu đề dataset tùy chọn, Search, quick filter và count tùy chọn. Đặt control tùy biến trong `#toolbar-actions` bên phải; Columns native đứng cuối. Không lặp lại tiêu đề trang cạnh Search của một dataset.
+
+| Prop | Mục đích |
+|---|---|
+| `headerName` | Tiêu đề riêng của dataset, tùy chọn. |
+| `showRecordCount` | Hiện badge count do bảng quản lý; mặc định false. |
+| `recordCount` | Count đã biết chính xác. Nếu không truyền, dùng `paginationConfig.total`, rồi `data.length` hiện tại. |
+
+`SettingsTable` bật count và truyền `total` của query đang dùng. Với dataset cursor không biết tổng số, bỏ badge hoặc hiển thị scope đã biết riêng; không coi số dòng hiện tại là tổng toàn bộ dữ liệu.
+
+Form Search trong `#toolbar` dùng `eapp-search-field min-w-0 w-full md:max-w-sm md:flex-1`. Dưới `md`, DataTable đặt form đầu tiên với toàn chiều rộng, các control khác xuống dưới. Giữ form là con trực tiếp của toolbar, hoặc dùng wrapper `contents` thay vì nhốt nó trong flex group khác. Dùng một `UFieldGroup` nối liền, input/nút Search cao 32px và gửi bằng Enter; giữ corner và focus do theme quản lý. `#toolbar-actions` dành cho control tùy biến, không thay thế menu Columns.
+
+Footer desktop giữ khoảng bản ghi bên trái, bộ chọn số dòng và điều hướng bên phải. Mobile giữ range/selector trên hàng đầu, điều hướng ở hàng thứ hai có đường phân cách. Xem [Tìm nhanh Settings](./settings-search.md) để biết field built-in và cách gửi tìm kiếm qua URL.
 
 ## Dùng footer chung
 
@@ -47,14 +63,14 @@ Truyền `paginationConfig` để bật footer có sẵn mà không sao chép se
 | `total` | Tổng số thuộc cùng query cho offset. Cursor không cần tổng số. |
 | `hasNextPage` | Cho phép Next ở cursor; mặc định false. |
 | `rowCount` | Số bản ghi của trang cursor hiện tại, tùy chọn; mặc định `data.length`. |
-| `floating` | Bật thanh mini; mặc định true. Offset dùng ở mọi chiều rộng, cursor dùng dưới 768px. |
+| `floating` | Bật thanh mini; mặc định true. Cả offset và cursor dùng ở mọi chiều rộng. |
 | `to` | Hàm tạo link trang, tùy chọn khi offset dùng router. |
 
 Offset dùng `v-model:page`. Cursor bind `:page` của trang đã tải thành công và xử lý `@update:page` nhận số trang được yêu cầu. Cả hai chế độ phát `page-size-change` với kích thước đã chọn. Trang tự quản lý request API và các dòng của trang hiện tại; DataTable không tự fetch, nối thêm hay cắt bản ghi server.
 
 Hai kiểu nút nằm cùng vị trí: sau selector số dòng ở bên phải trên desktop, và căn giữa trên hàng thứ hai khi màn hình dưới 768px. Hàng mobile có đường chia toàn chiều ngang và cụm nút cuộn ngang. Các nút luôn hiện đầy đủ, không xuống dòng. Hai nút cursor cao 32px, bằng select số dòng. `UPagination` dùng riêng bên ngoài DataTable giữ mặc định Nuxt UI.
 
-Footer chính nằm trong luồng trang. Khi footer khuất khỏi màn hình nhưng bảng vẫn hiển thị, thanh mini cố định xuất hiện. Cursor dùng cùng cơ chế trên mobile với Previous/Next và khoảng bản ghi hiện tại; offset dùng các nút số trang. Footer chính và thanh mini không xuất hiện đồng thời. Thanh mini dùng chung page, loading và trạng thái hết dữ liệu, giữ nút bên trái/khoảng bản ghi bên phải trên một hàng. Đặt `paginationConfig.floating: false` để tắt thanh mini. Nếu cần lưu số dòng, dùng một key ổn định theo từng danh sách.
+Footer chính nằm trong luồng trang. Khi footer khuất khỏi màn hình nhưng bảng vẫn hiển thị, thanh mini cố định xuất hiện. Cursor dùng cùng cơ chế ở mọi chiều rộng với Previous/Next và khoảng bản ghi hiện tại; offset dùng các nút số trang. Footer chính và thanh mini không xuất hiện đồng thời. Thanh mini dùng chung page, loading và trạng thái hết dữ liệu, giữ nút bên trái/khoảng bản ghi bên phải trên một hàng. Đặt `paginationConfig.floating: false` để tắt thanh mini. Nếu cần lưu số dòng, dùng một key ổn định theo từng danh sách.
 
 ## Fetch trang dạng số từ server
 
@@ -211,7 +227,7 @@ Contract cursor được hỗ trợ là `hasNextPage`, `rowCount` tùy chọn ch
 
 ## Tùy biến cột và chọn dòng
 
-Columns được bật mặc định, kể cả trong extension. Truyền toàn bộ định nghĩa cột và dùng `v-model:column-visibility` nếu page cần giữ cột đã ẩn. Các bảng Settings built-in tắt menu này; `/data/<table>` lưu lựa chọn riêng theo bảng.
+Columns được bật mặc định, kể cả trong extension. Truyền toàn bộ định nghĩa cột và dùng `v-model:column-visibility` nếu page cần giữ cột đã ẩn. Các bảng Settings built-in cũng bật Columns; `/data/<table>` lưu lựa chọn riêng theo bảng.
 
 `useDataTableColumns().buildActionsColumn({ actions })` tạo menu `…` theo dòng từ mảng action cố định hoặc hàm nhận bản ghi. Để chọn dòng, dùng `v-model:row-selection` gốc, cột checkbox và `getRowId` dựa trên định danh ổn định; không suy ra lựa chọn từ vị trí dòng.
 
@@ -223,7 +239,7 @@ Columns được bật mặc định, kể cả trong extension. Truyền toàn 
 - Next luôn bị khóa: đặt `mode: 'cursor'` và cập nhật `hasNextPage` từ request lấy `itemsPerPage + 1` dòng.
 - Bấm Next vẫn tải cùng dữ liệu: kiểm tra query trong handler đổi trang. Đổi số trang client chưa chọn cursor; phải gửi mốc đã lưu của trang đó.
 - Previous không quay lại được: giữ các mốc cursor trước đó thay vì reset lịch sử ở mọi request.
-- Không thấy thanh mini cursor: thanh chỉ hiện dưới 768px khi footer chính khuất màn hình, bảng còn hiển thị, còn điều hướng được và `floating` là true.
+- Không thấy thanh mini cursor: thanh hiện ở mọi chiều rộng khi footer chính khuất màn hình, bảng còn hiển thị, còn điều hướng được và `floating` là true.
 - Không có footer: truyền `paginationConfig` vào `DataTable` hoặc `DataTableLazy`, không phải `UTable`, và bảo đảm eApp đang chạy hỗ trợ prop đó.
 - Bảng trống: xác nhận phản hồi có mảng `data` và field khớp accessor của cột.
 - Phản hồi cũ ghi đè trang mới: chặn commit cũ và hủy request đọc đã bị thay thế.

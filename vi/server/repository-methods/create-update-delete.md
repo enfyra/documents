@@ -230,6 +230,47 @@ try {
 
 ---
 
+## Đọc, tính và ghi an toàn với `updateLocked`
+
+Dùng `updateLocked` khi giá trị mới phụ thuộc vào bản ghi đang lưu, chẳng hạn trừ credit hoặc đổi trạng thái sau khi kiểm tra giá trị hiện tại. Truyền một object có cùng các key như `update`: `id`, `fields` tùy chọn và `data`. Với method này, `data` là callback nhận bản ghi trong phạm vi database được bảo vệ và trả về các giá trị cần cập nhật.
+
+```javascript
+const amount = Number(@BODY.amount);
+if (!Number.isFinite(amount) || amount <= 0) @THROW400("amount must be positive");
+
+const result = await #secure.accounts.updateLocked({
+  id: @PARAMS.id,
+  fields: ['credit', 'status'],
+  data: (current) => {
+    if (current.credit < amount) @THROW400("Insufficient credit");
+    return {
+      credit: current.credit - amount,
+      status: 'active'
+    };
+  }
+});
+
+return result.data[0];
+```
+
+Giá trị `credit` được tính và giá trị cố định `status` do `data` trả về được ghi cùng nhau. `fields` tùy chọn ở ngoài callback chỉ chọn dữ liệu trả về, giống `update`; nó không chọn field bị khóa hoặc được ghi. Có thể bỏ `fields` để dùng projection trả về thông thường của mutation. Bản ghi đưa vào callback không phụ thuộc pagination, projection hay deep query của request.
+
+| Backend | Cơ chế bảo vệ |
+|---|---|
+| PostgreSQL và MySQL/InnoDB | Transaction trên primary khóa bản ghi gốc bằng `SELECT ... FOR UPDATE` trước khi gọi callback. |
+| MongoDB hỗ trợ native transaction | Đọc, callback và ghi nằm trong cùng native transaction. Write conflict thuộc nhóm retryable làm transaction chạy lại, đọc lại bản ghi và tính lại patch. |
+| MongoDB standalone hoặc phạm vi application saga | Không hỗ trợ; method báo lỗi trước khi gọi callback. |
+
+Callback `data` chỉ nên tính toán, kiểm tra nghiệp vụ và trả các giá trị cần cập nhật. MongoDB có thể gọi lại callback, nên không gửi HTTP request, thay đổi cache/storage, emit socket, trigger flow hoặc gọi repository khác bên trong. Mỗi lần chạy phải tính từ `current` được truyền vào; không dùng giá trị thay thế đã tính từ một lần đọc trước đó. Đặt kiểm tra owner/tenant phụ thuộc trạng thái hiện tại trong callback.
+
+`updateLocked` hỗ trợ các bảng generic thông thường. Method từ chối route schema/metadata và bảng có normalization hoặc lifecycle handler riêng cho update. Mutation policy, field permission, quy tắc field được cập nhật và cascade vẫn chạy như mutation thông thường. Secure repository chỉ đưa các field được phép đọc vào callback; `#accounts` vẫn là truy cập trusted có chủ đích.
+
+Method mở transaction hoặc tham gia transaction đang có. Khi tham gia transaction ngoài, phạm vi ngoài quyết định commit, rollback và retry của MongoDB. Cache invalidation và mutation event chỉ được phát sau commit; attempt rollback hoặc bị retry không phát effects của nó. Thời gian chờ khóa SQL và native transaction MongoDB mới được giới hạn 30 giây; cancellation của script vẫn có hiệu lực.
+
+Trên PostgreSQL/MySQL, row lock được giữ đến khi transaction ngoài commit hoặc rollback; callback `data` chạy xong không nhả khóa. Trạng thái đưa vào callback và kiểm tra update policy dùng locking read, nên snapshot repeatable-read cũ của MySQL không cung cấp giá trị gốc đã cũ. Các thao tác repository khác đặt trong transaction ngoài, bên ngoài callback `data` thuần tính toán. Dùng [`findLocked`](./find.md#findlocked) khi cần khóa owner chung trước các phép đọc phụ thuộc đó; kiểm tra runtime đã deploy có hỗ trợ method này.
+
+Bảo vệ bản ghi gốc không tự đưa các bản ghi khác hay hệ thống bên ngoài vào cùng invariant. Client gửi giá trị tuyệt đối đã cũ vẫn cần điều kiện trạng thái/revision riêng. Bản ghi không tồn tại, callback trả sai dạng và transaction retry không thành công đều được báo lỗi thay vì trả update thành công.
+
 ## Xóa
 
 Xóa bản ghi theo ID. Phương thức trả về thông báo thành công.

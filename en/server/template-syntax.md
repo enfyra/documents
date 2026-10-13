@@ -16,7 +16,7 @@ $ctx.$logs('Operation completed');
 //  Template syntax (convenience shortcut)
 const data = await @CACHE.get('key');
 const users = await @REPOS.enfyra_user.find({...});
-const slug = @HELPERS.autoSlug('Hello World');
+const slug = await @HELPERS.autoSlug('Hello World');
 @LOGS('Operation completed');
 const userId = @USER.id;
 const bodyData = @BODY.name;
@@ -268,6 +268,8 @@ await #enfyra_user.delete({ id: userId });
 ```
 
 ### Helper Functions
+
+Invoke a saved enabled [Shared Helper](./shared-helpers.md) with `await @HELPERS.run(name, params)`. Helper source reads `@PARAMS`, not an implicit `input`; it has fresh data while retaining caller execution capabilities and transaction.
 
 ```javascript
 // Generate JWT token (call $jwt as a function: payload, expiresIn)
@@ -640,7 +642,7 @@ if (!user) {
 
 - ** All Three Syntaxes Supported**: Use `$ctx.$property`, `@TEMPLATE`, OR `#table_name` - your choice!
 - ** Mix and Match**: You can use any combination in the same file
-- ** All Contexts**: Works in Bootstrap Scripts, Hooks, and Custom Handlers
+- ** All Contexts**: Works in Hooks, Custom Handlers, Flow Scripts, and supported lifecycle scripts
 - ** IDE Support**: `$ctx.$property` has better autocomplete support
 - ** Debugging**: Stack traces show the processed `$ctx.$property` syntax
 - ** No Performance Impact**: Template replacement is just string processing

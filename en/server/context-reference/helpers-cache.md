@@ -6,6 +6,10 @@ Utility functions for common tasks and distributed caching operations.
 
 Utility functions for common tasks. All helper functions require `await`.
 
+### Named shared operations
+
+Call a saved enabled helper with `await @HELPERS.run('normalize_query', { query: @BODY.query })`. Its source reads explicit `@PARAMS` with fresh empty body/query/share/env and null user, while retaining the caller's host-owned repository authority, active transaction and task budget. This is not a separate sandbox or route lifecycle. See [Shared Helpers](../shared-helpers.md) for authoring, tests, availability and limits.
+
 ### JWT Token Generation
 
 ```javascript

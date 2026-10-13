@@ -23,9 +23,11 @@ Repository là cách chính để làm việc với bảng cơ sở dữ liệu 
 
 **Các phương thức có sẵn:**
 - [Tìm](./find.md) — Truy vấn raw record với filter, sắp xếp và phân trang
+- [findLocked](./find.md#findlocked) — Khóa row PostgreSQL/MySQL đang tồn tại trước các bước phụ thuộc trong explicit transaction
 - [Aggregate](./find.md#aggregate-ket-qua-tinh-toan) — Trả summary đơn giản hoặc grouped analytics
 - [Tạo](./create-update-delete.md#create) — Tạo bản ghi mới
 - [Cập nhật](./create-update-delete.md#update) — Cập nhật bản ghi theo ID
+- [updateLocked](./create-update-delete.md#doc-tinh-va-ghi-an-toan-voi-updatelocked) — Tính và ghi patch từ trạng thái row hiện tại
 - [Xóa](./create-update-delete.md#delete) — Xóa bản ghi theo ID
 - [Batch mutation](./create-update-delete.md#batch-create-update-va-delete) — Tạo, cập nhật hoặc xóa nhiều bản ghi trong một generic-table operation
 
