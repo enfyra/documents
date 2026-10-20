@@ -81,9 +81,13 @@ GET /api/enfyra_user?fields=id,name&deep={"posts":{"fields":"id,title","sort":"-
 
 Số bản ghi tối đa trả về; mặc định là 10.
 
+Dùng `limit=-1` để không giới hạn (trả về mọi bản ghi khớp). `limit=0` vẫn được
+chấp nhận và có cùng ý nghĩa, nhưng `-1` là contract được tài liệu hoá.
+
 ```
 ?limit=20
-?limit=0    Không giới hạn (trả về mọi bản ghi khớp)
+?limit=-1   Không giới hạn (trả về mọi bản ghi khớp)
+?limit=0    Alias cũ của không giới hạn
 ```
 
 ## page

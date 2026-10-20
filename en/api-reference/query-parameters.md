@@ -95,10 +95,14 @@ The `deep` sort above orders `posts` inside each user. It does not sort the user
 
 Maximum number of records to return. Default is 10.
 
+Use `limit=-1` for no limit (return all matching records). `limit=0` is still
+accepted and means the same thing, but `-1` is the documented contract.
+
 **Examples:**
 ```
 ?limit=20
-?limit=0    No limit (return all matching records)
+?limit=-1   No limit (return all matching records)
+?limit=0    Legacy alias for no limit
 ```
 
 ---
