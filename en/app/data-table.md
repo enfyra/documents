@@ -36,17 +36,25 @@ Browse all data at `/data` uses the same table to list collections visible to yo
 
 ## Compose the table header
 
-The left header owns an optional dataset heading, Search, quick filters and optional count. Custom controls belong in `#toolbar-actions` on the right; native Columns is last. Avoid repeating the page heading beside a single-dataset search.
+The header row always shows the required dataset heading and the record count on the left, with the custom action cluster on the right; native Columns is last and icon-only. Search, when enabled, is a table-owned solo row below that header. Avoid repeating the page heading beside a single-dataset search.
 
 | Prop | Purpose |
 |---|---|
-| `headerName` | Optional distinct dataset heading. |
-| `showRecordCount` | Show the table-owned count badge; false by default. |
-| `recordCount` | Exact known count. Falls back to `paginationConfig.total`, then current `data.length`. |
+| `headerName` | Required dataset heading. Every DataTable needs one. |
+| `headerDescription` | Optional supporting line under the heading and record count. |
+| `reload` | Optional reload handler. Off by default; the icon-only reload button appears only when this prop is passed, after Columns. |
+| `reloadLoading` | Pending state for the reload button; falls back to `loading`. |
+| `searchable` | Render the table-owned search field; off by default. |
+| `searchPlaceholder` | Placeholder and accessible label for the table-owned search field. |
+| `searchLabel` | Explicit accessible label for the table-owned search field. |
 
-`SettingsTable` enables the count and supplies its query-scoped `total`. For cursor datasets without a known total, omit the badge or label a separately known scope; do not represent current rows as a population total.
+The record count is always rendered beside the heading. It comes from `paginationConfig.total` and falls back to the current rows, so pass the query-scoped total when you know it and never invent a cursor population total.
 
-Search forms in `#toolbar` use `eapp-search-field min-w-0 w-full md:max-w-sm md:flex-1`. Below `md`, DataTable places that form first at full width, with all other controls below. Keep it a direct toolbar child, or use a `contents` wrapper rather than trapping it inside another flex group. Use one joined `UFieldGroup`, a 32px input/Search button and Enter submission; preserve theme-owned corners and focus styling. `#toolbar-actions` is for custom controls, not a replacement Columns menu.
+Search is a table prop, not caller markup. Pass `searchable` and bind `v-model:search` to your query ref; the table renders `CommonSearchField`, so the field matches Collections and every other list without custom input, button or field-group styling. Listen to `@search` when submission should trigger the request, and reset the page to 1 in that handler. Use `#toolbar` only for extra controls such as a quick filter, never for the search field itself.
+
+The toolbar has no horizontal padding, so every tier divider spans the full table width. On desktop the heading, the record count beside it, and the action cluster share one header row; the optional Search is a solo row directly below. Below `md` the heading keeps its own row, the record count moves to the left of a second tier with the action cluster on the right, and the full-width Search follows as its own row. Custom controls belong in `#toolbar-actions`; never register them beside the search field, and do not use `#toolbar` for the search itself. A list page renders the table as its own surface; do not nest it inside a panel.
+
+Selection bulk actions belong in `#toolbar-actions` at every viewport and are icon-only: one error-outline square trash button, with no Clear button and no selected-count text inside the cluster. Report the selection count through `#pagination-summary` instead.
 
 The footer keeps the current range on the left and page-size/navigation on the right at desktop widths. On mobile the range/selector remain on the first row and navigation moves to the separated second row. See [Settings quick search](./settings-search.md) for the built-in single-field mapping and submitted URL behavior.
 

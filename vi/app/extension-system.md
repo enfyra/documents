@@ -552,13 +552,12 @@ Sử dụng `USkeleton` hoặc các thành phần tải được chia sẻ để
 
 Page extension kế thừa dashboard shell native: khung inset và header đứng yên, chỉ phần thân cuộn, nội dung được căn giữa trong container tối đa 75rem (1200px). Đăng ký tiêu đề và hành động trang qua shell registry. Tiêu đề và nội dung dùng cùng chiều rộng; `eapp-page-constrained` và `eapp-page-constrained-wide` tuân theo giới hạn chung này. Workspace dùng nền trung tính dịu với tint theme rất nhẹ ở cả light và dark mode, còn vùng nội dung có khung giữ bề mặt mặc định. Dùng `eapp-form-region` hoặc `eapp-bordered-region` để form đứng riêng hay vùng dữ liệu có một border trung tính, radius chung và nền nội dung mặc định. Bảng, panel tabs, drawer và modal đã có khung riêng nên nội dung bên trong giữ phẳng.
 
-Dùng `Panel` được inject sẵn cho một vùng nội dung có khung. Luôn truyền `sections` dạng mảng. Section có `label` hoặc `icon` sẽ hiện trong tab strip; nếu chỉ có một section không có label thì tab strip được ẩn. Render từng section bằng slot riêng, ví dụ `#general`, và đặt công cụ của section đó trong `#general-header`. `#footer` là footer chung của panel. Tab strip hoặc header nằm trên cùng dùng nền muted và divider; header nằm dưới tab giữ nền nội dung. Các section ẩn mặc định vẫn mounted. Trang tự quản lý section đang chọn và có thể đồng bộ với URL query. Với nhóm con bên trong panel, dùng `UTabs` native dạng pill phẳng, tránh lồng thêm panel có border.
+Dùng `Panel` được inject sẵn cho một vùng nội dung có khung. Luôn truyền `sections` dạng mảng. Section có `label` hoặc `icon` sẽ hiện trong tab strip; nếu chỉ có một section không có label thì tab strip được ẩn. Mỗi section cũng có thể khai báo `title`, `description`, `icon` và `actions`; panel sẽ render các field này thành header của section đó. Render từng section bằng slot riêng, ví dụ `#general`, và dùng `#general-header` khi cần nội dung header tùy biến thay cho các field khai báo. `#footer` là footer chung của panel. Tab strip hoặc header nằm trên cùng dùng nền muted và divider; header nằm dưới tab giữ nền nội dung. Các section ẩn mặc định vẫn mounted. Trang tự quản lý section đang chọn và có thể đồng bộ với URL query. Với nhóm con bên trong panel, dùng `UTabs` native dạng pill phẳng, tránh lồng thêm panel có border.
+
+`actions` của section nhận cùng object `HeaderAction` như registry header của shell, gồm `component`, `show`, `permission`, `loading`, `disabled`, `to` và `submit`, nên header của section có thể chứa widget chứ không chỉ nút. Đặt ở đây những control thuộc riêng tab hoặc panel đó, ví dụ reload nội dung panel, preview, hay upload. Các thao tác ghi dữ liệu như Save, Delete và Reset vẫn nằm trên thanh header action của shell. Từ `md`, tiêu đề và cả hai cụm action chung một hàng; dưới `md`, tiêu đề luôn giữ hàng riêng và cụm action trái/phải xuống một tầng có border riêng, giống toolbar của DataTable.
 
 ```vue
 <Panel v-model="activeTab" :sections="sections">
-  <template #general-header>
-    <h2 class="text-sm font-semibold">General</h2>
-  </template>
   <template #general>
     <p>General settings</p>
   </template>
@@ -567,6 +566,22 @@ Dùng `Panel` được inject sẵn cho một vùng nội dung có khung. Luôn 
   </template>
 </Panel>
 ```
+
+```js
+const sections = [
+  {
+    value: 'general',
+    label: 'General',
+    icon: 'lucide:settings-2',
+    title: 'General',
+    description: 'System-wide settings',
+    actions: [{ id: 'reload-general', icon: 'lucide:refresh-cw', onClick: reloadGeneral }],
+  },
+  { value: 'cors', label: 'CORS', icon: 'lucide:globe' },
+]
+```
+
+Panel một section vẫn sở hữu header: truyền một section có `title` và đặt nội dung trong slot của section đó. Chỉ dùng page header của shell khi header panel đã bị tab chiếm hết. `#footer` của panel dùng cùng chrome với footer DataTable: có border phía trên, padding ngang gọn và chữ nhỏ màu muted, để các dòng tổng hợp như số bản ghi đọc giống nhau ở cả hai nơi.
 
 Đặt Save/Reset của form cấp trang trong header action và thao tác trên tab đang chỉnh sửa. Form trong drawer/modal vẫn dùng các hành động footer do component quản lý. Với danh sách bản ghi, bind trạng thái request vào `DataTable.loading`; thanh tiến trình native dưới header thay skeleton hàng và giữ dữ liệu khi refresh.
 ```vue
