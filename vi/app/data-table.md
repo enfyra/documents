@@ -36,17 +36,25 @@ Browse all data tại `/data` dùng cùng bảng để hiển thị các collect
 
 ## Bố trí header của bảng
 
-Header bên trái gồm tiêu đề dataset tùy chọn, Search, quick filter và count tùy chọn. Đặt control tùy biến trong `#toolbar-actions` bên phải; Columns native đứng cuối. Không lặp lại tiêu đề trang cạnh Search của một dataset.
+Hàng header luôn hiển thị tiêu đề dataset bắt buộc và số record ở bên trái, cụm action tùy biến ở bên phải; Columns native đứng cuối và chỉ hiện icon. Search, khi bật, là hàng riêng do bảng quản lý ngay bên dưới header. Không lặp lại tiêu đề trang cạnh Search của một dataset.
 
 | Prop | Mục đích |
 |---|---|
-| `headerName` | Tiêu đề riêng của dataset, tùy chọn. |
-| `showRecordCount` | Hiện badge count do bảng quản lý; mặc định false. |
-| `recordCount` | Count đã biết chính xác. Nếu không truyền, dùng `paginationConfig.total`, rồi `data.length` hiện tại. |
+| `headerName` | Tiêu đề dataset, bắt buộc. Mọi DataTable đều cần prop này. |
+| `headerDescription` | Dòng mô tả phụ dưới tiêu đề và số record, tùy chọn. |
+| `reload` | Handler reload tùy chọn. Mặc định tắt; nút reload icon-only chỉ xuất hiện khi truyền prop này, đứng sau Columns. |
+| `reloadLoading` | Trạng thái pending của nút reload; nếu không truyền thì dùng `loading`. |
+| `searchable` | Hiện ô search do bảng quản lý; mặc định tắt. |
+| `searchPlaceholder` | Placeholder và label truy cập cho ô search của bảng. |
+| `searchLabel` | Label truy cập riêng cho ô search của bảng. |
 
-`SettingsTable` bật count và truyền `total` của query đang dùng. Với dataset cursor không biết tổng số, bỏ badge hoặc hiển thị scope đã biết riêng; không coi số dòng hiện tại là tổng toàn bộ dữ liệu.
+Số record luôn hiển thị cạnh tiêu đề. Nó lấy từ `paginationConfig.total` và fallback về số dòng hiện tại, nên hãy truyền total theo query khi biết và không tự suy ra tổng cho dataset cursor.
 
-Form Search trong `#toolbar` dùng `eapp-search-field min-w-0 w-full md:max-w-sm md:flex-1`. Dưới `md`, DataTable đặt form đầu tiên với toàn chiều rộng, các control khác xuống dưới. Giữ form là con trực tiếp của toolbar, hoặc dùng wrapper `contents` thay vì nhốt nó trong flex group khác. Dùng một `UFieldGroup` nối liền, input/nút Search cao 32px và gửi bằng Enter; giữ corner và focus do theme quản lý. `#toolbar-actions` dành cho control tùy biến, không thay thế menu Columns.
+Search là prop của bảng, không phải markup của caller. Truyền `searchable` và bind `v-model:search` vào query ref của bạn; bảng render `CommonSearchField`, nên ô search giống Collections và mọi danh sách khác mà không cần tự style input, nút hay field group. Dùng `@search` khi việc submit mới kích hoạt request, và reset page về 1 trong handler đó. Chỉ dùng `#toolbar` cho control phụ như quick filter, không đặt ô search ở đó.
+
+Toolbar không có padding ngang, nên đường chia giữa các tầng chạy hết chiều rộng bảng. Trên desktop, tiêu đề, số record cạnh đó và cụm action nằm chung hàng header; ô Search tùy chọn là một hàng riêng ngay bên dưới. Dưới `md`, tiêu đề giữ hàng riêng, số record chuyển sang trái của tầng thứ hai cùng cụm action bên phải, rồi đến hàng Search full width. Control tùy biến đặt trong `#toolbar-actions`; không đăng ký cạnh ô search và không dùng `#toolbar` cho chính ô search. Trang danh sách render bảng như bề mặt độc lập; không lồng bảng vào panel.
+
+Hành động hàng loạt trên dòng đã chọn nằm trong `#toolbar-actions` ở mọi viewport và chỉ hiện icon: một nút thùng rác vuông kiểu error-outline, không có nút Clear và không có chữ đếm số dòng đã chọn trong cụm. Hiển thị số dòng đã chọn qua `#pagination-summary`.
 
 Footer desktop giữ khoảng bản ghi bên trái, bộ chọn số dòng và điều hướng bên phải. Mobile giữ range/selector trên hàng đầu, điều hướng ở hàng thứ hai có đường phân cách. Xem [Tìm nhanh Settings](./settings-search.md) để biết field built-in và cách gửi tìm kiếm qua URL.
 

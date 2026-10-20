@@ -555,13 +555,12 @@ Use `USkeleton` or shared loading components for loading placeholders. Enfyra ma
 
 Page extensions inherit the native dashboard shell: stationary inset borders and headers, a scrolling body, and a centered content container capped at 75rem (1200px). Register the page title and actions through the shell registries. The page heading and content use the same width; `eapp-page-constrained` and `eapp-page-constrained-wide` follow this shared limit. The workspace uses a quiet neutral background with a subtle theme tint in light and dark modes, while framed content keeps its default surface. Use `eapp-form-region` or `eapp-bordered-region` for one neutral border, the app radius, and the default content background around a standalone form or data region. Tables, tabbed panels, drawers, and modals already own their frame, so their contents stay flat.
 
-Use injected `Panel` for a framed page region. Pass `sections` as an array. A section with `label` or `icon` appears in the tab strip; one unlabeled section hides the strip. Render each section in its own slot, such as `#general`, and put tools for that section in `#general-header`. `#footer` is shared by the panel. The topmost tab strip or header uses the muted surface and divider; a header below tabs stays on the content surface. Hidden sections stay mounted by default. The caller owns the selected section and can synchronize it with the URL query. Use a flat native pill `UTabs` strip for secondary sections inside a panel, without nesting another framed panel.
+Use injected `Panel` for a framed page region. Pass `sections` as an array. A section with `label` or `icon` appears in the tab strip; one unlabeled section hides the strip. A section can also declare `title`, `description`, `icon` and `actions`, which the panel renders as that section's header. Render each section in its own slot, such as `#general`, and use `#general-header` when you need custom header content instead of the declarative fields. `#footer` is shared by the panel. The topmost tab strip or header uses the muted surface and divider; a header below tabs stays on the content surface. Hidden sections stay mounted by default. The caller owns the selected section and can synchronize it with the URL query. Use a flat native pill `UTabs` strip for secondary sections inside a panel, without nesting another framed panel.
+
+Section `actions` take the same `HeaderAction` objects as the shell header registries, including `component`, `show`, `permission`, `loading`, `disabled`, `to` and `submit`, so a section header can host a widget rather than only a button. Put controls that belong to that tab or panel there, such as a reload of the panel content, a preview, or an upload. Record mutations such as Save, Delete and Reset stay on the shell header action bar. From `md` the title and both action clusters share one row; below `md` the title always keeps its own row and the left and right action clusters move to a separate bordered tier, matching the DataTable toolbar.
 
 ```vue
 <Panel v-model="activeTab" :sections="sections">
-  <template #general-header>
-    <h2 class="text-sm font-semibold">General</h2>
-  </template>
   <template #general>
     <p>General settings</p>
   </template>
@@ -570,6 +569,22 @@ Use injected `Panel` for a framed page region. Pass `sections` as an array. A se
   </template>
 </Panel>
 ```
+
+```js
+const sections = [
+  {
+    value: 'general',
+    label: 'General',
+    icon: 'lucide:settings-2',
+    title: 'General',
+    description: 'System-wide settings',
+    actions: [{ id: 'reload-general', icon: 'lucide:refresh-cw', onClick: reloadGeneral }],
+  },
+  { value: 'cors', label: 'CORS', icon: 'lucide:globe' },
+]
+```
+
+A single-section panel still owns its header: pass one section with a `title` and put the content in that section's slot. Use the shell page header only when the panel header is already consumed by tabs. The panel `#footer` follows the DataTable footer chrome: a top border, compact horizontal padding and muted small text, so summary rows such as record counts read the same in both places.
 
 Put page-form Save/Reset actions in the shell header and target the active editable tab. Drawer/modal forms keep their managed footer actions. For record lists, bind the request state to `DataTable.loading`; its native header progress replaces row skeletons and keeps existing rows during refresh.
 
