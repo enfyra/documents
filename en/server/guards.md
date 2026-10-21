@@ -422,6 +422,33 @@ The alert route (`/enfyra_guard_alert`) supports `GET` and `DELETE` only — rec
 
 Use **guards** for standard, config-driven protection. Use **preHook rate limiting** when you need custom logic (conditional limits, dynamic keys, etc.).
 
+## CORS Origin Allow-List
+
+The `enfyra_cors_origin` table holds the browser origins allowed to call your API cross-origin. The same contract is enforced everywhere a request can enter:
+
+| Hop | Behaviour |
+|---|---|
+| Enfyra app bridge (`/api/**`) | Decides from the same table, before proxying |
+| ESV directly (port 1105) | Decides from the same table |
+| WebSocket bridge | Decides from the same table |
+
+The decision rules are identical at every hop:
+
+- A request without an `Origin` header is allowed — it is not a browser cross-origin request.
+- While the allow-list has not loaded yet, cross-origin requests are denied, so a cold cache never grants access.
+- An allow-list with no rows allows requests without granting CORS. This is the unconfigured default, where the app is reached through its own origin.
+- An allow-list with rows grants only an exact listed origin.
+
+Only an absolute `http(s)` origin is stored from the table. Entries such as `null`, a bare host, or a non-http scheme are dropped when the list loads.
+
+The granted `Access-Control-Allow-Origin` value is always the configured entry, never the request's own header. Echoing the request header while credentials are enabled would let any site read authenticated responses, and the `null` origin is reachable from any sandboxed iframe or `data:` URL.
+
+Preflight (`OPTIONS` with `Access-Control-Request-Method`) is answered directly: `204` with the CORS headers when the origin is allowed, `403` when it is not.
+
+State-changing methods (`POST`, `PUT`, `PATCH`, `DELETE`) from a disallowed origin are rejected with `403`. Safe methods still serve the response but without the CORS grant, which is what makes a browser block the read. The control therefore holds even for callers that ignore CORS.
+
+Changes to `enfyra_cors_origin` take effect when the cache reloads, without restarting the instance.
+
 ## Notes
 
 - `rate_limit_by_user` is only available in `post_auth` position (needs user context)

@@ -426,6 +426,33 @@ Route cảnh báo (`/enfyra_guard_alert`) chỉ hỗ trợ `GET` và `DELETE` �
 
 Dùng **guard** cho cơ chế bảo vệ tiêu chuẩn, cấu hình bằng metadata. Dùng **giới hạn tần suất trong preHook** khi cần logic tùy chỉnh như hạn mức có điều kiện hoặc khóa động.
 
+## Danh sách origin CORS được phép
+
+Bảng `enfyra_cors_origin` chứa các origin trình duyệt được phép gọi API cross-origin. Cùng một contract được áp dụng ở mọi điểm request có thể đi vào:
+
+| Điểm vào | Hành vi |
+|---|---|
+| Bridge của Enfyra app (`/api/**`) | Quyết định từ cùng bảng, trước khi proxy |
+| Gọi thẳng ESV (cổng 1105) | Quyết định từ cùng bảng |
+| Bridge WebSocket | Quyết định từ cùng bảng |
+
+Quy tắc quyết định giống nhau ở mọi điểm:
+
+- Request không có header `Origin` được cho phép vì đây không phải request cross-origin từ trình duyệt.
+- Khi danh sách chưa nạp xong, request cross-origin bị từ chối để cache lạnh không bao giờ cấp quyền.
+- Danh sách không có dòng nào thì cho phép request nhưng không cấp quyền CORS. Đây là mặc định khi chưa cấu hình, lúc app được truy cập qua chính origin của nó.
+- Danh sách có dòng thì chỉ cấp quyền cho origin khớp chính xác.
+
+Chỉ origin tuyệt đối dạng `http(s)` được lưu từ bảng. Các entry như `null`, host trần, hoặc scheme khác http sẽ bị loại khi nạp danh sách.
+
+Giá trị `Access-Control-Allow-Origin` được cấp luôn là entry đã cấu hình, không bao giờ là header của chính request. Echo lại header của request khi đã bật credentials sẽ cho phép mọi site đọc response có xác thực, và origin `null` thì có thể tạo được từ bất kỳ iframe sandbox hay URL `data:` nào.
+
+Preflight (`OPTIONS` kèm `Access-Control-Request-Method`) được trả lời trực tiếp: `204` kèm header CORS khi origin được phép, `403` khi không.
+
+Các method thay đổi trạng thái (`POST`, `PUT`, `PATCH`, `DELETE`) từ origin bị từ chối sẽ nhận `403`. Các method an toàn vẫn trả response nhưng không kèm quyền CORS, và đó là điều khiến trình duyệt chặn việc đọc. Nhờ vậy kiểm soát vẫn có hiệu lực với cả client không tôn trọng CORS.
+
+Thay đổi trên `enfyra_cors_origin` có hiệu lực khi cache reload, không cần khởi động lại instance.
+
 ## Lưu ý
 
 - `rate_limit_by_user` chỉ dùng được ở vị trí `post_auth` vì cần context người dùng.

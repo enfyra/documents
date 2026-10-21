@@ -4,7 +4,7 @@ slug: app/log-viewing
 
 # Trace Errors and Script Logs
 
-Open **Settings → Server Logs** (`/settings/admin/logs`) to investigate a failed operation or inspect output from `@LOGS(...)`. The page reads database records across server instances.
+Open **Settings → Server Logs** (`/settings/logs`) to investigate a failed operation or inspect output from `@LOGS(...)`. The page reads database records across server instances.
 
 ## Access
 
