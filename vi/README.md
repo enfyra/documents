@@ -101,6 +101,7 @@ vi/
 │   ├── extension-system.md
 │   ├── data-table.md
 │   ├── settings-search.md
+│   ├── code-history.md
 │   ├── header-actions.md
 │   ├── page-header.md
 │   ├── runtime-monitor.md
@@ -108,6 +109,7 @@ vi/
 │   └── method-management.md
 ├── server/
 │   ├── README.md
+│   ├── code-history.md
 │   ├── api-lifecycle.md
 │   ├── query-filtering.md
 │   ├── repository-methods/

@@ -48,7 +48,7 @@ Hàng header luôn hiển thị tiêu đề dataset bắt buộc và số record
 | `searchPlaceholder` | Placeholder và label truy cập cho ô search của bảng. |
 | `searchLabel` | Label truy cập riêng cho ô search của bảng. |
 
-Số record luôn hiển thị cạnh tiêu đề. Nó lấy từ `paginationConfig.total` và fallback về số dòng hiện tại, nên hãy truyền total theo query khi biết và không tự suy ra tổng cho dataset cursor.
+Số record hiển thị cạnh tiêu đề ở chế độ offset. Ở chế độ cursor, số này chỉ hiện khi bạn truyền tổng số từ server qua `recordCount` hoặc `paginationConfig.total`; hãy tải thêm `filterCount` (hoặc tương đương) cùng trang khi danh sách cursor có tổng số có ý nghĩa, và không tự suy ra tổng.
 
 Search là prop của bảng, không phải markup của caller. Truyền `searchable` và bind `v-model:search` vào query ref của bạn; bảng render `CommonSearchField`, nên ô search giống Collections và mọi danh sách khác mà không cần tự style input, nút hay field group. Dùng `@search` khi việc submit mới kích hoạt request, và reset page về 1 trong handler đó. Chỉ dùng `#toolbar` cho control phụ như quick filter, không đặt ô search ở đó.
 
@@ -68,7 +68,7 @@ Truyền `paginationConfig` để bật footer có sẵn mà không sao chép se
 | `itemsPerPage` | Kích thước trang có giới hạn, bắt buộc. |
 | `showPageSize` | Hiện bộ chọn 10/20/50/100; mặc định false. |
 | `loading` | Trạng thái pending; khóa điều hướng cursor đến khi request kết thúc. |
-| `total` | Tổng số thuộc cùng query cho offset. Cursor không cần tổng số. |
+| `total` | Tổng số thuộc cùng query. Bắt buộc cho đánh số offset; tùy chọn ở cursor, nơi nó bật số record trên header. |
 | `hasNextPage` | Cho phép Next ở cursor; mặc định false. |
 | `rowCount` | Số bản ghi của trang cursor hiện tại, tùy chọn; mặc định `data.length`. |
 | `floating` | Bật thanh mini; mặc định true. Cả offset và cursor dùng ở mọi chiều rộng. |

@@ -276,6 +276,7 @@ enfyra-docs/
 │   ├── extension-system.md      # Create custom pages with Vue.js components (linked to menus)
 │   ├── data-table.md            # Display paginated records in Enfyra Admin
 │   ├── settings-search.md       # Submitted single-field Settings search
+│   ├── code-history.md          # Review code revisions and restore as a new version
 │   ├── header-actions.md        # Inject custom actions into header and sub-header areas
 │   ├── page-header.md           # Register native page headers with context and stats
 │   ├── permission-builder.md    # Visual interface for creating complex permission rules
@@ -286,6 +287,7 @@ enfyra-docs/
 └──  server/
     ├── README.md                #  Server documentation overview and quick navigation
     ├── api-lifecycle.md         #  Request lifecycle, hook system, and context sharing
+    ├── code-history.md          #  Version validation, previous source and restore API
     ├── query-filtering.md       #  MongoDB-like query filtering operators and examples
     ├── error-handling.md        #  Error handling patterns and best practices
     ├── cache-operations.md      #  Distributed caching and locking operations

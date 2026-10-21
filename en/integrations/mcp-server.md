@@ -90,6 +90,18 @@ Explain the job the interface should help users complete:
 
 > Add an admin page for reviewing pending orders. Include filters for date and status, use the current Enfyra theme, and only show actions the signed-in user is allowed to perform.
 
+### Update or restore dynamic code
+
+> Update handler 12 without changing its route or permissions. Inspect its current source first, make the focused change, and save the next patch version. Show me the saved version and verification result.
+
+MCP reads the current version for code-record updates and increments the patch when you omit a version. You can request a greater custom version such as `2.0.0`; equal, lower, or malformed supplied versions are rejected. This applies to scripts, extensions, state-only changes, and reviewed source-workspace pushes. A create may omit its starting version and use `1.0.0`.
+
+To recover an earlier revision:
+
+> Show the code history for handler 12, inspect its source before the selected change, and restore that revision as a new version after I confirm it.
+
+Restoring preserves existing history and requires history read, revert, and target update permissions. It never recreates a deleted record. If a write fails, inspect the current state before retrying; a failed audit insertion can follow an already completed record update. See [Code Audit](../server/code-history.md) for the exact scope and reliability limits.
+
 ### Diagnose a problem
 
 Provide the failing URL, visible error, and expected behavior:

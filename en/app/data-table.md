@@ -48,7 +48,7 @@ The header row always shows the required dataset heading and the record count on
 | `searchPlaceholder` | Placeholder and accessible label for the table-owned search field. |
 | `searchLabel` | Explicit accessible label for the table-owned search field. |
 
-The record count is always rendered beside the heading. It comes from `paginationConfig.total` and falls back to the current rows, so pass the query-scoped total when you know it and never invent a cursor population total.
+The record count renders beside the heading in offset mode. In cursor mode it appears only when you pass a server total through `recordCount` or `paginationConfig.total`, so load a `filterCount` (or equivalent) alongside the page when the cursor list has a meaningful population total, and never invent one.
 
 Search is a table prop, not caller markup. Pass `searchable` and bind `v-model:search` to your query ref; the table renders `CommonSearchField`, so the field matches Collections and every other list without custom input, button or field-group styling. Listen to `@search` when submission should trigger the request, and reset the page to 1 in that handler. Use `#toolbar` only for extra controls such as a quick filter, never for the search field itself.
 
@@ -68,7 +68,7 @@ Pass `paginationConfig` to enable the built-in footer without copying selectors,
 | `itemsPerPage` | Required bounded page size. |
 | `showPageSize` | Shows the 10/20/50/100 selector; defaults to false. |
 | `loading` | Pending state; cursor navigation is disabled until the request settles. |
-| `total` | Matching server count for offset pagination. Cursor does not require a total. |
+| `total` | Matching server count. Required for offset numbering; optional in cursor mode, where it enables the header record count. |
 | `hasNextPage` | Enables Next in cursor mode; defaults to false. |
 | `rowCount` | Optional number of records on the current cursor page; defaults to `data.length`. |
 | `floating` | Enables the mini pager; defaults to true. Both offset and cursor support it at all widths. |

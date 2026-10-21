@@ -48,6 +48,7 @@ The app is a **pure API client**: it never connects directly to your database. A
   - **[Storage Management](./storage-management.md)** – File uploads, folders, and storage configurations
 
 - **Operations**
+  - **[Audit](./code-history.md)** – Confirm new versions, inspect earlier source, and restore a revision
   - **[Server Logs](./log-viewing.md)** – Trace database-backed system errors and user script logs by correlation ID
   - **[Runtime Monitor](./runtime-monitor.md)** – Process, database, queue, websocket, and Redis visibility
 

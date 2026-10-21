@@ -7,7 +7,7 @@ Flows are automated workflows that execute a sequence of steps based on triggers
 | Table | Purpose |
 |-------|---------|
 | `enfyra_flow` | Flow configuration (name, trigger, timeout, maxExecutions) |
-| `enfyra_flow_step` | Steps within a flow (ordered, typed, configurable) |
+| `enfyra_flow_step` | Steps within a flow (ordered, typed script/condition steps) |
 | `enfyra_flow_execution` | Execution history and state (query separately, not nested) |
 
 ## Trigger Types
@@ -19,22 +19,25 @@ Flows are automated workflows that execute a sequence of steps based on triggers
 
 ## Step Types
 
-| Type | Config | Description |
-|------|--------|-------------|
-| `script` | `{"code": "..."}` | Execute custom JavaScript with full context |
-| `condition` | `{"code": "return ..."}` | Evaluate condition using JS truthy/falsy. Truthy  branch `"true"`, falsy  branch `"false"` |
-| `query` | `{"table": "...", "filter": {...}, "limit": 10}` | Query table data |
-| `create` | `{"table": "...", "data": {...}}` | Create a record |
-| `update` | `{"table": "...", "id": 1, "data": {...}}` | Update a record by ID |
-| `delete` | `{"table": "...", "id": 1}` | Delete a record by ID |
-| `http` | `{"url": "...", "method": "POST", "body": {...}, "headers": {...}, "timeout": 30000}` | Send HTTP request (auto `Content-Type: application/json` when body present). See [HTTP step URL rules](#http-step-url-rules-ssrf-hardening). |
-| `trigger_flow` | `{"flowId": 2}` or `{"flowName": "..."}` | Trigger another flow |
-| `sleep` | `{"ms": 5000}` | Pause execution for N ms |
-| `log` | `{"message": "..."}` | Log a message to execution context |
+| Type | Description |
+|------|-------------|
+| `script` | Execute custom JavaScript/TypeScript with full context. `sourceCode` is the only step input. |
+| `condition` | Evaluate a script that must return a boolean. `true` runs the `"true"` branch, `false` runs the `"false"` branch; any other result fails the step. |
 
-### HTTP step URL rules (SSRF hardening)
+Steps are script-only: there is no step `config`. Do the work inside `sourceCode`.
 
-The server only allows `http:` and `https:` URLs that are not obvious SSRF targets: `localhost` and common loopback names, raw private/reserved IP literals, and hostnames that resolve only to private IPs are rejected. Prefer **public internet hostnames** (e.g. `https://api.example.com`). Internal callbacks need a deliberate architecture change, not an arbitrary internal URL in this step.
+| Need | Script |
+|------|--------|
+| Query | `return await #table.find({ filter, fields, limit, sort })` |
+| Create | `return await #table.create({ data })` |
+| Update | `return await #table.update({ id, data })` |
+| Delete | `return await #table.delete({ id })` |
+| External HTTP | `return await @FETCH(url, options)` |
+| Delay | `await @HELPERS.$sleep(5000)` |
+| Child flow | `return await @TRIGGER('flow-name', payload)` |
+| Execution log | `@LOGS(message, details?)` |
+
+A script step reaches the network through `@FETCH` (and packages), which keep their own private-IP and redirect guards; there is no separate fixed-HTTP step contract to configure.
 
 ## Template Syntax
 
@@ -109,17 +112,30 @@ POST /api/enfyra_flow_step
   "key": "process_users",
   "stepOrder": 1,
   "type": "script",
-  "config": { "code": "return #enfyra_user.find({ limit: 100 })" },
+  "sourceCode": "return await #enfyra_user.find({ limit: 100 })",
   "parent": { "id": 5 },
   "branch": "true"
 }
 ```
 
+The condition step itself returns the boolean that picks the branch:
+
+```
+POST /api/enfyra_flow_step
+{
+  "flow": { "id": 1 },
+  "key": "check_has_users",
+  "stepOrder": 1,
+  "type": "condition",
+  "sourceCode": "const rows = await #enfyra_user.find({ limit: 1 }); return rows.data.length > 0"
+}
+```
+
 Rules:
 - Steps with `parent: null` are root level — execute sequentially
-- Condition uses JS truthy/falsy: `return user` (object = truthy), `return null` (falsy), `return count > 0` (boolean)
-- Truthy  children with `branch: "true"` execute
-- Falsy  children with `branch: "false"` execute
+- Condition must return a real boolean: `return count > 0`, `return Boolean(payload.enabled)`. Returning an object, array, string, number, `null`, or `undefined` fails the step instead of branching.
+- `true` children with `branch: "true"` execute
+- `false` children with `branch: "false"` execute
 - After condition + branch children complete  next root step continues
 - Branch steps can have `onError: skip/stop/retry` independently
 
@@ -188,9 +204,7 @@ POST /api/enfyra_flow_step
   "key": "validate_stock",
   "stepOrder": 1,
   "type": "script",
-  "config": {
-    "code": "const order = @FLOW_PAYLOAD.data; const product = await #product.find({ filter: { id: { _eq: order.productId } }, limit: 1 }); return { inStock: product.data[0]?.stock > order.quantity }"
-  },
+  "sourceCode": "const order = @FLOW_PAYLOAD.data; const product = await #product.find({ filter: { id: { _eq: order.productId } }, limit: 1 }); return { inStock: product.data[0]?.stock > order.quantity }",
   "timeout": 5000,
   "onError": "stop"
 }
@@ -202,8 +216,8 @@ POST /api/enfyra_flow_step
 POST /api/admin/test/run
 {
   "kind": "flow_step",
-  "type": "query",
-  "config": { "table": "enfyra_user", "filter": { "status": { "_eq": "active" } }, "limit": 5 },
+  "type": "script",
+  "sourceCode": "return await #enfyra_user.find({ filter: { status: { _eq: 'active' } }, limit: 5 })",
   "timeout": 5000
 }
 ```
@@ -242,9 +256,9 @@ Cron schedules are registered automatically via BullMQ Job Schedulers when the f
 
 | Feature | Detail |
 |---------|--------|
-| Max nesting depth | 10 (flow triggering flow via `trigger_flow` step or `$trigger()`) |
+| Max nesting depth | 10 (flow triggering flow via `@TRIGGER()` or `$trigger()`) |
 | Circular detection | Tracks visited flow IDs in chain — ABA rejected immediately |
-| HTTP timeout | 30s default, configurable via `config.timeout` per step |
+| HTTP timeout | `@FETCH` defaults to 8s per call; pass `timeoutMs` per request |
 | Execution history | Auto-cleanup per flow via `maxExecutions` (default 100, oldest deleted) |
 | Step timeout | Per-step or inherited from flow `timeout` (default 5000ms) |
 | Retry backoff | Exponential: 1s, 2s, 4s, 8s... capped at 30s |

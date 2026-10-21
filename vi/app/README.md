@@ -52,6 +52,7 @@ Nếu bạn đang xây web app, backend cho mobile app, CLI hoặc service đư�
   - **[Quản lý lưu trữ](./storage-management.md)** – Tải lên tệp, thư mục và cấu hình lưu trữ
 
 - **Hoạt động**
+  - **[Audit](./code-history.md)** – Xác nhận version mới, xem source cũ và phục hồi một phiên bản
   - **[Nhật ký máy chủ](./log-viewing.md)** – Trace lỗi hệ thống và log của script trong database theo correlation ID
   - **[Theo dõi runtime](./runtime-monitor.md)** – Theo dõi tiến trình, database, queue, websocket và Redis
 

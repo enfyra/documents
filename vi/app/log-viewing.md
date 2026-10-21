@@ -4,7 +4,7 @@ slug: ung-dung/xem-nhat-ky
 
 # Trace lỗi và log của script
 
-Mở **Settings → Server Logs** (`/settings/admin/logs`) để tìm nguyên nhân thao tác thất bại hoặc xem nội dung từ `@LOGS(...)`. Trang này đọc các record trong database, bao gồm log từ nhiều instance của server.
+Mở **Settings → Server Logs** (`/settings/logs`) để tìm nguyên nhân thao tác thất bại hoặc xem nội dung từ `@LOGS(...)`. Trang này đọc các record trong database, bao gồm log từ nhiều instance của server.
 
 ## Quyền truy cập
 

@@ -94,6 +94,18 @@ Tập trung vào công việc mà giao diện cần hỗ trợ:
 
 > Thêm trang quản trị để duyệt các đơn hàng đang chờ xử lý. Có bộ lọc theo ngày và trạng thái, dùng theme hiện tại của Enfyra và chỉ hiển thị những thao tác người dùng có quyền thực hiện.
 
+### Cập nhật hoặc phục hồi code động
+
+> Cập nhật handler 12 nhưng giữ nguyên route và quyền. Đọc source hiện tại trước, chỉ sửa phần cần thiết rồi lưu patch kế tiếp. Báo version đã lưu và kết quả kiểm chứng.
+
+MCP đọc version hiện tại khi update record code và tăng patch nếu bạn không chỉ định version. Có thể yêu cầu version hợp lệ lớn hơn như `2.0.0`; version tự điền bằng, thấp hơn hoặc sai định dạng sẽ bị từ chối. Cơ chế này áp dụng cho script, extension, thay đổi trạng thái và push source workspace đã review. Create có thể bỏ version khởi đầu để dùng `1.0.0`.
+
+Khi cần phục hồi phiên bản cũ:
+
+> Cho tôi xem history của handler 12 và source trước thay đổi được chọn. Sau khi tôi xác nhận, phục hồi source đó thành một version mới.
+
+Phục hồi giữ nguyên history đã có và cần quyền đọc history, revert cùng quyền update bảng đích. Không tạo lại record đã xóa. Nếu ghi thất bại, đọc trạng thái hiện tại trước khi thử lại; lỗi ghi audit có thể xảy ra sau khi record đã update. Xem [Audit code](../server/code-history.md) để biết phạm vi và giới hạn độ tin cậy.
+
 ### Điều tra lỗi
 
 Cung cấp URL bị lỗi, thông báo nhìn thấy và hành vi mong đợi:

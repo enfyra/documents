@@ -23,22 +23,25 @@ Flow là workflow tự động thực thi một chuỗi step theo trigger. Flow 
 
 ## Kiểu step
 
-| Kiểu | Cấu hình | Mô tả |
-|------|--------|-------------|
-| `script` | `{"code": "..."}` | Chạy JavaScript tùy chỉnh với đầy đủ context |
-| `condition` | `{"code": "return ..."}` | Đánh giá điều kiện theo JS truthy/falsy; truthy đi nhánh `"true"`, falsy đi nhánh `"false"` |
-| `query` | `{"table": "...", "filter": {...}, "limit": 10}` | Truy vấn dữ liệu bảng |
-| `create` | `{"table": "...", "data": {...}}` | Tạo bản ghi |
-| `update` | `{"table": "...", "id": 1, "data": {...}}` | Cập nhật bản ghi theo ID |
-| `delete` | `{"table": "...", "id": 1}` | Xóa bản ghi theo ID |
-| `http` | `{"url": "...", "method": "POST", "body": {...}, "headers": {...}, "timeout": 30000}` | Gửi HTTP request (tự thêm `Content-Type: application/json` khi có body). Xem [quy tắc URL của HTTP step](#quy-tac-url-cho-http-step-chong-ssrf). |
-| `trigger_flow` | `{"flowId": 2}` hoặc `{"flowName": "..."}` | Kích hoạt flow khác |
-| `sleep` | `{"ms": 5000}` | Tạm dừng thực thi N ms |
-| `log` | `{"message": "..."}` | Ghi message vào execution context |
+| Kiểu | Mô tả |
+|------|-------|
+| `script` | Chạy JavaScript/TypeScript tùy chỉnh với đầy đủ context. `sourceCode` là input duy nhất của step. |
+| `condition` | Đánh giá script và script phải trả về boolean. `true` đi nhánh `"true"`, `false` đi nhánh `"false"`; mọi giá trị khác làm step thất bại. |
 
-### Quy tắc URL cho HTTP step (chống SSRF)
+Step chỉ là script: không còn `config`. Mọi thao tác nằm trong `sourceCode`.
 
-Server chỉ cho phép URL `http:` và `https:` không phải mục tiêu SSRF rõ ràng: `localhost`, tên loopback phổ biến, IP private/reserved dạng literal và hostname chỉ phân giải về IP private đều bị từ chối. Hãy ưu tiên **hostname công khai trên Internet**, ví dụ `https://api.example.com`. Callback nội bộ cần thay đổi kiến trúc có chủ đích, không dùng tùy tiện URL nội bộ trong step này.
+| Nhu cầu | Script |
+|---------|--------|
+| Truy vấn | `return await #table.find({ filter, fields, limit, sort })` |
+| Tạo bản ghi | `return await #table.create({ data })` |
+| Cập nhật | `return await #table.update({ id, data })` |
+| Xóa | `return await #table.delete({ id })` |
+| Gọi HTTP bên ngoài | `return await @FETCH(url, options)` |
+| Delay | `await @HELPERS.$sleep(5000)` |
+| Flow con | `return await @TRIGGER('flow-name', payload)` |
+| Ghi log thực thi | `@LOGS(message, details?)` |
+
+Script step gọi mạng qua `@FETCH` (và package); các lớp này giữ guard private-IP và redirect riêng, không còn contract HTTP step cố định để cấu hình.
 
 ## Cú pháp mẫu
 
@@ -113,17 +116,30 @@ POST /api/enfyra_flow_step
   "key": "process_users",
   "stepOrder": 1,
   "type": "script",
-  "config": { "code": "return #enfyra_user.find({ limit: 100 })" },
+  "sourceCode": "return await #enfyra_user.find({ limit: 100 })",
   "parent": { "id": 5 },
   "branch": "true"
 }
 ```
 
+Bản thân condition step trả về boolean quyết định nhánh:
+
+```
+POST /api/enfyra_flow_step
+{
+  "flow": { "id": 1 },
+  "key": "check_has_users",
+  "stepOrder": 1,
+  "type": "condition",
+  "sourceCode": "const rows = await #enfyra_user.find({ limit: 1 }); return rows.data.length > 0"
+}
+```
+
 Quy tắc:
 - Step có `parent: null` nằm ở root level và chạy tuần tự
-- Condition dùng JS truthy/falsy: `return user` (object = truthy), `return null` (falsy), `return count > 0` (boolean)
-- Child truthy có `branch: "true"` được chạy
-- Child falsy có `branch: "false"` được chạy
+- Condition phải trả về boolean thật: `return count > 0`, `return Boolean(payload.enabled)`. Trả về object, array, string, number, `null` hay `undefined` sẽ làm step thất bại thay vì rẽ nhánh.
+- Child `true` có `branch: "true"` được chạy
+- Child `false` có `branch: "false"` được chạy
 - Sau khi condition và child branch hoàn tất, root step kế tiếp tiếp tục
 - Mỗi branch step có thể đặt `onError: skip/stop/retry` độc lập
 
@@ -192,9 +208,7 @@ POST /api/enfyra_flow_step
   "key": "validate_stock",
   "stepOrder": 1,
   "type": "script",
-  "config": {
-    "code": "const order = @FLOW_PAYLOAD.data; const product = await #product.find({ filter: { id: { _eq: order.productId } }, limit: 1 }); return { inStock: product.data[0]?.stock > order.quantity }"
-  },
+  "sourceCode": "const order = @FLOW_PAYLOAD.data; const product = await #product.find({ filter: { id: { _eq: order.productId } }, limit: 1 }); return { inStock: product.data[0]?.stock > order.quantity }",
   "timeout": 5000,
   "onError": "stop"
 }
@@ -206,8 +220,8 @@ POST /api/enfyra_flow_step
 POST /api/admin/test/run
 {
   "kind": "flow_step",
-  "type": "query",
-  "config": { "table": "enfyra_user", "filter": { "status": { "_eq": "active" } }, "limit": 5 },
+  "type": "script",
+  "sourceCode": "return await #enfyra_user.find({ filter: { status: { _eq: 'active' } }, limit: 5 })",
   "timeout": 5000
 }
 ```
@@ -246,9 +260,9 @@ Lịch cron được đăng ký tự động bằng BullMQ Job Scheduler khi cac
 
 | Hạng mục | Chi tiết |
 |---------|--------|
-| Độ sâu lồng tối đa | 10 (flow kích hoạt flow qua `trigger_flow` hoặc `$trigger()`) |
+| Độ sâu lồng tối đa | 10 (flow kích hoạt flow qua `@TRIGGER()` hoặc `$trigger()`) |
 | Phát hiện vòng lặp | Theo dõi flow ID đã đi qua trong chuỗi; ABA bị từ chối ngay |
-| HTTP timeout | Mặc định 30 giây, cấu hình từng step bằng `config.timeout` |
+| HTTP timeout | `@FETCH` mặc định 8 giây mỗi lần gọi; truyền `timeoutMs` theo từng request |
 | Lịch sử thực thi | Tự dọn theo `maxExecutions` của flow, mặc định 100 và xóa bản ghi cũ nhất |
 | Step timeout | Theo từng step hoặc kế thừa `timeout` của flow, mặc định 5000ms |
 | Retry backoff | Exponential: 1s, 2s, 4s, 8s... tối đa 30 giây |
