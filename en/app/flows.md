@@ -74,17 +74,8 @@ Opens when clicking a step node or "Add Step". Fields:
 - **Key** — unique identifier used in data chain (`@FLOW.<key>`)
 - **Order** — execution sequence number
 - **Timeout** — per-step timeout in ms
-- **Type** — select step type (each shows different config fields)
-- **Config** — type-specific form:
-  - **Script/Condition**: Code editor (JavaScript) — use template syntax: `@FLOW_PAYLOAD`, `@FLOW_LAST`, `@FLOW.<key>`, `#table_name`, `@HELPERS`
-  - **Query**: Table picker (autocomplete) + Filter Builder (visual) + Limit + Fields
-  - **Create**: Table picker + Data JSON
-  - **Update**: Table picker + Record ID + Data JSON
-  - **Delete**: Table picker + Record ID
-  - **HTTP**: URL + Method dropdown + Headers JSON + Body JSON
-  - **Trigger Flow**: Flow name or ID
-  - **Sleep**: Duration in ms
-  - **Log**: Message text
+- **Type** — Script or Condition
+- **Source code** — Code editor for the step. Use template syntax: `@FLOW_PAYLOAD`, `@FLOW_LAST`, `@FLOW.<key>`, `#table_name`, `@HELPERS`, `@FETCH`, `@TRIGGER`, `@LOGS`. A Condition step must return a real boolean; the editor blocks saving when the source returns an object, array, string, number, `null`, `undefined`, or nothing at all.
 - **On Error** — Stop flow / Skip step / Retry
 - **Retries** — number of retry attempts (shown when On Error = Retry)
 - **Parent Condition** — dropdown to assign step to a condition's branch (shown when flow has condition steps)
@@ -110,13 +101,18 @@ Opening a step drawer or execution detail adds query parameters to the URL (`?ed
 - Direct links to specific step editors work
 - Page refresh preserves drawer state
 
-## Table Picker
+## Working Inside a Script Step
 
-Used in Query, Create, Update, Delete step configs. Features:
-- Autocomplete input (type to search)
-- Server-side search with 500ms debounce using `_contains` filter
-- Loads 10 results at a time
-- Loading indicator during search
+Every flow step is script-only. Condition steps exist only to branch. Do the work with the script context:
+
+| Need | Use |
+|------|-----|
+| Read records | `await #table_name.find({ filter, fields, limit, sort })` |
+| Create / update / delete | `await #table_name.create/update/delete({ ... })` |
+| Call an external API | `await @FETCH(url, options)` |
+| Wait before the next action | `await @HELPERS.$sleep(5000)` |
+| Start another flow | `await @TRIGGER('flow-name', payload)` |
+| Write execution output | `@LOGS(message, details?)` |
 
 ## Template Syntax Quick Reference
 

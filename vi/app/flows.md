@@ -78,17 +78,8 @@ Mở khi nhấp vào nút bước hoặc "Thêm bước". Lĩnh vực:
 - **Khóa** — mã định danh duy nhất được sử dụng trong chuỗi dữ liệu (`@FLOW.<key>`)
 - **Đơn hàng** — số thứ tự thực hiện
 - **Hết giờ** — thời gian chờ cho mỗi bước tính bằng mili giây
-- **Loại** — chọn loại bước (mỗi loại hiển thị các trường cấu hình khác nhau)
-- **Config** — biểu mẫu dành riêng cho loại:
-  - **Script/Condition**: Trình soạn thảo mã (JavaScript) — sử dụng cú pháp mẫu: `@FLOW_PAYLOAD`, `@FLOW_LAST`, `@FLOW.<key>`, `#table_name`, `@HELPERS`
-  - **Truy vấn**: Bộ chọn bảng (tự động hoàn thành) + Trình tạo bộ lọc (trực quan) + Giới hạn + Trường
-  - **Tạo**: Bộ chọn bảng + JSON dữ liệu
-  - **Cập nhật**: Bộ chọn bảng + ID bản ghi + JSON dữ liệu
-  - **Xóa**: Bộ chọn bảng + ID bản ghi
-  - **HTTP**: URL + Phương thức thả xuống + JSON tiêu đề + JSON nội dung
-  - **Luồng kích hoạt**: Tên hoặc ID luồng
-  - **Ngủ**: Thời lượng tính bằng mili giây
-  - **Nhật ký**: Nội dung tin nhắn
+- **Loại** — Script hoặc Condition
+- **Mã nguồn** — Trình soạn thảo mã của bước. Dùng cú pháp mẫu: `@FLOW_PAYLOAD`, `@FLOW_LAST`, `@FLOW.<key>`, `#table_name`, `@HELPERS`, `@FETCH`, `@TRIGGER`, `@LOGS`. Bước Condition phải trả về boolean thật; trình soạn thảo chặn lưu nếu mã trả về object, array, string, number, `null`, `undefined` hoặc không trả về gì.
 - **Bị lỗi** — Dừng luồng / Bỏ qua bước / Thử lại
 - **Thử lại** — số lần thử lại (hiển thị khi Bật Lỗi = Thử lại)
 - **Điều kiện gốc** — thả xuống để gán bước cho nhánh của điều kiện (hiển thị khi luồng có các bước điều kiện)- **Nhánh** — Đúng hoặc Sai (hiển thị khi Điều kiện gốc được chọn)
@@ -113,13 +104,18 @@ Việc mở ngăn bước hoặc chi tiết thực thi sẽ thêm các tham số
 - Liên kết trực tiếp tới công việc của trình chỉnh sửa bước cụ thể
 - Làm mới trang duy trì trạng thái ngăn kéo
 
-## Bộ chọn bảng
+## Làm việc trong một bước script
 
-Được sử dụng trong Truy vấn, Tạo, Cập nhật, Xóa cấu hình bước. Tính năng:
-- Tự động điền đầu vào (gõ để tìm kiếm)
-- Tìm kiếm phía máy chủ với thời gian gỡ lỗi 500ms bằng bộ lọc `_contains`
-- Tải 10 kết quả cùng một lúc
-- Chỉ báo tải trong quá trình tìm kiếm
+Mọi bước của flow đều là script. Bước Condition chỉ dùng để rẽ nhánh. Thao tác nằm trong context của script:
+
+| Nhu cầu | Dùng |
+|---------|------|
+| Đọc bản ghi | `await #table_name.find({ filter, fields, limit, sort })` |
+| Tạo / cập nhật / xóa | `await #table_name.create/update/delete({ ... })` |
+| Gọi API bên ngoài | `await @FETCH(url, options)` |
+| Chờ trước thao tác kế tiếp | `await @HELPERS.$sleep(5000)` |
+| Khởi động flow khác | `await @TRIGGER('flow-name', payload)` |
+| Ghi output thực thi | `@LOGS(message, details?)` |
 
 ## Tham khảo nhanh cú pháp mẫu
 
