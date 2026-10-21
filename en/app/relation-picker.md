@@ -21,17 +21,19 @@ The Relation Picker lets you select related records when working with forms. Whe
 
 ## Additional Actions
 
-**Create New Records:**
-- Click the **"+ Create"** button to add new records to the related table
-- Fill out the form that appears
-- New records are automatically selected when created
+The picker only selects existing records. To create a record, use the related table's own page, then reload the picker.
 
 **Filter Records:**  
-- Click the **Filter** button to search through available records
+- Use **Filter** to narrow the available records; the picker has no separate quick-search field
 - Use the same filtering system as described in the [Filter System](./filter-system.md) guide
 
+**Browse Pages:**
+- The list is a table with cursor pagination; use **Previous** / **Next** to move through pages
+- Moving between pages does not clear your selection
+- The table header shows the total number of records matching the current filter, not just the current page; paging keeps that total unchanged
+
 **View Record Details:**
-- Click the **eye icon** next to any record to see its full details
+- Click the **external-link icon** next to any record to open its detail page
 - This doesn't affect your current selection
 
 ## Common Examples
@@ -59,9 +61,8 @@ The Relation Picker lets you select related records when working with forms. Whe
 **Finding Records:**
 - Use the Filter button if you have many records to choose from
 - Look for meaningful names (the system shows name, title, or other identifying fields)
-- Use the eye icon to preview a record's full details before selecting
+- Use the external-link icon to open a record's detail page before selecting
 
 **Working Efficiently:**
-- Create new related records directly from the picker without leaving your form
 - For multiple selections, you can select several records before clicking Apply
-- Selected records persist if you close and reopen the picker (until you Apply or Cancel)
+- Click Apply to keep your choices. Closing without applying discards draft changes; reopening restores the last confirmed selection.

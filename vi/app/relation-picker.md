@@ -28,20 +28,22 @@ Bộ chọn bản ghi liên quan giúp bạn chọn bản ghi có quan hệ khi 
 
 ## Thao tác bổ sung
 
-**Tạo bản ghi mới:**
-
-- Nhấn **"+ Tạo"** để thêm bản ghi vào bảng liên quan.
-- Điền biểu mẫu xuất hiện.
-- Bản ghi mới được tự động chọn sau khi tạo.
+Bộ chọn chỉ chọn bản ghi đã có. Để tạo bản ghi mới, dùng trang của bảng liên quan rồi tải lại bộ chọn.
 
 **Lọc bản ghi:**
 
-- Nhấn nút **Lọc** để tìm trong các bản ghi có sẵn.
+- Dùng **Lọc** để thu hẹp danh sách; bộ chọn không có ô tìm kiếm nhanh riêng.
 - Dùng cùng cơ chế lọc như trong hướng dẫn [Hệ thống bộ lọc](./filter-system.md).
+
+**Duyệt trang:**
+
+- Danh sách là bảng có phân trang con trỏ; dùng **Trước** / **Sau** để chuyển trang.
+- Chuyển trang không làm mất lựa chọn hiện tại.
+- Header của bảng hiển thị tổng số bản ghi khớp bộ lọc hiện tại, không chỉ số dòng trên trang; chuyển trang không làm thay đổi tổng này.
 
 **Xem chi tiết bản ghi:**
 
-- Nhấn **biểu tượng mắt** cạnh một bản ghi để xem đầy đủ chi tiết.
+- Nhấn **biểu tượng liên kết ngoài** cạnh một bản ghi để mở trang chi tiết.
 - Thao tác này không làm thay đổi lựa chọn hiện tại.
 
 ## Ví dụ thường gặp
@@ -73,10 +75,9 @@ Bộ chọn bản ghi liên quan giúp bạn chọn bản ghi có quan hệ khi 
 
 - Dùng nút Lọc khi có nhiều bản ghi để chọn.
 - Tìm tên có ý nghĩa; hệ thống hiển thị tên, tiêu đề hoặc trường nhận diện khác.
-- Dùng biểu tượng mắt để xem trước chi tiết bản ghi trước khi chọn.
+- Dùng biểu tượng liên kết ngoài để mở trang chi tiết bản ghi trước khi chọn.
 
 **Làm việc hiệu quả:**
 
-- Có thể tạo bản ghi liên quan ngay trong bộ chọn mà không cần rời biểu mẫu.
 - Với lựa chọn nhiều, có thể chọn nhiều bản ghi trước khi nhấn Áp dụng.
-- Các bản ghi đã chọn vẫn được giữ khi đóng rồi mở lại bộ chọn, cho đến khi nhấn Áp dụng hoặc Hủy.
+- Nhấn Áp dụng để giữ lựa chọn. Đóng mà chưa áp dụng sẽ bỏ thay đổi nháp; mở lại sẽ khôi phục lựa chọn đã xác nhận gần nhất.
