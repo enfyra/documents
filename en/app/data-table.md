@@ -237,7 +237,28 @@ The supported cursor contract is `hasNextPage`, optional current-page `rowCount`
 
 Columns visibility is enabled by default, including in extensions. Pass all column definitions and bind `v-model:column-visibility` when the page must retain hidden columns. Built-in Settings tables also keep Columns enabled; `/data/<table>` persists visibility per table.
 
-`useDataTableColumns().buildActionsColumn({ actions })` builds a row `…` menu from a fixed action list or a function of the record. For selection, use native `v-model:row-selection`, a checkbox column, and `getRowId` based on a stable identifier; never infer selection from row position.
+`useDataTableColumns().buildActionsColumn({ actions })` builds a row `…` menu from a fixed action list or a function of the record.
+
+Enable `enable-row-selection` to let `DataTable` own the checkbox column and selection state. The table identifies records by `id` or `_id`; pass `getRowId` only when the dataset uses another stable identifier. Do not create another checkbox column or maintain a separate native selection map in the caller.
+
+```vue
+<DataTable
+  :data="records"
+  :columns="columns"
+  header-name="Records"
+  enable-row-selection
+  v-model:selected-row-ids="selectedIds"
+  @update:selected-rows="selectedRows = $event"
+/>
+```
+
+`update:selectedRowIds` emits selected IDs, while `update:selectedRows` emits selected records available on the current page when the selection changes. Bind `v-model:selected-row-ids` to retain IDs across cursor pages; use those IDs for actions spanning multiple pages, since the table does not fetch off-page records. Without that binding, the table manages selection internally and drops IDs that leave the current page. `DataTableLazy` supports the same contract.
+
+Use `row-selection-mode="single"` for one record without a select-all checkbox, `selection-disabled` to block selection changes, and `select-on-row-click` to opt into row-click selection. Checkbox clicks do not trigger the ordinary row-click action; `/data/<table>` keeps row-click detail navigation.
+
+Selection does not automatically enable deletion. The page owns bulk actions, permissions, eligible records, confirmation, and refresh behavior. Built-in CRUD management pages expose bulk delete only with the relevant DELETE permission; protected system records, root administrator accounts, and collection-backed routes cannot be selected for deletion. A partially failed delete refreshes the list and removes only acknowledged deletions from the selection.
+
+API Tester, Audit, Logs, OAuth Accounts, relation pickers, and navigation or runtime-history tables do not expose generic bulk delete. Collections keep their dedicated schema-deletion confirmation in the detail page, while Packages keep the Uninstall workflow. Selecting records in a relation picker only changes the form's relation value; it never deletes the related records.
 
 On built-in `/data/<table>`, `metadata.tableCell.formatter` accepts a restricted function string with `(metadata, value)` and returns text, a number, a boolean, or `{ text, color?, variant? }`. Empty/invalid output falls back to the ordinary value (`_` for empty cells). The column editor supplies an example and a 1–4096-character display limit (80 by default). This changes presentation only, not stored data or responses. Extensions use column `cell` renderers or named slots.
 
