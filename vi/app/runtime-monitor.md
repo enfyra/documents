@@ -31,7 +31,7 @@ Các nhóm khóa có nhãn:
 - **Socket.IO**: trạng thái adapter websocket. Chỉ đọc.
 - **runtime monitor**: dữ liệu theo dõi runtime. Chỉ đọc.
 - **system lock**: khóa điều phối của Enfyra. Chỉ đọc.
-- **user cache**: giá trị `$cache` / `@CACHE` do handler, hook, flow, script websocket hoặc Trình sửa khóa Redis tạo. Có thể chỉnh sửa.
+- **user cache**: giá trị `$cache` / `@CACHE` do handler, hook, flow, script websocket hoặc Trình sửa khóa Redis tạo. Có thể chỉnh sửa. Khóa lock phân tán của `$cache` nằm trong cùng nhóm này nhưng vẫn chỉ đọc vì chứa token chủ sở hữu lock.
 
 ## Bộ nhớ Redis được cấp
 
