@@ -173,7 +173,8 @@ If the table has `validateBody = true` (default for new tables), the server vali
 - Cascade create payloads (e.g. `POST /post` with inline `comments: [...]`) validate child records too if the related table also has `validateBody = true`.
 - Connect-by-id shapes (`{ author: 5 }` or `{ author: { id: 5 } }`) skip nested validation.
 - Tables with `validateBody = false` only enforce database-level constraints at insert/update time; rules are not consulted.
-- Field-permission `deny` on `create`/`update` returns **403**, not 400 — that's not validation.
+- Fields denied by field permissions on `create`/`update` (or marked `isUpdatable: false` on `update`) are silently stripped from the payload before validation and persistence; existing stored values remain unchanged.
+- Generated GraphQL mutations (`create_<table>` and `update_<table>`) run the same metadata and column-rule validation pipeline.
 
 To configure rules per column, see the admin app guide: [Column Rules](../app/column-rules.md).
 

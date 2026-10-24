@@ -11,9 +11,9 @@ Kiểm soát quyền truy cập từng column và relation theo role, người d
 Mọi column và relation đều có cờ `isPublished` (mặc định: `true`).
 
 - `isPublished: true` — mặc định mọi người dùng đã xác thực đều có thể truy cập
-- `isPublished: false` — mặc định bị chặn; chỉ truy cập được qua rule `allow` tường minh trong `enfyra_field_permission`
+- `isPublished: false` — mặc định bị chặn với tất cả mọi người, kể cả root admin; chỉ đọc được khi có rule `allow` tường minh trong `enfyra_field_permission`
 
-Trường chưa publish bị loại hẳn khỏi API response, không trả về dưới dạng `null`. Root admin bỏ qua toàn bộ kiểm tra quyền theo trường.
+Trường chưa publish bị loại hẳn khỏi API response (không trả về dưới dạng `null`), và việc dùng chúng trong `filter`, `sort` hoặc `aggregate` khi chưa có rule `read` `allow` sẽ trả về `403` cho cả người dùng thường lẫn root admin. Root admin chỉ bỏ qua các rule `deny` trên trường đã publish (`isPublished: true`) và được phép ghi (`create`/`update`) giá trị cho trường chưa publish (nhưng response của mutation vẫn ẩn trường đó nếu chưa có quyền `read`).
 
 Các column nhạy cảm như `password`, OAuth `clientSecret` và thông tin xác thực storage dùng `isPublished: false`.
 
@@ -55,10 +55,9 @@ GET /api/enfyra_column?filter[table][id][_eq]=<tableId>&fields=id,name,fieldPerm
 
 ## Phạm vi áp dụng
 
-Mỗi rule dùng **một trong hai**: `role` hoặc `allowedUsers`, không dùng đồng thời:
+Mỗi rule bắt buộc chọn **đúng một trong hai**: `role` hoặc `allowedUsers` (không dùng đồng thời và không được bỏ trống cả hai):
 - `role` — áp dụng cho mọi người dùng có role đó
 - `allowedUsers` — áp dụng cho người dùng cụ thể, không phụ thuộc role
-- Không đặt cả hai — global rule, áp dụng cho mọi người
 
 ## Điều kiện
 
@@ -95,7 +94,7 @@ find()
 
 - **Read:** trường bị từ chối bị loại hẳn khỏi response
 - **Filter/sort/aggregate:** dùng trường bị từ chối sẽ ném `403`
-- **Create/update:** request body chứa trường bị từ chối sẽ ném `403`
+- **Create/update:** các trường bị từ chối trong request body được loại bỏ âm thầm trước khi kiểm tra body và lưu DB (giá trị đang lưu được giữ nguyên khi update)
 - **Ghi cascade:** quyền theo trường cũng được áp dụng cho child record trong cascade create/update
 
 ### Tối ưu trước SQL

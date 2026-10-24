@@ -133,6 +133,8 @@ Cursor pagination tải từng trang từ server. Previous bị khóa ở trang 
 
 `page` là vị trí trong lịch sử cursor ở phía client, không phải offset gửi lên REST. Với ID số giảm dần, tải trang đầu không có cursor, lưu ID cuối đang hiển thị, rồi tải trang kế tiếp bằng `filter: { id: { _lt: savedId } }`. Previous dùng lại mốc đã lưu của trang đích. Nếu mỗi trang có 10 dòng, fetch 11 dòng: hiển thị 10 dòng đầu và chỉ dùng dòng dư để xác định còn trang kế tiếp hay không.
 
+Chỉ yêu cầu `meta` ở trang đầu. Query cursor tự thêm điều kiện biên, nên xin lại `filterCount` ở trang 2 sẽ chỉ đếm phần dòng nằm sau mốc đó và badge trên header nhỏ dần sau mỗi lần Next. Lấy tổng số một lần từ request đầu tiên không có biên rồi giữ nguyên cho hết phiên phân trang; reset cùng lúc với lịch sử cursor khi đổi filter, phạm vi hoặc kích thước trang. `totalCount` không thay thế được — nó bỏ qua toàn bộ filter, nên sai ngay khi có filter.
+
 ### Ví dụ extension hoàn chỉnh
 
 Thay `/work_items` và các field bằng route đã tồn tại và có quyền đọc. Ví dụ thay các dòng sau mỗi lần chuyển trang thành công, giữ trang gần nhất khi request lỗi và chặn phản hồi cũ. Code dùng API được inject sẵn, không có static import.

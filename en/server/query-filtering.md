@@ -102,9 +102,9 @@ const result = await $ctx.$repos.products.find({
 // URL: /products?filter={"category":{"_in":["electronics","gadgets"]}}
 ```
 
-### _not_in (Not In Array)
+### _not_in / _nin (Not In Array)
 
-Exclude values in the array.
+Exclude values in the array (`_nin` is an alias for `_not_in`).
 
 ```javascript
 // Find products not in these categories
@@ -114,6 +114,8 @@ const result = await $ctx.$repos.products.find({
   }
 });
 ```
+
+> **Note:** Only `_`-prefixed Enfyra filter operators are supported. Raw MongoDB `$`-prefixed operators (such as `$ne` or `$regex`) are rejected across all database backends.
 
 ## Text Search
 
@@ -640,7 +642,7 @@ const result = await $ctx.$repos.users.find({
 
 ### Deep Query with Filter
 
-Filter nested relations at any level:
+Filter nested relations at any level using scalar columns on that relation's target table (nested relation filters inside `deep.<relation>.filter` are rejected; use nested `deep` levels instead):
 
 ```javascript
 // Fetch users with active posts only
