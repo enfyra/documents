@@ -50,7 +50,7 @@ Update thiếu version, sai định dạng, bằng hoặc thấp hơn version hi
 
 ## Đọc lịch sử
 
-`GET /api/enfyra_audit` là endpoint đọc chuẩn. Thao tác ứng dụng qua repository không thể tạo, sửa hoặc xóa dòng audit; runtime ghi thêm bằng đường nội bộ. Quản trị viên database nằm ngoài cơ chế bảo vệ ở tầng ứng dụng này.
+`GET /api/enfyra_audit` là endpoint đọc chuẩn. Thao tác ứng dụng qua repository không thể tạo hoặc sửa dòng audit; runtime ghi thêm bằng đường nội bộ. `DELETE /api/enfyra_audit` là ngoại lệ duy nhất được phép, để quản trị viên dọn bớt revision qua bulk delete ở trang Audit, và route chỉ mở `GET` cùng `DELETE`. Quản trị viên database nằm ngoài cơ chế bảo vệ ở tầng ứng dụng này.
 
 | Field | Ý nghĩa |
 |---|---|

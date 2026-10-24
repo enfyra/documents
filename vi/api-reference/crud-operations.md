@@ -149,7 +149,8 @@ Response lỗi (HTTP 400):
 - Cascade create (ví dụ `POST /post` kèm `comments: [...]`) cũng kiểm tra child record nếu bảng liên quan có `validateBody = true`.
 - Dạng connect-by-id (`{ author: 5 }` hoặc `{ author: { id: 5 } }`) bỏ qua nested validation.
 - Bảng có `validateBody = false` chỉ áp dụng constraint ở database khi insert/update; rules không được dùng.
-- Field permission `deny` cho `create`/`update` trả **403**, không phải 400 — đó không phải lỗi validation.
+- Các trường bị từ chối bởi field permission khi `create`/`update` (hoặc có `isUpdatable: false` khi `update`) được loại bỏ âm thầm khỏi payload trước khi chạy validation và ghi DB; giá trị đang lưu được giữ nguyên.
+- Các mutation GraphQL được tạo tự động (`create_<table>` và `update_<table>`) cũng chạy chung pipeline kiểm tra schema và column rules này.
 
 Để cấu hình rule cho từng cột, xem [Column Rules](../app/column-rules.md).
 

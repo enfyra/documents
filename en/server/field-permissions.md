@@ -7,9 +7,9 @@ Control access to individual columns and relations per role, user, or condition.
 Every column and relation has an `isPublished` flag (default: `true`).
 
 - `isPublished: true` — accessible by all authenticated users by default
-- `isPublished: false` — blocked by default. Only accessible via explicit `allow` rules in `enfyra_field_permission`
+- `isPublished: false` — blocked by default for everyone, including root administrators. Only readable via explicit `allow` rules in `enfyra_field_permission`
 
-Unpublished fields are omitted entirely from API responses (not returned as `null`). Root admin bypasses all field permission checks.
+Unpublished fields are omitted entirely from API responses (not returned as `null`), and using them in `filter`, `sort`, or `aggregate` without an explicit `read` `allow` rule returns `403` for both normal users and root administrators. Root administrators only bypass `deny` rules on published fields (`isPublished: true`) and retain `create`/`update` write authority on unpublished fields (while the mutation response still omits the unpublished field unless a `read` grant applies).
 
 Sensitive columns like `password`, OAuth `clientSecret`, and storage credentials use `isPublished: false`.
 
@@ -51,10 +51,9 @@ GET /api/enfyra_column?filter[table][id][_eq]=<tableId>&fields=id,name,fieldPerm
 
 ## Scope
 
-Each rule uses **either** `role` or `allowedUsers`, not both:
+Each rule requires **either** `role` or `allowedUsers`, never both and never neither:
 - `role` — applies to all users with that role
 - `allowedUsers` — applies to specific users regardless of role
-- Neither set — global rule (applies to everyone)
 
 ## Conditions
 
@@ -91,7 +90,7 @@ find()
 
 - **Read**: denied fields are omitted from the response entirely
 - **Filter/sort/aggregate**: denied fields throw `403`
-- **Create/update**: denied fields in the request body throw `403`
+- **Create/update**: denied fields in the request body are silently stripped before body validation and persistence (existing stored values are preserved on update)
 - **Cascade writes**: field permissions are enforced on child records during cascade create/update
 
 ### Pre-SQL Optimization

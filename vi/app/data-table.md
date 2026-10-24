@@ -133,6 +133,8 @@ Cursor pagination tải từng trang từ server. Previous bị khóa ở trang 
 
 `page` là vị trí trong lịch sử cursor ở phía client, không phải offset gửi lên REST. Với ID số giảm dần, tải trang đầu không có cursor, lưu ID cuối đang hiển thị, rồi tải trang kế tiếp bằng `filter: { id: { _lt: savedId } }`. Previous dùng lại mốc đã lưu của trang đích. Nếu mỗi trang có 10 dòng, fetch 11 dòng: hiển thị 10 dòng đầu và chỉ dùng dòng dư để xác định còn trang kế tiếp hay không.
 
+Chỉ yêu cầu `meta` ở trang đầu. Query cursor tự thêm điều kiện biên, nên xin lại `filterCount` ở trang 2 sẽ chỉ đếm phần dòng nằm sau mốc đó và badge trên header nhỏ dần sau mỗi lần Next. Lấy tổng số một lần từ request đầu tiên không có biên rồi giữ nguyên cho hết phiên phân trang; reset cùng lúc với lịch sử cursor khi đổi filter, phạm vi hoặc kích thước trang. `totalCount` không thay thế được — nó bỏ qua toàn bộ filter, nên sai ngay khi có filter.
+
 ### Ví dụ extension hoàn chỉnh
 
 Thay `/work_items` và các field bằng route đã tồn tại và có quyền đọc. Ví dụ thay các dòng sau mỗi lần chuyển trang thành công, giữ trang gần nhất khi request lỗi và chặn phản hồi cũ. Code dùng API được inject sẵn, không có static import.
@@ -237,7 +239,28 @@ Contract cursor được hỗ trợ là `hasNextPage`, `rowCount` tùy chọn ch
 
 Columns được bật mặc định, kể cả trong extension. Truyền toàn bộ định nghĩa cột và dùng `v-model:column-visibility` nếu page cần giữ cột đã ẩn. Các bảng Settings built-in cũng bật Columns; `/data/<table>` lưu lựa chọn riêng theo bảng.
 
-`useDataTableColumns().buildActionsColumn({ actions })` tạo menu `…` theo dòng từ mảng action cố định hoặc hàm nhận bản ghi. Để chọn dòng, dùng `v-model:row-selection` gốc, cột checkbox và `getRowId` dựa trên định danh ổn định; không suy ra lựa chọn từ vị trí dòng.
+`useDataTableColumns().buildActionsColumn({ actions })` tạo menu `…` theo dòng từ mảng action cố định hoặc hàm nhận bản ghi.
+
+Bật `enable-row-selection` để `DataTable` tự quản lý cột checkbox và trạng thái chọn. Bảng nhận diện bản ghi bằng `id` hoặc `_id`; chỉ truyền `getRowId` khi dữ liệu dùng định danh ổn định khác. Bên gọi không cần tự dựng cột checkbox hay giữ thêm map chọn dòng gốc.
+
+```vue
+<DataTable
+  :data="records"
+  :columns="columns"
+  header-name="Records"
+  enable-row-selection
+  v-model:selected-row-ids="selectedIds"
+  @update:selected-rows="selectedRows = $event"
+/>
+```
+
+`update:selectedRowIds` phát danh sách ID đã chọn; `update:selectedRows` phát các bản ghi đã chọn có trên trang hiện tại khi lựa chọn thay đổi. Bind `v-model:selected-row-ids` để giữ ID qua các trang cursor; dùng danh sách ID này cho thao tác trên nhiều trang vì bảng không tự tải bản ghi ngoài trang hiện tại. Nếu không bind, bảng tự quản lý lựa chọn và bỏ các ID không còn trên trang. `DataTableLazy` hỗ trợ cùng contract.
+
+Dùng `row-selection-mode="single"` để chọn một bản ghi, không có checkbox chọn tất cả; `selection-disabled` để khóa thay đổi lựa chọn; và `select-on-row-click` để bật chọn bằng cách bấm dòng. Bấm checkbox không kích hoạt action bấm dòng thông thường; `/data/<table>` vẫn mở trang chi tiết khi bấm dòng.
+
+Bật chọn dòng không đồng nghĩa với bật quyền xóa. Trang sử dụng bảng quyết định bulk action, quyền truy cập, bản ghi được phép thao tác, xác nhận và cách tải lại dữ liệu. Các trang quản trị CRUD built-in chỉ cung cấp xóa hàng loạt khi có quyền DELETE tương ứng; không thể chọn system record được bảo vệ, tài khoản root admin hay route gắn collection để xóa. Khi một phần thao tác xóa thất bại, danh sách được tải lại và chỉ những bản ghi đã xác nhận xóa thành công mới được bỏ chọn.
+
+API Tester, Audit, Logs, OAuth Accounts, relation picker và các bảng điều hướng hoặc lịch sử runtime không có generic bulk delete. Collections giữ luồng xác nhận xóa schema riêng ở trang chi tiết; Packages giữ luồng Uninstall. Chọn bản ghi trong relation picker chỉ thay đổi giá trị quan hệ của biểu mẫu, không xóa bản ghi liên quan.
 
 Ở `/data/<table>` built-in, `metadata.tableCell.formatter` nhận chuỗi function giới hạn với `(metadata, value)` và trả text, số, boolean hoặc `{ text, color?, variant? }`. Kết quả trống/sai trở về giá trị thông thường (`_` cho ô trống). Editor của cột có ví dụ và giới hạn 1–4096 ký tự, mặc định 80. Đây chỉ là cách trình bày, không đổi dữ liệu lưu hoặc phản hồi. Extension dùng renderer `cell` hoặc slot của ô.
 

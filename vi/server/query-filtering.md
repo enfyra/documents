@@ -106,9 +106,9 @@ const result = await $ctx.$repos.products.find({
 // URL: /products?filter={"category":{"_in":["electronics","gadgets"]}}
 ```
 
-### _not_in (Không nằm trong mảng)
+### _not_in / _nin (Không nằm trong mảng)
 
-Loại trừ các giá trị thuộc mảng.
+Loại trừ các giá trị thuộc mảng (`_nin` là bí danh của `_not_in`).
 
 ```javascript
 // Tìm sản phẩm không thuộc các danh mục này
@@ -118,6 +118,8 @@ const result = await $ctx.$repos.products.find({
   }
 });
 ```
+
+> **Lưu ý:** Chỉ các toán tử filter bắt đầu bằng `_` của Enfyra mới được hỗ trợ. Các toán tử bắt đầu bằng `$` của MongoDB (như `$ne`, `$regex`) đều bị từ chối trên mọi hệ cơ sở dữ liệu.
 
 ## Tìm kiếm văn bản
 
@@ -644,7 +646,7 @@ const result = await $ctx.$repos.users.find({
 
 ### Deep query kèm filter
 
-Lọc quan hệ lồng nhau ở bất kỳ cấp nào:
+Lọc quan hệ lồng nhau ở bất kỳ cấp nào theo các cột scalar trên bảng đích của quan hệ đó (không hỗ trợ lồng thêm relation filter bên trong `deep.<relation>.filter`; hãy tách xuống cấp `deep` tiếp theo):
 
 ```javascript
 // Chỉ lấy người dùng có bài viết đang hoạt động

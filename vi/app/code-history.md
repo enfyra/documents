@@ -27,7 +27,9 @@ Các update dùng `useApi` chung áp dụng xác nhận này cho cả chín bả
 4. Xem action, version trước/sau, email người thao tác, loại credential và ngày ghi.
 5. Mở một dòng để xem ai đổi, đổi lúc nào, source trước thay đổi và các giá trị khác tại revision đó.
 
-Bảng tải từng trang bằng cursor qua **Previous** và **Next**, và không hiện số record vì không truy vấn tổng. Chỉ lấy source lịch sử khi mở dòng được chọn. Bạn cần quyền GET `/enfyra_audit`; mục Audit được ẩn nếu thiếu quyền này.
+Bảng tải từng trang bằng cursor qua **Previous** và **Next**. Số record cạnh tiêu đề là kích thước của phạm vi đang xem, đọc một lần từ trang đầu nên giữ nguyên khi bạn chuyển trang. Chỉ lấy source lịch sử khi mở dòng được chọn. Bạn cần quyền GET `/enfyra_audit`; mục Audit được ẩn nếu thiếu quyền này.
+
+Chọn các dòng để xóa revision. Nút thùng rác trên toolbar xóa toàn bộ dòng đã chọn sau một lần xác nhận, và số lượng hiển thị ở footer cho biết đang chọn bao nhiêu. Bulk delete cần quyền DELETE trên `/enfyra_audit`; thiếu quyền thì cột chọn và nút này không hiện. Revision đã xóa không xem lại hay phục hồi được nữa, và việc xóa history không làm thay đổi bản thân record.
 
 ## Phục hồi thành version mới
 

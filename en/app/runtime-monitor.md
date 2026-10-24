@@ -27,7 +27,7 @@ Key categories are marked with badges:
 - **Socket.IO**: websocket adapter state. Read-only.
 - **runtime monitor**: runtime telemetry. Read-only.
 - **system lock**: Enfyra coordination locks. Read-only.
-- **user cache**: `$cache` / `@CACHE` values created by handlers, hooks, flows, websocket scripts, or the Redis Key Editor. Editable.
+- **user cache**: `$cache` / `@CACHE` values created by handlers, hooks, flows, websocket scripts, or the Redis Key Editor. Editable. Distributed `$cache` lock keys are listed in this same category but stay read-only because they hold lock owner tokens.
 
 ## Allocated Redis Memory
 

@@ -46,7 +46,7 @@ Missing, malformed, equal, or lower update versions return `400`. If another wri
 
 ## Read history
 
-`GET /api/enfyra_audit` is the canonical read endpoint. Application mutations cannot create, edit, or delete audit rows through repositories; the runtime appends them internally. Database administrators remain outside this application-level protection.
+`GET /api/enfyra_audit` is the canonical read endpoint. Application mutations cannot create or edit audit rows through repositories; the runtime appends them internally. `DELETE /api/enfyra_audit` is the one permitted application write, so an administrator can prune revisions through the Audit list's bulk delete, and the route exposes only `GET` and `DELETE`. Database administrators remain outside this application-level protection.
 
 | Field | Meaning |
 |---|---|
