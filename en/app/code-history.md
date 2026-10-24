@@ -23,7 +23,9 @@ For updates sent with the shared `useApi`, the same confirmation applies to all 
 4. Review the action, before/after versions, caller email, credential type, and date.
 5. Open a row to see who changed it and when, the source before that change, and the other stored values at that revision.
 
-The table loads one cursor page at a time using **Previous** and **Next**, and hides the record count because the total is not queried. Historical source is fetched only for the selected row. You need GET permission for `/enfyra_audit`; the Audit entry is hidden without it.
+The table loads one cursor page at a time using **Previous** and **Next**. The record count beside the heading is the size of the current scope, read once from the first page so it stays fixed while you page. Historical source is fetched only for the selected row. You need GET permission for `/enfyra_audit`; the Audit entry is hidden without it.
+
+Select rows to delete revisions. The toolbar trash button deletes every selected entry after one confirmation, and the count in the footer reports how many are selected. Bulk delete needs DELETE permission on `/enfyra_audit`; without it the selection column and button stay hidden. Deleted revisions cannot be reviewed or restored afterwards, and deleting history does not change the record itself.
 
 ## Restore as a new version
 

@@ -4,16 +4,16 @@ slug: ung-dung/quy-tac-cot
 
 # Quy tắc cột
 
-Quy tắc cột cho phép bạn đính kèm các ràng buộc xác thực bổ sung (tối thiểu/tối đa, độ dài, mẫu, định dạng, v.v.) vào một cột mà không cần viết bất kỳ mã nào. Các quy tắc được thực thi phía máy chủ mỗi khi API nhận được `POST` hoặc `PATCH` đối với bảng — các tải trọng không hợp lệ sẽ bị từ chối bằng HTTP 400 và danh sách các thông báo lỗi mà con người có thể đọc được.
+Quy tắc cột cho phép bạn đính kèm các ràng buộc xác thực bổ sung (tối thiểu/tối đa, độ dài, mẫu, định dạng, v.v.) vào một cột mà không cần viết bất kỳ mã nào. Các quy tắc được thực thi phía máy chủ mỗi khi API nhận được `POST` hoặc `PATCH` qua REST hoặc mutation GraphQL được tạo tự động (`create_<table>` / `update_<table>`) đối với bảng — các tải trọng không hợp lệ sẽ bị từ chối kèm danh sách thông báo lỗi rõ ràng.
 
 Các quy tắc được định cấu hình hoàn toàn từ giao diện người dùng quản trị viên; không cần tạo bản ghi thủ công.
 
 ## Khi quy tắc chạy
 
-Các quy tắc áp dụng cho việc xác thực nội dung trên điểm cuối REST động của bảng:
+Các quy tắc áp dụng cho việc xác thực nội dung trên cả điểm cuối REST động và các mutation GraphQL được tạo của bảng:
 
-- `POST /<table_name>` (tạo)
-- `PATCH /<table_name>/<id>` (cập nhật)
+- `POST /<table_name>` và GraphQL `create_<table_name>` (tạo)
+- `PATCH /<table_name>/<id>` và GraphQL `update_<table_name>` (cập nhật)
 
 Chúng **chỉ** chạy khi bảng có `validateBody = true` (mặc định cho các bảng mới). Nếu `validateBody` bị tắt, các quy tắc sẽ bị bỏ qua — máy chủ chỉ thực thi hình dạng cơ bản (loại, tính chất vô hiệu) ở lớp lưu giữ lâu dài.
 

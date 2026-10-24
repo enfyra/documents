@@ -1,15 +1,15 @@
 # Column Rules
 
-Column Rules let you attach extra validation constraints (min/max, length, pattern, format, etc.) to a column without writing any code. Rules are enforced server-side every time the API receives a `POST` or `PATCH` against the table — invalid payloads are rejected with HTTP 400 and a list of human-readable error messages.
+Column Rules let you attach extra validation constraints (min/max, length, pattern, format, etc.) to a column without writing any code. Rules are enforced server-side every time the API receives a REST `POST` or `PATCH` or a generated GraphQL `create_<table>` / `update_<table>` mutation against the table — invalid payloads are rejected with validation error messages.
 
 Rules are configured entirely from the admin UI; there is no manual record creation needed.
 
 ## When Rules Run
 
-Rules apply to body validation on the dynamic REST endpoint of the table:
+Rules apply to body validation on both the dynamic REST endpoint and generated GraphQL mutations of the table:
 
-- `POST /<table_name>` (create)
-- `PATCH /<table_name>/<id>` (update)
+- `POST /<table_name>` and GraphQL `create_<table_name>` (create)
+- `PATCH /<table_name>/<id>` and GraphQL `update_<table_name>` (update)
 
 They run **only** when the table has `validateBody = true` (the default for new tables). If `validateBody` is off, rules are skipped — the server only enforces basic shape (type, nullability) at the persistence layer.
 

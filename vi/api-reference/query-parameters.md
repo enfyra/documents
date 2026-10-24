@@ -35,7 +35,7 @@ GET {appUrl}/api/enfyra_user?filter={"email":{"_contains":"@example.com"}}
 | _neq | Khác | `{"status":{"_neq":"deleted"}}` |
 | _gt / _gte | Lớn hơn / lớn hơn hoặc bằng | `{"price":{"_gte":100}}` |
 | _lt / _lte | Nhỏ hơn / nhỏ hơn hoặc bằng | `{"price":{"_lte":500}}` |
-| _in / _not_in | Có trong / không có trong mảng | `{"category":{"_in":["a","b"]}}` |
+| _in / _not_in / _nin | Có trong / không có trong mảng | `{"category":{"_in":["a","b"]}}` |
 | _contains | Chứa text, không phân biệt hoa thường | `{"name":{"_contains":"john"}}` |
 | _starts_with / _ends_with | Bắt đầu / kết thúc bằng | `{"email":{"_starts_with":"admin"}}` |
 | _is_null / _is_not_null | Là / không là null | `{"deletedAt":{"_is_null":true}}` |
@@ -83,7 +83,7 @@ Số bản ghi tối đa trả về; mặc định là 10.
 
 ```
 ?limit=20
-?limit=0    Không giới hạn (trả về mọi bản ghi khớp)
+?limit=-1   Không giới hạn (trả về mọi bản ghi khớp; 0 cũng được chấp nhận làm legacy alias)
 ```
 
 ## page

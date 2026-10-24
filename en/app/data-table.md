@@ -133,6 +133,8 @@ Cursor pagination fetches one server page at a time. Previous is disabled on pag
 
 The local `page` is a position in visited cursor history, not a REST offset. For descending numeric IDs, request the first page without a cursor, save the last displayed ID, then fetch the next page with `filter: { id: { _lt: savedId } }`. Previous reuses the saved boundary for its target page. With page size 10, fetch 11 rows: display the first 10 and use the extra row only to decide whether Next is available.
 
+Request `meta` on the first page only. A cursor query adds its own boundary predicate, so asking for `filterCount` again on page 2 counts only the rows past that boundary and the header badge would shrink with every Next. Capture the population count once from the unbounded first request and keep it for the rest of the paging session; reset it together with the cursor history when filters, scope or page size change. `totalCount` is not a substitute — it ignores filters entirely, so it is wrong as soon as any filter is active.
+
 ### Complete extension example
 
 Replace `/work_items` and its fields with an existing readable route. This example replaces rows on each successful page change, retains the last page on failure, and rejects stale responses. It uses the injected extension APIs without static imports.

@@ -40,7 +40,7 @@ GET {appUrl}/api/enfyra_user?filter={"email":{"_contains":"@example.com"}}
 | _lt | Less than | `{"price":{"_lt":500}}` |
 | _lte | Less than or equal | `{"price":{"_lte":500}}` |
 | _in | In array | `{"category":{"_in":["a","b"]}}` |
-| _not_in | Not in array | `{"status":{"_not_in":["archived"]}}` |
+| _not_in / _nin | Not in array | `{"status":{"_not_in":["archived"]}}` |
 | _contains | Contains text (case-insensitive) | `{"name":{"_contains":"john"}}` |
 | _starts_with | Starts with | `{"email":{"_starts_with":"admin"}}` |
 | _ends_with | Ends with | `{"email":{"_ends_with":"@example.com"}}` |
@@ -98,7 +98,7 @@ Maximum number of records to return. Default is 10.
 **Examples:**
 ```
 ?limit=20
-?limit=0    No limit (return all matching records)
+?limit=-1   No limit (return all matching records; 0 is also accepted as a legacy alias)
 ```
 
 ---
