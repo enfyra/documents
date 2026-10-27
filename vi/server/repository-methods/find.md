@@ -246,8 +246,8 @@ Thêm `dimensions` khi cần một row cho từng giá trị hoặc time bucket:
 const result = await $ctx.$repos.ai_usage.aggregate({
   filter: {
     createdAt: {
-      _gte: '2026-08-01T00:00:00+07:00',
-      _lte: '2026-08-31T23:59:59.999+07:00'
+      _gte: '2026-07-31T17:00:00.000Z',
+      _lt: '2026-08-31T17:00:00.000Z'
     }
   },
   dimensions: [
@@ -266,6 +266,8 @@ const result = await $ctx.$repos.ai_usage.aggregate({
   limit: 100
 });
 ```
+
+Filter lấy tháng 8 năm 2026 theo `Asia/Ho_Chi_Minh`, với mốc bắt đầu bao gồm và mốc kết thúc không bao gồm đã chuyển sang UTC. Chuyển cả hai mốc theo quy tắc của múi giờ báo cáo, kể cả thay đổi giờ mùa hè. Bucket `date` trả ngày theo lịch `YYYY-MM-DD`; bucket `datetime` trả thời điểm UTC tương ứng với ranh giới trong múi giờ báo cáo.
 
 Dimension có thể là scalar field hoặc date bucket với `hour`, `day`, `week`, `month` hay `year`. Field trong `sort` phải trỏ tới output key của dimension hoặc tên measure. Dùng `page` và `limit` để phân trang các grouped row.
 

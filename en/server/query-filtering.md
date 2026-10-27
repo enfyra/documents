@@ -350,16 +350,15 @@ const result = await $ctx.$repos.products.find({
 ### Example 4: Date Range Queries
 
 ```javascript
-// Find orders created between two dates
-const startDate = new Date('2024-01-01');
-const endDate = new Date('2024-12-31');
-
+// Find orders created during 2024 in UTC
 const result = await $ctx.$repos.orders.find({
   filter: {
-    createdAt: { _between: [startDate, endDate] }
+    createdAt: { _gte: '2024-01-01T00:00:00.000Z', _lt: '2025-01-01T00:00:00.000Z' }
   }
 });
 ```
+
+For a local calendar day, convert its start and the next day's start from the intended timezone to UTC, accounting for daylight-saving transitions, then use `_gte` and `_lt`. Do not append `Z` to a local wall-clock value. A `date` field instead uses calendar-day strings such as `2024-01-01`.
 
 ## Filtering by Relations
 
@@ -512,7 +511,7 @@ const result = await $ctx.$repos.products.find({
 - If no `sort` is specified, results are sorted by `id` ascending
 - Sort applies only to the parent table
 - Nested arrays are always sorted by `id` internally
-- `createdAt`, `updatedAt`, and scalar `date`, `datetime`, or `timestamp` columns get auto-generated single-field indexes. SQL includes `id` as a stable tie-breaker; Mongo includes `_id`.
+- `createdAt`, `updatedAt`, and scalar `date` or `datetime` columns get auto-generated single-field indexes. SQL includes `id` as a stable tie-breaker; Mongo includes `_id`.
 - Add explicit compound indexes for hot query shapes that combine time with other predicates, such as `status + lastMessageAt` or `project + createdAt`. Do not add duplicate single-field indexes for time columns.
 - Parent rows can be sorted by direct list-relation aggregates with `_count(relationName)`, `_max(relationName.fieldName)`, or `_min(relationName.fieldName)`
 - Raw dotted sort through a to-many relation, such as `messages.createdAt`, is not valid for parent ordering

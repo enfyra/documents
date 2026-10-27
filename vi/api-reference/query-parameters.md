@@ -65,7 +65,7 @@ Thứ tự sort bản ghi root, các field cách nhau bằng dấu phẩy. Thêm
 - Không chỉ định `sort`: kết quả sort `id` tăng dần.
 - Sort chỉ áp dụng bảng cha/root, không áp dụng nested relation.
 - Mảng nested (`one-to-many`, `many-to-many`) luôn được sort nội bộ theo `id`.
-- `createdAt`, `updatedAt` và scalar `date`, `datetime`, `timestamp` có index một field tự tạo. SQL thêm `id` làm tie-breaker ổn định; Mongo thêm `_id`.
+- `createdAt`, `updatedAt` và scalar `date`, `datetime` có index một field tự tạo. SQL thêm `id` làm tie-breaker ổn định; Mongo thêm `_id`.
 - Thêm explicit index cho hot path phức hợp như `status + createdAt`, nhưng không lặp lại index thời gian một field.
 - Dùng `_count(relationName)`, `_max(relationName.fieldName)`, `_min(relationName.fieldName)` để sort bản ghi cha theo aggregate của direct `one-to-many` hoặc `many-to-many`.
 - Không dùng sort to-many dạng chấm thô như `messages.createdAt`; nó mơ hồ và bị từ chối.

@@ -80,13 +80,15 @@ Type choices depend on the configured database. Use the values offered by the ed
 | Integer quantities | `int`, `bigint` | `int`, `long` |
 | Fractional numbers | `float` | `double` |
 | Boolean | `boolean` | `bool` |
-| Date/time | `date`, `datetime`, `timestamp` | `date` |
+| Date/time | `date`, `datetime` | `date`, `datetime` |
 | JSON values | `simple-json` | `json`, `object`, `array` |
 | Constrained choice | `enum` with options | `enum` with options |
 | Multiple choices | `array-select` with options | `array-select` with options |
 | Rich text/source code | `richtext`, `code` | `richtext`, `code` |
 
 The system-managed MongoDB primary key uses `_id` / `objectId`. Do not add another primary field. Database type normalization does not change field names, permission rules or relation property names.
+
+Use `date` for a calendar day such as `2026-10-27`, independent of timezone. Use `datetime` for an instant such as `2026-10-27T08:30:00.123Z`; new string inputs must end in `Z` and use at most millisecond precision. Years are limited to 0001–9999. `timestamp` is not an Enfyra column type.
 
 ### Advanced Configuration
 
@@ -221,7 +223,7 @@ Once saved, Enfyra automatically sets up several things for your new table:
 
 ### Performance Considerations
 - **Index frequently queried fields** - Improve query performance
-- **Do not duplicate time indexes** - Enfyra automatically creates single-field indexes for `createdAt`, `updatedAt`, and scalar `date`, `datetime`, or `timestamp` columns. SQL indexes include `id` as a stable tie-breaker; Mongo indexes include `_id`.
+- **Do not duplicate time indexes** - Enfyra automatically creates single-field indexes for `createdAt`, `updatedAt`, and scalar `date` or `datetime` columns. SQL indexes include `id` as a stable tie-breaker; Mongo indexes include `_id`.
 - **Use compound indexes for hot query shapes** - Add explicit compound indexes when the query combines a time field with other filters, such as `status + createdAt`, `owner + updatedAt`, or `project + lastMessageAt`.
 - **Avoid over-indexing** - Too many indexes can slow down writes
 - **Consider data volume** - Plan for growth in your table design
@@ -235,7 +237,7 @@ Table: enfyra_user (built-in, but as example)
 - email (varchar, unique)
 - name (varchar)
 - isActive (boolean, default: true)
-- createdAt (timestamp, default: now)
+- createdAt (datetime, system-managed)
 ```
 
 ### Product Catalog
@@ -261,7 +263,7 @@ Table: posts (create after categories)
 - title (varchar)
 - content (richtext)
 - categoryId (relation to categories)
-- publishedAt (timestamp, nullable)
+- publishedAt (datetime, nullable)
 ```
 
 ## Troubleshooting

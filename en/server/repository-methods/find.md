@@ -242,8 +242,8 @@ Add `dimensions` when you need one row per value or time bucket:
 const result = await $ctx.$repos.ai_usage.aggregate({
   filter: {
     createdAt: {
-      _gte: '2026-08-01T00:00:00+07:00',
-      _lte: '2026-08-31T23:59:59.999+07:00'
+      _gte: '2026-07-31T17:00:00.000Z',
+      _lt: '2026-08-31T17:00:00.000Z'
     }
   },
   dimensions: [
@@ -262,6 +262,8 @@ const result = await $ctx.$repos.ai_usage.aggregate({
   limit: 100
 });
 ```
+
+The filter covers August 2026 in `Asia/Ho_Chi_Minh` using inclusive start and exclusive end converted to UTC. Convert both boundaries using the reporting timezone's rules, including daylight-saving changes. A `date` bucket returns a calendar date `YYYY-MM-DD`; a `datetime` bucket returns the UTC instant at the reporting-zone boundary.
 
 A dimension can be a scalar field or a date bucket using `hour`, `day`, `week`, `month`, or `year`. `sort` fields reference dimension output keys or measure names. `page` and `limit` paginate grouped rows.
 

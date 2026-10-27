@@ -25,7 +25,8 @@ Khi bạn tạo bảng trong Enfyra, hệ thống sẽ tự động tạo biểu
 | **văn bản** | Vùng văn bản | Vùng văn bản nhiều dòng |
 | **int/số** | Nhập số | Đầu vào số có xác nhận |
 | **boolean** | Công tắc chuyển đổi | Bật/tắt chuyển đổi |
-| **ngày/dấu thời gian** | Công cụ chọn ngày | Công cụ chọn ngày theo lịch |
+| **date** | Chọn ngày | Ngày theo lịch, không phụ thuộc múi giờ |
+| **datetime** | Chọn ngày và giờ | Một thời điểm UTC |
 | **uuid** | trường UUID | ID duy nhất được tạo tự động bằng nút sao chép |
 
 ### Loại trường nâng cao

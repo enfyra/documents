@@ -55,7 +55,7 @@ Bạn sẽ thấy table header với tên bảng, action button ở góc trên p
 ## Xem bản ghi
 
 - Mỗi hàng là một bản ghi; click hàng bất kỳ để xem và sửa chi tiết.
-- Date/timestamp hiển thị theo định dạng ngày giờ, boolean là badge Yes/No, long text bị cắt ở 50 ký tự và giá trị rỗng hiện `-`.
+- Date/datetime hiển thị theo định dạng ngày giờ, boolean là badge Yes/No, long text bị cắt ở 50 ký tự và giá trị rỗng hiện `-`.
 - Menu ba chấm bên phải hàng có **Delete** (nếu có quyền) và có thể có action khác theo permission.
 - Phân trang xuất hiện ở cuối khi có nhiều trang; dùng Previous/Next hoặc số trang. URL cập nhật số trang để bookmark.
 

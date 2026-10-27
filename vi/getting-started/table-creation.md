@@ -78,13 +78,15 @@ Danh sách type phụ thuộc database đang cấu hình. Chọn giá trị edit
 | Số nguyên | `int`, `bigint` | `int`, `long` |
 | Số có phần thập phân | `float` | `double` |
 | Boolean | `boolean` | `bool` |
-| Ngày/giờ | `date`, `datetime`, `timestamp` | `date` |
+| Ngày/giờ | `date`, `datetime` | `date`, `datetime` |
 | Giá trị JSON | `simple-json` | `json`, `object`, `array` |
 | Chọn một giá trị | `enum` có options | `enum` có options |
 | Chọn nhiều giá trị | `array-select` có options | `array-select` có options |
 | Rich text/source code | `richtext`, `code` | `richtext`, `code` |
 
 Primary key MongoDB do hệ thống quản lý là `_id` / `objectId`; không thêm primary field khác. Chuẩn hóa database type không đổi tên field, permission rule hay tên property của relation.
+
+Dùng `date` cho ngày theo lịch, ví dụ `2026-10-27`, không phụ thuộc múi giờ. Dùng `datetime` cho một thời điểm, ví dụ `2026-10-27T08:30:00.123Z`; chuỗi đầu vào mới phải kết thúc bằng `Z` và có độ chính xác tối đa đến mili giây. Năm hợp lệ từ 0001 đến 9999. `timestamp` không phải column type của Enfyra.
 
 ### Cấu hình nâng cao
 
@@ -158,7 +160,7 @@ Bảng mới xuất hiện trong **Data** trên thanh bên. Frontend gọi backe
 
 **Thiết kế:** lên kế hoạch relation trước, dùng tên bảng/cột rõ ràng, đặt constraint hợp lý. Thêm description, default value hợp lý và chọn type khớp dữ liệu. Dùng `isEncrypted=true` cho API key, token, password, private key và secret khác; không tự viết pre-hook encryption cho app data thông thường. Secret chỉ được đặt một lần thì thêm `isUpdatable=false`; luôn backup `SECRET_KEY`.
 
-**Hiệu năng:** index field query thường xuyên. Enfyra tự tạo single-field index cho `createdAt`, `updatedAt` và scalar `date`, `datetime`, `timestamp`; SQL index thêm `id`, Mongo thêm `_id`. Chỉ thêm compound index cho hot query như `status + createdAt`, `owner + updatedAt`, `project + lastMessageAt`; quá nhiều index làm chậm ghi.
+**Hiệu năng:** index field query thường xuyên. Enfyra tự tạo single-field index cho `createdAt`, `updatedAt` và scalar `date`, `datetime`; SQL index thêm `id`, Mongo thêm `_id`. Chỉ thêm compound index cho hot query như `status + createdAt`, `owner + updatedAt`, `project + lastMessageAt`; quá nhiều index làm chậm ghi.
 
 ## Một số mẫu bảng
 
@@ -168,7 +170,7 @@ Table: enfyra_user (built-in, but as example)
 - email (varchar, unique)
 - name (varchar)
 - isActive (boolean, default: true)
-- createdAt (timestamp, default: now)
+- createdAt (datetime, do hệ thống quản lý)
 ```
 
 ```text
@@ -192,7 +194,7 @@ Table: posts (create after categories)
 - title (varchar)
 - content (richtext)
 - categoryId (relation to categories)
-- publishedAt (timestamp, nullable)
+- publishedAt (datetime, nullable)
 ```
 
 ## Xử lý sự cố

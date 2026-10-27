@@ -61,7 +61,7 @@ Data Management is where you create, view, edit, and delete records in your tabl
 - Each row represents one record
 - **Click any row** to view and edit that record's details
 - Fields display based on their type:
-  - **Dates/Timestamps** show formatted date/time
+  - **Dates and datetimes** show formatted date/time
   - **Booleans** show as "Yes/No" badges
   - **Long text** truncates at 50 characters
   - **Empty values** show as "-"

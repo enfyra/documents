@@ -354,16 +354,15 @@ const result = await $ctx.$repos.products.find({
 ### Ví dụ 4: Truy vấn theo khoảng ngày
 
 ```javascript
-// Tìm đơn hàng được tạo giữa hai ngày
-const startDate = new Date('2024-01-01');
-const endDate = new Date('2024-12-31');
-
+// Tìm đơn hàng được tạo trong năm 2024 theo UTC
 const result = await $ctx.$repos.orders.find({
   filter: {
-    createdAt: { _between: [startDate, endDate] }
+    createdAt: { _gte: '2024-01-01T00:00:00.000Z', _lt: '2025-01-01T00:00:00.000Z' }
   }
 });
 ```
+
+Để lọc một ngày theo múi giờ địa phương, chuyển thời điểm bắt đầu ngày đó và ngày kế tiếp sang UTC, tính cả thay đổi giờ mùa hè, rồi dùng `_gte` và `_lt`. Không thêm `Z` trực tiếp vào giờ địa phương. Với field `date`, dùng chuỗi ngày theo lịch như `2024-01-01`.
 
 ## Lọc theo quan hệ
 
@@ -516,7 +515,7 @@ const result = await $ctx.$repos.products.find({
 - Nếu không chỉ định `sort`, kết quả được sắp theo `id` tăng dần.
 - Sắp xếp chỉ áp dụng cho bảng cha.
 - Các mảng lồng nhau luôn được sắp xếp nội bộ theo `id`.
-- Các cột `createdAt`, `updatedAt` và cột scalar kiểu `date`, `datetime`, `timestamp` được tự tạo index đơn trường. SQL dùng `id` để phân định thứ tự ổn định; Mongo dùng `_id`.
+- Các cột `createdAt`, `updatedAt` và cột scalar kiểu `date`, `datetime` được tự tạo index đơn trường. SQL dùng `id` để phân định thứ tự ổn định; Mongo dùng `_id`.
 - Với mẫu truy vấn thường xuyên kết hợp thời gian và điều kiện khác, hãy tạo compound index tường minh, chẳng hạn `status + lastMessageAt` hoặc `project + createdAt`. Không tạo index đơn trường trùng lặp cho cột thời gian.
 - Có thể sắp xếp các hàng cha theo aggregate của quan hệ danh sách trực tiếp bằng `_count(relationName)`, `_max(relationName.fieldName)` hoặc `_min(relationName.fieldName)`.
 - Không thể sắp xếp hàng cha bằng dotted sort đi qua quan hệ to-many, chẳng hạn `messages.createdAt`.

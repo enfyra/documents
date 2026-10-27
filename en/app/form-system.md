@@ -21,7 +21,8 @@ When you create a table in Enfyra, the system automatically generates forms for 
 | **text**           | Textarea        | Multi-line text area                      |
 | **int/number**     | Number input    | Numeric input with validation             |
 | **boolean**        | Toggle switch   | On/off toggle                             |
-| **date/timestamp** | Date picker     | Calendar date selector                    |
+| **date**           | Date picker     | Calendar date without a timezone          |
+| **datetime**       | Date and time picker | UTC instant                          |
 | **uuid**           | UUID field      | Auto-generated unique ID with copy button |
 
 ### Advanced Field Types
