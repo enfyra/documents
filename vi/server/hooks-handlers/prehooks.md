@@ -6,6 +6,45 @@ slug: pre-hook
 
 preHook chạy trước handler. Dùng chúng để xác thực, biến đổi dữ liệu và kiểm tra quyền.
 
+## Return sớm hoặc từ chối request
+
+Pre-hook có thể dùng `return` để bỏ qua phần mã còn lại của chính hook đó. Giá trị trả về bị bỏ qua: các pre-hook sau và handler vẫn tiếp tục chạy. Trả về `{ error: ... }`, `false` hay `null` không từ chối request và không trở thành response.
+
+Muốn dừng request trước handler, hãy throw bằng `@THROW400('Invalid input')`, `@THROW.http(statusCode, message)` hoặc `@THROW.json(body, { statusCode, headers })`. Throw bỏ qua các pre-hook còn lại và handler, nhưng các post-hook phù hợp vẫn chạy với `@ERROR` có giá trị. Post-hook không thể biến lần từ chối đó thành response thành công. Cancellation, execution deadline và lỗi stream terminal dùng [nhánh audit opt-in](./posthooks.md) thay vì chạy lại hook thông thường.
+
+## Chia hook theo thứ tự để truyền decision
+
+Tách các trách nhiệm độc lập thành những hook có tên rõ ràng. Chọn HTTP method cần áp dụng và đặt `priority` khác nhau: số nhỏ chạy trước. Lưu decision dùng chung trong `@SHARE`, không truyền bằng giá trị return của hook. Hook không liên quan nên return ngay trước khi thực hiện I/O.
+
+Ví dụ, gắn hai hook sau vào cùng operation `POST`:
+
+| Priority | Hook | Trách nhiệm |
+|---|---|---|
+| `10` | Default delivery | Khởi tạo decision do server quản lý |
+| `20` | Express delivery | Chỉ điều chỉnh decision khi phù hợp |
+
+Default delivery:
+
+```javascript
+@SHARE.deliveryDecision = { mode: 'standard', requiresSignature: false };
+```
+
+Express delivery:
+
+```javascript
+if (@BODY.delivery !== 'express') return;
+@SHARE.deliveryDecision = { mode: 'express', requiresSignature: true };
+```
+
+Handler sử dụng decision cuối cùng:
+
+```javascript
+const decision = @SHARE.deliveryDecision;
+return { delivery: decision.mode, requiresSignature: decision.requiresSignature };
+```
+
+Nếu không hook chuyên biệt nào phù hợp, handler dùng decision mặc định. Endpoint URL, credential và quyết định phân quyền phải do server quản lý; không nhận override từ client cho routing riêng tư. Không đưa toàn bộ shared context vào response công khai.
+
 ## Khi nào dùng preHook
 
 - Xác thực dữ liệu request

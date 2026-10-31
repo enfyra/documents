@@ -2,6 +2,45 @@
 
 preHooks execute before the handler. Use them for validation, data transformation, and permission checks.
 
+## Return early or reject the request
+
+A pre-hook may use `return` to skip only its own remaining code. Its return value is ignored: later pre-hooks and the handler continue. Returning `{ error: ... }`, `false`, or `null` does not reject the request or become the response.
+
+To stop the request before the handler, throw with `@THROW400('Invalid input')`, `@THROW.http(statusCode, message)`, or `@THROW.json(body, { statusCode, headers })`. A throw skips later pre-hooks and the handler, but matching post-hooks still run with `@ERROR` populated. Post-hooks cannot turn that rejection into a successful response. Cancellation, execution deadlines and terminal stream failures use the [opt-in audit path](./posthooks.md) instead of replaying ordinary hooks.
+
+## Compose ordered decisions
+
+Split independent responsibilities into named hooks. Select the intended HTTP methods and assign distinct `priority` values: lower numbers run first. Store shared decisions in `@SHARE`, not in a hook's return value. An unrelated hook should return immediately before doing I/O.
+
+For example, attach these two hooks to the same `POST` operation:
+
+| Priority | Hook | Responsibility |
+|---|---|---|
+| `10` | Default delivery | Initialize a server-owned decision |
+| `20` | Express delivery | Refine the decision only when applicable |
+
+Default delivery:
+
+```javascript
+@SHARE.deliveryDecision = { mode: 'standard', requiresSignature: false };
+```
+
+Express delivery:
+
+```javascript
+if (@BODY.delivery !== 'express') return;
+@SHARE.deliveryDecision = { mode: 'express', requiresSignature: true };
+```
+
+The handler consumes the final decision:
+
+```javascript
+const decision = @SHARE.deliveryDecision;
+return { delivery: decision.mode, requiresSignature: decision.requiresSignature };
+```
+
+If no specialized hook matches, the handler uses the default. Keep endpoint URLs, credentials and authorization decisions server-owned; never accept client overrides for private routing. Do not expose the complete shared context in a public response.
+
 ## When to Use preHooks
 
 - Validate request data

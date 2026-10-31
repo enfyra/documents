@@ -122,12 +122,12 @@ Global hooks run on all routes.
 
 **Configuration:**
 - Route: `null` (no specific route)
-- Methods: `[]` (all methods) or specific methods like `['POST', 'PATCH']`
+- Methods: Explicit method names such as `['GET', 'POST', 'PATCH', 'DELETE']` or `['POST', 'PATCH']`; do not use an empty list to mean all methods.
 
 **Example:**
 ```javascript
-// Global preHook - runs on all routes, all methods
-// Configuration: route = null, methods = []
+// Global preHook - runs on all routes for the selected methods
+// Configuration: route = null, methods = ['GET', 'POST', 'PATCH', 'DELETE']
 
 // Global preHook - runs on all routes, POST only
 // Configuration: route = null, methods = ['POST']
@@ -139,12 +139,12 @@ Route-specific hooks run only on a specific route.
 
 **Configuration:**
 - Route: Specific route (e.g., route with path `/users`)
-- Methods: `[]` (all methods) or specific methods
+- Methods: Select explicit methods and attach the hook to the matching route method configurations.
 
 **Example:**
 ```javascript
-// Route preHook - runs on /users route, all methods
-// Configuration: route = /users route, methods = []
+// Route preHook - runs on /users for the selected methods
+// Configuration: route = /users route, methods = ['GET', 'POST', 'PATCH', 'DELETE']
 
 // Route preHook - runs on /users route, POST only
 // Configuration: route = /users route, methods = ['POST']
@@ -152,19 +152,9 @@ Route-specific hooks run only on a specific route.
 
 ### Execution Order
 
-Hooks execute in this order:
+Matching pre-hooks run in ascending `priority`, then the handler, then matching post-hooks in ascending `priority`. Global scope does not override priority. Use distinct priorities for dependent hooks and select the intended HTTP methods explicitly.
 
-1. Global hooks (all methods)
-2. Global hooks (specific method)
-3. Route hooks (all methods)
-4. Route hooks (specific method)
-
-**Example for `POST /users`:**
-```
-Global preHook (all)  Global preHook (POST)  Route preHook (all)  Route preHook (POST)  Handler  Global postHook (all)  Global postHook (POST)  Route postHook (all)  Route postHook (POST)
-```
-
-Post-hooks run in the same **global-then-route** grouping as pre-hooks (not reverse order). See [API Lifecycle – postHooks](../api-lifecycle.md#phase-8-posthooks-execution).
+For shared decisions, initialize a default in `@SHARE` in an early hook, refine it in matching later hooks and consume it in the handler. An unrelated pre-hook may return immediately; its return value is ignored. Throw to stop the request before the handler. Post-hooks still run after ordinary pre-hook/handler errors and should check `@ERROR` before success-only effects. See [preHooks](./prehooks.md) for a complete ordered-decision example.
 
 ## Next Steps
 

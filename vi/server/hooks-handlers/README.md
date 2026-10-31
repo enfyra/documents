@@ -36,7 +36,9 @@ Pre-Auth Guards  Auth  Post-Auth Guards  preHook #1  preHook #2  Handler  postHo
 
 Guard chạy trước hook để chặn IP hoặc giới hạn tần suất. Hook chạy sau guard để xác thực dữ liệu và xử lý logic nghiệp vụ.
 
-Mọi hook và handler đều truy cập cùng một đối tượng `$ctx`; thay đổi ở một giai đoạn sẽ hiển thị cho các giai đoạn sau.
+Dùng `@SHARE` để truyền decision trong phạm vi request giữa các hook và handler. Chia trách nhiệm thành các hook có tên rõ ràng, chọn method và đặt priority khác nhau (số nhỏ chạy trước): khởi tạo decision mặc định, để hook phù hợp phía sau điều chỉnh, rồi sử dụng trong handler.
+
+Pre-hook có thể return sớm để bỏ qua chính nó; giá trị return bị bỏ qua. Muốn dừng request trước handler thì throw. Post-hook phù hợp vẫn chạy sau lỗi thông thường của pre-hook hoặc handler với `@ERROR` có giá trị; cancellation và deadline dùng [contract audit terminal](./posthooks.md) riêng.
 
 ## Nội dung tham khảo
 

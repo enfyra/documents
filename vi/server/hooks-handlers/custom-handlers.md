@@ -126,12 +126,12 @@ Hook toàn cục chạy trên mọi route.
 
 **Cấu hình**
 - Route: `null` (không chỉ định route)
-- Methods: `[]` (mọi phương thức) hoặc các phương thức cụ thể như `['POST', 'PATCH']`
+- Methods: Chọn rõ tên method như `['GET', 'POST', 'PATCH', 'DELETE']` hoặc `['POST', 'PATCH']`; không dùng danh sách rỗng để chọn mọi method.
 
 **Ví dụ**
 ```javascript
-// Global preHook - runs on all routes, all methods
-// Configuration: route = null, methods = []
+// Global preHook - runs on all routes for the selected methods
+// Configuration: route = null, methods = ['GET', 'POST', 'PATCH', 'DELETE']
 
 // Global preHook - runs on all routes, POST only
 // Configuration: route = null, methods = ['POST']
@@ -143,12 +143,12 @@ Hook theo route chỉ chạy trên route được chỉ định.
 
 **Cấu hình**
 - Route: Route cụ thể, ví dụ route có path `/users`
-- Methods: `[]` (mọi phương thức) hoặc phương thức cụ thể
+- Methods: Chọn rõ method và gắn hook vào các cấu hình method tương ứng của route.
 
 **Ví dụ**
 ```javascript
-// Route preHook - runs on /users route, all methods
-// Configuration: route = /users route, methods = []
+// Route preHook - runs on /users for the selected methods
+// Configuration: route = /users route, methods = ['GET', 'POST', 'PATCH', 'DELETE']
 
 // Route preHook - runs on /users route, POST only
 // Configuration: route = /users route, methods = ['POST']
@@ -156,19 +156,9 @@ Hook theo route chỉ chạy trên route được chỉ định.
 
 ### Thứ tự thực thi
 
-Hook thực thi theo thứ tự sau:
+Các pre-hook phù hợp chạy theo `priority` tăng dần, tiếp đến handler, rồi các post-hook phù hợp theo `priority` tăng dần. Phạm vi global không ưu tiên hơn priority. Đặt priority khác nhau cho các hook phụ thuộc nhau và chọn rõ HTTP method cần áp dụng.
 
-1. Hook toàn cục (mọi phương thức)
-2. Hook toàn cục (phương thức cụ thể)
-3. Hook theo route (mọi phương thức)
-4. Hook theo route (phương thức cụ thể)
-
-**Ví dụ cho `POST /users`:**
-```
-Global preHook (all)  Global preHook (POST)  Route preHook (all)  Route preHook (POST)  Handler  Global postHook (all)  Global postHook (POST)  Route postHook (all)  Route postHook (POST)
-```
-
-postHook cũng chạy theo nhóm **global rồi đến route** như preHook, không theo thứ tự đảo ngược. Xem [Vòng đời API – postHook](../api-lifecycle.md#phase-8-posthooks-execution).
+Khi truyền decision, hãy khởi tạo mặc định trong `@SHARE` ở hook chạy sớm, điều chỉnh trong các hook phù hợp phía sau rồi sử dụng trong handler. Pre-hook không liên quan có thể return ngay; giá trị return bị bỏ qua. Muốn dừng request trước handler thì throw. Post-hook vẫn chạy sau lỗi thông thường của pre-hook/handler và nên kiểm tra `@ERROR` trước tác vụ chỉ dành cho thành công. Xem ví dụ đầy đủ về decision theo thứ tự tại [preHooks](./prehooks.md).
 
 ## Tiếp theo
 

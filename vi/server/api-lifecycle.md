@@ -116,11 +116,9 @@ Guard có `position: post_auth` chạy sau xác thực. Cả IP client và ID us
 
 Mọi preHook khớp đều chạy tuần tự trước handler.
 
-**Thứ tự thực thi:**
-1. preHook global (mọi route, mọi method)
-2. preHook global (mọi route, một method cụ thể)
-3. preHook của route (một route, mọi method)
-4. preHook của route (một route, một method cụ thể)
+**Thứ tự thực thi:** Các preHook phù hợp chạy theo `priority` tăng dần, bao gồm cả hook global và hook theo route. Đặt priority khác nhau khi một hook cần decision từ hook khác. Khởi tạo decision mặc định trong `@SHARE`, để các hook phù hợp phía sau điều chỉnh, rồi dùng decision cuối cùng trong handler. Chọn HTTP method cụ thể khi gắn hook.
+
+PreHook có thể `return` sớm để bỏ qua chính nó. Giá trị return bị bỏ qua; các preHook sau và handler vẫn chạy. Muốn dừng request trước handler thì throw. PostHook phù hợp vẫn chạy sau lỗi thông thường của preHook hoặc handler với `@ERROR` có giá trị.
 
 **preHook có thể:**
 - Kiểm tra dữ liệu request
@@ -168,13 +166,9 @@ return result;
 
 ### Giai đoạn 8: Thực thi postHook
 
-Mọi postHook khớp đều chạy tuần tự. **postHook luôn chạy**, kể cả khi preHook hoặc handler ném lỗi.
+PostHook phù hợp vẫn chạy sau lỗi thông thường của preHook hoặc handler với `@ERROR` có giá trị. PreHook `return` sớm không ngăn postHook chạy. Cancellation, execution deadline và lỗi stream terminal dùng [nhánh audit terminal opt-in](./hooks-handlers/posthooks.md) riêng, không chạy lại postHook thông thường.
 
-**Thứ tự thực thi:**
-1. postHook global (mọi route, mọi method)
-2. postHook global (mọi route, một method cụ thể)
-3. postHook của route (một route, mọi method)
-4. postHook của route (một route, một method cụ thể)
+**Thứ tự thực thi:** PostHook phù hợp chạy tuần tự theo `priority` tăng dần. Đặt priority khác nhau khi các trách nhiệm phụ thuộc nhau; phạm vi global không thay đổi thứ tự đó.
 
 **Khi thành công:**
 - `@DATA` chứa kết quả của handler
@@ -315,24 +309,19 @@ Hook chạy theo thứ tự có thể dự đoán dựa trên phạm vi và bộ
 
 ### Logic lọc hook
 
-Một hook sẽ chạy nếu khớp một trong các điều kiện sau:
-- Hook global không lọc method (chạy trên mọi route, mọi method)
-- Hook global có lọc method (chạy trên mọi route, một method cụ thể)
-- Hook của route không lọc method (chạy trên một route, mọi method)
-- Hook của route có lọc method (chạy trên một route, một method cụ thể)
+Hook global phải chọn HTTP method hiện tại. Hook theo route phải được gắn vào cấu hình method hiện tại của route đó. Chọn rõ method trong trình chỉnh sửa hook và kiểm tra liên kết operation; danh sách methods rỗng không phải cách chọn mọi method.
 
 ### Ví dụ thực thi
 
 Với request `POST /users` có các hook sau:
 
-1. preHook global (mọi method)
-2. preHook global (chỉ POST)
-3. preHook của route `/users` (mọi method)
-4. preHook của route `/users` (chỉ POST)
+1. PreHook global kiểm tra dữ liệu, priority `10`, có chọn `POST`.
+2. PreHook khởi tạo decision mặc định, priority `20`, gắn vào `POST /users`.
+3. PreHook điều chỉnh decision chuyên biệt, priority `30`, gắn vào `POST /users`.
 
 **Trình tự thực thi:**
 ```
-[Global preHook - all]  [Global preHook - POST]  [Route preHook - all]  [Route preHook - POST]  [Handler]  [postHooks in same order]
+Validation (10) → Default decision (20) → Specialized decision (30) → Handler → PostHooks by priority
 ```
 
 ### Thực thi tuần tự

@@ -32,7 +32,9 @@ Pre-Auth Guards  Auth  Post-Auth Guards  preHook #1  preHook #2  Handler  postHo
 
 Guards run before hooks and handle IP blocking / rate limiting. Hooks run after guards and handle validation / business logic.
 
-All hooks and handlers have access to the same `$ctx` object, so changes in one phase are visible to all subsequent phases.
+Use `@SHARE` for request-local decisions shared by hooks and the handler. Split responsibilities into named hooks with explicit methods and distinct priorities (lower first): initialize a default decision, let matching later hooks refine it, then consume it in the handler.
+
+A pre-hook may return early to skip only itself; the return value is ignored. Throw to stop the request before the handler. Matching post-hooks still run after ordinary pre-hook or handler errors with `@ERROR` populated; cancellation and deadlines use the separate [terminal audit contract](./posthooks.md).
 
 ## Documentation
 
