@@ -8,7 +8,9 @@ postHook chạy sau handler (hoặc sau lỗi của preHook/handler). Dùng chú
 
 ## Cách thực thi
 
-- postHook chạy sau khi hoàn tất thông thường, kể cả lỗi của preHook/handler. Cancellation và lỗi stream terminal dùng nhánh audit opt-in riêng bên dưới.
+- postHook vẫn chạy khi preHook hoặc handler throw lỗi thông thường, dù các preHook sau và handler bị bỏ qua khi preHook từ chối request. Cancellation, execution deadline và lỗi stream terminal dùng nhánh audit opt-in riêng bên dưới.
+- PreHook return sớm không từ chối request: các preHook sau và handler tiếp tục, rồi postHook chạy bình thường.
+- Đặt `priority` khác nhau cho các postHook phụ thuộc nhau (số nhỏ chạy trước). Đọc decision của request qua `@SHARE`; kiểm tra `@ERROR` trước tác vụ chỉ dành cho thành công.
 - Trên nhánh lỗi: `@ERROR` có giá trị, `@DATA` là `null`, `@STATUS` là mã trạng thái lỗi.
 - Trên nhánh thành công: `@ERROR` là `undefined`, `@DATA` là kết quả của handler, `@STATUS` là `200`.
 - postHook chạy như **tác vụ phụ**; trên nhánh lỗi, lỗi gốc luôn được ném lại sau khi mọi postHook hoàn tất.

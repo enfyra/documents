@@ -112,11 +112,9 @@ Guards configured with `position: post_auth` run after authentication. Both clie
 
 All matching preHooks execute sequentially before the handler.
 
-**Execution order:**
-1. Global preHooks (all routes, all methods)
-2. Global preHooks (all routes, specific method)
-3. Route-specific preHooks (specific route, all methods)
-4. Route-specific preHooks (specific route, specific method)
+**Execution order:** Matching preHooks run by ascending `priority`, including global and route-specific hooks. Use distinct priorities when one hook depends on a decision from another. Initialize a default decision in `@SHARE`, let matching later hooks refine it, and consume the final decision in the handler. Select explicit HTTP methods when attaching hooks.
+
+A preHook may `return` early to skip only itself. Its return value is ignored; later preHooks and the handler continue. To stop the request before the handler, throw. Matching postHooks still run after an ordinary preHook or handler error with `@ERROR` populated.
 
 **What preHooks can do:**
 - Validate request data
@@ -164,13 +162,9 @@ return result;
 
 ### Phase 8: postHooks Execution
 
-All matching postHooks execute sequentially. **postHooks always run**, even when a preHook or handler throws an error.
+Matching postHooks still execute after an ordinary preHook or handler error, with `@ERROR` populated. An early preHook `return` does not prevent them from running. Cancellation, execution deadlines and terminal stream failures use the separate [opt-in terminal audit path](./hooks-handlers/posthooks.md), not ordinary postHook replay.
 
-**Execution order:**
-1. Global postHooks (all routes, all methods)
-2. Global postHooks (all routes, specific method)
-3. Route-specific postHooks (specific route, all methods)
-4. Route-specific postHooks (specific route, specific method)
+**Execution order:** Matching postHooks run sequentially by ascending `priority`. Use distinct priorities when their responsibilities depend on each other; global scope does not override that order.
 
 **On success path:**
 - `@DATA` contains the handler result
@@ -311,24 +305,19 @@ Hooks execute in a predictable order based on their scope and method filters.
 
 ### Hook Filtering Logic
 
-A hook runs if it matches any of these conditions:
-- Global hook with no method filter (runs on all routes, all methods)
-- Global hook with method filter (runs on all routes, specific method)
-- Route-specific hook with no method filter (runs on specific route, all methods)
-- Route-specific hook with method filter (runs on specific route, specific method)
+A global hook must select the current HTTP method. A route-specific hook must be attached to that route's current method configuration. Select explicit methods in the hook editor and verify those operation bindings; an empty methods list is not an all-methods shortcut.
 
 ### Example Execution
 
 For a `POST /users` request with these hooks:
 
-1. Global preHook (all methods)
-2. Global preHook (POST only)
-3. Route preHook for `/users` (all methods)
-4. Route preHook for `/users` (POST only)
+1. Global validation preHook, priority `10`, with `POST` selected.
+2. Route default-decision preHook, priority `20`, attached to `POST /users`.
+3. Route specialized-decision preHook, priority `30`, attached to `POST /users`.
 
 **Execution sequence:**
 ```
-[Global preHook - all]  [Global preHook - POST]  [Route preHook - all]  [Route preHook - POST]  [Handler]  [postHooks in same order]
+Validation (10) → Default decision (20) → Specialized decision (30) → Handler → PostHooks by priority
 ```
 
 ### Sequential Execution

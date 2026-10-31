@@ -4,7 +4,9 @@ postHooks execute after the handler (or after a preHook/handler error). Use them
 
 ## Execution Behavior
 
-- postHooks run after ordinary completion, including a preHook/handler error. Cancellation and terminal stream failures use the separate opt-in audit path below
+- postHooks still run when a preHook or handler throws an ordinary error, even though later preHooks and the handler are skipped after a preHook rejection. Cancellation, execution deadlines and terminal stream failures use the separate opt-in audit path below.
+- A preHook that returns early does not reject the request: later preHooks and the handler continue, then postHooks run normally.
+- Give dependent postHooks distinct `priority` values (lower first). Read request-local decisions from `@SHARE`; check `@ERROR` before success-only effects.
 - On error path: `@ERROR` is populated, `@DATA` is `null`, `@STATUS` is the error status code
 - On success path: `@ERROR` is `undefined`, `@DATA` is the handler result, `@STATUS` is `200`
 - postHooks run as **side effects** — on error path, the original error is always thrown after all postHooks complete
